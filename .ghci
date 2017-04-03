@@ -1,0 +1,4 @@
+:set -XNoImplicitPrelude
+:set -XDataKinds
+:set -XOverloadedLists
+:set -XExtendedDefaultRules

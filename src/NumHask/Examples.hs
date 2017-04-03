@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE DataKinds #-}
 
 -- | NumHask usage examples
 
@@ -18,7 +19,7 @@ module NumHask.Examples (
 
     ) where
 
-import NumHask.Prelude()
+import NumHask.Prelude
 
 -- $imports
 -- NumHask.Prelude is a complete replacement for the standard prelude.
@@ -148,7 +149,6 @@ import NumHask.Prelude()
 -- >>> c / d
 -- [0.33333334,1.0,NaN]
 --
--- >>> :set -XFlexibleContexts
 -- >>> size c :: Float
 -- 2.236068
 --

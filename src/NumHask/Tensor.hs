@@ -66,7 +66,7 @@ shapeT :: forall a r. (SingI r) => Tensor (r :: [Nat]) a -> [Int]
 shapeT _ =
     case (sing :: Sing r) of
       SNil -> []
-      (SCons x xs) -> fmap P.fromIntegral (fromSing x: fromSing xs)
+      (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
 
 -- not sure how to combine this with HasShape
 newtype ShapeT = ShapeT {unshapeT :: [Int]} deriving (Show, Eq)
@@ -107,7 +107,7 @@ toTensor (SomeTensor sh v) = if sh==sh' then Just (Tensor v) else Nothing
   where
     sh' = case (sing :: Sing r) of
             SNil -> []
-            (SCons x xs) -> fmap P.fromIntegral (fromSing x: fromSing xs)
+            (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
 
 -- | convert the top layer of a SomeTensor to a [SomeTensor]
 flatten1 :: SomeTensor a -> [SomeTensor a]
@@ -130,45 +130,41 @@ unfoldI ns x =
 unind :: [Int] -> Int -> [Int]
 unind ns x= fst $ unfoldI ns x
 
-instance forall (r :: [Nat]). (SingI r) => Distributive (Tensor r) where
+instance forall r. (SingI r) => Distributive (Tensor (r::[Nat])) where
     distribute f = Tensor $ V.generate n
         $ \i -> fmap (\(Tensor v) -> V.unsafeIndex v i) f
       where
-        ns = case (sing :: Sing r) of
-          SNil -> []
-          (SCons x xs) -> fmap P.fromInteger (fromSing x: fromSing xs)
-        n = P.foldr (*) one ns
+        n = case (sing :: Sing r) of
+          SNil -> one
+          (SCons x xs) -> product $ fromInteger <$> (fromSing x: fromSing xs)
 
 instance forall (r :: [Nat]). (SingI r) => Representable (Tensor r) where
     type Rep (Tensor r) = [Int]
-    tabulate f = Tensor $ V.generate n (f . unind ns)
+    tabulate f = Tensor $ V.generate (product ns) (f . unind ns)
       where
         ns = case (sing :: Sing r) of
           SNil -> []
-          (SCons x xs) -> fmap P.fromIntegral (fromSing x: fromSing xs)
-        n = P.foldr (*) one ns
+          (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
     index (Tensor xs) rs = xs V.! ind ns rs
       where
         ns = case (sing :: Sing r) of
           SNil -> []
-          (SCons x xs') -> fmap P.fromIntegral (fromSing x: fromSing xs')
+          (SCons x xs') -> fromIntegral <$> (fromSing x: fromSing xs')
 
 -- | from flat list
 instance (SingI r, AdditiveUnital a) => IsList (Tensor (r::[Nat]) a) where
     type Item (Tensor r a) = a
     fromList l = Tensor $ V.fromList $ P.take n $ l P.++ P.repeat zero
       where
-        ns = case (sing :: Sing r) of
-          SNil -> []
-          (SCons x xs') -> fmap P.fromIntegral (fromSing x: fromSing xs')
-        n = product ns
+        n = case (sing :: Sing r) of
+          SNil -> one
+          (SCons x xs') -> product $ fromIntegral <$> (fromSing x: fromSing xs')
     toList (Tensor v) = V.toList v
 
--- | not sure if an arbitraryly-nested list can be converted to a 'SomeTensor'
+-- | arbitraryly-nested list conversion to fit in with OverloadedLists needs some complex parsing
 fromListSomeTensor :: forall a. (AdditiveUnital a) => [Int] -> [a] -> SomeTensor a
-fromListSomeTensor ns l = SomeTensor ns (V.fromList $ P.take n $ l P.++ P.repeat zero)
-  where
-    n = P.foldr (*) one ns
+fromListSomeTensor ns l =
+    SomeTensor ns (V.fromList $ P.take (product ns) $ l P.++ P.repeat zero)
 
 instance Arbitrary ShapeT where
     arbitrary = frequency
@@ -187,10 +183,9 @@ instance forall a (r :: [Nat]). (SingI r, Arbitrary a, AdditiveUnital a) => Arbi
         , (9, fromList <$> vector n)
         ]
       where
-        ns = case (sing :: Sing r) of
-               SNil -> []
-               (SCons x xs) -> fmap P.fromInteger (fromSing x: fromSing xs)
-        n = P.foldr (*) one ns
+        n = case (sing :: Sing r) of
+               SNil -> one
+               (SCons x xs) -> product $ fromInteger <$> (fromSing x: fromSing xs)
 
 instance forall a. (Arbitrary a, AdditiveUnital a) => Arbitrary (SomeTensor a) where
     arbitrary = frequency

@@ -54,7 +54,6 @@ library
     NumHask.HasShape,
     NumHask.Vector,
     NumHask.Matrix,
-    NumHask.Num,
     NumHask.Tensor
   build-depends:
     base >= 4.7 && < 4.10,

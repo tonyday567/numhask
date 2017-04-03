@@ -14,10 +14,8 @@ module NumHask.Algebra.Integral (
   ) where
 
 import qualified Protolude as P
-import Protolude (Double, Float, Int, Integer, Functor(..), ($), (.), Foldable(..), fst, snd, foldr, const, Ord(..))
+import Protolude (Double, Float, Int, Integer, Functor(..), (.), fst, snd)
 import Data.Functor.Rep
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 
 -- | Integral
@@ -53,12 +51,6 @@ class (Integral a) => ToInteger a where
 -- | fromInteger
 class (Ring a) => FromInteger a where
     fromInteger :: Integer -> a
-    fromInteger = slowFromInteger
-
-slowFromInteger :: (Ring r) => Integer -> r
-slowFromInteger i = if i > zero
-                    then foldr (+) zero $ fmap (const one) [one..i]
-                    else negate $ foldr (+) zero $ fmap (const one) [one..negate i]
 
 -- | This splitting away of fromInteger from the 'Ring' instance tends to increase constraint boier-plate
 fromIntegral :: (ToInteger a, FromInteger b) => a -> b
