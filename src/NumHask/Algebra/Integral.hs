@@ -14,8 +14,7 @@ module NumHask.Algebra.Integral (
   ) where
 
 import qualified Protolude as P
-import Protolude (Double, Float, Int, Integer, Functor(..), (.), fst, snd)
-import Data.Functor.Rep
+import Protolude (Double, Float, Int, Integer, (.), fst, snd)
 import NumHask.Algebra.Ring
 
 -- | Integral
@@ -36,13 +35,6 @@ class (Ring a) => Integral a where
 
 instance Integral Int where divMod = P.divMod
 instance Integral Integer where divMod = P.divMod
-
-instance (Representable r, Integral a) => Integral (r a) where
-    divMod a b = (d,m)
-        where
-          x = liftR2 divMod a b
-          d = fmap fst x
-          m = fmap snd x
 
 -- | toInteger and fromInteger as per the base 'Num' instance is problematic for numbers with a 'Basis'
 class (Integral a) => ToInteger a where

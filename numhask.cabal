@@ -1,7 +1,7 @@
 name:
   numhask
 version:
-  0.0.2
+  0.0.3
 synopsis:
   A numeric prelude
 description:
@@ -51,7 +51,7 @@ library
     NumHask.Algebra.Module,
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ordering,
-    NumHask.HasShape,
+    NumHask.Naperian,
     NumHask.Vector,
     NumHask.Matrix,
     NumHask.Tensor

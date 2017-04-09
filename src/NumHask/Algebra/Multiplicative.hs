@@ -24,7 +24,6 @@ module NumHask.Algebra.Multiplicative (
 
 import qualified Protolude as P
 import Protolude (Double, Float, Int, Integer, Bool(..))
-import Data.Functor.Rep
 
 -- * Multiplicative structure
 -- | 'times' is used for the multiplicative magma to distinguish from '*' which, by convention, implies commutativity
@@ -35,8 +34,6 @@ instance MultiplicativeMagma Float where times = (P.*)
 instance MultiplicativeMagma Int where times = (P.*)
 instance MultiplicativeMagma Integer where times = (P.*)
 instance MultiplicativeMagma Bool where times = (P.&&)
-instance (Representable r, MultiplicativeMagma a) => MultiplicativeMagma (r a) where
-    times = liftR2 times
 
 -- | MultiplicativeUnital
 --
@@ -49,9 +46,6 @@ instance MultiplicativeUnital Float where one = 1
 instance MultiplicativeUnital Int where one = 1
 instance MultiplicativeUnital Integer where one = 1
 instance MultiplicativeUnital Bool where one = True
-instance (Representable r, MultiplicativeUnital a) =>
-    MultiplicativeUnital (r a) where
-    one = pureRep one
 
 -- | MultiplicativeCommutative
 --
@@ -63,8 +57,6 @@ instance MultiplicativeCommutative Float
 instance MultiplicativeCommutative Int
 instance MultiplicativeCommutative Integer
 instance MultiplicativeCommutative Bool
-instance (Representable r, MultiplicativeCommutative a) =>
-    MultiplicativeCommutative (r a)
 
 -- | MultiplicativeAssociative
 --
@@ -76,8 +68,6 @@ instance MultiplicativeAssociative Float
 instance MultiplicativeAssociative Int
 instance MultiplicativeAssociative Integer
 instance MultiplicativeAssociative Bool
-instance (Representable r, MultiplicativeAssociative a) =>
-    MultiplicativeAssociative (r a)
 
 -- | MultiplicativeInvertible
 --
@@ -88,9 +78,6 @@ class MultiplicativeMagma a => MultiplicativeInvertible a where recip :: a -> a
 
 instance MultiplicativeInvertible Double where recip = P.recip
 instance MultiplicativeInvertible Float where recip = P.recip
-instance (Representable r, MultiplicativeInvertible a) =>
-    MultiplicativeInvertible (r a) where
-    recip = fmapRep recip
 
 -- | MultiplicativeHomomorphic
 --
@@ -100,10 +87,6 @@ instance (Representable r, MultiplicativeInvertible a) =>
 class ( MultiplicativeMagma b) =>
       MultiplicativeHomomorphic a b where
     timeshom :: a -> b
-
-instance (Representable r, MultiplicativeMagma a) =>
-    MultiplicativeHomomorphic a (r a) where
-    timeshom a = pureRep a
 
 instance MultiplicativeMagma a => MultiplicativeHomomorphic a a where
     timeshom a = a
@@ -118,9 +101,6 @@ instance MultiplicativeMonoidal Float
 instance MultiplicativeMonoidal Int
 instance MultiplicativeMonoidal Integer
 instance MultiplicativeMonoidal Bool
-instance (Representable r, MultiplicativeMonoidal a) =>
-    MultiplicativeMonoidal (r a)
-
 
 -- | Multiplicative is commutative, associative and unital under multiplication
 --
@@ -145,7 +125,6 @@ instance Multiplicative Float
 instance Multiplicative Int
 instance Multiplicative Integer
 instance Multiplicative Bool
-instance (Representable r, Multiplicative a) => Multiplicative (r a)
 
 -- | Non-commutative left divide
 class ( MultiplicativeUnital a
@@ -182,5 +161,4 @@ class ( Multiplicative a
 
 instance MultiplicativeGroup Double
 instance MultiplicativeGroup Float
-instance (Representable r, MultiplicativeGroup a) => MultiplicativeGroup (r a)
 

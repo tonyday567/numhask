@@ -43,7 +43,7 @@ import NumHask.Algebra.Integral
 import NumHask.Algebra.Multiplicative
 import Test.QuickCheck
 import qualified Data.Vector as V
-import NumHask.HasShape
+import NumHask.Naperian
 
 -- | an n-dimensional array where shape is specified at the type level
 -- The main purpose of this, beyond safe typing, is to supply the Representable instance with an initial object.
@@ -51,30 +51,58 @@ import NumHask.HasShape
 newtype Tensor r a = Tensor { flattenTensor :: V.Vector a }
     deriving (Functor, Eq, Foldable)
 
-instance (SingI r) => HasShape (Tensor (r::[Nat]) a) where
-    type Shape (Tensor r a) = [Int]
-    shape = shapeT
+instance (SingI r) => HasShape (Tensor (r::[Nat])) where
+    type Shape (Tensor r) = [Int]
+    shape _ = case (sing :: Sing r) of
+                SNil -> []
+                (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
     ndim = P.length . shape
 
-instance HasShape (SomeTensor a) where
-    type Shape (SomeTensor a) = [Int]
-    shape (SomeTensor sh _) = sh
-    ndim = P.length . shape
+instance (SingI r) => Naperian (Tensor (r::[Nat]))
 
--- | extract shape from type-level
-shapeT :: forall a r. (SingI r) => Tensor (r :: [Nat]) a -> [Int]
-shapeT _ =
-    case (sing :: Sing r) of
-      SNil -> []
-      (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
+ind :: [Int] -> [Int] -> Int
+ind ns xs = sum $ zipWith (*) xs (drop 1 $ scanr (*) 1 (reverse ns))
 
--- not sure how to combine this with HasShape
-newtype ShapeT = ShapeT {unshapeT :: [Int]} deriving (Show, Eq)
+unfoldI :: forall t. Integral t => [t] -> t -> ([t], t)
+unfoldI ns x =
+    foldr
+    (\a (acc,rem) -> let (d,m) = divMod rem a in (m:acc,d))
+    ([],x)
+    (P.reverse ns)
+
+unind :: [Int] -> Int -> [Int]
+unind ns x= fst $ unfoldI ns x
+
+instance forall r. (SingI r) => Distributive (Tensor (r::[Nat])) where
+    distribute f = Tensor $ V.generate n
+        $ \i -> fmap (\(Tensor v) -> V.unsafeIndex v i) f
+      where
+        n = case (sing :: Sing r) of
+          SNil -> one
+          (SCons x xs) -> product $ fromInteger <$> (fromSing x: fromSing xs)
+
+instance forall (r :: [Nat]). (SingI r) => Representable (Tensor r) where
+    type Rep (Tensor r) = [Int]
+    tabulate f = Tensor $ V.generate (product ns) (f . unind ns)
+      where
+        ns = case (sing :: Sing r) of
+          SNil -> []
+          (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
+    index (Tensor xs) rs = xs V.! ind ns rs
+      where
+        ns = case (sing :: Sing r) of
+          SNil -> []
+          (SCons x xs') -> fromIntegral <$> (fromSing x: fromSing xs')
 
 -- | an n-dimensional array where shape is specified at the value level as an '[Int]'
 -- Use this to avoid type-level hasochism by demoting a 'Tensor' with 'someTensor'
 data SomeTensor a = SomeTensor [Int] (V.Vector a)
     deriving (Functor, Eq, Foldable)
+
+instance HasShape SomeTensor where
+    type Shape SomeTensor = [Int]
+    shape (SomeTensor sh _) = sh
+    ndim = P.length . shape
 
 instance (Show a) => Show (SomeTensor a) where
     show r@(SomeTensor l _) = go (P.length l) r
@@ -117,40 +145,6 @@ flatten1 (SomeTensor rep v) = (\s -> SomeTensor (drop 1 rep) (V.unsafeSlice (s*l
       ss = P.take n [0..]
       l = product $ drop 1 rep
 
-ind :: [Int] -> [Int] -> Int
-ind ns xs = sum $ zipWith (*) xs (drop 1 $ scanr (*) 1 (reverse ns))
-
-unfoldI :: forall t. Integral t => [t] -> t -> ([t], t)
-unfoldI ns x =
-    foldr
-    (\a (acc,rem) -> let (d,m) = divMod rem a in (m:acc,d))
-    ([],x)
-    (P.reverse ns)
-
-unind :: [Int] -> Int -> [Int]
-unind ns x= fst $ unfoldI ns x
-
-instance forall r. (SingI r) => Distributive (Tensor (r::[Nat])) where
-    distribute f = Tensor $ V.generate n
-        $ \i -> fmap (\(Tensor v) -> V.unsafeIndex v i) f
-      where
-        n = case (sing :: Sing r) of
-          SNil -> one
-          (SCons x xs) -> product $ fromInteger <$> (fromSing x: fromSing xs)
-
-instance forall (r :: [Nat]). (SingI r) => Representable (Tensor r) where
-    type Rep (Tensor r) = [Int]
-    tabulate f = Tensor $ V.generate (product ns) (f . unind ns)
-      where
-        ns = case (sing :: Sing r) of
-          SNil -> []
-          (SCons x xs) -> fromIntegral <$> (fromSing x: fromSing xs)
-    index (Tensor xs) rs = xs V.! ind ns rs
-      where
-        ns = case (sing :: Sing r) of
-          SNil -> []
-          (SCons x xs') -> fromIntegral <$> (fromSing x: fromSing xs')
-
 -- | from flat list
 instance (SingI r, AdditiveUnital a) => IsList (Tensor (r::[Nat]) a) where
     type Item (Tensor r a) = a
@@ -165,6 +159,9 @@ instance (SingI r, AdditiveUnital a) => IsList (Tensor (r::[Nat]) a) where
 fromListSomeTensor :: forall a. (AdditiveUnital a) => [Int] -> [a] -> SomeTensor a
 fromListSomeTensor ns l =
     SomeTensor ns (V.fromList $ P.take (product ns) $ l P.++ P.repeat zero)
+
+-- not sure how to combine this with HasShape
+newtype ShapeT = ShapeT {unshapeT :: [Int]} deriving (Show, Eq)
 
 instance Arbitrary ShapeT where
     arbitrary = frequency
