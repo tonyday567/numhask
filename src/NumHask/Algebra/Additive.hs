@@ -1,7 +1,4 @@
 {-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Additive Structure
@@ -24,7 +21,6 @@ module NumHask.Algebra.Additive (
 
 import qualified Protolude as P
 import Protolude (Double, Float, Int, Integer, Bool(..))
-import Data.Functor.Rep
 
 -- * Additive structure
 -- The Magma structures are repeated for an additive and multiplicative heirarchy, mostly so we can name the specific operators in the usual ways.
@@ -37,8 +33,6 @@ instance AdditiveMagma Float where plus = (P.+)
 instance AdditiveMagma Int where plus = (P.+)
 instance AdditiveMagma Integer where plus = (P.+)
 instance AdditiveMagma Bool where plus = (P.||)
-instance (Representable r, AdditiveMagma a) => AdditiveMagma (r a) where
-    plus = liftR2 plus
 
 -- | AdditiveUnital
 --
@@ -51,8 +45,6 @@ instance AdditiveUnital Float where zero = 0
 instance AdditiveUnital Int where zero = 0
 instance AdditiveUnital Integer where zero = 0
 instance AdditiveUnital Bool where zero = False
-instance (Representable r, AdditiveUnital a) => AdditiveUnital (r a) where
-    zero = pureRep zero
 
 -- | AdditiveAssociative
 --
@@ -64,7 +56,6 @@ instance AdditiveAssociative Float
 instance AdditiveAssociative Int
 instance AdditiveAssociative Integer
 instance AdditiveAssociative Bool
-instance (Representable r, AdditiveAssociative a) => AdditiveAssociative (r a)
 
 -- | AdditiveCommutative
 --
@@ -76,7 +67,6 @@ instance AdditiveCommutative Float
 instance AdditiveCommutative Int
 instance AdditiveCommutative Integer
 instance AdditiveCommutative Bool
-instance (Representable r, AdditiveCommutative a) => AdditiveCommutative (r a)
 
 -- | AdditiveInvertible
 --
@@ -90,8 +80,6 @@ instance AdditiveInvertible Float where negate = P.negate
 instance AdditiveInvertible Int where negate = P.negate
 instance AdditiveInvertible Integer where negate = P.negate
 instance AdditiveInvertible Bool where negate = P.not
-instance (Representable r, AdditiveInvertible a) => AdditiveInvertible (r a) where
-    negate a = fmapRep negate a
 
 -- | AdditiveHomomorphic
 --
@@ -102,8 +90,6 @@ class (AdditiveMagma b) => AdditiveHomomorphic a b where
     plushom :: a -> b
 
 instance AdditiveMagma a => AdditiveHomomorphic a a where plushom a = a
-instance (Representable r, AdditiveMagma a) => AdditiveHomomorphic a (r a) where
-    plushom a = pureRep a
 
 -- | AdditiveIdempotent
 --
@@ -122,7 +108,6 @@ instance AdditiveMonoidal Float
 instance AdditiveMonoidal Int
 instance AdditiveMonoidal Integer
 instance AdditiveMonoidal Bool
-instance (Representable r, AdditiveMonoidal a) => AdditiveMonoidal (r a)
 
 -- | Additive is commutative, unital and associative under addition
 --
@@ -147,7 +132,6 @@ instance Additive Float
 instance Additive Int
 instance Additive Integer
 instance Additive Bool
-instance (Representable r, Additive a) => Additive (r a)
 
 -- | Non-commutative left minus
 class ( AdditiveUnital a
@@ -186,4 +170,3 @@ instance AdditiveGroup Double
 instance AdditiveGroup Float
 instance AdditiveGroup Int
 instance AdditiveGroup Integer
-instance (Representable r, AdditiveGroup a) => AdditiveGroup (r a)

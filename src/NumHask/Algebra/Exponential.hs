@@ -13,8 +13,7 @@ module NumHask.Algebra.Exponential (
   ) where
 
 import qualified Protolude as P
-import Protolude (Double, Float, Functor(..))
-import Data.Functor.Rep
+import Protolude (Double, Float)
 import NumHask.Algebra.Field
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Additive
@@ -35,9 +34,6 @@ instance ExpRing Double where
 instance ExpRing Float where
     logBase = P.logBase
     (**) = (P.**)
-instance (Representable r, ExpRing a) => ExpRing (r a) where
-    logBase = liftR2 logBase
-    (**)  = liftR2 (**)
 
 -- | ExpField
 class ( Field a
@@ -56,8 +52,4 @@ instance ExpField Double where
 instance ExpField Float where
     exp = P.exp
     log = P.log
-
-instance (Representable r, ExpField a) => ExpField (r a) where
-    exp = fmap exp
-    log = fmap log
 

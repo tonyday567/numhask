@@ -27,7 +27,7 @@ module NumHask.Prelude (
   , module NumHask.Matrix
   , module NumHask.Tensor
   , module NumHask.Vector
-  , module NumHask.HasShape
+  , module NumHask.Naperian
   ) where
 
 import Protolude hiding
@@ -76,7 +76,7 @@ import NumHask.Algebra.Ring
 import NumHask.Matrix
 import NumHask.Tensor
 import NumHask.Vector
-import NumHask.HasShape
+import NumHask.Naperian
 
 import Data.Distributive
 import Data.Functor.Rep

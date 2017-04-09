@@ -94,14 +94,14 @@ class ( Representable m
     normalize :: m a -> m a
     normalize a = a ./ size a
 
-instance (ExpField a, Foldable r, Representable r) => Banach r a
+instance (Normed (r a) a, ExpField a, Representable r) => Banach r a
 
 -- | Hilbert
-class (AdditiveGroup (m a)) => Hilbert m a where
+class (Additive (m a)) => Hilbert m a where
     infix 8 <.>
     (<.>) :: m a -> m a -> a
 
-instance (Foldable r, Representable r, CRing a) =>
+instance (Additive (r a), Foldable r, Representable r, CRing a) =>
     Hilbert r a where
     (<.>) a b = foldl' (+) zero $ liftR2 (*) a b
 
@@ -126,7 +126,7 @@ class TensorProduct a where
     timesleft :: a -> (a><a) -> a
     timesright :: (a><a) -> a -> a
 
-instance (Foldable r, Representable r, CRing a ) =>
+instance (AdditiveGroup (r a), Foldable r, Representable r, CRing a ) =>
     TensorProduct (r a)
   where
     (><) m n = tabulate (\i -> index m i *. n)

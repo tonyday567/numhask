@@ -1,7 +1,6 @@
 {-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field
@@ -10,7 +9,6 @@ module NumHask.Algebra.Field (
   ) where
 
 import Protolude (Double, Float)
-import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Distribution
@@ -25,5 +23,3 @@ class ( AdditiveGroup a
 
 instance Field Double
 instance Field Float
-instance (Representable r, Field a) => Field (r a)
-

@@ -14,7 +14,6 @@ module NumHask.Algebra.Ring (
   ) where
 
 import Protolude (Double, Float, Int, Integer,Bool(..))
-import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Distribution
@@ -31,7 +30,6 @@ instance Semiring Float
 instance Semiring Int
 instance Semiring Integer
 instance Semiring Bool
-instance (Representable r, Semiring a) => Semiring (r a)
 
 -- | Ring
 class ( AdditiveGroup a
@@ -44,7 +42,6 @@ instance Ring Double
 instance Ring Float
 instance Ring Int
 instance Ring Integer
-instance (Representable r, Ring a) => Ring (r a)
 
 -- | CRing is a Commutative Ring.  It arises often due to * being defined as only multiplicative commutative.
 class ( Multiplicative a, Ring a) => CRing a
@@ -53,5 +50,3 @@ instance CRing Double
 instance CRing Float
 instance CRing Int
 instance CRing Integer
-instance (Representable r, CRing a) => CRing (r a)
-

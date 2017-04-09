@@ -11,7 +11,6 @@ module NumHask.Algebra.Distribution (
   ) where
 
 import Protolude (Double, Float, Int, Integer,Bool(..))
-import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 
@@ -31,5 +30,4 @@ instance Distribution Float
 instance Distribution Int
 instance Distribution Integer
 instance Distribution Bool
-instance (Representable r, Distribution a) => Distribution (r a)
 
