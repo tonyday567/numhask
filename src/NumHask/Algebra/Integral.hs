@@ -37,7 +37,7 @@ instance Integral Int where divMod = P.divMod
 instance Integral Integer where divMod = P.divMod
 
 -- | toInteger and fromInteger as per the base 'Num' instance is problematic for numbers with a 'Basis'
-class (Integral a) => ToInteger a where
+class ToInteger a where
     toInteger :: a -> Integer
 
 -- | fromInteger
