@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DataKinds #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -10,7 +9,6 @@ import NumHask.Prelude
 import Test.Tasty (TestName, TestTree, testGroup, defaultMain, localOption)
 import Test.Tasty.QuickCheck
 import Test.DocTest
--- import Test.QuickCheck
 
 main :: IO ()
 main = do
@@ -64,6 +62,7 @@ tests =
     , testsMFloat
     , testsNInt
     , testsNShow
+    , testsComplexFloat
     ]
 
 testsInt :: TestTree
@@ -102,7 +101,6 @@ testsFloat = testGroup "Float"
     , testGroup "Metric" $ testLawOf ([]::[Float]) <$> metricFloatLaws
     , testGroup "Quotient Field" $ testLawOf ([]::[Float]) <$>
       quotientFieldLaws
-    , testGroup "Exponential Ring" $ testLawOf ([]::[Float]) <$> expRingLaws
     , testGroup "Exponential Field" $ testLawOf ([]::[Float]) <$> expFieldLaws
     ]
 
@@ -116,6 +114,25 @@ testsBool = testGroup "Bool"
       multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([]::[Bool])
       <$> distributionLaws
+    ]
+
+testsComplexFloat :: TestTree
+testsComplexFloat = testGroup "Complex Float"
+    [ testGroup "Additive - Associative Fail" $ testLawOf ([]::[Complex Float]) <$>
+      additiveLawsFail
+    , testGroup "Additive Group" $ testLawOf ([]::[Complex Float]) <$>
+      additiveGroupLaws
+    , testGroup "Multiplicative - Associative Fail" $
+      testLawOf ([]::[Complex Float]) <$>
+      multiplicativeLawsFail
+    , testGroup "MultiplicativeGroup" $ testLawOf ([]::[Complex Float]) <$>
+      multiplicativeGroupLaws
+    , testGroup "Distribution - Fail" $ testLawOf ([]::[Complex Float]) <$>
+      distributionLawsFail
+    -- , testGroup "Bounded Field" $ testLawOf ([]::[Complex Float]) <$>
+    --   boundedFieldLaws
+    -- , testGroup "Exponential Field" $ testLawOf ([]::[Complex Float]) <$> expFieldLaws
+    , testGroup "Metric" $ testLawOf ([]::[Complex Float]) <$> metricComplexFloatLaws
     ]
 
 testsVInt :: TestTree
@@ -215,8 +232,6 @@ testsVFloat = testGroup "Vector 6 Float"
       signedLaws
     , testGroup "Metric" $ testLawOf ([]::[Vector 6 Float]) <$>
       metricNaperianFloatLaws
-    , testGroup "Exponential Ring" $ testLawOf ([]::[Vector 6 Float]) <$>
-      expRingNaperianLaws
     , testGroup "Exponential Field" $ testLawOf ([]::[Vector 6 Float]) <$>
       expFieldNaperianLaws
     , testGroup "Additive Module" $ localOption (QuickCheckTests 1000) .
@@ -264,8 +279,6 @@ testsMFloat = testGroup "Matrix 4 3 Float"
       signedLaws
     , testGroup "Metric" $ testLawOf ([]::[Matrix 4 3 Float]) <$>
       metricNaperianFloatLaws
-    , testGroup "Exponential Ring" $ testLawOf ([]::[Matrix 4 3 Float]) <$>
-      expRingNaperianLaws
     , testGroup "Exponential Field" $ testLawOf ([]::[Matrix 4 3 Float]) <$>
       expFieldNaperianLaws
     , testGroup "Additive Module" $
@@ -310,7 +323,7 @@ idempotentLaws =
     , ( "idempotent: a * a == a"
       , Unary (\a -> a * a == a))
     ]
-
+ 
 additiveLaws ::
     ( Eq a
     , Additive a
@@ -406,7 +419,7 @@ multiplicativeGroupLaws ::
     ) => [Law a]
 multiplicativeGroupLaws =
     [ ( "divide: a == zero || a / a ≈ one", Unary (\a -> a == zero || (a / a) ≈ one))
-    , ( "recip divide: recip a == one / a", Unary (\a -> recip a == one / a))
+    , ( "recip divide: recip a == one / a", Unary (\a -> a == zero || recip a == one / a))
     , ( "recip left: a == zero || recip a * a ≈ one"
       , Unary (\a -> a == zero || recip a * a ≈ one))
     , ( "recip right: a == zero || a * recip a ≈ one"
@@ -476,7 +489,7 @@ integralLaws =
     ]
 
 boundedFieldLaws ::
-    ( Ord a
+    ( Eq a
     , BoundedField a
     ) => [Law a]
 boundedFieldLaws =
@@ -498,6 +511,7 @@ kindaPositive a = nearZero a || a > zero
 
 metricNaperianFloatLaws ::
     ( Naperian r
+    , Metric (r Float) Float
     , Foldable r
     ) => [Law (r Float)]
 metricNaperianFloatLaws =
@@ -538,6 +552,28 @@ metricFloatLaws =
                    kindaPositive (distance a b + distance a c - (distance b c :: Float))))
     ]
 
+metricComplexFloatLaws ::
+    ( 
+    ) => [Law (Complex Float)]
+metricComplexFloatLaws =
+    [ ( "positive"
+      , Binary (\a b -> (distance a b :: Float) >= zero))
+    ,
+      ("zero if equal"
+      , Unary (\a -> (distance a a :: Float) == zero))
+    , ( "associative"
+      , Binary (\a b -> (distance a b :: Float) ≈ (distance b a :: Float)))
+    , ( "triangle rule - sum of distances > distance"
+      , Ternary (\a b c ->
+                   (size a > (10.0 :: Float)) ||
+                   (size b > (10.0 :: Float)) ||
+                   (size c > (10.0 :: Float)) ||
+                   kindaPositive (distance a c + distance b c - (distance a b :: Float)) &&
+                   kindaPositive (distance a b + distance b c - (distance a c :: Float)) &&
+                   kindaPositive (distance a b + distance a c - (distance b c :: Float))))
+
+      ]
+
 quotientFieldLaws ::
     ( Ord a
     , Field a
@@ -556,38 +592,6 @@ quotientFieldLaws =
               ))
     ]
 
-expRingLaws ::
-    ( ExpRing a
-    , Epsilon a
-    , Ord a
-    ) => [Law a]
-expRingLaws =
-    [ ("for +ive b, a != 0,1: a ** logBase a b ≈ b"
-      , Binary (\a b ->
-                  ( not (prettyPositive b) ||
-                    not (nearZero (a - zero)) ||
-                    (a == one) ||
-                    (a == zero && nearZero (logBase a b)) ||
-                    (a ** logBase a b ≈ b))))
-    ]
-
-expRingNaperianLaws ::
-    ( Naperian r
-    , Foldable r
-    , ExpRing a
-    , Epsilon a
-    , Ord a
-    ) => [Law (r a)]
-expRingNaperianLaws =
-    [ ("for +ive b, a != 0,1: a ** logBase a b ≈ b"
-      , Binary (\a b ->
-                  ( not (all prettyPositive b) ||
-                    not (all nearZero a) ||
-                    all (==one) a ||
-                    (all (==zero) a && all nearZero (logBase a b)) ||
-                    (a ** logBase a b ≈ b))))
-    ]
-
 expFieldLaws ::
     ( ExpField a
     , Epsilon a
@@ -603,13 +607,23 @@ expFieldLaws =
       , Unary (\a -> not (prettyPositive a) || (a > 10.0) ||
                     (log . exp $ a) ≈ a &&
                     (exp . log $ a) ≈ a))
+    , ("for +ive b, a != 0,1: a ** logBase a b ≈ b"
+      , Binary (\a b ->
+                  ( not (prettyPositive b) ||
+                    not (nearZero (a - zero)) ||
+                    (a == one) ||
+                    (a == zero && nearZero (logBase a b)) ||
+                    (a ** logBase a b ≈ b))))
     ]
 
 expFieldNaperianLaws ::
     ( Naperian r
+    , Additive (r a)
+    , ExpField (r a)
     , Foldable r
     , ExpField a
     , Epsilon a
+    , Epsilon (r a)
     , Fractional a
     , Ord a
     ) => [Law (r a)]
@@ -622,12 +636,21 @@ expFieldNaperianLaws =
       , Unary (\a -> not (all prettyPositive a) || any (>10.0) a ||
                     (log . exp $ a) ≈ a &&
                     (exp . log $ a) ≈ a))
+    , ("for +ive b, a != 0,1: a ** logBase a b ≈ b"
+      , Binary (\a b ->
+                  ( not (all prettyPositive b) ||
+                    not (all nearZero a) ||
+                    all (==one) a ||
+                    (all (==zero) a && all nearZero (logBase a b)) ||
+                    (a ** logBase a b ≈ b))))
     ]
 
 additiveModuleLaws ::
     ( Eq (r a)
     , Naperian r
+    , Additive (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , AdditiveModule r a
     ) => [Law2 (r a) a]
@@ -651,6 +674,7 @@ additiveModuleLawsFail ::
     , Show (r a)
     , Arbitrary (r a)
     , Epsilon a
+    , Additive (r a)
     , AdditiveModule r a
     ) => [Law2 (r a) a]
 additiveModuleLawsFail =
@@ -668,8 +692,11 @@ additiveModuleLawsFail =
 additiveGroupModuleLaws ::
     ( Eq (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , Naperian r
+    , Additive (r a)
+    , AdditiveGroup (r a)
     , AdditiveGroupModule r a
     ) => [Law2 (r a) a]
 additiveGroupModuleLaws =
@@ -693,8 +720,11 @@ additiveGroupModuleLawsFail ::
     , Show (r a)
     , Arbitrary (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , Naperian r
+    , Additive (r a)
+    , AdditiveGroup (r a)
     , AdditiveGroupModule r a
     ) => [Law2 (r a) a]
 additiveGroupModuleLawsFail =
@@ -714,8 +744,11 @@ additiveGroupModuleLawsFail =
 multiplicativeModuleLaws ::
     ( Eq (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , Naperian r
+    , Additive (r a)
+    , Multiplicative (r a)
     , AdditiveModule r a
     , MultiplicativeModule r a
     ) => [Law2 (r a) a]
@@ -738,12 +771,15 @@ multiplicativeModuleLaws =
 multiplicativeModuleLawsFail ::
     ( Eq (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Show a
     , Arbitrary a
     , Show (r a)
     , Arbitrary (r a)
     , Foldable r
     , Naperian r
+    , Additive (r a)
+    , Multiplicative (r a)
     , AdditiveModule r a
     , MultiplicativeModule r a
     ) => [Law2 (r a) a]
@@ -767,8 +803,12 @@ multiplicativeGroupModuleLaws ::
     ( Eq (r a)
     , Eq a
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , Naperian r
+    , AdditiveUnital (r a)
+    , Multiplicative (r a)
+    , MultiplicativeGroup (r a)
     , MultiplicativeGroupModule r a
     ) => [Law2 (r a) a]
 multiplicativeGroupModuleLaws =
@@ -793,8 +833,12 @@ multiplicativeGroupModuleLawsFail ::
     , Show (r a)
     , Arbitrary (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , Naperian r
+    , AdditiveUnital (r a)
+    , Multiplicative (r a)
+    , MultiplicativeGroup (r a)
     , MultiplicativeGroupModule r a
     ) => [Law2 (r a) a]
 multiplicativeGroupModuleLawsFail =
@@ -818,7 +862,9 @@ additiveBasisLaws ::
     ( Eq (r a)
     , Foldable r
     , Epsilon a
+    , Epsilon (r a)
     , Naperian r
+    , AdditiveUnital (r a)
     , AdditiveBasis r a
     ) => [Law (r a)]
 additiveBasisLaws =
@@ -836,6 +882,8 @@ additiveBasisLawsFail ::
     , Foldable r
     , Epsilon a
     , Naperian r
+    , Epsilon (r a)
+    , AdditiveUnital (r a)
     , AdditiveBasis r a
     ) => [Law (r a)]
 additiveBasisLawsFail =
@@ -858,6 +906,7 @@ additiveGroupBasisLaws =
 multiplicativeBasisLaws ::
     ( Eq (r a)
     , Naperian r
+    , Multiplicative (r a)
     , MultiplicativeBasis r a
     ) => [Law (r a)]
 multiplicativeBasisLaws =
@@ -873,6 +922,7 @@ multiplicativeBasisLawsFail ::
     , Show (r a)
     , Arbitrary (r a)
     , Naperian r
+    , Multiplicative (r a)
     , MultiplicativeBasis r a
     ) => [Law (r a)]
 multiplicativeBasisLawsFail =
@@ -886,6 +936,7 @@ multiplicativeBasisLawsFail =
 multiplicativeGroupBasisLaws ::
     ( Eq (r a)
     , Epsilon a
+    , Epsilon (r a)
     , Foldable r
     , Naperian r
     , MultiplicativeGroupBasis r a

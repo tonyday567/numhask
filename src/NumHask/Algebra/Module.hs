@@ -1,7 +1,7 @@
 {-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ExplicitNamespaces #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra
@@ -22,7 +22,7 @@ module NumHask.Algebra.Module (
 import Protolude (Double, Float, Int, Integer, Functor(..), ($), Foldable(..))
 import Data.Functor.Rep
 import NumHask.Algebra.Additive
-import NumHask.Algebra.Exponential
+import NumHask.Algebra.Field
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring

@@ -1,7 +1,3 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral domains

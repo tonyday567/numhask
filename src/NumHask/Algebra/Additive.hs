@@ -1,4 +1,3 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Additive Structure
@@ -21,6 +20,7 @@ module NumHask.Algebra.Additive (
 
 import qualified Protolude as P
 import Protolude (Double, Float, Int, Integer, Bool(..))
+import Data.Complex (Complex(..))
 
 -- * Additive structure
 -- The Magma structures are repeated for an additive and multiplicative heirarchy, mostly so we can name the specific operators in the usual ways.
@@ -33,6 +33,8 @@ instance AdditiveMagma Float where plus = (P.+)
 instance AdditiveMagma Int where plus = (P.+)
 instance AdditiveMagma Integer where plus = (P.+)
 instance AdditiveMagma Bool where plus = (P.||)
+instance (AdditiveMagma a) => AdditiveMagma (Complex a) where
+    (rx :+ ix) `plus` (ry :+ iy) = (rx `plus` ry) :+ (ix `plus` iy)
 
 -- | AdditiveUnital
 --
@@ -45,6 +47,8 @@ instance AdditiveUnital Float where zero = 0
 instance AdditiveUnital Int where zero = 0
 instance AdditiveUnital Integer where zero = 0
 instance AdditiveUnital Bool where zero = False
+instance (AdditiveUnital a) => AdditiveUnital (Complex a) where
+    zero = zero :+ zero
 
 -- | AdditiveAssociative
 --
@@ -56,6 +60,7 @@ instance AdditiveAssociative Float
 instance AdditiveAssociative Int
 instance AdditiveAssociative Integer
 instance AdditiveAssociative Bool
+instance (AdditiveAssociative a) => AdditiveAssociative (Complex a)
 
 -- | AdditiveCommutative
 --
@@ -67,6 +72,7 @@ instance AdditiveCommutative Float
 instance AdditiveCommutative Int
 instance AdditiveCommutative Integer
 instance AdditiveCommutative Bool
+instance (AdditiveCommutative a) => AdditiveCommutative (Complex a)
 
 -- | AdditiveInvertible
 --
@@ -80,6 +86,8 @@ instance AdditiveInvertible Float where negate = P.negate
 instance AdditiveInvertible Int where negate = P.negate
 instance AdditiveInvertible Integer where negate = P.negate
 instance AdditiveInvertible Bool where negate = P.not
+instance (AdditiveInvertible a) => AdditiveInvertible (Complex a) where
+    negate (rx :+ ix) = negate rx :+ negate ix
 
 -- | AdditiveHomomorphic
 --
@@ -108,6 +116,7 @@ instance AdditiveMonoidal Float
 instance AdditiveMonoidal Int
 instance AdditiveMonoidal Integer
 instance AdditiveMonoidal Bool
+instance (AdditiveMonoidal a) => AdditiveMonoidal (Complex a)
 
 -- | Additive is commutative, unital and associative under addition
 --
@@ -132,6 +141,7 @@ instance Additive Float
 instance Additive Int
 instance Additive Integer
 instance Additive Bool
+instance {-# Overlapping #-} (Additive a) => Additive (Complex a)
 
 -- | Non-commutative left minus
 class ( AdditiveUnital a
@@ -170,3 +180,4 @@ instance AdditiveGroup Double
 instance AdditiveGroup Float
 instance AdditiveGroup Int
 instance AdditiveGroup Integer
+instance {-# Overlapping #-} (AdditiveGroup a) => AdditiveGroup (Complex a)

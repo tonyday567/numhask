@@ -1,7 +1,3 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Distribution, avoiding name clashes with 'Data.Distributive'
@@ -13,6 +9,7 @@ module NumHask.Algebra.Distribution (
 import Protolude (Double, Float, Int, Integer,Bool(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
+import Data.Complex (Complex(..))
 
 -- | Distribution
 --
@@ -30,4 +27,7 @@ instance Distribution Float
 instance Distribution Int
 instance Distribution Integer
 instance Distribution Bool
+instance {-# Overlapping #-} (AdditiveGroup a, Distribution a) =>
+    Distribution (Complex a)
+
 

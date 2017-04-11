@@ -41,7 +41,6 @@ library
     NumHask.Algebra,
     NumHask.Algebra.Additive,
     NumHask.Algebra.Basis,
-    NumHask.Algebra.Exponential,
     NumHask.Algebra.Distribution,
     NumHask.Algebra.Ring,
     NumHask.Algebra.Field,

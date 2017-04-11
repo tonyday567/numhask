@@ -1,7 +1,3 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Highjacking 'Representable's to provide a basis to provide element-by-element operations

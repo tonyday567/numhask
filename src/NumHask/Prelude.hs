@@ -1,3 +1,4 @@
+{-# LANGUAGE ExtendedDefaultRules #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | A prelude for NumHask
@@ -13,7 +14,6 @@ module NumHask.Prelude (
   , module NumHask.Algebra.Additive
   , module NumHask.Algebra.Basis
   , module NumHask.Algebra.Distribution
-  , module NumHask.Algebra.Exponential
   , module NumHask.Algebra.Field
   , module NumHask.Algebra.Integral
   , module NumHask.Algebra.Magma
@@ -63,7 +63,6 @@ import Protolude hiding
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis
 import NumHask.Algebra.Distribution
-import NumHask.Algebra.Exponential
 import NumHask.Algebra.Field
 import NumHask.Algebra.Integral
 import NumHask.Algebra.Magma
