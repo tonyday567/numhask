@@ -1,12 +1,6 @@
-{-# OPTIONS_GHC -fno-warn-name-shadowing #-}
-{-# OPTIONS_GHC -fno-warn-name-shadowing #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | Two-dimensional arrays. Two classes are supplied
 --

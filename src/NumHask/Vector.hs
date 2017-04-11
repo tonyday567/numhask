@@ -1,8 +1,4 @@
-{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Two different classes are supplied:

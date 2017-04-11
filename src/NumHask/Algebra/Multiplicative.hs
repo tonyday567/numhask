@@ -1,7 +1,4 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE Unsafe #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Multiplicate structure
@@ -24,6 +21,8 @@ module NumHask.Algebra.Multiplicative (
 
 import qualified Protolude as P
 import Protolude (Double, Float, Int, Integer, Bool(..))
+import Data.Complex (Complex(..))
+import NumHask.Algebra.Additive
 
 -- * Multiplicative structure
 -- | 'times' is used for the multiplicative magma to distinguish from '*' which, by convention, implies commutativity
@@ -34,6 +33,10 @@ instance MultiplicativeMagma Float where times = (P.*)
 instance MultiplicativeMagma Int where times = (P.*)
 instance MultiplicativeMagma Integer where times = (P.*)
 instance MultiplicativeMagma Bool where times = (P.&&)
+instance (MultiplicativeMagma a, AdditiveGroup a) =>
+    MultiplicativeMagma (Complex a) where
+    (rx :+ ix) `times` (ry :+ iy) =
+        (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
 -- | MultiplicativeUnital
 --
@@ -46,17 +49,9 @@ instance MultiplicativeUnital Float where one = 1
 instance MultiplicativeUnital Int where one = 1
 instance MultiplicativeUnital Integer where one = 1
 instance MultiplicativeUnital Bool where one = True
-
--- | MultiplicativeCommutative
---
--- > a `times` b == b `times` a
-class MultiplicativeMagma a => MultiplicativeCommutative a
-
-instance MultiplicativeCommutative Double
-instance MultiplicativeCommutative Float
-instance MultiplicativeCommutative Int
-instance MultiplicativeCommutative Integer
-instance MultiplicativeCommutative Bool
+instance (AdditiveUnital a, AdditiveGroup a, MultiplicativeUnital a) =>
+    MultiplicativeUnital (Complex a) where
+    one = one :+ zero
 
 -- | MultiplicativeAssociative
 --
@@ -68,6 +63,21 @@ instance MultiplicativeAssociative Float
 instance MultiplicativeAssociative Int
 instance MultiplicativeAssociative Integer
 instance MultiplicativeAssociative Bool
+instance (AdditiveGroup a, MultiplicativeAssociative a) =>
+    MultiplicativeAssociative (Complex a)
+
+-- | MultiplicativeCommutative
+--
+-- > a `times` b == b `times` a
+class MultiplicativeMagma a => MultiplicativeCommutative a
+
+instance MultiplicativeCommutative Double
+instance MultiplicativeCommutative Float
+instance MultiplicativeCommutative Int
+instance MultiplicativeCommutative Integer
+instance MultiplicativeCommutative Bool
+instance (AdditiveGroup a, MultiplicativeCommutative a) =>
+    MultiplicativeCommutative (Complex a)
 
 -- | MultiplicativeInvertible
 --
@@ -78,6 +88,11 @@ class MultiplicativeMagma a => MultiplicativeInvertible a where recip :: a -> a
 
 instance MultiplicativeInvertible Double where recip = P.recip
 instance MultiplicativeInvertible Float where recip = P.recip
+instance (AdditiveGroup a, MultiplicativeInvertible a) =>
+    MultiplicativeInvertible (Complex a) where
+    recip (rx :+ ix) = (rx `times` d) :+ (negate ix `times` d)
+      where
+        d = recip ((rx `times` rx) `plus` (ix `times` ix))
 
 -- | MultiplicativeHomomorphic
 --
@@ -101,6 +116,8 @@ instance MultiplicativeMonoidal Float
 instance MultiplicativeMonoidal Int
 instance MultiplicativeMonoidal Integer
 instance MultiplicativeMonoidal Bool
+instance (AdditiveGroup a, MultiplicativeMonoidal a) =>
+    MultiplicativeMonoidal (Complex a)
 
 -- | Multiplicative is commutative, associative and unital under multiplication
 --
@@ -125,6 +142,8 @@ instance Multiplicative Float
 instance Multiplicative Int
 instance Multiplicative Integer
 instance Multiplicative Bool
+instance {-# Overlapping #-} (AdditiveGroup a, Multiplicative a) =>
+    Multiplicative (Complex a) where
 
 -- | Non-commutative left divide
 class ( MultiplicativeUnital a
@@ -161,4 +180,5 @@ class ( Multiplicative a
 
 instance MultiplicativeGroup Double
 instance MultiplicativeGroup Float
-
+instance {-# Overlapping #-} (AdditiveGroup a, MultiplicativeGroup a) =>
+    MultiplicativeGroup (Complex a) where
