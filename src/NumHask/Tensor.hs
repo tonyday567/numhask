@@ -36,6 +36,7 @@ import NumHask.Algebra.Multiplicative
 import Test.QuickCheck
 import qualified Data.Vector as V
 import NumHask.Naperian
+import Data.List ((!!))
 
 -- | an n-dimensional array where shape is specified at the type level
 -- The main purpose of this, beyond safe typing, is to supply the Representable instance with an initial object.
@@ -181,3 +182,17 @@ instance forall a. (Arbitrary a, AdditiveUnital a) => Arbitrary (SomeTensor a) w
         [ (1, P.pure (SomeTensor [] V.empty))
         , (9, fromListSomeTensor <$> (unshapeT <$> arbitrary) P.<*> vector 48)
         ]
+
+slice :: forall a r s. (SingI r, SingI s) =>
+    [[Int]] -> Tensor (r::[Nat]) a -> Tensor (s::[Nat]) a
+slice xs f = tabulate $ \xs' -> index f (zipWith (!!) xs xs')
+
+{-
+slice' :: forall a r s. (SingI r) =>
+    [[Int]] -> Tensor (r::[Nat]) a -> Tensor (s::[Nat]) a
+slice' xs f = case ss of
+  SomeSing s' -> (tabulate $ \xs' -> index f (zipWith (!!) xs xs')) :: Tensor s' a
+  where
+    ss :: SomeSing [Nat]
+    ss = toSing $ P.fromIntegral . P.length <$> xs
+-}
