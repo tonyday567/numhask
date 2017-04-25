@@ -112,6 +112,7 @@ module NumHask.Examples (
 -- $vector
 -- A 'Vector' is a number by virtue of it being a 'Representable' 'Functor' where the representation is an 'Int'.
 --
+-- >>> import NumHask.Vector
 -- >>> :set -XDataKinds
 -- >>> :set -XOverloadedLists
 -- >>> [] :: Vector 3 Int

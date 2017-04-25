@@ -19,23 +19,18 @@ module NumHask.Tensor
   , flatten1
   ) where
 
-import qualified Protolude as P
-import Protolude
-    (($), (<$>), Functor(..), Show, Eq(..), (.), Maybe(..), Int, reverse, foldr, fst, zipWith, scanr, drop, sum, product, Foldable(..))
-
 import Data.Distributive as D
-import Data.Functor.Rep
 import Data.Singletons
 import Data.Singletons.Prelude
 import GHC.Exts
 import GHC.Show
 import GHC.TypeLits
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Integral
-import NumHask.Algebra.Multiplicative
-import Test.QuickCheck
-import qualified Data.Vector as V
 import NumHask.Naperian
+import NumHask.Prelude hiding (show)
+import Test.QuickCheck
+
+import qualified Data.Vector as V
+import qualified Protolude as P
 
 -- | an n-dimensional array where shape is specified at the type level
 -- The main purpose of this, beyond safe typing, is to supply the Representable instance with an initial object.

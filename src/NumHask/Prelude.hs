@@ -7,8 +7,6 @@ module NumHask.Prelude (
     -- * Backend
     -- $backend
     module Protolude
-  , module Data.Distributive
-  , module Data.Functor.Rep
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Additive
@@ -22,12 +20,6 @@ module NumHask.Prelude (
   , module NumHask.Algebra.Multiplicative
   , module NumHask.Algebra.Ordering
   , module NumHask.Algebra.Ring
-    -- * Representations
-    -- $representables
-  , module NumHask.Matrix
-  , module NumHask.Tensor
-  , module NumHask.Vector
-  , module NumHask.Naperian
   ) where
 
 import Protolude hiding
@@ -72,14 +64,6 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ordering
 import NumHask.Algebra.Ring
 
-import NumHask.Matrix
-import NumHask.Tensor
-import NumHask.Vector
-import NumHask.Naperian
-
-import Data.Distributive
-import Data.Functor.Rep
-
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.
 -- Usage of 'Semigroup' and 'Monoid' has been avoided to retain basic compatability.
@@ -87,13 +71,5 @@ import Data.Functor.Rep
 -- $instances
 -- Re-defines the numeric tower.
 --
--- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool' and 'Representable' Functors are supplied
---
-
--- $representables
--- Different classes are supplied for holding shape information at the type level and value level.
---
--- Value-level classes are not (yet) wired in to the Algebra
---
--- Type-level shaped numbers are wired in via the 'Representable' 'Functor' instances.
+-- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool' and 'Complex' are supplied
 --

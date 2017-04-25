@@ -38,7 +38,6 @@ library
   exposed-modules:
     NumHask.Prelude,
     NumHask.Examples,
-    NumHask.Algebra,
     NumHask.Algebra.Additive,
     NumHask.Algebra.Basis,
     NumHask.Algebra.Distribution,

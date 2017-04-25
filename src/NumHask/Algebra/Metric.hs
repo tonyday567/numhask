@@ -20,7 +20,7 @@ import Data.Complex (Complex(..))
 -- | abs and signnum are warts on the standard 'Num' class, and are separated here to provide a cleaner structure.
 class ( AdditiveUnital a
       , AdditiveGroup a
-      , Multiplicative a
+      , MultiplicativeUnital a
       ) => Signed a where
     sign :: a -> a
     abs :: a -> a

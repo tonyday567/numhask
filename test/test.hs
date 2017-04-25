@@ -5,6 +5,10 @@
 module Main where
 
 import NumHask.Prelude
+import NumHask.Vector
+import NumHask.Matrix
+import NumHask.Tensor
+import NumHask.Naperian
 
 import Test.Tasty (TestName, TestTree, testGroup, defaultMain, localOption)
 import Test.Tasty.QuickCheck
@@ -510,9 +514,7 @@ kindaPositive :: (Epsilon a, Ord a) => a -> Bool
 kindaPositive a = nearZero a || a > zero
 
 metricNaperianFloatLaws ::
-    ( Naperian r
-    , Metric (r Float) Float
-    , Foldable r
+    ( Metric (r Float) Float
     ) => [Law (r Float)]
 metricNaperianFloatLaws =
     [ ( "positive"
@@ -617,9 +619,7 @@ expFieldLaws =
     ]
 
 expFieldNaperianLaws ::
-    ( Naperian r
-    , Additive (r a)
-    , ExpField (r a)
+    ( ExpField (r a)
     , Foldable r
     , ExpField a
     , Epsilon a
@@ -647,11 +647,8 @@ expFieldNaperianLaws =
 
 additiveModuleLaws ::
     ( Eq (r a)
-    , Naperian r
-    , Additive (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
     , AdditiveModule r a
     ) => [Law2 (r a) a]
 additiveModuleLaws =
@@ -670,7 +667,6 @@ additiveModuleLawsFail ::
     ( Eq (r a)
     , Show a
     , Arbitrary a
-    , Naperian r
     , Show (r a)
     , Arbitrary (r a)
     , Epsilon a
@@ -693,10 +689,7 @@ additiveGroupModuleLaws ::
     ( Eq (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
     , Naperian r
-    , Additive (r a)
-    , AdditiveGroup (r a)
     , AdditiveGroupModule r a
     ) => [Law2 (r a) a]
 additiveGroupModuleLaws =
@@ -721,10 +714,7 @@ additiveGroupModuleLawsFail ::
     , Arbitrary (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
     , Naperian r
-    , Additive (r a)
-    , AdditiveGroup (r a)
     , AdditiveGroupModule r a
     ) => [Law2 (r a) a]
 additiveGroupModuleLawsFail =
@@ -745,11 +735,7 @@ multiplicativeModuleLaws ::
     ( Eq (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
-    , Naperian r
-    , Additive (r a)
     , Multiplicative (r a)
-    , AdditiveModule r a
     , MultiplicativeModule r a
     ) => [Law2 (r a) a]
 multiplicativeModuleLaws =
@@ -776,11 +762,7 @@ multiplicativeModuleLawsFail ::
     , Arbitrary a
     , Show (r a)
     , Arbitrary (r a)
-    , Foldable r
-    , Naperian r
-    , Additive (r a)
     , Multiplicative (r a)
-    , AdditiveModule r a
     , MultiplicativeModule r a
     ) => [Law2 (r a) a]
 multiplicativeModuleLawsFail =
@@ -804,10 +786,7 @@ multiplicativeGroupModuleLaws ::
     , Eq a
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
     , Naperian r
-    , AdditiveUnital (r a)
-    , Multiplicative (r a)
     , MultiplicativeGroup (r a)
     , MultiplicativeGroupModule r a
     ) => [Law2 (r a) a]
@@ -834,10 +813,6 @@ multiplicativeGroupModuleLawsFail ::
     , Arbitrary (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
-    , Naperian r
-    , AdditiveUnital (r a)
-    , Multiplicative (r a)
     , MultiplicativeGroup (r a)
     , MultiplicativeGroupModule r a
     ) => [Law2 (r a) a]
@@ -860,11 +835,7 @@ multiplicativeGroupModuleLawsFail =
 
 additiveBasisLaws ::
     ( Eq (r a)
-    , Foldable r
-    , Epsilon a
     , Epsilon (r a)
-    , Naperian r
-    , AdditiveUnital (r a)
     , AdditiveBasis r a
     ) => [Law (r a)]
 additiveBasisLaws =
@@ -879,11 +850,7 @@ additiveBasisLawsFail ::
     ( Eq (r a)
     , Arbitrary (r a)
     , Show (r a)
-    , Foldable r
-    , Epsilon a
-    , Naperian r
     , Epsilon (r a)
-    , AdditiveUnital (r a)
     , AdditiveBasis r a
     ) => [Law (r a)]
 additiveBasisLawsFail =
@@ -905,7 +872,6 @@ additiveGroupBasisLaws =
 
 multiplicativeBasisLaws ::
     ( Eq (r a)
-    , Naperian r
     , Multiplicative (r a)
     , MultiplicativeBasis r a
     ) => [Law (r a)]
@@ -921,7 +887,6 @@ multiplicativeBasisLawsFail ::
     ( Eq (r a)
     , Show (r a)
     , Arbitrary (r a)
-    , Naperian r
     , Multiplicative (r a)
     , MultiplicativeBasis r a
     ) => [Law (r a)]
@@ -937,7 +902,6 @@ multiplicativeGroupBasisLaws ::
     ( Eq (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Foldable r
     , Naperian r
     , MultiplicativeGroupBasis r a
     ) => [Law (r a)]

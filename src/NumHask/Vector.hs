@@ -17,16 +17,13 @@ module NumHask.Vector
   ) where
 
 import qualified Protolude as P
-import Protolude
-    (($), (<$>), Functor(..), Show, Eq(..), take, Foldable(..), Ord(..), Int, Maybe(..), (.))
-
 import Data.Distributive as D
 import Data.Functor.Rep
 import Data.Proxy (Proxy(..))
 import GHC.Exts
 import GHC.Show (show)
 import GHC.TypeLits
-import NumHask.Algebra
+import NumHask.Prelude hiding (show)
 import NumHask.Naperian
 import Test.QuickCheck
 import qualified Data.Vector as V

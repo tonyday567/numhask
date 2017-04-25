@@ -5,13 +5,14 @@
 module NumHask.Naperian
     ( Naperian
     , HasShape(..)
+    , module Data.Functor.Rep
     ) where
 
 import Protolude (Int, foldr, Foldable(..), ($), (<$>), fmap, fst, snd, or, and)
 import Data.Functor.Rep
-import NumHask.Algebra
+import NumHask.Prelude
 
--- | ToDo: integrate ni Naperian instance
+-- | ToDo: integrate with Naperian instance
 class HasShape f where
     type Shape f
     shape :: f a -> Shape f

@@ -29,13 +29,11 @@ module NumHask.Matrix
   ) where
 
 import qualified Protolude as P
-import Protolude
-    (($), Functor(..), Show, Eq(..), (.), (<$>), Foldable(..), Int, Maybe(..))
 import Data.Distributive as D
 import Data.Functor.Rep
 import Data.Proxy (Proxy(..))
 import GHC.TypeLits
-import NumHask.Algebra
+import NumHask.Prelude hiding (show)
 import NumHask.Naperian
 import NumHask.Vector
 import Test.QuickCheck
