@@ -109,9 +109,6 @@ test-suite test
     base >= 4.7 && < 5,
     numhask,
     tasty,
-    HUnit,
-    tasty-hunit,
-    QuickCheck,
     tasty-quickcheck,
     doctest
   default-extensions:

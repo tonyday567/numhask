@@ -160,6 +160,7 @@ module NumHask.Examples (
 -- 7.0
 --
 -- The type of an outer product of two vectors is a Vector m (Vector n), and is a perfectly formed Matrix representation.
+--
 -- >>> a >< b
 -- [[3,2,0],[6,4,0],[9,6,0]]
 --
