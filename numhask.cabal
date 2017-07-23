@@ -1,7 +1,5 @@
-name:
-  numhask
-version:
-  0.0.4
+name: numhask
+version: 0.0.5
 synopsis:
   A numeric prelude
 description:
@@ -51,16 +49,14 @@ library
     NumHask.Algebra.Ordering,
     NumHask.Naperian,
     NumHask.Vector,
-    NumHask.Matrix,
-    NumHask.Tensor
+    NumHask.Matrix
   build-depends:
     base >= 4.7 && < 4.10,
     protolude >= 0.1 && < 0.3,
     vector >= 0.11 && < 0.13,
     QuickCheck >= 2.8 && < 3,
     adjunctions >= 4.3 && < 5,
-    distributive >= 0.5 && < 0.6,
-    singletons >= 2.2 && < 2.3
+    distributive >= 0.5 && < 0.6
   default-extensions:
     NoImplicitPrelude,
     UnicodeSyntax,

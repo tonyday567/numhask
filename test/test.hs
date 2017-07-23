@@ -7,7 +7,6 @@ module Main where
 import NumHask.Prelude
 import NumHask.Vector
 import NumHask.Matrix
-import NumHask.Tensor
 import NumHask.Naperian
 
 import Test.Tasty (TestName, TestTree, testGroup, defaultMain, localOption)
@@ -64,8 +63,6 @@ tests =
     , testsVFloat
     , testsMInt
     , testsMFloat
-    , testsNInt
-    , testsNShow
     , testsComplexFloat
     ]
 
@@ -185,35 +182,6 @@ testsMInt = testGroup "Matrix 4 3 Int"
       additiveGroupBasisLaws
     , testGroup "Multiplicative Basis" $ testLawOf ([]::[Matrix 4 3 Int]) <$>
       multiplicativeBasisLaws
-    ]
-
-testsNInt :: TestTree
-testsNInt = testGroup "Tensor [2,3,2] Int"
-    [ testGroup "Additive" $ testLawOf ([]::[Tensor [2,3,2] Int]) <$>
-      additiveLaws
-    , testGroup "Additive Group" $ testLawOf ([]::[Tensor [2,3,2] Int]) <$>
-      additiveGroupLaws
-    , testGroup "Multiplicative" $ testLawOf ([]::[Tensor [2,3,2] Int]) <$>
-      multiplicativeLaws
-    , testGroup "Distribution" $ testLawOf ([]::[Tensor [2,3,2] Int])
-      <$> distributionLaws
-    , testGroup "Additive Module" $ testLawOf2 ([]::[(Tensor [2,3,2] Int, Int)]) <$>
-      additiveModuleLaws
-    , testGroup "Additive Group Module" $ testLawOf2 ([]::[(Tensor [2,3,2] Int, Int)]) <$>
-      additiveGroupModuleLaws
-    , testGroup "Multiplicative Module" $ testLawOf2 ([]::[(Tensor [2,3,2] Int, Int)]) <$>
-      multiplicativeModuleLaws
-    , testGroup "Additive Basis" $ testLawOf ([]::[Tensor [2,3,2] Int]) <$>
-      additiveBasisLaws
-    , testGroup "Additive Group Basis" $ testLawOf ([]::[Tensor [2,3,2] Int]) <$>
-      additiveGroupBasisLaws
-    , testGroup "Multiplicative Basis" $ testLawOf ([]::[Tensor [2,3,2] Int]) <$>
-      multiplicativeBasisLaws
-    ]
-
-testsNShow :: TestTree
-testsNShow = testGroup "NRep Int"
-    [ testProperty "ok arbitrary" (const True :: SomeTensor Int -> Bool)
     ]
 
 testsVFloat :: TestTree
