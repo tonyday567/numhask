@@ -1,5 +1,7 @@
-[numhask](https://tonyday567.github.com/numhask) [![Build Status](https://travis-ci.org/tonyday567/numhask.png)](https://travis-ci.org/tonyday567/numhask)
-==================================================================================================================================================
+numhask
+===
+
+[![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) [![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask) [![lts](https://www.stackage.org/package/numhask/badge/lts)](http://stackage.org/lts/package/numhask) [![nightly](https://www.stackage.org/package/numhask/badge/nightly)](http://stackage.org/nightly/package/numhask) 
 
 A numeric prelude for primitive numbers and representable objects.
 

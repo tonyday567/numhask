@@ -1,11 +1,15 @@
 name: numhask
-version: 0.0.5
+version: 0.0.6
 synopsis:
   A numeric prelude
 description:
   Classes for numbers, higher-dimension representable objects, and algebras that combine them. See NumHask.Examples for usage.
   .
+  > {-# LANGUAGE ExtendedDefaultRules #-}
+  > {-# LANGUAGE NoImplicitPrelude #-}
+  > {-# LANGUAGE DataKinds #-}
   > import NumHask.Prelude
+  .
 category:
   mathematics
 homepage:
@@ -24,6 +28,9 @@ build-type:
   Simple
 cabal-version:
   >=1.14
+extra-source-files:
+  readme.md
+  stack.yaml
 
 library
   default-language:
