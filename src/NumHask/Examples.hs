@@ -51,7 +51,6 @@ module NumHask.Examples (
 -- >>> 1 / (1::Int)
 -- ...
 -- ... No instance for (MultiplicativeGroup Int)
--- ... arising from a use of ‘/’
 -- ...
 --
 -- >>> 1 / fromIntegral (1::Int)
