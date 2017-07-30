@@ -25,11 +25,12 @@ packages:
   - .
   - location:
       git: https://github.com/sdiehl/protolude
-      commit: 3175e6c1ebb73d443863aa02ac6d7d37e43f2a59
+      commit: bfc7306ed70e2779c909acd875bfc9bb1c121005
     extra-dep: true
 
 extra-deps:
   - array-0.5.2.0
   - deepseq-1.4.3.0
   - filepath-1.4.1.2
+  - unix-2.7.2.2
   - protolude-0.2
