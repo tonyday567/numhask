@@ -124,3 +124,68 @@ instance (Arbitrary a) => Arbitrary (SomeVector a) where
         [ (1, P.pure (SomeVector 0 V.empty))
         , (9, fromList <$> (take <$> (unshapeV <$> arbitrary) P.<*> vector 20))
         ]
+
+-- | NumHask heirarchy
+instance (KnownNat n, AdditiveMagma a) => AdditiveMagma (Vector n a) where
+    plus = liftR2 plus
+instance (KnownNat n, AdditiveUnital a) => AdditiveUnital (Vector n a) where
+    zero = pureRep zero
+instance (KnownNat n, AdditiveAssociative a) => AdditiveAssociative (Vector n a)
+instance (KnownNat n, AdditiveCommutative a) => AdditiveCommutative (Vector n a)
+instance (KnownNat n, AdditiveInvertible a) => AdditiveInvertible (Vector n a) where
+    negate = fmapRep negate
+instance (KnownNat n, AdditiveMagma a) => AdditiveHomomorphic a (Vector n a) where
+    plushom a = pureRep a
+instance (KnownNat n, AdditiveMonoidal a) => AdditiveMonoidal (Vector n a)
+instance (KnownNat n, Additive a) => Additive (Vector n a)
+instance (KnownNat n, AdditiveGroup a) => AdditiveGroup (Vector n a)
+
+instance (KnownNat n, MultiplicativeMagma a) => MultiplicativeMagma (Vector n a) where
+    times = liftR2 times
+instance (KnownNat n, MultiplicativeUnital a) => MultiplicativeUnital (Vector n a) where
+    one = pureRep one
+instance (KnownNat n, MultiplicativeAssociative a) => MultiplicativeAssociative (Vector n a)
+instance (KnownNat n, MultiplicativeCommutative a) => MultiplicativeCommutative (Vector n a)
+instance (KnownNat n, MultiplicativeInvertible a) => MultiplicativeInvertible (Vector n a) where
+    recip = fmapRep recip
+instance (KnownNat n, MultiplicativeMagma a) => MultiplicativeHomomorphic a (Vector n a) where
+    timeshom a = pureRep a
+instance (KnownNat n, MultiplicativeMonoidal a) => MultiplicativeMonoidal (Vector n a)
+instance (KnownNat n, Multiplicative a) => Multiplicative (Vector n a)
+instance (KnownNat n, MultiplicativeGroup a) => MultiplicativeGroup (Vector n a)
+
+instance (KnownNat n, MultiplicativeMagma a, Additive a) => Distribution (Vector n a)
+
+instance (KnownNat n, Semiring a) => Semiring (Vector n a)
+instance (KnownNat n, Ring a) => Ring (Vector n a)
+instance (KnownNat n, CRing a) => CRing (Vector n a)
+instance (KnownNat n, Field a) => Field (Vector n a)
+
+instance (KnownNat n, ExpField a) => ExpField (Vector n a) where
+    exp = fmapRep exp
+    log = fmapRep log
+
+instance (KnownNat n, BoundedField a) => BoundedField (Vector n a) where
+    isNaN f = or (fmapRep isNaN f)
+
+instance (KnownNat n, Signed a) => Signed (Vector n a) where
+    sign = fmapRep sign
+    abs = fmapRep abs
+
+instance (ExpField a) =>
+    Normed (Vector n a) a where
+    size r = sqrt $ foldr (+) zero $ (**(one+one)) <$> r
+
+instance (KnownNat n, Epsilon a) => Epsilon (Vector n a) where
+    nearZero f = and (fmapRep nearZero f)
+    aboutEqual a b = and (liftR2 aboutEqual a b)
+
+instance (KnownNat n, ExpField a) => Metric (Vector n a) a where
+    distance a b = size (a - b)
+
+instance (KnownNat n, Integral a) => Integral (Vector n a) where
+    divMod a b = (d,m)
+        where
+          x = liftR2 divMod a b
+          d = fmap fst x
+          m = fmap snd x

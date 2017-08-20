@@ -3,7 +3,7 @@ version: 0.0.9
 synopsis:
   A numeric prelude
 description:
-  Classes for numbers, higher-dimension representable objects, and algebras that combine them.
+  Clean and simple classes for numbers, and algebras that combine them.
   .
   See NumHask.Examples for usage.
   .
@@ -39,6 +39,7 @@ library
   exposed-modules:
     NumHask.Prelude,
     NumHask.Examples,
+    NumHask.Algebra,                
     NumHask.Algebra.Additive,
     NumHask.Algebra.Basis,
     NumHask.Algebra.Distribution,
@@ -48,9 +49,8 @@ library
     NumHask.Algebra.Magma,
     NumHask.Algebra.Metric,
     NumHask.Algebra.Module,
-    NumHask.Algebra.Multiplicative
-    NumHask.Algebra.Ordering,
-    NumHask.Naperian,
+    NumHask.Algebra.Multiplicative,
+    NumHask.Naperian,                
     NumHask.Vector,
     NumHask.Matrix
   build-depends:

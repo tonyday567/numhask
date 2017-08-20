@@ -34,8 +34,8 @@ import Data.Functor.Rep
 import Data.Proxy (Proxy(..))
 import GHC.TypeLits
 import NumHask.Prelude hiding (show)
-import NumHask.Naperian
 import NumHask.Vector
+import NumHask.Naperian
 import Test.QuickCheck
 import qualified Data.Vector as V
 import GHC.Show
@@ -50,9 +50,9 @@ newtype Matrix m n a = Matrix { flattenMatrix :: V.Vector a }
 instance forall m n. (KnownNat m, KnownNat n) =>
     HasShape (Matrix (m::Nat) (n::Nat)) where
     type Shape (Matrix m n) = (Int,Int)
-    shape _= ( P.fromInteger $ natVal (Proxy :: Proxy m)
-             , P.fromInteger $ natVal (Proxy :: Proxy n))
-    ndim = P.length . shape
+    shape _ = ( P.fromInteger $ natVal (Proxy :: Proxy n)
+              , P.fromInteger $ natVal (Proxy :: Proxy n))
+    ndim _ = 2
 
 instance (KnownNat m, KnownNat n) => Naperian (Matrix (m::Nat) (n::Nat))
 
@@ -98,9 +98,7 @@ instance HasShape SomeMatrix where
 instance (Show a) => Show (SomeMatrix a) where
     show (SomeMatrix _ v) = show (P.toList v)
 
-
 -- ** conversion
-
 -- | convert from a 'Matrix' to a 'SomeMatrix'
 someMatrix :: (KnownNat m, KnownNat n) => Matrix (m::Nat) (n::Nat) a -> SomeMatrix a
 someMatrix v = SomeMatrix (shape v) (flattenMatrix v)
@@ -189,3 +187,68 @@ col i (Matrix a) = Vector $ V.generate m (\x -> a V.! (i+x*n))
 mmult :: forall m n k a. (CRing a, KnownNat m, KnownNat n, KnownNat k) =>
     Matrix m k a -> Matrix k n a -> Matrix m n a
 mmult x y = tabulate (\(i,j) -> row i x <.> col j y)
+
+-- | NumHask heirarchy
+instance (KnownNat m, KnownNat n, AdditiveMagma a) => AdditiveMagma (Matrix m n a) where
+    plus = liftR2 plus
+instance (KnownNat m, KnownNat n, AdditiveUnital a) => AdditiveUnital (Matrix m n a) where
+    zero = pureRep zero
+instance (KnownNat m, KnownNat n, AdditiveAssociative a) => AdditiveAssociative (Matrix m n a)
+instance (KnownNat m, KnownNat n, AdditiveCommutative a) => AdditiveCommutative (Matrix m n a)
+instance (KnownNat m, KnownNat n, AdditiveInvertible a) => AdditiveInvertible (Matrix m n a) where
+    negate = fmapRep negate
+instance (KnownNat m, KnownNat n, AdditiveMagma a) => AdditiveHomomorphic a (Matrix m n a) where
+    plushom a = pureRep a
+instance (KnownNat m, KnownNat n, AdditiveMonoidal a) => AdditiveMonoidal (Matrix m n a)
+instance (KnownNat m, KnownNat n, Additive a) => Additive (Matrix m n a)
+instance (KnownNat m, KnownNat n, AdditiveGroup a) => AdditiveGroup (Matrix m n a)
+
+instance (KnownNat m, KnownNat n, MultiplicativeMagma a) => MultiplicativeMagma (Matrix m n a) where
+    times = liftR2 times
+instance (KnownNat m, KnownNat n, MultiplicativeUnital a) => MultiplicativeUnital (Matrix m n a) where
+    one = pureRep one
+instance (KnownNat m, KnownNat n, MultiplicativeAssociative a) => MultiplicativeAssociative (Matrix m n a)
+instance (KnownNat m, KnownNat n, MultiplicativeCommutative a) => MultiplicativeCommutative (Matrix m n a)
+instance (KnownNat m, KnownNat n, MultiplicativeInvertible a) => MultiplicativeInvertible (Matrix m n a) where
+    recip = fmapRep recip
+instance (KnownNat m, KnownNat n, MultiplicativeMagma a) => MultiplicativeHomomorphic a (Matrix m n a) where
+    timeshom a = pureRep a
+instance (KnownNat m, KnownNat n, MultiplicativeMonoidal a) => MultiplicativeMonoidal (Matrix m n a)
+instance (KnownNat m, KnownNat n, Multiplicative a) => Multiplicative (Matrix m n a)
+instance (KnownNat m, KnownNat n, MultiplicativeGroup a) => MultiplicativeGroup (Matrix m n a)
+
+instance (KnownNat m, KnownNat n, MultiplicativeMagma a, Additive a) => Distribution (Matrix m n a)
+
+instance (KnownNat m, KnownNat n, Semiring a) => Semiring (Matrix m n a)
+instance (KnownNat m, KnownNat n, Ring a) => Ring (Matrix m n a)
+instance (KnownNat m, KnownNat n, CRing a) => CRing (Matrix m n a)
+instance (KnownNat m, KnownNat n, Field a) => Field (Matrix m n a)
+
+instance (KnownNat m, KnownNat n, ExpField a) => ExpField (Matrix m n a) where
+    exp = fmapRep exp
+    log = fmapRep log
+
+instance (KnownNat m, KnownNat n, BoundedField a) => BoundedField (Matrix m n a) where
+    isNaN f = or (fmapRep isNaN f)
+
+instance (KnownNat m, KnownNat n, Signed a) => Signed (Matrix m n a) where
+    sign = fmapRep sign
+    abs = fmapRep abs
+
+instance (ExpField a) =>
+    Normed (Matrix m n a) a where
+    size r = sqrt $ foldr (+) zero $ (**(one+one)) <$> r
+
+instance (KnownNat m, KnownNat n, Epsilon a) => Epsilon (Matrix m n a) where
+    nearZero f = and (fmapRep nearZero f)
+    aboutEqual a b = and (liftR2 aboutEqual a b)
+
+instance (KnownNat m, KnownNat n, ExpField a) => Metric (Matrix m n a) a where
+    distance a b = size (a - b)
+
+instance (KnownNat m, KnownNat n, Integral a) => Integral (Matrix m n a) where
+    divMod a b = (d,m)
+        where
+          x = liftR2 divMod a b
+          d = fmap fst x
+          m = fmap snd x

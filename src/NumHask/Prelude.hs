@@ -18,7 +18,6 @@ module NumHask.Prelude (
   , module NumHask.Algebra.Metric
   , module NumHask.Algebra.Module
   , module NumHask.Algebra.Multiplicative
-  , module NumHask.Algebra.Ordering
   , module NumHask.Algebra.Ring
   ) where
 
@@ -61,7 +60,6 @@ import NumHask.Algebra.Magma
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ordering
 import NumHask.Algebra.Ring
 
 -- $backend

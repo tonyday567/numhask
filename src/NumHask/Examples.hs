@@ -19,8 +19,6 @@ module NumHask.Examples (
 
     ) where
 
--- import NumHask.Prelude
-
 -- $imports
 -- NumHask.Prelude is a complete replacement for the standard prelude.
 --
