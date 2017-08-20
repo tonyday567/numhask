@@ -1,5 +1,5 @@
 name: numhask
-version: 0.0.9
+version: 0.1.0
 synopsis:
   A numeric prelude
 description:
@@ -50,7 +50,7 @@ library
     NumHask.Algebra.Metric,
     NumHask.Algebra.Module,
     NumHask.Algebra.Multiplicative,
-    NumHask.Naperian,                
+    NumHask.Shape,                
     NumHask.Vector,
     NumHask.Matrix
   build-depends:

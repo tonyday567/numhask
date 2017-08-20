@@ -9,7 +9,6 @@ module NumHask.Algebra.Additive (
   , AdditiveAssociative
   , AdditiveCommutative
   , AdditiveInvertible(..)
-  , AdditiveHomomorphic(..)
   , AdditiveIdempotent
   , AdditiveMonoidal
   , Additive(..)
@@ -88,16 +87,6 @@ instance AdditiveInvertible Integer where negate = P.negate
 instance AdditiveInvertible Bool where negate = P.not
 instance (AdditiveInvertible a) => AdditiveInvertible (Complex a) where
     negate (rx :+ ix) = negate rx :+ negate ix
-
--- | AdditiveHomomorphic
---
--- > ∀ a ∈ A: plushom a ∈ B
---
--- law is true by construction in Haskell
-class (AdditiveMagma b) => AdditiveHomomorphic a b where
-    plushom :: a -> b
-
-instance AdditiveMagma a => AdditiveHomomorphic a a where plushom a = a
 
 -- | AdditiveIdempotent
 --

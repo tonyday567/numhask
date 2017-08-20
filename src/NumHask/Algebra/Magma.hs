@@ -8,8 +8,6 @@ module NumHask.Algebra.Magma (
   , Commutative
   , Invertible(..)
   , Idempotent
-  , Homomorphic(..)
-  , Isomorphic(..)
   , Monoidal
   , CMonoidal
   , Loop
@@ -69,22 +67,6 @@ class Magma a => Invertible a where inv :: a -> a
 --
 -- > a ⊕ a = a
 class Magma a => Idempotent a
-
--- | A Homomorph between two Magmas
---
--- > ∀ a ∈ A: hom a ∈ B
---
--- law is true by construction in Haskell
---
-class ( Magma a
-      , Magma b) =>
-      Homomorphic a b where hom :: a -> b
-
-instance Magma a => Homomorphic a a where hom a = a
-
--- | major conceptual clashidge with many other libraries
-class (Magma a, Magma b) => Isomorphic a b where
-    isomorph :: (a -> b, b -> a)
 
 -- | A Monoidal Magma is associative and unital.
 class ( Associative a

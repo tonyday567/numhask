@@ -35,7 +35,7 @@ import Data.Proxy (Proxy(..))
 import GHC.TypeLits
 import NumHask.Prelude hiding (show)
 import NumHask.Vector
-import NumHask.Naperian
+import NumHask.Shape
 import Test.QuickCheck
 import qualified Data.Vector as V
 import GHC.Show
@@ -52,9 +52,6 @@ instance forall m n. (KnownNat m, KnownNat n) =>
     type Shape (Matrix m n) = (Int,Int)
     shape _ = ( P.fromInteger $ natVal (Proxy :: Proxy n)
               , P.fromInteger $ natVal (Proxy :: Proxy n))
-    ndim _ = 2
-
-instance (KnownNat m, KnownNat n) => Naperian (Matrix (m::Nat) (n::Nat))
 
 instance (Show a, KnownNat m, KnownNat n) => Show (Matrix (m::Nat) (n::Nat) a) where
     show = show . someMatrix
@@ -93,7 +90,6 @@ data SomeMatrix a = SomeMatrix (Int,Int) (V.Vector a)
 instance HasShape SomeMatrix where
     type Shape SomeMatrix = (Int,Int)
     shape (SomeMatrix sh _) = sh
-    ndim = P.length . shape
 
 instance (Show a) => Show (SomeMatrix a) where
     show (SomeMatrix _ v) = show (P.toList v)
@@ -197,8 +193,6 @@ instance (KnownNat m, KnownNat n, AdditiveAssociative a) => AdditiveAssociative 
 instance (KnownNat m, KnownNat n, AdditiveCommutative a) => AdditiveCommutative (Matrix m n a)
 instance (KnownNat m, KnownNat n, AdditiveInvertible a) => AdditiveInvertible (Matrix m n a) where
     negate = fmapRep negate
-instance (KnownNat m, KnownNat n, AdditiveMagma a) => AdditiveHomomorphic a (Matrix m n a) where
-    plushom a = pureRep a
 instance (KnownNat m, KnownNat n, AdditiveMonoidal a) => AdditiveMonoidal (Matrix m n a)
 instance (KnownNat m, KnownNat n, Additive a) => Additive (Matrix m n a)
 instance (KnownNat m, KnownNat n, AdditiveGroup a) => AdditiveGroup (Matrix m n a)
@@ -211,8 +205,6 @@ instance (KnownNat m, KnownNat n, MultiplicativeAssociative a) => Multiplicative
 instance (KnownNat m, KnownNat n, MultiplicativeCommutative a) => MultiplicativeCommutative (Matrix m n a)
 instance (KnownNat m, KnownNat n, MultiplicativeInvertible a) => MultiplicativeInvertible (Matrix m n a) where
     recip = fmapRep recip
-instance (KnownNat m, KnownNat n, MultiplicativeMagma a) => MultiplicativeHomomorphic a (Matrix m n a) where
-    timeshom a = pureRep a
 instance (KnownNat m, KnownNat n, MultiplicativeMonoidal a) => MultiplicativeMonoidal (Matrix m n a)
 instance (KnownNat m, KnownNat n, Multiplicative a) => Multiplicative (Matrix m n a)
 instance (KnownNat m, KnownNat n, MultiplicativeGroup a) => MultiplicativeGroup (Matrix m n a)

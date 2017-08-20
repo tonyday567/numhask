@@ -7,7 +7,6 @@ module Main where
 import NumHask.Prelude
 import NumHask.Vector
 import NumHask.Matrix
-import NumHask.Naperian
 
 import Test.Tasty (TestName, TestTree, testGroup, defaultMain, localOption)
 import Test.Tasty.QuickCheck
@@ -657,7 +656,7 @@ additiveGroupModuleLaws ::
     ( Eq (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Naperian r
+    , Representable r
     , AdditiveGroupModule r a
     ) => [Law2 (r a) a]
 additiveGroupModuleLaws =
@@ -682,7 +681,7 @@ additiveGroupModuleLawsFail ::
     , Arbitrary (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Naperian r
+    , Representable r
     , AdditiveGroupModule r a
     ) => [Law2 (r a) a]
 additiveGroupModuleLawsFail =
@@ -754,7 +753,7 @@ multiplicativeGroupModuleLaws ::
     , Eq a
     , Epsilon a
     , Epsilon (r a)
-    , Naperian r
+    , Representable r
     , MultiplicativeGroup (r a)
     , MultiplicativeGroupModule r a
     ) => [Law2 (r a) a]
@@ -870,7 +869,7 @@ multiplicativeGroupBasisLaws ::
     ( Eq (r a)
     , Epsilon a
     , Epsilon (r a)
-    , Naperian r
+    , Representable r
     , MultiplicativeGroupBasis r a
     ) => [Law (r a)]
 multiplicativeGroupBasisLaws =

@@ -19,6 +19,8 @@ module NumHask.Prelude (
   , module NumHask.Algebra.Module
   , module NumHask.Algebra.Multiplicative
   , module NumHask.Algebra.Ring
+  , Representable(..)
+  , pureRep
   ) where
 
 import Protolude hiding
@@ -61,6 +63,7 @@ import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import Data.Functor.Rep
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.

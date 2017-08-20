@@ -11,7 +11,6 @@ module NumHask.Algebra.Multiplicative (
   , MultiplicativeAssociative
   , MultiplicativeCommutative
   , MultiplicativeInvertible(..)
-  , MultiplicativeHomomorphic(..)
   , MultiplicativeMonoidal
   , Multiplicative(..)
   , MultiplicativeRightCancellative(..)
@@ -93,18 +92,6 @@ instance (AdditiveGroup a, MultiplicativeInvertible a) =>
     recip (rx :+ ix) = (rx `times` d) :+ (negate ix `times` d)
       where
         d = recip ((rx `times` rx) `plus` (ix `times` ix))
-
--- | MultiplicativeHomomorphic
---
--- > ∀ a ∈ A: timeshom a ∈ B
---
--- law is true by construction in Haskell
-class ( MultiplicativeMagma b) =>
-      MultiplicativeHomomorphic a b where
-    timeshom :: a -> b
-
-instance MultiplicativeMagma a => MultiplicativeHomomorphic a a where
-    timeshom a = a
 
 -- | MultiplicativeMonoidal
 class ( MultiplicativeUnital a

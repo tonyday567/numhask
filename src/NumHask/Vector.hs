@@ -24,7 +24,7 @@ import GHC.Exts
 import GHC.Show (show)
 import GHC.TypeLits
 import NumHask.Prelude hiding (show)
-import NumHask.Naperian
+import NumHask.Shape
 import Test.QuickCheck
 import qualified Data.Vector as V
 
@@ -38,9 +38,6 @@ instance forall n. (KnownNat n) =>
     HasShape (Vector (n::Nat)) where
     type Shape (Vector n) = Int
     shape _ = P.fromInteger $ natVal (Proxy :: Proxy n)
-    ndim _ = 1
-
-instance (KnownNat n) => Naperian (Vector (n::Nat))
 
 instance (Show a, KnownNat n) => Show (Vector (n::Nat) a) where
     show = show . someVector
@@ -73,7 +70,6 @@ data SomeVector a = SomeVector Int (V.Vector a)
 instance HasShape SomeVector where
     type Shape SomeVector = Int
     shape (SomeVector sh _) = sh
-    ndim _ = 1
 
 instance (Show a) => Show (SomeVector a) where
     show (SomeVector _ v) = show (P.toList v)
@@ -134,8 +130,6 @@ instance (KnownNat n, AdditiveAssociative a) => AdditiveAssociative (Vector n a)
 instance (KnownNat n, AdditiveCommutative a) => AdditiveCommutative (Vector n a)
 instance (KnownNat n, AdditiveInvertible a) => AdditiveInvertible (Vector n a) where
     negate = fmapRep negate
-instance (KnownNat n, AdditiveMagma a) => AdditiveHomomorphic a (Vector n a) where
-    plushom a = pureRep a
 instance (KnownNat n, AdditiveMonoidal a) => AdditiveMonoidal (Vector n a)
 instance (KnownNat n, Additive a) => Additive (Vector n a)
 instance (KnownNat n, AdditiveGroup a) => AdditiveGroup (Vector n a)
@@ -148,8 +142,6 @@ instance (KnownNat n, MultiplicativeAssociative a) => MultiplicativeAssociative 
 instance (KnownNat n, MultiplicativeCommutative a) => MultiplicativeCommutative (Vector n a)
 instance (KnownNat n, MultiplicativeInvertible a) => MultiplicativeInvertible (Vector n a) where
     recip = fmapRep recip
-instance (KnownNat n, MultiplicativeMagma a) => MultiplicativeHomomorphic a (Vector n a) where
-    timeshom a = pureRep a
 instance (KnownNat n, MultiplicativeMonoidal a) => MultiplicativeMonoidal (Vector n a)
 instance (KnownNat n, Multiplicative a) => Multiplicative (Vector n a)
 instance (KnownNat n, MultiplicativeGroup a) => MultiplicativeGroup (Vector n a)
