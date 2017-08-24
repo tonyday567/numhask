@@ -1,12 +1,13 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | A prelude for NumHask
 
 module NumHask.Prelude (
+
     -- * Backend
     -- $backend
     module Protolude
+
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Additive
@@ -18,7 +19,6 @@ module NumHask.Prelude (
   , module NumHask.Algebra.Metric
   , module NumHask.Algebra.Module
   , module NumHask.Algebra.Multiplicative
-  , module NumHask.Algebra.Ordering
   , module NumHask.Algebra.Ring
   ) where
 
@@ -50,7 +50,23 @@ import Protolude hiding
     , toInteger
     , fromInteger
     , Rep
-    )
+    , sum
+    , product
+    , pi
+    , sin
+    , cos
+    , tan
+    , asin
+    , acos
+    , atan
+    , sinh
+    , cosh
+    , tanh
+    , asinh
+    , acosh
+    , atanh
+    , atan2
+   )
 
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis
@@ -61,7 +77,6 @@ import NumHask.Algebra.Magma
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ordering
 import NumHask.Algebra.Ring
 
 -- $backend

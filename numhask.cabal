@@ -1,12 +1,9 @@
 name: numhask
-version: 0.0.9
+version: 0.1.0
 synopsis:
   A numeric prelude
 description:
-  Classes for numbers, higher-dimension representable objects, and algebras that combine them.
-  .
-  See NumHask.Examples for usage.
-  .
+  A numeric prelude, providing a clean structure for numbers and operations that combine them.
 category:
   mathematics
 homepage:
@@ -33,12 +30,12 @@ library
     Haskell2010
   ghc-options:
     -Wall
-    -fno-warn-orphans
   hs-source-dirs:
     src
   exposed-modules:
     NumHask.Prelude,
     NumHask.Examples,
+    NumHask.Algebra,                
     NumHask.Algebra.Additive,
     NumHask.Algebra.Basis,
     NumHask.Algebra.Distribution,
@@ -48,9 +45,8 @@ library
     NumHask.Algebra.Magma,
     NumHask.Algebra.Metric,
     NumHask.Algebra.Module,
-    NumHask.Algebra.Multiplicative
-    NumHask.Algebra.Ordering,
-    NumHask.Naperian,
+    NumHask.Algebra.Multiplicative,
+    NumHask.Shape,                
     NumHask.Vector,
     NumHask.Matrix
   build-depends:
@@ -62,38 +58,8 @@ library
     distributive >= 0.5 && < 0.6
   default-extensions:
     NoImplicitPrelude,
-    UnicodeSyntax,
-    BangPatterns,
-    BinaryLiterals,
-    DeriveFoldable,
-    DeriveFunctor,
-    DeriveGeneric,
-    DeriveTraversable,
-    DisambiguateRecordFields,
-    EmptyCase,
-    FlexibleContexts,
-    FlexibleInstances,
-    FunctionalDependencies,
-    GADTSyntax,
-    InstanceSigs,
-    KindSignatures,
-    LambdaCase,
-    MonadComprehensions,
-    MultiParamTypeClasses,
-    MultiWayIf,
-    NegativeLiterals,
     OverloadedStrings,
-    ParallelListComp,
-    PartialTypeSignatures,
-    PatternSynonyms,
-    RankNTypes,
-    RecordWildCards,
-    RecursiveDo,
-    ScopedTypeVariables,
-    TupleSections,
-    TypeFamilies,
-    TypeOperators,
-    ExtendedDefaultRules
+    UnicodeSyntax
 
 test-suite test
   default-language:
@@ -112,38 +78,8 @@ test-suite test
     doctest
   default-extensions:
     NoImplicitPrelude,
-    UnicodeSyntax,
-    BangPatterns,
-    BinaryLiterals,
-    DeriveFoldable,
-    DeriveFunctor,
-    DeriveGeneric,
-    DeriveTraversable,
-    DisambiguateRecordFields,
-    EmptyCase,
-    FlexibleContexts,
-    FlexibleInstances,
-    FunctionalDependencies,
-    GADTSyntax,
-    InstanceSigs,
-    KindSignatures,
-    LambdaCase,
-    MonadComprehensions,
-    MultiParamTypeClasses,
-    MultiWayIf,
-    NegativeLiterals,
     OverloadedStrings,
-    ParallelListComp,
-    PartialTypeSignatures,
-    PatternSynonyms,
-    RankNTypes,
-    RecordWildCards,
-    RecursiveDo,
-    ScopedTypeVariables,
-    TupleSections,
-    TypeFamilies,
-    TypeOperators,
-    ExtendedDefaultRules
+    UnicodeSyntax
 
 source-repository head
   type:
