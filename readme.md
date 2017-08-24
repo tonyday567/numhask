@@ -5,7 +5,7 @@ numhask
 
 A numeric prelude, providing a clean structure for numbers and operations that combine them.
 
-![field](other/field.svg)
+<img src="https://tonyday567.github.io/other/field.svg">
 
 This particular shed has been painted:
 
@@ -24,7 +24,7 @@ In summary, the library doesn't do anything fancy. But if having to define `(*)`
 Representable numbers
 ---
 
-![hilbert](other/hilbert.svg)
+<img src="https://tonyday567.github.io/other/hilbert.svg">
 
 `Vector` and `Matrix` objects are provided that:
 
