@@ -1,23 +1,20 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLists #-}
-{-# LANGUAGE DataKinds #-}
+{-# OPTIONS_GHC -Wall #-}
 
 -- | NumHask usage examples
-
-module NumHask.Examples (
-    -- * Examples
-
+module NumHask.Examples
+  ( -- * Examples
     -- ** Imports and Pragmas
     -- $imports
     -- $setup
-
     -- ** Basic Arithmetic
     -- $basic
-
     -- ** Vectors
     -- $vector
+  ) where
 
-    ) where
 
 -- $imports
 -- NumHask.Prelude is a complete replacement for the standard prelude.
@@ -26,7 +23,6 @@ module NumHask.Examples (
 --
 -- $setup
 -- >>> :set -XNoImplicitPrelude
--- >>> :set -XExtendedDefaultRules
 -- >>> import NumHask.Prelude
 --
 -- $basic
@@ -45,7 +41,7 @@ module NumHask.Examples (
 -- 1.0
 --
 -- Note that the literal numbers in the divide above defaulted to Float rather than Int.
--- 
+--
 -- >>> 1 / (1::Int)
 -- ...
 -- ... No instance for (MultiplicativeGroup Int)
@@ -53,7 +49,7 @@ module NumHask.Examples (
 --
 -- >>> 1 / fromIntegral (1::Int)
 -- 1.0
--- 
+--
 -- >>> 1 `div` 2
 -- 0
 --
@@ -90,21 +86,33 @@ module NumHask.Examples (
 --
 -- >>> zero/zero+one
 -- NaN
--- 
+--
 -- >>> logBase 2 4
 -- 2.0
--- 
+--
 -- >>> 2 ** 2
 -- 4.0
--- 
+--
 -- >>> sqrt 4
 -- 2.0
--- 
+--
 -- >>> exp 2
 -- 7.38905609893065
 --
 -- >>> log 2
 -- 0.6931471805599453
+--
+-- $complex
+-- 'Complex' from base.
+-- >>> let a = 1 :+ 2
+-- >>> a
+-- 1 :+ 2
+--
+-- >>> zero - a
+-- (-1) :+ (-2)
+--
+-- >>> (1 :+ (-2)) * ((-2) :+ 4)
+-- 6 :+ 8
 --
 -- $vector
 -- A 'Vector' is a number by virtue of it being a 'Representable' 'Functor' where the representation is an 'Int'.
@@ -163,4 +171,3 @@ module NumHask.Examples (
 --
 -- >>> (a >< b) >< (b >< a)
 -- [[[9,12,0],[6,8,0],[0,0,0]],[[18,24,0],[12,16,0],[0,0,0]],[[27,36,0],[18,24,0],[0,0,0]]]
-

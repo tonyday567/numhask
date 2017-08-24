@@ -3,22 +3,46 @@ numhask
 
 [![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) [![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask) [![lts](https://www.stackage.org/package/numhask/badge/lts)](http://stackage.org/lts/package/numhask) [![nightly](https://www.stackage.org/package/numhask/badge/nightly)](http://stackage.org/nightly/package/numhask) 
 
-A numeric prelude for primitive numbers and representable objects.
+A numeric prelude, providing a clean structure for numbers and operations that combine them.
+
+![field](other/field.svg)
+
+This particular shed has been painted:
+
+- by providing separately named magma-derived classes for addition and multiplication, and then being symetrical in the treatment of the two heirarchies.  A short magma structure is provided with the intention of supplying appropriate classes fro operators that are no addition nor multiplication, but this structure is not hooked up to the main classes.
+- to be as compatible as practical with the existing haskell ecosystem.  Ints, Integers, Floats, Doubles and Complex are taken from base and given numhask instances, so they are also Num instances.  Monoid and Semigroup are not used in numhask to maintain compatability.
+- as a replacement for anything in base that has a Num, Fractional or Real constraint.
+- with type-checked Vector and Matrix instances using Representable to build the shape and structure.
+- includes QuickCheck tests of the numeric laws implicit in the classes.  This also includes tracking where laws are approximate or fail for non-exact numbers.
+- the usual operators (+) and (*) operators are reserved for commutative relationships, with plus and times being used for non-commutative ones.
+
+Alternative color-schemes, stylistic flourishes and opines are welcome.
+
+In summary, the library doesn't do anything fancy. But if having to define `(*)` when you just want a `(+)` offends your sensibilities, it may bring some sanity.
+
+
+Representable numbers
+---
+
+![hilbert](other/hilbert.svg)
+
+`Vector` and `Matrix` objects are provided that:
+
+- are shape type-checked
+- are based on Representable instances
+- have inner and tensor product operators
+
+These are experimental and await testing in the wild.
+
+Usage
+---
 
 ``` {.sourceCode .literate .haskell}
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE DataKinds #-}
-```
-
-``` {.sourceCode .literate .haskell}
 import Numhask.Prelude
 ```
 
-`Numhask.Prelude` is a drop-in replacement for `Prelude`. Behind the
-scenes, it wraps `Protolude`.
+'Numhask.Prelude' is designed as a drop-in replacement for Prelude and 'NoImplicitPrelude' is obligatory. Behind the scenes, the module wraps [protolude](https://www.stackage.org/package/protolude).
 
-~~~
-stack build --test
-~~~
+See [Examples](src/NumHask/Examples.hs) for basic examples, and [numhask-space](https://www.stackage.org/package/numhask-space) for slightly heavier number crunching.
 

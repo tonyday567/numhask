@@ -1,9 +1,8 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebraic structure
-module NumHask.Algebra (
-    module NumHask.Algebra.Additive
+module NumHask.Algebra
+  ( module NumHask.Algebra.Additive
   , module NumHask.Algebra.Basis
   , module NumHask.Algebra.Distribution
   , module NumHask.Algebra.Field

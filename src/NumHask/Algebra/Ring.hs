@@ -1,9 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Rings
--- An interesting feature of the NumHask structure is the importance of the commutative Ring ('CRing'), which is a class often needed higher up the class tree.
+-- A distinguishment is made between Rings and Commutative Rings.
 module NumHask.Algebra.Ring (
-    -- * Ring
     Semiring
   , Ring
   , CRing
@@ -16,8 +15,7 @@ import NumHask.Algebra.Distribution
 import Data.Complex (Complex(..))
 
 -- | a semiring
-class ( Additive a
-      , MultiplicativeAssociative a
+class ( MultiplicativeAssociative a
       , MultiplicativeUnital a
       , Distribution a) =>
       Semiring a
@@ -42,7 +40,7 @@ instance Ring Int
 instance Ring Integer
 instance (Ring a) => Ring (Complex a)
 
--- | CRing is a Commutative Ring.  It arises often due to * being defined as only multiplicative commutative.
+-- | CRing is a Ring with Multiplicative Commutation.  It arises often due to * being defined as only multiplicative commutative.
 class ( Multiplicative a, Ring a) => CRing a
 
 instance CRing Double
