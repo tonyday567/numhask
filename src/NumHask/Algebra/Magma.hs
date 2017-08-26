@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Magma
+-- | Bootstrapping the number system.
+--
+-- This heirarchy is repeated for the Additive and Multiplicative structures, in order to achieve class separation, so these classes are not used in the main numerical classes.
 module NumHask.Algebra.Magma
   ( Magma(..)
   , Unital(..)

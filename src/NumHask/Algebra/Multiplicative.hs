@@ -1,15 +1,12 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Multiplicate structure
--- Many treatments of a numeric tower treat multiplication differently to addition.  NumHask treats these two as exactly symmetrical, and thus departs from the usual mathematical terminology.
+-- | A magma heirarchy for multiplication. The basic magma structure is repeated and prefixed with 'Multiplicative-'.
 module NumHask.Algebra.Multiplicative
-   -- ** Multiplicative Structure
   ( MultiplicativeMagma(..)
   , MultiplicativeUnital(..)
   , MultiplicativeAssociative
   , MultiplicativeCommutative
   , MultiplicativeInvertible(..)
-  , MultiplicativeMonoidal
   , product
   , Multiplicative(..)
   , MultiplicativeRightCancellative(..)
@@ -22,8 +19,11 @@ import NumHask.Algebra.Additive
 import qualified Protolude as P
 import Protolude (Bool(..), Double, Float, Int, Integer)
 
--- * Multiplicative structure
--- | 'times' is used for the multiplicative magma to distinguish from '*' which, by convention, implies commutativity
+-- | 'times' is used as the operator for the multiplicative magam to distinguish from '*' which, by convention, implies commutativity
+--
+-- > ∀ a,b ∈ A: a `times` b ∈ A
+--
+-- law is true by construction in Haskell
 class MultiplicativeMagma a where
   times :: a -> a -> a
 
@@ -47,7 +47,7 @@ instance (MultiplicativeMagma a, AdditiveGroup a) =>
   (rx :+ ix) `times` (ry :+ iy) =
     (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
--- | MultiplicativeUnital
+-- | Unital magma for multiplication.
 --
 -- > one `times` a == a
 -- > a `times` one == a
@@ -74,7 +74,7 @@ instance (AdditiveUnital a, AdditiveGroup a, MultiplicativeUnital a) =>
          MultiplicativeUnital (Complex a) where
   one = one :+ zero
 
--- | MultiplicativeAssociative
+-- | Associative magma for multiplication.
 --
 -- > (a `times` b) `times` c == a `times` (b `times` c)
 class MultiplicativeMagma a =>
@@ -93,7 +93,7 @@ instance MultiplicativeAssociative Bool
 instance (AdditiveGroup a, MultiplicativeAssociative a) =>
          MultiplicativeAssociative (Complex a)
 
--- | MultiplicativeCommutative
+-- | Commutative magma for multiplication.
 --
 -- > a `times` b == b `times` a
 class MultiplicativeMagma a =>
@@ -112,7 +112,7 @@ instance MultiplicativeCommutative Bool
 instance (AdditiveGroup a, MultiplicativeCommutative a) =>
          MultiplicativeCommutative (Complex a)
 
--- | MultiplicativeInvertible
+-- | Invertible magma for multiplication.
 --
 -- > ∀ a ∈ A: recip a ∈ A
 --
@@ -133,37 +133,25 @@ instance (AdditiveGroup a, MultiplicativeInvertible a) =>
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
 
--- | MultiplicativeMonoidal
-class (MultiplicativeUnital a, MultiplicativeAssociative a) =>
-      MultiplicativeMonoidal a
+-- | Idempotent magma for multiplication.
+--
+-- > a `times` a == a
+class MultiplicativeMagma a =>
+      MultiplicativeIdempotent a
 
-instance MultiplicativeMonoidal Double
+instance MultiplicativeIdempotent Bool
 
-instance MultiplicativeMonoidal Float
-
-instance MultiplicativeMonoidal Int
-
-instance MultiplicativeMonoidal Integer
-
-instance MultiplicativeMonoidal Bool
-
-instance (AdditiveGroup a, MultiplicativeMonoidal a) =>
-         MultiplicativeMonoidal (Complex a)
-
--- | avoiding the Product monoid
+-- | product definition avoiding a clash with the Product monoid in base
+--
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
 -- | Multiplicative is commutative, associative and unital under multiplication
 --
--- > a * b = b * a
---
--- > (a * b) * c = a * (b * c)
---
--- > one * a = a
---
--- > a * one = a
---
+-- > one * a == a
+-- > a * one == a
+-- > (a * b) * c == a * (b * c)
+-- > a * b == b * a
 class ( MultiplicativeCommutative a
       , MultiplicativeUnital a
       , MultiplicativeAssociative a
@@ -183,11 +171,11 @@ instance Multiplicative Integer
 
 instance Multiplicative Bool
 
-instance (AdditiveGroup a, Multiplicative a)
-          =>
-         Multiplicative (Complex a)
+instance (AdditiveGroup a, Multiplicative a) => Multiplicative (Complex a)
 
 -- | Non-commutative left divide
+--
+-- > recip a `times` a = one
 class ( MultiplicativeUnital a
       , MultiplicativeAssociative a
       , MultiplicativeInvertible a
@@ -198,6 +186,8 @@ class ( MultiplicativeUnital a
   a ~/ b = recip b `times` a
 
 -- | Non-commutative right divide
+--
+-- > a `times` recip a = one
 class ( MultiplicativeUnital a
       , MultiplicativeAssociative a
       , MultiplicativeInvertible a
@@ -207,14 +197,12 @@ class ( MultiplicativeUnital a
   (/~) :: a -> a -> a
   a /~ b = a `times` recip b
 
--- | MultiplicativeGroup
+-- | Divide ('/') is reserved for where both the left and right cancellative laws hold.  This then implies that the MultiplicativeGroup is also Abelian.
 --
 -- > a / a = one
---
 -- > recip a = one / a
---
 -- > recip a * a = one
---
+-- > a * recip a = one
 class (Multiplicative a, MultiplicativeInvertible a) =>
       MultiplicativeGroup a where
   infixl 7 /
@@ -225,6 +213,5 @@ instance MultiplicativeGroup Double
 
 instance MultiplicativeGroup Float
 
-instance (AdditiveGroup a, MultiplicativeGroup a) 
-          =>
+instance (AdditiveGroup a, MultiplicativeGroup a) =>
          MultiplicativeGroup (Complex a)

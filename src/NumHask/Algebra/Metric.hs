@@ -2,11 +2,11 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Metric structure
+-- | Metric classes
 module NumHask.Algebra.Metric
-  ( Metric(..)
+  ( Signed(..)
   , Normed(..)
-  , Signed(..)
+  , Metric(..)
   , Epsilon(..)
   , (≈)
   ) where
@@ -19,7 +19,11 @@ import qualified Protolude as P
 import Protolude
        (Bool(..), Double, Eq(..), Float, Int, Integer, Ord(..), ($), (&&))
 
--- | abs and signnum are warts on the standard 'Num' class, and are separated here to provide a cleaner structure.
+-- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
+--
+-- > abs a * sign a == a
+--
+-- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
 class (MultiplicativeUnital a) =>
       Signed a where
   sign :: a -> a
@@ -53,7 +57,7 @@ instance Signed Integer where
       else negate one
   abs = P.abs
 
--- | Normed is a current wart on the NumHask api, causing all sorts of runaway constraint boiler-plate.
+-- | Like Signed, except the codomain can be different to the domain.
 class Normed a b where
   size :: a -> b
 
@@ -73,15 +77,47 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
          Normed (Complex a) a where
   size (rx :+ ix) = sqrt (rx * rx + ix * ix)
 
--- | This should probably be split off into some sort of alternative Equality logic, but to what end?
+-- | distance between numbers
+--
+-- > distance a b >= zero
+-- > distance a a == zero
+-- > \a b c -> distance a c + distance b c - distance a b >= zero &&
+-- >           distance a b + distance b c - distance a c >= zero &&
+-- >           distance a b + distance a c - distance b c >= zero &&
+class Metric a b where
+  distance :: a -> a -> b
+
+instance Metric Double Double where
+  distance a b = abs (a - b)
+
+instance Metric Float Float where
+  distance a b = abs (a - b)
+
+instance Metric Int Int where
+  distance a b = abs (a - b)
+
+instance Metric Integer Integer where
+  distance a b = abs (a - b)
+
+instance (Multiplicative a, ExpField a, Normed a a) =>
+         Metric (Complex a) a where
+  distance a b = size (a - b)
+
+-- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
 class (AdditiveGroup a) =>
       Epsilon a where
   nearZero :: a -> Bool
   aboutEqual :: a -> a -> Bool
+  positive :: (Eq a, Signed a) => a -> Bool
+  positive a = a == abs a
+  veryPositive :: (Eq a, Signed a) => a -> Bool
+  veryPositive a = P.not (nearZero a) && positive a
+  veryNegative :: (Eq a, Signed a) => a -> Bool
+  veryNegative a = P.not (nearZero a P.|| positive a)
 
 infixl 4 ≈
 
--- | utf ???
+-- | todo: is utf perfectly acceptable these days?
 (≈) :: (Epsilon a) => a -> a -> Bool
 (≈) = aboutEqual
 
@@ -104,23 +140,3 @@ instance Epsilon Integer where
 instance (Epsilon a) => Epsilon (Complex a) where
   nearZero (rx :+ ix) = nearZero rx && nearZero ix
   aboutEqual a b = nearZero $ a - b
-
--- | distance between numbers
-class Metric a b where
-  distance :: a -> a -> b
-
-instance Metric Double Double where
-  distance a b = abs (a - b)
-
-instance Metric Float Float where
-  distance a b = abs (a - b)
-
-instance Metric Int Int where
-  distance a b = abs (a - b)
-
-instance Metric Integer Integer where
-  distance a b = abs (a - b)
-
-instance (Multiplicative a, ExpField a, Normed a a) =>
-         Metric (Complex a) a where
-  distance a b = size (a - b)

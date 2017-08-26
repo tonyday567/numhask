@@ -1,15 +1,13 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Additive Structure
+-- | A magma heirarchy for addition. The basic magma structure is repeated and prefixed with 'Additive-'.
 module NumHask.Algebra.Additive
-    -- ** Additive Structure
   ( AdditiveMagma(..)
   , AdditiveUnital(..)
   , AdditiveAssociative
   , AdditiveCommutative
   , AdditiveInvertible(..)
   , AdditiveIdempotent
-  , AdditiveMonoidal
   , sum
   , Additive(..)
   , AdditiveRightCancellative(..)
@@ -21,10 +19,11 @@ import Data.Complex (Complex(..))
 import qualified Protolude as P
 import Protolude (Bool(..), Double, Float, Int, Integer)
 
--- * Additive structure
--- The Magma structures are repeated for an additive and multiplicative heirarchy, mostly so we can name the specific operators in the usual ways.
+-- | 'plus' is used as the operator for the additive magma to distinguish from '+' which, by convention, implies commutativity
 --
--- | 'plus' is used for the additive magma to distinguish from '+' which, by convention, implies commutativity
+-- > ∀ a,b ∈ A: a `plus` b ∈ A
+--
+-- law is true by construction in Haskell
 class AdditiveMagma a where
   plus :: a -> a -> a
 
@@ -46,7 +45,7 @@ instance AdditiveMagma Bool where
 instance (AdditiveMagma a) => AdditiveMagma (Complex a) where
   (rx :+ ix) `plus` (ry :+ iy) = (rx `plus` ry) :+ (ix `plus` iy)
 
--- | AdditiveUnital
+-- | Unital magma for addition.
 --
 -- > zero `plus` a == a
 -- > a `plus` zero == a
@@ -72,7 +71,7 @@ instance AdditiveUnital Bool where
 instance (AdditiveUnital a) => AdditiveUnital (Complex a) where
   zero = zero :+ zero
 
--- | AdditiveAssociative
+-- | Associative magma for addition.
 --
 -- > (a `plus` b) `plus` c == a `plus` (b `plus` c)
 class AdditiveMagma a =>
@@ -90,7 +89,7 @@ instance AdditiveAssociative Bool
 
 instance (AdditiveAssociative a) => AdditiveAssociative (Complex a)
 
--- | AdditiveCommutative
+-- | Commutative magma for addition.
 --
 -- > a `plus` b == b `plus` a
 class AdditiveMagma a =>
@@ -108,7 +107,7 @@ instance AdditiveCommutative Bool
 
 instance (AdditiveCommutative a) => AdditiveCommutative (Complex a)
 
--- | AdditiveInvertible
+-- | Invertible magma for addition.
 --
 -- > ∀ a ∈ A: negate a ∈ A
 --
@@ -135,7 +134,7 @@ instance AdditiveInvertible Bool where
 instance (AdditiveInvertible a) => AdditiveInvertible (Complex a) where
   negate (rx :+ ix) = negate rx :+ negate ix
 
--- | AdditiveIdempotent
+-- | Idempotent magma for addition.
 --
 -- > a `plus` a == a
 class AdditiveMagma a =>
@@ -143,37 +142,17 @@ class AdditiveMagma a =>
 
 instance AdditiveIdempotent Bool
 
--- | AdditiveMonoidal
-class (AdditiveUnital a, AdditiveAssociative a) =>
-      AdditiveMonoidal a
-
-instance AdditiveMonoidal Double
-
-instance AdditiveMonoidal Float
-
-instance AdditiveMonoidal Int
-
-instance AdditiveMonoidal Integer
-
-instance AdditiveMonoidal Bool
-
-instance (AdditiveMonoidal a) => AdditiveMonoidal (Complex a)
-
--- | sum definition avoids a Sum monoid
--- todo: could possibly drop commutivity here and have rsum and lsum
+-- | sum definition avoiding a clash with the Sum monoid in base
+--
 sum :: (Additive a, P.Foldable f) => f a -> a
 sum = P.foldr (+) zero
 
 -- | Additive is commutative, unital and associative under addition
 --
--- > a + b = b + a
---
--- > (a + b) + c = a + (b + c)
---
--- > zero + a = a
---
--- > a + zero = a
---
+-- > zero + a == a
+-- > a + zero == a
+-- > (a + b) + c == a + (b + c)
+-- > a + b == b + a
 class (AdditiveCommutative a, AdditiveUnital a, AdditiveAssociative a) =>
       Additive a where
   infixl 6 +
@@ -193,6 +172,8 @@ instance Additive Bool
 instance (Additive a) => Additive (Complex a)
 
 -- | Non-commutative left minus
+--
+-- > negate a `plus` a = zero
 class (AdditiveUnital a, AdditiveAssociative a, AdditiveInvertible a) =>
       AdditiveLeftCancellative a where
   infixl 6 ~-
@@ -200,20 +181,22 @@ class (AdditiveUnital a, AdditiveAssociative a, AdditiveInvertible a) =>
   (~-) a b = negate b `plus` a
 
 -- | Non-commutative right minus
+--
+-- > a `plus` negate a = zero
 class (AdditiveUnital a, AdditiveAssociative a, AdditiveInvertible a) =>
       AdditiveRightCancellative a where
   infixl 6 -~
   (-~) :: a -> a -> a
   (-~) a b = a `plus` negate b
 
--- | AdditiveGroup
+-- | Minus ('-') is reserved for where both the left and right cancellative laws hold.  This then implies that the AdditiveGroup is also Abelian.
+--
+-- Syntactic unary negation - substituting "negate a" for "-a" in code - is hard-coded in the language to assume a Num instance.  So, for example, using ''-a = zero - a' for the second rule below doesn't work.
 --
 -- > a - a = zero
---
 -- > negate a = zero - a
---
 -- > negate a + a = zero
---
+-- > a + negate a = zero
 class (Additive a, AdditiveInvertible a) =>
       AdditiveGroup a where
   infixl 6 -

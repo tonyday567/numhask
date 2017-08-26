@@ -2,7 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Highjacking 'Representable's to provide a basis to provide element-by-element operations
+-- | Element-by-element operation for 'Representable's
 module NumHask.Algebra.Basis
   ( AdditiveBasis(..)
   , AdditiveGroupBasis(..)
@@ -14,8 +14,12 @@ import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 
--- | AdditiveBasis
--- element by element addition
+-- | element by element addition
+--
+-- > (a .+. b) .+. c == a .+. (b .+. c)
+-- > zero .+. a = a
+-- > a .+. zero = a
+-- > a .+. b == b .+. a
 class (Representable m, Additive a) =>
       AdditiveBasis m a where
   infixl 7 .+.
@@ -24,8 +28,9 @@ class (Representable m, Additive a) =>
 
 instance (Representable r, Additive a) => AdditiveBasis r a
 
--- | AdditiveGroupBasis
--- element by element subtraction
+-- | element by element subtraction
+--
+-- > a .-. a = singleton zero
 class (Representable m, AdditiveGroup a) =>
       AdditiveGroupBasis m a where
   infixl 6 .-.
@@ -34,8 +39,12 @@ class (Representable m, AdditiveGroup a) =>
 
 instance (Representable r, AdditiveGroup a) => AdditiveGroupBasis r a
 
--- | MultiplicativeBasis
--- element by element multiplication
+-- | element by element multiplication
+--
+-- > (a .*. b) .*. c == a .*. (b .*. c)
+-- > singleton one .*. a = a
+-- > a .*. singelton one = a
+-- > a .*. b == b .*. a
 class (Representable m, Multiplicative a) =>
       MultiplicativeBasis m a where
   infixl 7 .*.
@@ -44,8 +53,9 @@ class (Representable m, Multiplicative a) =>
 
 instance (Representable r, Multiplicative a) => MultiplicativeBasis r a
 
--- | MultiplicativeGroupBasis
--- element by element division
+-- | element by element division
+--
+-- > a ./. a == singleton one
 class (Representable m, MultiplicativeGroup a) =>
       MultiplicativeGroupBasis m a where
   infixl 7 ./.

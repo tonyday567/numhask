@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Integral domains
+-- | Integral classes
 module NumHask.Algebra.Integral
   ( Integral(..)
   , ToInteger(..)
@@ -12,14 +12,12 @@ import NumHask.Algebra.Ring
 import qualified Protolude as P
 import Protolude (Double, Float, Int, Integer, (.), fst, snd)
 
--- | Integral
+-- | Integral laws
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
---
 class (Ring a) =>
       Integral a where
   infixl 7 `div`, `mod`
-  -- | truncates towards negative infinity
   div :: a -> a -> a
   div a1 a2 = fst (divMod a1 a2)
   mod :: a -> a -> a
@@ -32,15 +30,17 @@ instance Integral Int where
 instance Integral Integer where
   divMod = P.divMod
 
--- | toInteger and fromInteger as per the base 'Num' instance is problematic for numbers with a structure
+-- | toInteger is kept separate from Integral to help with compatability issues.
 class ToInteger a where
   toInteger :: a -> Integer
 
--- | fromInteger
+-- | fromInteger is the most problematic of the 'Num' class operators.  Particularly heinous, it is assumed that any number type can be constructed from an Integer, so that the broad classes of objects that are composed of multiple elements is avoided in haskell.
 class FromInteger a where
   fromInteger :: Integer -> a
 
--- | This splitting away of fromInteger from the 'Ring' instance tends to increase constraint boier-plate
+-- | coercion of 'Integral's
+--
+-- > fromIntegral a == a
 fromIntegral :: (ToInteger a, FromInteger b) => a -> b
 fromIntegral = fromInteger . toInteger
 

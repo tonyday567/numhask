@@ -7,14 +7,12 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Algebra for Representable number interaction with elements
+-- | Algebra for Representable numbers
 module NumHask.Algebra.Module
-    -- * Module
   ( AdditiveModule(..)
   , AdditiveGroupModule(..)
   , MultiplicativeModule(..)
   , MultiplicativeGroupModule(..)
-    -- * Tensoring
   , Banach(..)
   , Hilbert(..)
   , inner
@@ -25,14 +23,18 @@ module NumHask.Algebra.Module
 import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
-import NumHask.Algebra.Ring
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import Protolude
        (Double, Float, Foldable(..), Functor(..), Int, Integer, ($))
 
--- * Additive Module Structure
--- | AdditiveModule
+-- | Additive Module Laws
+--
+-- > (a + b) .+ c == a + (b .+ c)
+-- > (a + b) .+ c == (a .+ c) + b
+-- > a .+ zero == a
+-- > a .+ b == b +. a
 class (Representable r, Additive a) =>
       AdditiveModule r a where
   infixl 6 .+
@@ -44,7 +46,12 @@ class (Representable r, Additive a) =>
 
 instance (Representable r, Additive a) => AdditiveModule r a
 
--- | AdditiveGroupModule
+-- | Subtraction Module Laws
+--
+-- > (a + b) .- c == a + (b .- c)
+-- > (a + b) .- c == (a .- c) + b
+-- > a .- zero == a
+-- > a .- b == negate b +. a
 class (Representable r, AdditiveGroup a) =>
       AdditiveGroupModule r a where
   infixl 6 .-
@@ -56,8 +63,13 @@ class (Representable r, AdditiveGroup a) =>
 
 instance (Representable r, AdditiveGroup a) => AdditiveGroupModule r a
 
--- * Multiplicative Module Structure
--- | MultiplicativeModule
+-- | Multiplicative Module Laws
+--
+-- > a .* one == a
+-- > (a + b) .* c == (a .* c) + (b .* c)
+-- > c *. (a + b) == (c *. a) + (c *. b)
+-- > a .* zero == zero
+-- > a .* b == b *. a
 class (Representable r, Multiplicative a) =>
       MultiplicativeModule r a where
   infixl 7 .*
@@ -69,7 +81,10 @@ class (Representable r, Multiplicative a) =>
 
 instance (Representable r, Multiplicative a) => MultiplicativeModule r a
 
--- | MultiplicativeGroupModule
+-- | Division Module Laws
+--
+-- > nearZero a || a ./ one == a
+-- > b == zero || a ./ b == recip b *. a
 class (Representable r, MultiplicativeGroup a) =>
       MultiplicativeGroupModule r a where
   infixl 7 ./
@@ -82,7 +97,9 @@ class (Representable r, MultiplicativeGroup a) =>
 instance (Representable r, MultiplicativeGroup a) =>
          MultiplicativeGroupModule r a
 
--- | Banach
+-- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
+--
+-- > a == singleton zero || normalize a *. size a == a
 class (Representable r, ExpField a, Normed (r a) a) =>
       Banach r a where
   normalize :: r a -> r a
@@ -90,16 +107,19 @@ class (Representable r, ExpField a, Normed (r a) a) =>
 
 instance (Normed (r a) a, ExpField a, Representable r) => Banach r a
 
--- | Hilbert
-class ( Semiring a
-      , Foldable r
-      , Representable r
-      ) =>
+-- | the inner product of a representable over a semiring
+--
+-- > a <.> b == b <.> a
+-- > a <.> (b +c) == a <.> b + a <.> c
+-- > a <.> (s *. b + c) == s * (a <.> b) + a <.> c
+-- (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)
+class (Semiring a, Foldable r, Representable r) =>
       Hilbert r a where
   infix 8 <.>
   (<.>) :: r a -> r a -> a
   (<.>) a b = sum $ liftR2 times a b
 
+-- | synonym for (<.>)
 inner :: (Hilbert r a) => r a -> r a -> a
 inner = (<.>)
 
@@ -114,6 +134,7 @@ type instance Double >< Double = Double
 
 type instance Float >< Float = Float
 
+-- | representation synthesis
 type family TensorRep k1 k2 where
   TensorRep (r a) (r a) = r (r a)
   TensorRep (r a) (s a) = r (s a)
@@ -121,7 +142,14 @@ type family TensorRep k1 k2 where
 
 type instance r a >< b = TensorRep (r a) b
 
--- | TensorAlgebra
+-- | generalised outer product
+--
+-- > a><b + c><b == (a+c) >< b
+-- > a><b + a><c == a >< (b+c)
+--
+-- todo: work out why these laws down't apply
+-- > a *. (b><c) == (a><b) .* c
+-- > (a><b) .* c == a *. (b><c)
 class TensorProduct a where
   infix 8 ><
   (><) :: a -> a -> (a >< a)
@@ -130,8 +158,7 @@ class TensorProduct a where
   timesleft :: a -> (a >< a) -> a
   timesright :: (a >< a) -> a -> a
 
-instance (Hilbert r a, Multiplicative a) =>
-         TensorProduct (r a) where
+instance (Hilbert r a, Multiplicative a) => TensorProduct (r a) where
   (><) m n = tabulate (\i -> index m i *. n)
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)

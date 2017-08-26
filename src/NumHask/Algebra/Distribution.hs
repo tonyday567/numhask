@@ -1,8 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Distribution, avoiding name clashes with 'Data.Distributive'
+-- | 'Distribution' avoids a name clash with 'Data.Distributive'
 module NumHask.Algebra.Distribution
-    -- * Distribution
   ( Distribution
   ) where
 
@@ -11,12 +10,12 @@ import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import Protolude (Bool(..), Double, Float, Int, Integer)
 
--- | Distribution
+-- | Distribution (and annihilation) laws
 --
 -- > a * (b + c) == a * b + a * c
---
 -- > (a + b) * c == a * c + b * c
---
+-- > a * zero == zero
+-- > zero * a == zero
 class (Additive a, MultiplicativeMagma a) =>
       Distribution a
 

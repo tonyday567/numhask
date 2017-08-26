@@ -12,10 +12,10 @@
 {-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Two different classes are supplied:
+-- | Two classes are supplied:
 --
--- - 'Vector' where shape information is held at the type level, and
--- - 'SomeVector' where shape is held at the value level.
+-- - A 'Vector' class, with fixed-length n, where shape is held at the type level.
+-- - A 'SomeVector' class, with fixed-length, where shape is held at the value level.
 module NumHask.Vector
   ( Vector(..)
   , SomeVector(..)
@@ -23,30 +23,37 @@ module NumHask.Vector
   , someVector
   , unsafeToVector
   , toVector
+    -- ** Arbitrary
   , ShapeV(..)
   ) where
 
 import Data.Distributive as D
 import Data.Foldable
+import Data.Functor.Classes
 import Data.Functor.Rep
 import Data.Proxy (Proxy(..))
 import qualified Data.Vector as V
 import GHC.Exts
 import GHC.Show (show)
 import GHC.TypeLits
-import NumHask.Prelude hiding (show)
+import NumHask.Algebra
 import NumHask.Shape
+import Protolude
+       (Maybe(..), ($), (.), (<$>), fmap, fst, identity, snd, take)
 import qualified Protolude as P
 import qualified Test.QuickCheck as QC
 
--- | a one-dimensional array where shape is specified at the type level
--- The main purpose of this, beyond safe typing, is to supply the Representable instance with an initial object.
--- A Boxed 'Data.Vector.Vector' is used to derive the usual type heirarchy.
+-- | A one-dimensional array where shape is specified at the type level
+-- The main purpose of this, beyond safe-typing, is to supply the Representable instance with an initial object.
+-- A boxed 'Data.Vector.Vector' is used under the hood.
 newtype Vector (n :: Nat) a = Vector
   { toVec :: V.Vector a
-  } deriving (Eq, Ord, Functor, Foldable, Traversable)
+  } deriving (P.Eq, P.Functor, Foldable, P.Traversable)
 
-instance (Show a, KnownNat n) => Show (Vector (n :: Nat) a) where
+instance Eq1 (Vector n) where
+  liftEq c (Vector a) (Vector b) = V.all identity $ V.zipWith c a b
+
+instance (P.Show a, KnownNat n) => P.Show (Vector (n :: Nat) a) where
   show = show . someVector
 
 -- | pads with 'zero's if needed
@@ -74,7 +81,7 @@ instance KnownNat n => Representable (Vector n) where
       n = P.fromInteger $ natVal (Proxy :: Proxy n)
   index (Vector xs) i = xs V.! i
 
-instance (KnownNat n) => Applicative (Vector n) where
+instance (KnownNat n) => P.Applicative (Vector n) where
   pure = pureRep
   (<*>) = liftR2 ($)
 
@@ -88,13 +95,13 @@ instance (KnownNat n, QC.Arbitrary a, AdditiveUnital a) =>
 data SomeVector a =
   SomeVector Int
              (V.Vector a)
-  deriving (Functor, Eq, Foldable, Ord)
+  deriving (P.Functor, P.Eq, Foldable, P.Ord)
 
 instance HasShape SomeVector where
   type Shape SomeVector = Int
   shape (SomeVector sh _) = sh
 
-instance (Show a) => Show (SomeVector a) where
+instance (P.Show a) => P.Show (SomeVector a) where
   show (SomeVector _ v) = show (P.toList v)
 
 instance IsList (SomeVector a) where
@@ -115,15 +122,16 @@ unsafeToVector (SomeVector _ v) = Vector v
 toVector ::
      forall a r. (KnownNat r)
   => SomeVector a
-  -> Maybe (Vector (r :: Nat) a)
+  -> P.Maybe (Vector (r :: Nat) a)
 toVector (SomeVector s v) =
-  if s == n
+  if s P.== n
     then Just $ Vector v
     else Nothing
   where
     n = P.fromInteger $ natVal (Proxy :: Proxy r)
 
--- used to get sensible arbitrary instances of SomeVector
+-- ** arbitrary
+-- | ShapeV is used to generate sensible lengths for arbitrary instances of 'SomeVector' and 'SomeMatrix'
 newtype ShapeV = ShapeV
   { unshapeV :: Int
   }
@@ -147,7 +155,6 @@ instance (QC.Arbitrary a) => QC.Arbitrary (SomeVector a) where
         , fromList <$> (take <$> (unshapeV <$> QC.arbitrary) P.<*> QC.vector 20))
       ]
 
--- | NumHask heirarchy for Vector n
 instance (KnownNat n, AdditiveMagma a) => AdditiveMagma (Vector n a) where
   plus = liftR2 plus
 
@@ -163,8 +170,6 @@ instance (KnownNat n, AdditiveCommutative a) =>
 instance (KnownNat n, AdditiveInvertible a) =>
          AdditiveInvertible (Vector n a) where
   negate = fmapRep negate
-
-instance (KnownNat n, AdditiveMonoidal a) => AdditiveMonoidal (Vector n a)
 
 instance (KnownNat n, Additive a) => Additive (Vector n a)
 
@@ -187,9 +192,6 @@ instance (KnownNat n, MultiplicativeCommutative a) =>
 instance (KnownNat n, MultiplicativeInvertible a) =>
          MultiplicativeInvertible (Vector n a) where
   recip = fmapRep recip
-
-instance (KnownNat n, MultiplicativeMonoidal a) =>
-         MultiplicativeMonoidal (Vector n a)
 
 instance (KnownNat n, Multiplicative a) => Multiplicative (Vector n a)
 

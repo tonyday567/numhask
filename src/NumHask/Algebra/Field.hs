@@ -1,8 +1,9 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Field
+-- | Field classes
 module NumHask.Algebra.Field
-  ( Field
+  ( Semifield
+  , Field
   , ExpField(..)
   , QuotientField(..)
   , BoundedField(..)
@@ -13,14 +14,46 @@ module NumHask.Algebra.Field
 
 import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
-import NumHask.Algebra.Distribution
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import Protolude (Bool, Double, Float, Integer, (||))
 import qualified Protolude as P
 
--- | Field
-class (AdditiveGroup a, MultiplicativeGroup a, Distribution a, Ring a) =>
+-- | A Semifield is a Field without Commutative Multiplication.
+class (MultiplicativeInvertible a, Ring a) =>
+      Semifield a
+
+instance Semifield Double
+
+instance Semifield Float
+
+instance (Semifield a) => Semifield (Complex a)
+
+-- | A Field is a Ring plus additive invertible and multiplicative invertible operations.
+--
+-- A summary of the rules inherited from super-classes of Field
+--
+-- > zero + a == a
+-- > a + zero == a
+-- > (a + b) + c == a + (b + c)
+-- > a + b == b + a
+-- > a - a = zero
+-- > negate a = zero - a
+-- > negate a + a = zero
+-- > a + negate a = zero
+-- > one * a == a
+-- > a * one == a
+-- > (a * b) * c == a * (b * c)
+-- > a * (b + c) == a * b + a * c
+-- > (a + b) * c == a * c + b * c
+-- > a * zero == zero
+-- > zero * a == zero
+-- > a * b == b * a
+-- > a / a = one
+-- > recip a = one / a
+-- > recip a * a = one
+-- > a * recip a = one
+class (AdditiveGroup a, MultiplicativeGroup a, Ring a) =>
       Field a
 
 instance Field Double
@@ -29,7 +62,11 @@ instance Field Float
 
 instance (Field a) => Field (Complex a)
 
--- | ExpField
+-- | A hyperbolic field class
+--
+-- > sqrt . (**2) == identity
+-- > log . exp == identity
+-- > for +ive b, a != 0,1: a ** logBase a b ≈ b
 class (Field a) =>
       ExpField a where
   exp :: a -> a
@@ -51,11 +88,15 @@ instance ExpField Float where
   log = P.log
   (**) = (P.**)
 
+-- | todo: bottom is here somewhere???
 instance (TrigField a, ExpField a) => ExpField (Complex a) where
   exp (rx :+ ix) = exp rx * cos ix :+ exp rx * sin ix
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2 ix rx
 
--- | quotient fields explode constraints if they are polymorphed to emit general integrals
+-- | quotient fields explode constraints if they allow for polymorphic integral types
+--
+-- > a - one < floor a <= a <= ceiling a < a + one
+-- > round a == floor (a + one/(one+one))
 class (Field a) =>
       QuotientField a where
   round :: a -> Integer
@@ -75,7 +116,16 @@ instance QuotientField Double where
   floor = P.floor
   (^^) = (P.^^)
 
--- | providing the concepts of infinity and NaN, thus moving away from error throwing
+-- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
+--
+-- > one / zero + infinity == infinity
+-- > infinity + a == infinity
+-- > isNaN (infinity - infinity)
+-- > isNaN (infinity / infinity)
+-- > isNaN (nan + a)
+-- > zero / zero != nan
+--
+-- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
 class (Field a) =>
       BoundedField a where
   maxBound :: a
@@ -100,6 +150,10 @@ instance BoundedField Float where
 instance BoundedField Double where
   isNaN = P.isNaN
 
+-- | todo: work out boundings for complex
+-- as it stands now, complex is different eg
+--
+-- > one / (zero :: Complex Float) == nan
 instance (BoundedField a) => BoundedField (Complex a) where
   isNaN (rx :+ ix) = isNaN rx || isNaN ix
 
