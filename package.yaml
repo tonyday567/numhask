@@ -1,0 +1,58 @@
+name: numhask
+version: '0.1.2'
+synopsis: A numeric prelude
+description: A numeric prelude, providing a clean structure for numbers and operations
+  that combine them.
+category: mathematics
+author: Tony Day
+maintainer: tonyday567@gmail.com
+copyright: Tony Day
+license: BSD3
+github: tonyday567/numhask
+extra-source-files:
+- readme.md
+- stack.yaml
+default-extensions:
+- NegativeLiterals
+- NoImplicitPrelude
+- OverloadedStrings
+- UnicodeSyntax
+library:
+  source-dirs: src
+  ghc-options: -Wall
+  exposed-modules:
+  - NumHask.Prelude
+  - NumHask.Examples
+  - NumHask.Algebra
+  - NumHask.Algebra.Additive
+  - NumHask.Algebra.Basis
+  - NumHask.Algebra.Distribution
+  - NumHask.Algebra.Ring
+  - NumHask.Algebra.Field
+  - NumHask.Algebra.Integral
+  - NumHask.Algebra.Magma
+  - NumHask.Algebra.Metric
+  - NumHask.Algebra.Module
+  - NumHask.Algebra.Multiplicative
+  - NumHask.Shape
+  - NumHask.Vector
+  - NumHask.Matrix
+  dependencies:
+  - base >=4.7 && <4.11
+  - protolude >=0.1 && <0.3
+  - vector >=0.11 && <0.13
+  - QuickCheck >=2.8 && <3
+  - adjunctions >=4.3 && <5
+  - distributive >=0.5 && <0.6
+  - singletons >=2.2 && <3
+  - matrix >=0.3.5.0 && <0.4
+tests:
+  test:
+    main: test.hs
+    source-dirs: test
+    dependencies:
+    - base >=4.7 && <5
+    - numhask
+    - tasty
+    - tasty-quickcheck
+    - doctest

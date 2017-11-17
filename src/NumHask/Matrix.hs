@@ -149,7 +149,7 @@ toMatrix (SomeMatrix s v) =
 toDMatrix :: forall a m n. (KnownNat m, KnownNat n)
   => Matrix (m :: Nat) (n :: Nat) a
     -> Matrix.Matrix a
-toDMatrix x = Matrix.matrix m n (\(i,j) -> index x (i-1,j-1))
+toDMatrix x = Matrix.matrix m n (\(i,j) -> index x (i - 1,j - 1))
   where
     m = P.fromInteger $ natVal (Proxy :: Proxy m)
     n = P.fromInteger $ natVal (Proxy :: Proxy n)

@@ -1,92 +1,75 @@
-name: numhask
-version: 0.1.2
-synopsis:
-  A numeric prelude
-description:
-  A numeric prelude, providing a clean structure for numbers and operations that combine them.
-category:
-  mathematics
-homepage:
-  https://github.com/tonyday567/numhask
-license:
-  BSD3
-license-file:
-  LICENSE
-author:
-  Tony Day
-maintainer:
-  tonyday567@gmail.com
-copyright:
-  Tony Day
-build-type:
-  Simple
-cabal-version:
-  >=1.14
+-- This file has been generated from package.yaml by hpack version 0.18.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           numhask
+version:        0.1.2
+synopsis:       A numeric prelude
+description:    A numeric prelude, providing a clean structure for numbers and operations that combine them.
+category:       mathematics
+homepage:       https://github.com/tonyday567/numhask#readme
+bug-reports:    https://github.com/tonyday567/numhask/issues
+license:        BSD3
+license-file:   LICENSE
+author:         Tony Day
+maintainer:     tonyday567@gmail.com
+copyright:      Tony Day
+build-type:     Simple
+cabal-version:  >= 1.10
+
 extra-source-files:
   readme.md
   stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/numhask
+
 library
-  default-language:
-    Haskell2010
-  ghc-options:
-    -Wall
+  default-language: Haskell2010
+  ghc-options: -Wall
   hs-source-dirs:
     src
   exposed-modules:
-    NumHask.Prelude,
-    NumHask.Examples,
-    NumHask.Algebra,                
-    NumHask.Algebra.Additive,
-    NumHask.Algebra.Basis,
-    NumHask.Algebra.Distribution,
-    NumHask.Algebra.Ring,
-    NumHask.Algebra.Field,
-    NumHask.Algebra.Integral,
-    NumHask.Algebra.Magma,
-    NumHask.Algebra.Metric,
-    NumHask.Algebra.Module,
-    NumHask.Algebra.Multiplicative,
-    NumHask.Shape,                
-    NumHask.Vector,
+    NumHask.Prelude
+    NumHask.Examples
+    NumHask.Algebra
+    NumHask.Algebra.Additive
+    NumHask.Algebra.Basis
+    NumHask.Algebra.Distribution
+    NumHask.Algebra.Ring
+    NumHask.Algebra.Field
+    NumHask.Algebra.Integral
+    NumHask.Algebra.Magma
+    NumHask.Algebra.Metric
+    NumHask.Algebra.Module
+    NumHask.Algebra.Multiplicative
+    NumHask.Shape
+    NumHask.Vector
     NumHask.Matrix
+  other-modules:
+    Paths_numhask
   build-depends:
-    base >= 4.7 && < 4.11,
-    protolude >= 0.1 && < 0.3,
-    vector >= 0.11 && < 0.13,
-    QuickCheck >= 2.8 && < 3,
-    adjunctions >= 4.3 && < 5,
-    distributive >= 0.5 && < 0.6,
-    singletons >= 2.2 && < 3,
+    base >=4.7 && <4.11,
+    protolude >=0.1 && <0.3,
+    vector >=0.11 && <0.13,
+    QuickCheck >=2.8 && <3,
+    adjunctions >=4.3 && <5,
+    distributive >=0.5 && <0.6,
+    singletons >=2.2 && <3,
     matrix >=0.3.5.0 && <0.4
-  default-extensions:
-    NegativeLiterals,
-    NoImplicitPrelude,
-    OverloadedStrings,
-    UnicodeSyntax
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
 
 test-suite test
-  default-language:
-    Haskell2010
-  type:
-    exitcode-stdio-1.0
+  default-language: Haskell2010
+  type: exitcode-stdio-1.0
   hs-source-dirs:
     test
-  main-is:
-    test.hs
+  main-is: test.hs
   build-depends:
-    base >= 4.7 && < 5,
+    base >=4.7 && <5,
     numhask,
     tasty,
     tasty-quickcheck,
     doctest
-  default-extensions:
-    NegativeLiterals,
-    NoImplicitPrelude,
-    OverloadedStrings,
-    UnicodeSyntax
-
-source-repository head
-  type:
-    git
-  location:
-    https://github.com/tonyday567/numhask
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
