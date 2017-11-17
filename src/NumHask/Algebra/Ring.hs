@@ -47,10 +47,8 @@ instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
 -- > (a + b) `times` c == a `times` c + b `times` c
 -- > a `times` zero == zero
 -- > zero `times` a == zero
-class ( AdditiveGroup a
-      , MultiplicativeAssociative a
-      , MultiplicativeUnital a
-      , Distribution a
+class ( Semiring a
+      , AdditiveGroup a
       ) =>
       Ring a
 

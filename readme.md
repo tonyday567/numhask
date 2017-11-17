@@ -44,5 +44,5 @@ import Numhask.Prelude
 
 'Numhask.Prelude' is designed as a drop-in replacement for Prelude and 'NoImplicitPrelude' is obligatory. Behind the scenes, the module wraps [protolude](https://www.stackage.org/package/protolude).
 
-See [Examples](src/NumHask/Examples.hs) for basic examples, and [numhask-space](https://www.stackage.org/package/numhask-space) for slightly heavier number crunching.
+See [Examples](src/NumHask/Examples.hs) for basic examples, and [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier number crunching.
 

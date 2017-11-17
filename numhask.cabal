@@ -59,6 +59,7 @@ library
     singletons >= 2.2 && < 3,
     matrix >=0.3.5.0 && <0.4
   default-extensions:
+    NegativeLiterals,
     NoImplicitPrelude,
     OverloadedStrings,
     UnicodeSyntax
@@ -79,6 +80,7 @@ test-suite test
     tasty-quickcheck,
     doctest
   default-extensions:
+    NegativeLiterals,
     NoImplicitPrelude,
     OverloadedStrings,
     UnicodeSyntax
