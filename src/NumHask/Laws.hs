@@ -27,7 +27,7 @@ module NumHask.Laws
   ) where
 
 import NumHask.Prelude
-import Test.Tasty.QuickCheck
+import Test.Tasty.QuickCheck hiding ((><))
 import Test.Tasty (TestName, TestTree)
 
 data LawArity a
@@ -301,3 +301,211 @@ expFieldComplexLooseLaws _ =
             (a == zero && nearZero (logBase a b)) || (a ** logBase a b ≈ b))))
   ]
 
+metricNaperianFloatLaws :: (Metric (r Float) Float) => [Law (r Float)]
+metricNaperianFloatLaws =
+  [ ("positive", Binary (\a b -> distance a b >= (zero :: Float)))
+  , ("zero if equal", Unary (\a -> distance a a == (zero :: Float)))
+  , ("associative", Binary (\a b -> distance a b ≈ (distance b a :: Float)))
+  , ( "triangle rule - sum of distances > distance"
+    , Ternary
+        (\a b c ->
+           not
+             (veryNegative
+                (distance a c + distance b c - (distance a b :: Float))) &&
+           not
+             (veryNegative
+                (distance a b + distance b c - (distance a c :: Float))) &&
+           not
+             (veryNegative
+                (distance a b + distance a c - (distance b c :: Float)))))
+  ]
+
+expFieldNaperianLaws ::
+     ( ExpField (r a)
+     , Foldable r
+     , ExpField a
+     , Epsilon a
+     , Signed a
+     , Epsilon (r a)
+     , Fractional a
+     , Ord a
+     )
+  => [Law (r a)]
+expFieldNaperianLaws =
+  [ ( "sqrt . (**2) ≈ id"
+    , Unary
+        (\a ->
+           not (all veryPositive a) ||
+           any (> 10.0) a ||
+           (sqrt . (** (one + one)) $ a) ≈ a &&
+           ((** (one + one)) . sqrt $ a) ≈ a))
+  , ( "log . exp ≈ id"
+    , Unary
+        (\a ->
+           not (all veryPositive a) ||
+           any (> 10.0) a || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
+  , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
+    , Binary
+        (\a b ->
+           (not (all veryPositive b) ||
+            not (all nearZero a) ||
+            all (== one) a ||
+            (all (== zero) a && all nearZero (logBase a b)) ||
+            (a ** logBase a b ≈ b))))
+  ]
+
+-- module
+additiveModuleLaws ::
+     (Eq (r a), Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
+additiveModuleLaws =
+  [ ( "additive module associative: (a + b) .+ c ≈ a + (b .+ c)"
+    , Ternary2 (\a b c -> (a + b) .+ c ≈ a + (b .+ c)))
+  , ( "additive module commutative: (a + b) .+ c ≈ (a .+ c) + b"
+    , Ternary2 (\a b c -> (a + b) .+ c ≈ (a .+ c) + b))
+  , ("additive module unital: a .+ zero == a", Unary2 (\a -> a .+ zero == a))
+  , ( "module additive equivalence: a .+ b ≈ b +. a"
+    , Binary2 (\a b -> a .+ b ≈ b +. a))
+  ]
+
+additiveGroupModuleLaws ::
+     (Eq (r a), Epsilon a, Epsilon (r a), AdditiveGroupModule r a)
+  => [Law2 (r a) a]
+additiveGroupModuleLaws =
+  [ ( "additive group module associative: (a + b) .- c ≈ a + (b .- c)"
+    , Ternary2 (\a b c -> (a + b) .- c ≈ a + (b .- c)))
+  , ( "additive group module commutative: (a + b) .- c ≈ (a .- c) + b"
+    , Ternary2 (\a b c -> (a + b) .- c ≈ (a .- c) + b))
+  , ( "additive group module unital: a .- zero == a"
+    , Unary2 (\a -> a .- zero == a))
+  , ( "module additive group equivalence: a .- b ≈ negate b +. a"
+    , Binary2 (\a b -> a .- b ≈ negate b +. a))
+  ]
+
+multiplicativeModuleLaws ::
+     (Eq (r a), Epsilon a, Epsilon (r a), MultiplicativeModule r a)
+  => [Law2 (r a) a]
+multiplicativeModuleLaws =
+  [ ( "multiplicative module unital: a .* one == a"
+    , Unary2 (\a -> a .* one == a))
+  , ( "module right distribution: (a + b) .* c ≈ (a .* c) + (b .* c)"
+    , Ternary2 (\a b c -> (a + b) .* c ≈ (a .* c) + (b .* c)))
+  , ( "module left distribution: c *. (a + b) ≈ (c *. a) + (c *. b)"
+    , Ternary2 (\a b c -> c *. (a + b) ≈ (c *. a) + (c *. b)))
+  , ("annihilation: a .* zero == zero", Unary2 (\a -> a .* zero == zero))
+  , ( "module multiplicative equivalence: a .* b ≈ b *. a"
+    , Binary2 (\a b -> a .* b ≈ b *. a))
+  ]
+
+multiplicativeGroupModuleLawsFail ::
+     ( Eq a
+     , Show a
+     , Arbitrary a
+     , Eq (r a)
+     , Show (r a)
+     , Arbitrary (r a)
+     , Epsilon a
+     , Epsilon (r a)
+     , MultiplicativeGroupModule r a
+     )
+  => [Law2 (r a) a]
+multiplicativeGroupModuleLawsFail =
+  [ ( "multiplicative group module unital: a ./ one == a"
+    , Unary2 (\a -> nearZero a || a ./ one == a))
+  , ( "module multiplicative group equivalence: a ./ b ≈ recip b *. a"
+    , Binary2 (\a b -> b == zero || a ./ b ≈ recip b *. a))
+  ]
+
+banachLaws ::
+     ( Ord a
+     , Fractional a
+     , Signed a
+     , Foldable r
+     , Fractional b
+     , Eq (r a)
+     , Epsilon b
+     , Epsilon (r a)
+     , Metric (r a) b
+     , MultiplicativeGroup b
+     , Banach r a
+     , Normed (r a) b
+     )
+  => [Law2 (r a) b]
+banachLaws =
+  [ ( "normalize a .* size a ≈ one"
+    , Unary2
+        (\a ->
+           a == singleton zero ||
+           (any ((> 10.0) . abs) a || (normalize a .* size a) ≈ a)))
+  ]
+
+hilbertLaws ::
+     (Eq (r a), Eq a, Multiplicative a, Epsilon a, Epsilon (r a), Hilbert r a)
+  => [Law2 (r a) a]
+hilbertLaws =
+  [ ("commutative a <.> b ≈ b <.> a", Ternary2 (\a b _ -> a <.> b ≈ b <.> a))
+  , ( "distributive over addition a <.> (b + c) == a <.> b + a <.> c"
+    , Ternary2'' (\a b c -> a <.> (b + c) ≈ a <.> b + a <.> c))
+  , ( "bilinear a <.> (s *. b + c) == s * (a <.> b) + a <.> c"
+    , Quad31 (\a b c s -> a <.> (s *. b + c) == s * (a <.> b) + a <.> c))
+  , ( "scalar multiplication (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)"
+    , Quad22 (\a b s0 s1 -> (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)))
+  ]
+
+tensorProductLaws ::
+     ( Eq (r (r a))
+     , Additive (r (r a))
+     , Eq (r a)
+     , Eq a
+     , TensorProduct (r a)
+     , Epsilon a
+     , Epsilon (r a)
+     )
+  => [Law2 (r a) a]
+tensorProductLaws =
+  [ ( "left distribution over addition a><b + c><b == (a+c) >< b"
+    , Ternary2'' (\a b c -> a >< b + c >< b == (a + c) >< b))
+  , ( "right distribution over addition a><b + a><c == a >< (b+c)"
+    , Ternary2'' (\a b c -> a >< b + a >< c == a >< (b + c)))
+  -- , ( "left module tensor correspondance a *. (b><c) == (a><b) .* c"
+  --   , Ternary2'' (\a b c -> a *. (b><c) == (a><b) .* c))
+  -- , ( "right module tensor correspondance (a><b) .* c == a *. (b><c)"
+  --   , Ternary2'' (\a b c -> (a><b) .* c == a *. (b><c)))
+  ]
+
+-- basis
+additiveBasisLaws :: (Eq (r a), Epsilon (r a), AdditiveBasis r a) => [Law (r a)]
+additiveBasisLaws =
+  [ ( "associative: (a .+. b) .+. c ≈ a .+. (b .+. c)"
+    , Ternary (\a b c -> (a .+. b) .+. c ≈ a .+. (b .+. c)))
+  , ("left id: zero .+. a = a", Unary (\a -> zero .+. a == a))
+  , ("right id: a .+. zero = a", Unary (\a -> a .+. zero == a))
+  , ("commutative: a .+. b == b .+. a", Binary (\a b -> a .+. b == b .+. a))
+  ]
+
+additiveGroupBasisLaws :: (Eq (r a), AdditiveGroupBasis r a) => [Law (r a)]
+additiveGroupBasisLaws =
+  [ ( "minus: a .-. a = singleton zero"
+    , Unary (\a -> (a .-. a) == singleton zero))
+  ]
+
+multiplicativeBasisLaws :: (Eq (r a), MultiplicativeBasis r a) => [Law (r a)]
+multiplicativeBasisLaws =
+  [ ( "associative: (a .*. b) .*. c == a .*. (b .*. c)"
+    , Ternary (\a b c -> (a .*. b) .*. c == a .*. (b .*. c)))
+  , ("left id: singleton one .*. a = a", Unary (\a -> singleton one .*. a == a))
+  , ( "right id: a .*. singleton one = a"
+    , Unary (\a -> a .*. singleton one == a))
+  , ("commutative: a .*. b == b .*. a", Binary (\a b -> a .*. b == b .*. a))
+  ]
+
+multiplicativeGroupBasisLaws ::
+     ( Eq (r a)
+     , Epsilon a
+     , Epsilon (r a)
+     , MultiplicativeGroupBasis r a
+     )
+  => [Law (r a)]
+multiplicativeGroupBasisLaws =
+  [ ( "basis divide: a ./. a ≈ singleton one"
+    , Unary (\a -> a == singleton zero || (a ./. a) ≈ singleton one))
+  ]
