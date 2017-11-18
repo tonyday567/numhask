@@ -44,11 +44,15 @@ library
     NumHask.Algebra.Metric
     NumHask.Algebra.Module
     NumHask.Algebra.Multiplicative
+    NumHask.Laws
   other-modules:
     Paths_numhask
   build-depends:
-    base >=4.7 && <4.11,
-    protolude >=0.1 && <0.3
+    QuickCheck >=2.8 && <3,
+    protolude >=0.1 && <0.3,
+    tasty,
+    tasty-quickcheck,
+    base >=4.7 && <4.11
   default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
 
 test-suite test
@@ -58,6 +62,10 @@ test-suite test
     test
   main-is: test.hs
   build-depends:
+    QuickCheck >=2.8 && <3,
+    protolude >=0.1 && <0.3,
+    tasty,
+    tasty-quickcheck,
     base >=4.7 && <5,
     QuickCheck >=2.8 && <3,
     doctest,

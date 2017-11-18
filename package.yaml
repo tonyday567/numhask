@@ -17,6 +17,11 @@ default-extensions:
 - NoImplicitPrelude
 - OverloadedStrings
 - UnicodeSyntax
+dependencies:
+- QuickCheck >=2.8 && <3
+- protolude >=0.1 && <0.3
+- tasty
+- tasty-quickcheck
 library:
   source-dirs: src
   ghc-options: -Wall
@@ -34,9 +39,9 @@ library:
   - NumHask.Algebra.Metric
   - NumHask.Algebra.Module
   - NumHask.Algebra.Multiplicative
+  - NumHask.Laws
   dependencies:
   - base >=4.7 && <4.11
-  - protolude >=0.1 && <0.3
 tests:
   test:
     main: test.hs
