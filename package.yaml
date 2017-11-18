@@ -39,6 +39,7 @@ library:
   - NumHask.Algebra.Metric
   - NumHask.Algebra.Module
   - NumHask.Algebra.Multiplicative
+  - NumHask.Algebra.Singleton
   - NumHask.Laws
   dependencies:
   - base >=4.7 && <4.11

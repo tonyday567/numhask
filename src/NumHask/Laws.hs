@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 
 module NumHask.Laws
   ( LawArity(..)
@@ -24,6 +25,19 @@ module NumHask.Laws
   , quotientFieldLaws 
   , expFieldLaws
   , expFieldComplexLooseLaws  
+  , additiveBasisLaws
+  , additiveGroupBasisLaws
+  , multiplicativeBasisLaws
+  , multiplicativeGroupBasisLaws
+  , additiveModuleLaws
+  , additiveGroupModuleLaws
+  , multiplicativeModuleLaws
+  , multiplicativeGroupModuleLawsFail
+  , expFieldNaperianLaws
+  , metricNaperianFloatLaws
+  , tensorProductLaws
+  , banachLaws
+  , hilbertLaws
   ) where
 
 import NumHask.Prelude
@@ -428,6 +442,7 @@ banachLaws ::
      , MultiplicativeGroup b
      , Banach r a
      , Normed (r a) b
+     , Singleton r
      )
   => [Law2 (r a) b]
 banachLaws =
@@ -439,7 +454,13 @@ banachLaws =
   ]
 
 hilbertLaws ::
-     (Eq (r a), Eq a, Multiplicative a, Epsilon a, Epsilon (r a), Hilbert r a)
+    ( Eq (r a)
+    , Eq a
+    , Multiplicative a
+    , MultiplicativeModule r a
+    , Epsilon a
+    , Epsilon (r a)
+    , Hilbert r a)
   => [Law2 (r a) a]
 hilbertLaws =
   [ ("commutative a <.> b ≈ b <.> a", Ternary2 (\a b _ -> a <.> b ≈ b <.> a))
@@ -482,13 +503,13 @@ additiveBasisLaws =
   , ("commutative: a .+. b == b .+. a", Binary (\a b -> a .+. b == b .+. a))
   ]
 
-additiveGroupBasisLaws :: (Eq (r a), AdditiveGroupBasis r a) => [Law (r a)]
+additiveGroupBasisLaws :: (Eq (r a), Singleton r, AdditiveGroupBasis r a) => [Law (r a)]
 additiveGroupBasisLaws =
   [ ( "minus: a .-. a = singleton zero"
     , Unary (\a -> (a .-. a) == singleton zero))
   ]
 
-multiplicativeBasisLaws :: (Eq (r a), MultiplicativeBasis r a) => [Law (r a)]
+multiplicativeBasisLaws :: (Eq (r a), Singleton r, MultiplicativeBasis r a) => [Law (r a)]
 multiplicativeBasisLaws =
   [ ( "associative: (a .*. b) .*. c == a .*. (b .*. c)"
     , Ternary (\a b c -> (a .*. b) .*. c == a .*. (b .*. c)))
@@ -502,6 +523,7 @@ multiplicativeGroupBasisLaws ::
      ( Eq (r a)
      , Epsilon a
      , Epsilon (r a)
+     , Singleton r
      , MultiplicativeGroupBasis r a
      )
   => [Law (r a)]

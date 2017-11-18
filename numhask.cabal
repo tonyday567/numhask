@@ -44,6 +44,7 @@ library
     NumHask.Algebra.Metric
     NumHask.Algebra.Module
     NumHask.Algebra.Multiplicative
+    NumHask.Algebra.Singleton
     NumHask.Laws
   other-modules:
     Paths_numhask
