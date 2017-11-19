@@ -15,19 +15,17 @@ module NumHask.Algebra.Module
   , MultiplicativeGroupModule(..)
   , Banach(..)
   , Hilbert(..)
-  , inner
   , type (><)
   , TensorProduct(..)
   ) where
 
-import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import Protolude
-       (Double, Float, Foldable(..), Functor(..), Int, Integer, ($))
+       (Double, Float, Int, Integer)
 
 -- | Additive Module Laws
 --
@@ -35,16 +33,13 @@ import Protolude
 -- > (a + b) .+ c == (a .+ c) + b
 -- > a .+ zero == a
 -- > a .+ b == b +. a
-class (Representable r, Additive a) =>
+class (Additive a) =>
       AdditiveModule r a where
   infixl 6 .+
   (.+) :: r a -> a -> r a
-  r .+ a = fmap (a +) r
+
   infixl 6 +.
   (+.) :: a -> r a -> r a
-  a +. r = fmap (a +) r
-
-instance (Representable r, Additive a) => AdditiveModule r a
 
 -- | Subtraction Module Laws
 --
@@ -52,16 +47,13 @@ instance (Representable r, Additive a) => AdditiveModule r a
 -- > (a + b) .- c == (a .- c) + b
 -- > a .- zero == a
 -- > a .- b == negate b +. a
-class (Representable r, AdditiveGroup a) =>
+class (AdditiveGroup a, AdditiveModule r a) =>
       AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
-  r .- a = fmap (\x -> x - a) r
+
   infixl 6 -.
   (-.) :: a -> r a -> r a
-  a -. r = fmap (\x -> a - x) r
-
-instance (Representable r, AdditiveGroup a) => AdditiveGroupModule r a
 
 -- | Multiplicative Module Laws
 --
@@ -70,42 +62,31 @@ instance (Representable r, AdditiveGroup a) => AdditiveGroupModule r a
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Representable r, Multiplicative a) =>
+class (Multiplicative a) =>
       MultiplicativeModule r a where
   infixl 7 .*
   (.*) :: r a -> a -> r a
-  r .* a = fmap (a *) r
   infixl 7 *.
   (*.) :: a -> r a -> r a
-  a *. r = fmap (a *) r
-
-instance (Representable r, Multiplicative a) => MultiplicativeModule r a
 
 -- | Division Module Laws
 --
 -- > nearZero a || a ./ one == a
 -- > b == zero || a ./ b == recip b *. a
-class (Representable r, MultiplicativeGroup a) =>
+class (MultiplicativeGroup a, MultiplicativeModule r a) =>
       MultiplicativeGroupModule r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
-  r ./ a = fmap (/ a) r
   infixl 7 /.
   (/.) :: a -> r a -> r a
-  a /. r = fmap (\x -> a / x) r
-
-instance (Representable r, MultiplicativeGroup a) =>
-         MultiplicativeGroupModule r a
 
 -- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
 --
 -- > a == singleton zero || normalize a *. size a == a
-class (Representable r, ExpField a, Normed (r a) a) =>
+class (ExpField a, Normed (r a) a, MultiplicativeGroupModule r a) =>
       Banach r a where
   normalize :: r a -> r a
   normalize a = a ./ size a
-
-instance (Normed (r a) a, ExpField a, Representable r) => Banach r a
 
 -- | the inner product of a representable over a semiring
 --
@@ -113,15 +94,10 @@ instance (Normed (r a) a, ExpField a, Representable r) => Banach r a
 -- > a <.> (b +c) == a <.> b + a <.> c
 -- > a <.> (s *. b + c) == s * (a <.> b) + a <.> c
 -- (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)
-class (Semiring a, Foldable r, Representable r) =>
+class (Semiring a) =>
       Hilbert r a where
   infix 8 <.>
   (<.>) :: r a -> r a -> a
-  (<.>) a b = sum $ liftR2 times a b
-
--- | synonym for (<.>)
-inner :: (Hilbert r a) => r a -> r a -> a
-inner = (<.>)
 
 -- | tensorial type
 type family (><) (a :: k1) (b :: k2) :: *
@@ -157,8 +133,3 @@ class TensorProduct a where
   outer = (><)
   timesleft :: a -> (a >< a) -> a
   timesright :: (a >< a) -> a -> a
-
-instance (Hilbert r a, Multiplicative a) => TensorProduct (r a) where
-  (><) m n = tabulate (\i -> index m i *. n)
-  timesleft v m = tabulate (\i -> v <.> index m i)
-  timesright m v = tabulate (\i -> v <.> index m i)

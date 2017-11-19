@@ -1,5 +1,5 @@
 name: numhask
-version: '0.1.2'
+version: '0.1.3'
 synopsis: A numeric prelude
 description: A numeric prelude, providing a clean structure for numbers and operations
   that combine them.
@@ -17,6 +17,11 @@ default-extensions:
 - NoImplicitPrelude
 - OverloadedStrings
 - UnicodeSyntax
+dependencies:
+- QuickCheck >=2.8 && <3
+- protolude >=0.1 && <0.3
+- tasty
+- tasty-quickcheck
 library:
   source-dirs: src
   ghc-options: -Wall
@@ -34,25 +39,18 @@ library:
   - NumHask.Algebra.Metric
   - NumHask.Algebra.Module
   - NumHask.Algebra.Multiplicative
-  - NumHask.Shape
-  - NumHask.Vector
-  - NumHask.Matrix
+  - NumHask.Algebra.Singleton
+  - NumHask.Laws
   dependencies:
   - base >=4.7 && <4.11
-  - protolude >=0.1 && <0.3
-  - vector >=0.11 && <0.13
-  - QuickCheck >=2.8 && <3
-  - adjunctions >=4.3 && <5
-  - distributive >=0.5 && <0.6
-  - singletons >=2.2 && <3
-  - matrix >=0.3.5.0 && <0.4
 tests:
   test:
     main: test.hs
     source-dirs: test
     dependencies:
     - base >=4.7 && <5
+    - QuickCheck >=2.8 && <3
+    - doctest
     - numhask
     - tasty
     - tasty-quickcheck
-    - doctest

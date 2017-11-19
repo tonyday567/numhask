@@ -18,13 +18,8 @@ module NumHask.Prelude
   , module NumHask.Algebra.Module
   , module NumHask.Algebra.Multiplicative
   , module NumHask.Algebra.Ring
+  , module NumHask.Algebra.Singleton
 
-    -- * Representable Functors over numbers
-    -- $representable
-  , module Data.Functor.Rep
-  , module NumHask.Shape
-  , module NumHask.Vector
-  , module NumHask.Matrix
   ) where
 
 import Protolude
@@ -35,7 +30,6 @@ import Protolude
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
                zero)
 
-import Data.Functor.Rep
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis
 import NumHask.Algebra.Distribution
@@ -46,9 +40,7 @@ import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Matrix
-import NumHask.Shape
-import NumHask.Vector
+import NumHask.Algebra.Singleton
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.
@@ -58,8 +50,3 @@ import NumHask.Vector
 --
 -- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool' and 'Complex' are supplied.
 --
-
--- $representable
--- NumHask uses 'Representable' functors over number classes to supply useful vectors and matrices that are themselves numbers (ie satisfy the class laws).
---
--- 'Vector' and 'Matrix' instances are supplied with shape held at the type-level.
