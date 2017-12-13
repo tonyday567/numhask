@@ -1,153 +1,142 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Metric structure
-module NumHask.Algebra.Metric (
-    -- * Metric
-    BoundedField(..)
-  , infinity
-  , neginfinity
-  , Metric(..)
+-- | Metric classes
+module NumHask.Algebra.Metric
+  ( Signed(..)
   , Normed(..)
-  , Signed(..)
+  , Metric(..)
   , Epsilon(..)
   , (≈)
-  , QuotientField(..)
   ) where
 
-import qualified Protolude as P
-import Protolude (Double, Float, Int, Integer, ($), (<$>), Foldable(..), foldr, Bool(..), Ord(..), Eq(..), any)
-import Data.Functor.Rep
-import NumHask.Algebra.Ring
-import NumHask.Algebra.Field
+import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
-import NumHask.Algebra.Exponential
+import NumHask.Algebra.Field
 import NumHask.Algebra.Multiplicative
+import qualified Protolude as P
+import Protolude
+       (Bool(..), Double, Eq(..), Float, Int, Integer, Ord(..), ($), (&&))
 
--- | providing the concepts of infinity and NaN, thus moving away from error throwing
-class (Field a) => BoundedField a where
-    maxBound :: a
-    maxBound = one/zero
-
-    minBound :: a
-    minBound = negate (one/zero)
-
-    nan :: a
-    nan = zero/zero
-
-    isNaN :: a -> Bool
-
--- | prints as `Infinity`
-infinity :: BoundedField a => a
-infinity = maxBound
-
--- | prints as `-Infinity`
-neginfinity :: BoundedField a => a
-neginfinity = minBound
-
-instance BoundedField Float where isNaN = P.isNaN
-instance BoundedField Double where isNaN = P.isNaN
-instance (Foldable r, Representable r, BoundedField a) =>
-    BoundedField (r a) where
-    isNaN a = any isNaN a
-
--- | abs and signnum are also warts on the standard 'Num' class, and are separated here to provide a cleaner structure.
-class ( AdditiveUnital a
-      , AdditiveGroup a
-      , Multiplicative a
-      ) => Signed a where
-    sign :: a -> a
-    abs :: a -> a
+-- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
+--
+-- > abs a * sign a == a
+--
+-- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
+class (MultiplicativeUnital a) =>
+      Signed a where
+  sign :: a -> a
+  abs :: a -> a
 
 instance Signed Double where
-    sign a = if a >= zero then one else negate one
-    abs = P.abs
+  sign a =
+    if a >= zero
+      then one
+      else negate one
+  abs = P.abs
+
 instance Signed Float where
-    sign a = if a >= zero then one else negate one
-    abs = P.abs
+  sign a =
+    if a >= zero
+      then one
+      else negate one
+  abs = P.abs
+
 instance Signed Int where
-    sign a = if a >= zero then one else negate one
-    abs = P.abs
+  sign a =
+    if a >= zero
+      then one
+      else negate one
+  abs = P.abs
+
 instance Signed Integer where
-    sign a = if a >= zero then one else negate one
-    abs = P.abs
-instance (Representable r, Signed a) => Signed (r a) where
-    sign = fmapRep sign
-    abs = fmapRep abs
+  sign a =
+    if a >= zero
+      then one
+      else negate one
+  abs = P.abs
 
--- | Normed is a current wart on the NumHask api, causing all sorts of runaway constraint boiler-plate.
+-- | Like Signed, except the codomain can be different to the domain.
 class Normed a b where
-    size :: a -> b
+  size :: a -> b
 
-instance Normed Double Double where size = P.abs
-instance Normed Float Float where size = P.abs
-instance Normed Int Int where size = P.abs
-instance Normed Integer Integer where size = P.abs
-instance (Foldable r, Representable r, ExpField a, ExpRing a) =>
-    Normed (r a) a where
-    size r = sqrt $ foldr (+) zero $ (**(one+one)) <$> r
+instance Normed Double Double where
+  size = P.abs
 
--- | This should probably be split off into some sort of alternative Equality logic, but to what end?
-class (AdditiveGroup a) => Epsilon a where
-    nearZero :: a -> Bool
-    aboutEqual :: a -> a -> Bool
+instance Normed Float Float where
+  size = P.abs
+
+instance Normed Int Int where
+  size = P.abs
+
+instance Normed Integer Integer where
+  size = P.abs
+
+instance (Multiplicative a, ExpField a, Normed a a) =>
+         Normed (Complex a) a where
+  size (rx :+ ix) = sqrt (rx * rx + ix * ix)
+
+-- | distance between numbers
+--
+-- > distance a b >= zero
+-- > distance a a == zero
+-- > \a b c -> distance a c + distance b c - distance a b >= zero &&
+-- >           distance a b + distance b c - distance a c >= zero &&
+-- >           distance a b + distance a c - distance b c >= zero &&
+class Metric a b where
+  distance :: a -> a -> b
+
+instance Metric Double Double where
+  distance a b = abs (a - b)
+
+instance Metric Float Float where
+  distance a b = abs (a - b)
+
+instance Metric Int Int where
+  distance a b = abs (a - b)
+
+instance Metric Integer Integer where
+  distance a b = abs (a - b)
+
+instance (Multiplicative a, ExpField a, Normed a a) =>
+         Metric (Complex a) a where
+  distance a b = size (a - b)
+
+-- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
+class (AdditiveGroup a) =>
+      Epsilon a where
+  nearZero :: a -> Bool
+  aboutEqual :: a -> a -> Bool
+  positive :: (Eq a, Signed a) => a -> Bool
+  positive a = a == abs a
+  veryPositive :: (Eq a, Signed a) => a -> Bool
+  veryPositive a = P.not (nearZero a) && positive a
+  veryNegative :: (Eq a, Signed a) => a -> Bool
+  veryNegative a = P.not (nearZero a P.|| positive a)
 
 infixl 4 ≈
 
--- | utf ???
+-- | todo: is utf perfectly acceptable these days?
 (≈) :: (Epsilon a) => a -> a -> Bool
 (≈) = aboutEqual
 
 instance Epsilon Double where
-    nearZero a = abs a <= (1e-12 :: Double)
-    aboutEqual a b = nearZero $ a - b
+  nearZero a = abs a <= (1e-12 :: Double)
+  aboutEqual a b = nearZero $ a - b
 
 instance Epsilon Float where
-    nearZero a = abs a <= (1e-6 :: Float)
-    aboutEqual a b = nearZero $ a - b
+  nearZero a = abs a <= (1e-6 :: Float)
+  aboutEqual a b = nearZero $ a - b
 
 instance Epsilon Int where
-    nearZero a = a == zero
-    aboutEqual a b = nearZero $ a - b
+  nearZero a = a == zero
+  aboutEqual a b = nearZero $ a - b
 
 instance Epsilon Integer where
-    nearZero a = a == zero
-    aboutEqual a b = nearZero $ a - b
+  nearZero a = a == zero
+  aboutEqual a b = nearZero $ a - b
 
-instance (Foldable r, Representable r, Epsilon a) => Epsilon (r a) where
-    nearZero a = any nearZero $ toList a
-    aboutEqual a b = any P.identity $ liftR2 aboutEqual a b
-
--- | distance between numbers
-class Metric a b where
-    distance :: a -> a -> b
-
-instance Metric Double Double where distance a b = abs (a - b)
-instance Metric Float Float where distance a b = abs (a - b)
-instance Metric Int Int where distance a b = abs (a - b)
-instance Metric Integer Integer where distance a b = abs (a - b)
-
-instance (P.Foldable r, Representable r, ExpField a) => Metric (r a) a where
-    distance a b = size (a - b)
-
--- | quotient fields also explode constraints if they are polymorphed to emit general integrals
-class (Ring a) => QuotientField a where
-    round :: a -> Integer
-    ceiling :: a -> Integer
-    floor :: a -> Integer
-    (^^) :: a -> Integer -> a
-
-instance QuotientField Float where
-    round = P.round
-    ceiling = P.ceiling
-    floor = P.floor
-    (^^) = (P.^^)
-
-instance QuotientField Double where
-    round = P.round
-    ceiling = P.ceiling
-    floor = P.floor
-    (^^) = (P.^^)
+instance (Epsilon a) => Epsilon (Complex a) where
+  nearZero (rx :+ ix) = nearZero rx && nearZero ix
+  aboutEqual a b = nearZero $ a - b

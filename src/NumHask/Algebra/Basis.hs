@@ -1,62 +1,52 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Highjacking 'Representable's to provide a basis to provide element-by-element operations
-
-module NumHask.Algebra.Basis (
-    AdditiveBasis(..)
+-- | Element-by-element operation for 'Representable's
+module NumHask.Algebra.Basis
+  ( AdditiveBasis(..)
   , AdditiveGroupBasis(..)
   , MultiplicativeBasis(..)
   , MultiplicativeGroupBasis(..)
   ) where
 
-import Data.Functor.Rep
-import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
 
--- | AdditiveBasis
--- element by element addition
-class ( Representable m
-      , Additive a ) =>
+-- | element by element addition
+--
+-- > (a .+. b) .+. c == a .+. (b .+. c)
+-- > zero .+. a = a
+-- > a .+. zero = a
+-- > a .+. b == b .+. a
+class (Additive a) =>
       AdditiveBasis m a where
-    infixl 7 .+.
-    (.+.) :: m a -> m a -> m a
-    (.+.) = liftR2 (+)
+  infixl 7 .+.
+  (.+.) :: m a -> m a -> m a
 
-instance (Representable r, Additive a) => AdditiveBasis r a
-
--- | AdditiveGroupBasis
--- element by element subtraction
-class ( Representable m
-      , AdditiveGroup a ) =>
+-- | element by element subtraction
+--
+-- > a .-. a = singleton zero
+class (AdditiveGroup a) =>
       AdditiveGroupBasis m a where
-    infixl 6 .-.
-    (.-.) :: m a -> m a -> m a
-    (.-.) = liftR2 (-)
+  infixl 6 .-.
+  (.-.) :: m a -> m a -> m a
 
-instance (Representable r, AdditiveGroup a) => AdditiveGroupBasis r a
-
--- | MultiplicativeBasis
--- element by element multiplication
-class ( Representable m
-      , Multiplicative a ) =>
+-- | element by element multiplication
+--
+-- > (a .*. b) .*. c == a .*. (b .*. c)
+-- > singleton one .*. a = a
+-- > a .*. singelton one = a
+-- > a .*. b == b .*. a
+class (Multiplicative a) =>
       MultiplicativeBasis m a where
-    infixl 7 .*.
-    (.*.) :: m a -> m a -> m a
-    (.*.) = liftR2 (*)
+  infixl 7 .*.
+  (.*.) :: m a -> m a -> m a
 
-instance (Representable r, Multiplicative a) => MultiplicativeBasis r a
-
--- | MultiplicativeGroupBasis
--- element by element division
-class ( Representable m
-      , MultiplicativeGroup a ) =>
+-- | element by element division
+--
+-- > a ./. a == singleton one
+class (MultiplicativeGroup a) =>
       MultiplicativeGroupBasis m a where
-    infixl 7 ./.
-    (./.) :: m a -> m a -> m a
-    (./.) = liftR2 (/)
-
-instance (Representable r, MultiplicativeGroup a) => MultiplicativeGroupBasis r a
+  infixl 7 ./.
+  (./.) :: m a -> m a -> m a

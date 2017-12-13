@@ -1,57 +1,77 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Rings
--- An interesting feature of the NumHask structure is the importance of the commutative Ring ('CRing'), which is a class often needed higher up the class tree.
-module NumHask.Algebra.Ring (
-    -- * Ring
-    Semiring
+-- | Ring classes. A distinguishment is made between Rings and Commutative Rings.
+module NumHask.Algebra.Ring
+  ( Semiring
   , Ring
   , CRing
   ) where
 
-import Protolude (Double, Float, Int, Integer,Bool(..))
-import Data.Functor.Rep
+import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Distribution
+import NumHask.Algebra.Multiplicative
+import Protolude (Bool(..), Double, Float, Int, Integer)
 
--- | a semiring
-class ( Additive a
-      , MultiplicativeAssociative a
-      , MultiplicativeUnital a
-      , Distribution a) =>
+-- | Semiring
+class (MultiplicativeAssociative a, MultiplicativeUnital a, Distribution a) =>
       Semiring a
 
 instance Semiring Double
+
 instance Semiring Float
+
 instance Semiring Int
+
 instance Semiring Integer
+
 instance Semiring Bool
-instance (Representable r, Semiring a) => Semiring (r a)
+
+instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
 
 -- | Ring
-class ( AdditiveGroup a
-      , MultiplicativeAssociative a
-      , MultiplicativeUnital a
-      , Distribution a) =>
+-- a summary of the laws inherited from the ring super-classes
+--
+-- > zero + a == a
+-- > a + zero == a
+-- > (a + b) + c == a + (b + c)
+-- > a + b == b + a
+-- > a - a = zero
+-- > negate a = zero - a
+-- > negate a + a = zero
+-- > a + negate a = zero
+-- > one `times` a == a
+-- > a `times` one == a
+-- > (a `times` b) `times` c == a `times` (b `times` c)
+-- > a `times` (b + c) == a `times` b + a `times` c
+-- > (a + b) `times` c == a `times` c + b `times` c
+-- > a `times` zero == zero
+-- > zero `times` a == zero
+class ( Semiring a
+      , AdditiveGroup a
+      ) =>
       Ring a
 
 instance Ring Double
-instance Ring Float
-instance Ring Int
-instance Ring Integer
-instance (Representable r, Ring a) => Ring (r a)
 
--- | CRing is a Commutative Ring.  It arises often due to * being defined as only multiplicative commutative.
-class ( Multiplicative a, Ring a) => CRing a
+instance Ring Float
+
+instance Ring Int
+
+instance Ring Integer
+
+instance (Ring a) => Ring (Complex a)
+
+-- | CRing is a Ring with Multiplicative Commutation.  It arises often due to '*' being defined as a multiplicative commutative operation.
+class (Multiplicative a, Ring a) =>
+      CRing a
 
 instance CRing Double
-instance CRing Float
-instance CRing Int
-instance CRing Integer
-instance (Representable r, CRing a) => CRing (r a)
 
+instance CRing Float
+
+instance CRing Int
+
+instance CRing Integer
+
+instance (CRing a) => CRing (Complex a)

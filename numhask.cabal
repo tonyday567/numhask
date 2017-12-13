@@ -1,158 +1,76 @@
-name:
-  numhask
-version:
-  0.0.2
-synopsis:
-  A numeric prelude
-description:
-  Classes for numbers, higher-dimension representable objects, and algebras that combine them. See NumHask.Examples for usage.
-  .
-  > import NumHask.Prelude
-category:
-  mathematics
-homepage:
-  https://github.com/tonyday567/numhask
-license:
-  BSD3
-license-file:
-  LICENSE
-author:
-  Tony Day
-maintainer:
-  tonyday567@gmail.com
-copyright:
-  Tony Day
-build-type:
-  Simple
-cabal-version:
-  >=1.14
+-- This file has been generated from package.yaml by hpack version 0.18.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           numhask
+version:        0.1.3
+synopsis:       A numeric prelude
+description:    A numeric prelude, providing a clean structure for numbers and operations that combine them.
+category:       mathematics
+homepage:       https://github.com/tonyday567/numhask#readme
+bug-reports:    https://github.com/tonyday567/numhask/issues
+license:        BSD3
+license-file:   LICENSE
+author:         Tony Day
+maintainer:     tonyday567@gmail.com
+copyright:      Tony Day
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+  readme.md
+  stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/numhask
 
 library
-  default-language:
-    Haskell2010
-  ghc-options:
-    -Wall
-    -fno-warn-orphans
+  default-language: Haskell2010
+  ghc-options: -Wall
   hs-source-dirs:
     src
   exposed-modules:
-    NumHask.Prelude,
-    NumHask.Examples,
-    NumHask.Algebra,
-    NumHask.Algebra.Additive,
-    NumHask.Algebra.Basis,
-    NumHask.Algebra.Exponential,
-    NumHask.Algebra.Distribution,
-    NumHask.Algebra.Ring,
-    NumHask.Algebra.Field,
-    NumHask.Algebra.Integral,
-    NumHask.Algebra.Magma,
-    NumHask.Algebra.Metric,
-    NumHask.Algebra.Module,
+    NumHask.Prelude
+    NumHask.Examples
+    NumHask.Algebra
+    NumHask.Algebra.Additive
+    NumHask.Algebra.Basis
+    NumHask.Algebra.Distribution
+    NumHask.Algebra.Ring
+    NumHask.Algebra.Field
+    NumHask.Algebra.Integral
+    NumHask.Algebra.Magma
+    NumHask.Algebra.Metric
+    NumHask.Algebra.Module
     NumHask.Algebra.Multiplicative
-    NumHask.Algebra.Ordering,
-    NumHask.HasShape,
-    NumHask.Vector,
-    NumHask.Matrix,
-    NumHask.Tensor
+    NumHask.Algebra.Singleton
+    NumHask.Laws
+  other-modules:
+    Paths_numhask
   build-depends:
-    base >= 4.7 && < 4.10,
-    protolude >= 0.1 && < 0.3,
-    vector >= 0.11 && < 0.13,
-    QuickCheck >= 2.8 && < 3,
-    adjunctions >= 4.3 && < 5,
-    distributive >= 0.5 && < 0.6,
-    singletons >= 2.2 && < 2.3
-  default-extensions:
-    NoImplicitPrelude,
-    UnicodeSyntax,
-    BangPatterns,
-    BinaryLiterals,
-    DeriveFoldable,
-    DeriveFunctor,
-    DeriveGeneric,
-    DeriveTraversable,
-    DisambiguateRecordFields,
-    EmptyCase,
-    FlexibleContexts,
-    FlexibleInstances,
-    FunctionalDependencies,
-    GADTSyntax,
-    InstanceSigs,
-    KindSignatures,
-    LambdaCase,
-    MonadComprehensions,
-    MultiParamTypeClasses,
-    MultiWayIf,
-    NegativeLiterals,
-    OverloadedStrings,
-    ParallelListComp,
-    PartialTypeSignatures,
-    PatternSynonyms,
-    RankNTypes,
-    RecordWildCards,
-    RecursiveDo,
-    ScopedTypeVariables,
-    TupleSections,
-    TypeFamilies,
-    TypeOperators,
-    ExtendedDefaultRules
+    QuickCheck >=2.8 && <3,
+    protolude >=0.1 && <0.3,
+    tasty,
+    tasty-quickcheck,
+    base >=4.7 && <4.11
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
 
 test-suite test
-  default-language:
-    Haskell2010
-  type:
-    exitcode-stdio-1.0
+  default-language: Haskell2010
+  type: exitcode-stdio-1.0
   hs-source-dirs:
     test
-  main-is:
-    test.hs
+  main-is: test.hs
   build-depends:
-    base >= 4.7 && < 5,
+    QuickCheck >=2.8 && <3,
+    protolude >=0.1 && <0.3,
+    tasty,
+    tasty-quickcheck,
+    base >=4.7 && <5,
+    QuickCheck >=2.8 && <3,
+    doctest,
     numhask,
     tasty,
-    HUnit,
-    tasty-hunit,
-    QuickCheck,
-    tasty-quickcheck,
-    doctest
-  default-extensions:
-    NoImplicitPrelude,
-    UnicodeSyntax,
-    BangPatterns,
-    BinaryLiterals,
-    DeriveFoldable,
-    DeriveFunctor,
-    DeriveGeneric,
-    DeriveTraversable,
-    DisambiguateRecordFields,
-    EmptyCase,
-    FlexibleContexts,
-    FlexibleInstances,
-    FunctionalDependencies,
-    GADTSyntax,
-    InstanceSigs,
-    KindSignatures,
-    LambdaCase,
-    MonadComprehensions,
-    MultiParamTypeClasses,
-    MultiWayIf,
-    NegativeLiterals,
-    OverloadedStrings,
-    ParallelListComp,
-    PartialTypeSignatures,
-    PatternSynonyms,
-    RankNTypes,
-    RecordWildCards,
-    RecursiveDo,
-    ScopedTypeVariables,
-    TupleSections,
-    TypeFamilies,
-    TypeOperators,
-    ExtendedDefaultRules
-
-source-repository head
-  type:
-    git
-  location:
-    https://github.com/tonyday567/numhask
+    tasty-quickcheck
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
