@@ -38,6 +38,9 @@ module NumHask.Laws
   , tensorProductLaws
   , banachLaws
   , hilbertLaws
+  , semiringLaws
+  , ringLaws
+  , starSemiringLaws
   ) where
 
 import NumHask.Prelude
@@ -531,3 +534,24 @@ multiplicativeGroupBasisLaws =
   [ ( "basis divide: a ./. a ≈ singleton one"
     , Unary (\a -> a == singleton zero || (a ./. a) ≈ singleton one))
   ]
+
+-- | semiring
+semiringLaws :: (Eq a, Semiring a) => [Law a]
+semiringLaws = additiveLaws <> distributionLaws <>
+    [ ( "associative: (a * b) * c = a * (b * c)"
+    , Ternary (\a b c -> (a `times` b) `times` c == a `times` (b `times` c)))
+    , ("left id: one * a = a", Unary (\a -> one `times` a == a))
+    , ("right id: a * one = a", Unary (\a -> a `times` one == a))
+    ]
+
+-- | ring
+ringLaws :: (Eq a, Ring a) => [Law a]
+ringLaws = semiringLaws <> additiveGroupLaws
+
+-- | starsemiring
+starSemiringLaws :: (Eq a, StarSemiring a) => [Law a]
+starSemiringLaws = semiringLaws <>
+    [ ( "star law: star a == one + a `times` star a"
+    , Unary (\a -> star a == one + a `times` star a))
+    ]
+

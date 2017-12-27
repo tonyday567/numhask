@@ -5,6 +5,8 @@ module NumHask.Algebra.Ring
   ( Semiring
   , Ring
   , CRing
+  , StarSemiring(..)
+  , KleeneAlgebra
   ) where
 
 import Data.Complex (Complex(..))
@@ -75,3 +77,23 @@ instance CRing Int
 instance CRing Integer
 
 instance (CRing a) => CRing (Complex a)
+
+-- | StarSemiring
+--
+-- > star a = one + a `times` star a
+--
+class (Semiring a) => StarSemiring a where
+    star :: a -> a
+    star a = one + plus' a
+
+    plus' :: a -> a
+    plus' a = a `times` star a
+
+-- | KleeneAlgebra
+--
+-- > a `times` x + x = a ==> star a `times` x + x = x
+-- > x `times` a + x = a ==> x `times` star a + x = x
+--
+class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
+
+

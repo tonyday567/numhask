@@ -52,7 +52,7 @@
 # - ignore: {name: Use const, within: SpecialModule} # Only within certain modules
 - ignore: {name: Use tan, within: NumHask.Algebra.Field}
 - ignore: {name: Use logBase, within: NumHask.Algebra.Field}
-- ignore: {name: Use -, within: Main}
+- ignore: {name: Use -}
 
 # Define some custom infix operators
 # - fixity: infixr 3 ~^#^~
