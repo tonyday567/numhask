@@ -1,3 +1,5 @@
 resolver: nightly-2017-12-27
 
-extra-deps: []
+extra-deps:
+  - git: https://github.com/tonyday567/numhask.git
+    commit: 6b2895789e84fb8cc2e679ae94af6f93a2bb9a57
