@@ -16,8 +16,9 @@ module NumHask.Algebra.Additive
   ) where
 
 import Data.Complex (Complex(..))
-import qualified Protolude as P
-import Protolude (Bool(..), Double, Float, Int, Integer)
+
+import qualified Prelude as P
+import Prelude (Bool(..), Double, Float, Int, Integer)
 
 -- | 'plus' is used as the operator for the additive magma to distinguish from '+' which, by convention, implies commutativity
 --

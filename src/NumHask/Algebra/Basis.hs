@@ -2,7 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Element-by-element operation for 'Representable's
+-- | Element-by-element operations
 module NumHask.Algebra.Basis
   ( AdditiveBasis(..)
   , AdditiveGroupBasis(..)
