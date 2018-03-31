@@ -13,7 +13,7 @@ Field heirarchy
 Numbers with structure
 ---
 
-[![Hilbert Hierarchy](https://tonyday567.github.io/other/hilbert.svg)](https://tonyday567.github.io/other/hilbert.svg)
+[![Tensor Hierarchy](https://tonyday567.github.io/other/tensor_product.svg)](https://tonyday567.github.io/other/tensor_product.svg)
 
 
 This particular shed has been painted:
