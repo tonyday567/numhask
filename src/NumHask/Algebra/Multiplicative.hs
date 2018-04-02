@@ -16,8 +16,8 @@ module NumHask.Algebra.Multiplicative
 
 import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
-import qualified Protolude as P
-import Protolude (Bool(..), Double, Float, Int, Integer)
+import qualified Prelude as P
+import Prelude (Bool(..), Double, Float, Int, Integer)
 
 -- | 'times' is used as the operator for the multiplicative magam to distinguish from '*' which, by convention, implies commutativity
 --

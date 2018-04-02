@@ -7,7 +7,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Algebra for Representable numbers
+-- | Algebra for Modules
 module NumHask.Algebra.Module
   ( AdditiveModule(..)
   , AdditiveGroupModule(..)
@@ -24,7 +24,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Protolude
+import Prelude
        (Double, Float, Int, Integer)
 
 -- | Additive Module Laws

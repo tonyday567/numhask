@@ -1,3 +1,4 @@
 resolver: nightly-2017-12-27
 
-extra-deps: []
+extra-deps:
+  - doctest-0.14.0
