@@ -1,0 +1,88 @@
+name: numhask-graph
+version: 0.1.0
+synopsis:
+  See readme.md
+description:
+  See readme.md for description
+category:
+  project
+homepage:
+  https://github.com/tonyday567/numhask
+license:
+  BSD3
+license-file:
+  LICENSE
+author:
+  Tony Day
+maintainer:
+  tonyday567@gmail.com
+copyright:
+  Tony Day
+build-type:
+  Simple
+cabal-version:
+  >=1.14
+
+executable numhask-graph
+  default-language:
+    Haskell2010
+  ghc-options:
+    -funbox-strict-fields
+    -fforce-recomp
+    -threaded
+    -rtsopts
+    -with-rtsopts=-N
+  hs-source-dirs:
+    app
+  main-is:
+    numhask-graph.hs
+  build-depends:
+    base >= 4.7 && < 4.12,
+    primitive,
+    foldl,
+    containers,
+    diagrams-lib,
+    diagrams-svg,
+    diagrams-graphviz,
+    graphviz,
+    protolude,
+    text
+  default-extensions:
+    NoImplicitPrelude,
+    UnicodeSyntax,
+    BangPatterns,
+    BinaryLiterals,
+    DeriveFoldable,
+    DeriveFunctor,
+    DeriveGeneric,
+    DeriveTraversable,
+    DisambiguateRecordFields,
+    EmptyCase,
+    FlexibleContexts,
+    FlexibleInstances,
+    FunctionalDependencies,
+    GADTSyntax,
+    InstanceSigs,
+    KindSignatures,
+    LambdaCase,
+    MonadComprehensions,
+    MultiParamTypeClasses,
+    MultiWayIf,
+    NegativeLiterals,
+    OverloadedStrings,
+    ParallelListComp,
+    PartialTypeSignatures,
+    PatternSynonyms,
+    RankNTypes,
+    RecordWildCards,
+    RecursiveDo,
+    ScopedTypeVariables,
+    TupleSections,
+    TypeFamilies,
+    TypeOperators
+
+source-repository head
+  type:
+    git
+  location:
+    https://github.com/tonyday567/numhask-dev

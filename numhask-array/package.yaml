@@ -1,0 +1,48 @@
+name: numhask-array
+version: '0.1.2.0'
+synopsis: See readme.md
+description: See readme.md for description.
+category: project
+author: Tony Day
+maintainer: tonyday567@gmail.com
+copyright: Tony Day
+license: BSD3
+github: tonyday567/numhask-array
+tested-with: GHC==8.0.1 GHC==8.2.1 GHC==8.2.2
+extra-source-files:
+  - stack.yaml
+default-extensions:
+  - NegativeLiterals
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - UnicodeSyntax
+dependencies:
+  - base >=4.7 && <4.12
+  - numhask-prelude >=0.3 && <0.4
+  - QuickCheck
+library:
+  source-dirs: src
+  exposed-modules:
+  - NumHask.Array
+  - NumHask.Array.Constraints
+  - NumHask.Array.Example
+  - NumHask.Shape
+  dependencies:
+  - adjunctions >=4.0 && <5
+  - deepseq >=1.4.2.0 && <2
+  - dimensions >= 0.3.2.0 && < 0.4
+  - distributive >=0.4 && <0.6
+  - ghc-typelits-natnormalise >=0.4 && <0.6
+  - protolude >=0.1 && <0.3
+  - singletons >=2.0 && <2.5
+  - typelits-witnesses >=0.2 && <0.4
+  - vector >=0.10 && <0.13
+tests:
+  test:
+    main: test.hs
+    source-dirs: test
+    dependencies:
+    - doctest
+    - numhask-array
+    - tasty
+    - tasty-quickcheck

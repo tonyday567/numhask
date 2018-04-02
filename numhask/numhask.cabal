@@ -1,0 +1,51 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 9efdd7fc8d31b07af532918620ca553ac4402b4c2eafc538f61ac02fc23966f3
+
+name:           numhask
+version:        0.3.0.0
+synopsis:       numeric classes
+description:    A numeric class heirarchy.
+category:       mathematics
+homepage:       https://github.com/tonyday567/numhask#readme
+bug-reports:    https://github.com/tonyday567/numhask/issues
+author:         Tony Day
+maintainer:     tonyday567@gmail.com
+copyright:      Tony Day
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/numhask
+
+library
+  hs-source-dirs:
+      src
+  default-extensions: NegativeLiterals OverloadedStrings UnicodeSyntax
+  ghc-options: -Wall
+  build-depends:
+      base >=4.7 && <4.12
+  exposed-modules:
+      NumHask.Algebra
+      NumHask.Algebra.Additive
+      NumHask.Algebra.Basis
+      NumHask.Algebra.Distribution
+      NumHask.Algebra.Ring
+      NumHask.Algebra.Field
+      NumHask.Algebra.Integral
+      NumHask.Algebra.Magma
+      NumHask.Algebra.Metric
+      NumHask.Algebra.Module
+      NumHask.Algebra.Multiplicative
+      NumHask.Algebra.Singleton
+  other-modules:
+      Paths_numhask
+  default-language: Haskell2010

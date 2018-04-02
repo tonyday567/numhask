@@ -1,0 +1,41 @@
+name: numhask-bench
+version: '0.0.1'
+synopsis: See readme.md
+description: See readme.md for description.
+category: project
+author: Tony Day
+maintainer: tonyday567@gmail.com
+copyright: Tony Day (c) 2017
+license: BSD3
+github: tonyday567/numhask-bench
+extra-source-files:
+  - stack.yaml
+default-extensions:
+  - NegativeLiterals
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - UnicodeSyntax
+ghc-options:
+  - -funbox-strict-fields
+  - -fforce-recomp
+  - -threaded
+  - -rtsopts
+  - -with-rtsopts=-N
+dependencies:
+  - base >=4.7 && <5
+  - protolude
+  - numhask
+  - numhask-array
+  - numhask-prelude
+  - perf
+  - formatting
+  - optparse-generic
+  - text
+  - hmatrix
+  - matrix
+  - tdigest
+  - scientific
+executables:
+  numhask-bench:
+    main: bench.hs
+    source-dirs: bench

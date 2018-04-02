@@ -1,12 +1,11 @@
 resolver: nightly-2018-04-01
 
 packages:
-  - numhask
-  - numhask-prelude
-  - numhask-array
-  # - numhask-bench
-  # - numhask-graph
-  # - ../perf/perf
+  - .
+  - location: ../numhask
+    extra-dep: true
+  - location: ../numhask-prelude
+    extra-dep: true
 
 extra-deps:
   - dimensions-0.3.2.0

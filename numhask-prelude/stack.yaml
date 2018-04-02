@@ -1,0 +1,10 @@
+resolver: nightly-2018-04-01
+
+packages:
+  - .
+  - ../numhask
+
+extra-deps:
+  - protolude-0.2.2
+
+allow-newer: true

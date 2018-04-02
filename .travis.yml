@@ -25,16 +25,22 @@ addons:
     packages:
       - libgmp-dev
 
+env:
+  - PACKAGEDIR="numhask"
+  - PACKAGEDIR="numhask-prelude"
+  - PACKAGEDIR="numhask-array"
+
 before_install:
-# Download and unpack the stack executable
-- mkdir -p ~/.local/bin
-- export PATH=$HOME/.local/bin:$PATH
-- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  - cd ${PACKAGEDIR}
 
 install:
-# Build dependencies
-- stack --no-terminal --install-ghc test --only-dependencies
+  # Download and unpack the stack executable
+  - mkdir -p ~/.local/bin
+  - export PATH=$HOME/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  # Build dependencies
+  - stack --no-terminal --install-ghc test --only-dependencies
 
 script:
-# Build the package, its tests, and its docs and run the tests
-- stack --no-terminal test --haddock --no-haddock-deps
+  # Build the package, its tests, and its docs and run the tests
+  - stack --no-terminal test --haddock --no-haddock-deps

@@ -28,8 +28,7 @@ Alternative color-schemes, stylistic flourishes and opines are welcome.
 
 In summary, the library doesn't do anything fancy. But if having to define `(*)` when you just want a `(+)` offends your sensibilities, it may bring some sanity.
 
-
-Usage
+numhask-prelude
 ---
 
 ``` {.sourceCode .literate .haskell}
@@ -40,4 +39,48 @@ import Numhask.Prelude
 'Numhask.Prelude' is designed as a drop-in replacement for Prelude and 'NoImplicitPrelude' is obligatory. Behind the scenes, the module wraps [protolude](https://www.stackage.org/package/protolude).
 
 See [Examples](src/NumHask/Examples.hs) for basic examples, [numhask-array](https://www.stackage.org/package/numhask-array) for numbers with structure, and [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier number crunching.
+
+numhask-array
+---
+
+An experimental array with:
+
+- a polymorphic container
+- shape specified at the type level
+- Representable instances
+- [numhask](https://www.stackage.org/package/numhask) heirarchy instances
+
+See [Examples](src/NumHask/Array/Example.hs) for the emergent API.
+
+To try out in ghci:
+
+```
+stack ghci
+> :set -XDataKinds
+> :set -XOverloadedLists
+> import NumHask.Prelude
+> import NumHask.Array
+> let a = [0..5] :: Array [] '[2,3] Int
+> a + a
+[[0, 2, 4],
+ [6, 8, 10]]
+```
+
+numhask-graph
+---
+
+~~~
+cd numhask-graph
+stack build --exec "$(stack path --local-install-root)/bin/numhask-graph"
+~~~
+
+
+numhask-bench
+---
+
+~~~
+cd numhask-bench
+stack build --exec "$(stack path --local-install-root)/bin/numhask-bench" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/header.md bench/bench.md other/footer.md -t html -o bench.html --filter pandoc-include --mathjax" --exec "$(stack path --local-bin)/pandoc -f markdown -i bench/bench.md -t markdown -o bench.md --filter pandoc-include --mathjax" --file-watch
+~~~
+
 

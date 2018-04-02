@@ -1,4 +1,5 @@
-/.stack-work/
+*/.stack-work/
 TAGS
 .DS_Store
-numhask.cabal
+.stack-work
+/numhask-bench/numhask-bench.cabal

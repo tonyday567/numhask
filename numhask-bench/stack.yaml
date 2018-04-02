@@ -1,0 +1,16 @@
+resolver: nightly-2018-03-20
+
+packages:
+  - .
+  - ../numhask
+  - ../numhask-prelude
+  - ../numhask-array
+  - ../../perf/perf
+
+extra-deps:
+  - dimensions-0.3.2.0
+  - protolude-0.2.1
+  - tdigest-0.1
+
+allow-newer: true
+

@@ -16,8 +16,8 @@ import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Protolude (Bool, Double, Float, Integer, (||))
-import qualified Protolude as P
+import Prelude (Bool, Double, Float, Integer, (||))
+import qualified Prelude as P
 
 -- | A Semifield is a Field without Commutative Multiplication.
 class (MultiplicativeInvertible a, Ring a) =>
