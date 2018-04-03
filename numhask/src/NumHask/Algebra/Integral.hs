@@ -9,8 +9,8 @@ module NumHask.Algebra.Integral
   ) where
 
 import NumHask.Algebra.Ring
-import qualified Protolude as P
-import Protolude (Double, Float, Int, Integer, (.), fst, snd)
+import qualified Prelude as P
+import Prelude (Double, Float, Int, Integer, (.), fst, snd)
 
 -- | Integral laws
 --

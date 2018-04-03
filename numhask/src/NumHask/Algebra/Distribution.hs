@@ -8,7 +8,7 @@ module NumHask.Algebra.Distribution
 import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
-import Protolude (Bool(..), Double, Float, Int, Integer)
+import Prelude (Bool(..), Double, Float, Int, Integer)
 
 -- | Distribution (and annihilation) laws
 --

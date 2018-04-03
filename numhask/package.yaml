@@ -1,8 +1,7 @@
 name: numhask
-version: '0.1.4.0'
-synopsis: A numeric prelude
-description: A numeric prelude, providing a clean structure for numbers and operations
-  that combine them.
+version: '0.3.0.0'
+synopsis: numeric classes
+description: A numeric class heirarchy.
 category: mathematics
 author: Tony Day
 maintainer: tonyday567@gmail.com
@@ -10,24 +9,15 @@ copyright: Tony Day
 license: BSD3
 github: tonyday567/numhask
 extra-source-files:
-- readme.md
 - stack.yaml
 default-extensions:
 - NegativeLiterals
-- NoImplicitPrelude
 - OverloadedStrings
 - UnicodeSyntax
-dependencies:
-- QuickCheck >=2.8 && <3
-- protolude >=0.1 && <0.3
-- tasty
-- tasty-quickcheck
 library:
   source-dirs: src
   ghc-options: -Wall
   exposed-modules:
-  - NumHask.Prelude
-  - NumHask.Examples
   - NumHask.Algebra
   - NumHask.Algebra.Additive
   - NumHask.Algebra.Basis
@@ -40,17 +30,5 @@ library:
   - NumHask.Algebra.Module
   - NumHask.Algebra.Multiplicative
   - NumHask.Algebra.Singleton
-  - NumHask.Laws
   dependencies:
-  - base >=4.7 && <4.11
-tests:
-  test:
-    main: test.hs
-    source-dirs: test
-    dependencies:
-    - base >=4.7 && <5
-    - QuickCheck >=2.8 && <3
-    - doctest
-    - numhask
-    - tasty
-    - tasty-quickcheck
+  - base >=4.7 && <4.12

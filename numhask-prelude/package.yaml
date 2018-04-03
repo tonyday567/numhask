@@ -1,0 +1,40 @@
+name: numhask-prelude
+version: '0.3.0.0'
+synopsis: A numeric prelude
+description: A numeric prelude, combining protolude and numhask.
+category: mathematics
+author: Tony Day
+maintainer: tonyday567@gmail.com
+copyright: Tony Day
+license: BSD3
+github: tonyday567/numhask
+extra-source-files:
+  - stack.yaml
+default-extensions:
+  - NegativeLiterals
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - UnicodeSyntax
+library:
+  source-dirs: src
+  ghc-options: -Wall
+  exposed-modules:
+  - NumHask.Prelude
+  - NumHask.Examples
+  - NumHask.Laws
+  dependencies:
+  - base >=4.7 && <4.12
+  - QuickCheck >=2.8 && <3
+  - protolude >=0.1 && <0.3
+  - numhask >= 0.3 && <0.4
+  - tasty
+  - tasty-quickcheck
+tests:
+  test:
+    main: test.hs
+    source-dirs: test
+    dependencies:
+    - base >=4.7 && <5
+    - doctest
+    - numhask-prelude
+    - tasty

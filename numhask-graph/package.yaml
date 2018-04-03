@@ -1,0 +1,64 @@
+name: numhask-graph
+version: '0.1.0'
+synopsis: See readme.md
+description: See readme.md for description
+category: project
+author: Tony Day
+maintainer: tonyday567@gmail.com
+copyright: Tony Day
+license: BSD3
+github: tonyday567/numhask-dev
+default-extensions:
+- NoImplicitPrelude
+- UnicodeSyntax
+- BangPatterns
+- BinaryLiterals
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveTraversable
+- DisambiguateRecordFields
+- EmptyCase
+- FlexibleContexts
+- FlexibleInstances
+- FunctionalDependencies
+- GADTSyntax
+- InstanceSigs
+- KindSignatures
+- LambdaCase
+- MonadComprehensions
+- MultiParamTypeClasses
+- MultiWayIf
+- NegativeLiterals
+- OverloadedStrings
+- ParallelListComp
+- PartialTypeSignatures
+- PatternSynonyms
+- RankNTypes
+- RecordWildCards
+- RecursiveDo
+- ScopedTypeVariables
+- TupleSections
+- TypeFamilies
+- TypeOperators
+ghc-options:
+- -funbox-strict-fields
+- -fforce-recomp
+- -threaded
+- -rtsopts
+- -with-rtsopts=-N
+dependencies:
+- base >=4.7 && <4.12
+- primitive
+- foldl
+- containers
+- diagrams-lib
+- diagrams-svg
+- diagrams-graphviz
+- graphviz
+- protolude
+- text
+executables:
+  numhask-graph:
+    main: numhask-graph.hs
+    source-dirs: app

@@ -11,13 +11,14 @@ module NumHask.Algebra.Metric
   , (≈)
   ) where
 
+import qualified Prelude as P
+import Prelude
+       hiding (Bounded(..), Integral(..), (*), (+), (-), abs, negate, sqrt)
+
 import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Multiplicative
-import qualified Protolude as P
-import Protolude
-       (Bool(..), Double, Eq(..), Float, Int, Integer, Ord(..), ($), (&&))
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
 --
