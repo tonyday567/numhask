@@ -1,4 +1,4 @@
-resolver: nightly-2018-04-01
+resolver: nightly-2018-04-03
 
 packages:
   - .
@@ -7,5 +7,3 @@ packages:
 
 extra-deps:
   - protolude-0.2.2
-
-allow-newer: true

@@ -3,28 +3,38 @@ numhask
 
 [![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) [![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask) [![lts](https://www.stackage.org/package/numhask/badge/lts)](http://stackage.org/lts/package/numhask) [![nightly](https://www.stackage.org/package/numhask/badge/nightly)](http://stackage.org/nightly/package/numhask) 
 
-A numeric prelude, providing a clean structure for numbers and operations that combine them.
+A numeric class heirarchy, providing a structure for numbers and functions that combine them.
 
-Field heirarchy
+For example, the `Num` class in prelude is approximately a `Ring`. In numhask, the class laws and operators flow as follows:
+
+Ring heirarchy
 ---
 
 [![Field Hierarchy](https://tonyday567.github.io/other/field.svg)](https://tonyday567.github.io/other/field.svg)
 
-Numbers with structure
+
+Libraries
 ---
 
-[![Hilbert Hierarchy](https://tonyday567.github.io/other/hilbert.svg)](https://tonyday567.github.io/other/hilbert.svg)
+- `numhask` the core class heirarchy with just base as a dependency
+- `numhask-prelude` numhask + [protolude](https://hackage.haskell.org/package/protolude)
+- `numhask-array` n-dimensional arrays with type-level size
+
+There is also some performance analytics in `numhask-bench` and `numhask-graph` produces the above chart.
 
 
-This particular shed has been painted:
+numhask
+---
 
-- by providing separately named magma-derived classes for addition and multiplication, and then being symetrical in the treatment of the two heirarchies.  A short magma structure is provided with the intention of supplying appropriate classes fro operators that are no addition nor multiplication, but this structure is not hooked up to the main classes.
-- to be as compatible as practical with the existing haskell ecosystem.  Ints, Integers, Floats, Doubles and Complex are taken from base and given numhask instances, so they are also Num instances.  Monoid and Semigroup are not used in numhask to maintain compatability.
-- as a replacement for anything in base that has a Num, Fractional or Real constraint.
-- includes QuickCheck tests of the numeric laws implicit in the classes.  This also includes tracking where laws are approximate or fail for non-exact numbers.
-- the usual operators (+) and (*) operators are reserved for commutative relationships, with plus and times being used for non-commutative ones.
+`numhask` begins with separately named magma-derived classes for addition and multiplication, and then being symetrical in the treatment of the two heirarchies.  A short magma structure is provided with the intention of supplying appropriate classes for operators that are neither addition nor multiplication, but this structure is not hooked up to the main classes.
 
-Alternative color-schemes, stylistic flourishes and opines are welcome.
+To be as compatible as practical with the existing haskell ecosystem.  Ints, Integers, Floats, Doubles and Complex are taken from base and given numhask class instances, so they are also Num instances.  Monoid and Semigroup are not used in numhask to maintain compatability.
+
+`numhask` replaces all the relevant numeric operators in Prelude, so you're going to get clashes.
+
+QuickCheck tests of numeric laws are included.  This also includes tracking where laws are approximate or fail for non-exact numbers.
+
+The usual operators (+) and (*) operators are reserved for commutative relationships, with plus and times being used for non-commutative ones.
 
 In summary, the library doesn't do anything fancy. But if having to define `(*)` when you just want a `(+)` offends your sensibilities, it may bring some sanity.
 
@@ -38,7 +48,8 @@ import Numhask.Prelude
 
 'Numhask.Prelude' is designed as a drop-in replacement for Prelude and 'NoImplicitPrelude' is obligatory. Behind the scenes, the module wraps [protolude](https://www.stackage.org/package/protolude).
 
-See [Examples](src/NumHask/Examples.hs) for basic examples, [numhask-array](https://www.stackage.org/package/numhask-array) for numbers with structure, and [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier number crunching.
+See [Examples](numhask-prelude/src/NumHask/Examples.hs) for basic examples, or [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier usage.
+
 
 numhask-array
 ---
@@ -48,7 +59,6 @@ An experimental array with:
 - a polymorphic container
 - shape specified at the type level
 - Representable instances
-- [numhask](https://www.stackage.org/package/numhask) heirarchy instances
 
 See [Examples](src/NumHask/Array/Example.hs) for the emergent API.
 
@@ -66,6 +76,16 @@ stack ghci
  [6, 8, 10]]
 ```
 
+numhask-bench
+---
+
+See [bench](numhask-bench/bench.md) for current performance results. 
+
+~~~
+cd numhask-bench
+stack build --exec "$(stack path --local-install-root)/bin/numhask-bench" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/header.md bench/bench.md other/footer.md -t html -o bench.html --filter pandoc-include --mathjax" --exec "$(stack path --local-bin)/pandoc -f markdown -i bench/bench.md -t markdown -o bench.md --filter pandoc-include --mathjax" --file-watch
+~~~
+
 numhask-graph
 ---
 
@@ -74,13 +94,5 @@ cd numhask-graph
 stack build --exec "$(stack path --local-install-root)/bin/numhask-graph"
 ~~~
 
-
-numhask-bench
----
-
-~~~
-cd numhask-bench
-stack build --exec "$(stack path --local-install-root)/bin/numhask-bench" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/header.md bench/bench.md other/footer.md -t html -o bench.html --filter pandoc-include --mathjax" --exec "$(stack path --local-bin)/pandoc -f markdown -i bench/bench.md -t markdown -o bench.md --filter pandoc-include --mathjax" --file-watch
-~~~
 
 
