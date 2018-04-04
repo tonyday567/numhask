@@ -1,12 +1,9 @@
-resolver: nightly-2018-04-03
+resolver: nightly-2018-04-04
 
 packages:
   - .
-  - location: ../numhask
-    extra-dep: true
-  - location: ../numhask-prelude
-    extra-dep: true
+  - ../numhask
+  - ../numhask-prelude
 
 extra-deps:
   - dimensions-0.3.2.0 # not on stack
-  - protolude-0.2.2

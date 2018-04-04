@@ -2,10 +2,8 @@ resolver: lts-10.2
 
 packages:
   - .
-  - location: ../numhask-prelude
-    extra-dep: true
-  - location: ../numhask
-    extra-dep: true
+  - ../numhask
+  - ../numhask-prelude
 
 extra-deps:
   - diagrams-graphviz-1.4

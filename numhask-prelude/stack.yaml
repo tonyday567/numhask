@@ -1,9 +1,7 @@
-resolver: nightly-2018-04-03
+resolver: nightly-2018-04-04
 
 packages:
   - .
-  - location: ../numhask
-    extra-dep: true
+  - ../numhask
 
-extra-deps:
-  - protolude-0.2.2
+extra-deps: []
