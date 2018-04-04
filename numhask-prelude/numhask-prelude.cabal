@@ -33,7 +33,7 @@ library
   build-depends:
       QuickCheck >=2.8 && <3
     , base >=4.7 && <4.12
-    , numhask >=0.3 && <0.4
+    , numhask >=0.2 && <0.3
     , protolude >=0.1 && <0.3
     , tasty >= 1.0.1.1 && <1.1
     , tasty-quickcheck >= 0.9.2 && <1.0
