@@ -9,7 +9,7 @@ packages:
 
 extra-deps:
   - dimensions-0.3.2.0
-  - protolude-0.2.1
+  - protolude-0.2.2
   - tdigest-0.1
 
 allow-newer: true

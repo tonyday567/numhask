@@ -1,9 +1,3 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
---
--- see: https://github.com/sol/hpack
---
--- hash: aefd430aa23caa91d6347399b0c4979b47ed5f012c0abc2f480c17b24ec08d4d
-
 name:           numhask-bench
 version:        0.0.1
 synopsis:       See readme.md
@@ -31,7 +25,13 @@ executable numhask-bench
   hs-source-dirs:
       bench
   default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
-  ghc-options: -funbox-strict-fields -fforce-recomp -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:
+      -funbox-strict-fields -fforce-recomp -threaded -rtsopts -with-rtsopts=-N
+      -Wall
+      -Wcompat
+      -Wincomplete-record-updates
+      -Wincomplete-uni-patterns
+      -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
     , formatting

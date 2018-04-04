@@ -1,9 +1,3 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
---
--- see: https://github.com/sol/hpack
---
--- hash: 1f9ce4a580c0293a13caf12d9db1f51a3aa13b7742b57407fa8ccc3aca86563d
-
 name:           numhask-graph
 version:        0.1.0
 synopsis:       See readme.md
@@ -27,8 +21,14 @@ executable numhask-graph
   main-is: numhask-graph.hs
   hs-source-dirs:
       app
-  default-extensions: NoImplicitPrelude UnicodeSyntax BangPatterns BinaryLiterals DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable DisambiguateRecordFields EmptyCase FlexibleContexts FlexibleInstances FunctionalDependencies GADTSyntax InstanceSigs KindSignatures LambdaCase MonadComprehensions MultiParamTypeClasses MultiWayIf NegativeLiterals OverloadedStrings ParallelListComp PartialTypeSignatures PatternSynonyms RankNTypes RecordWildCards RecursiveDo ScopedTypeVariables TupleSections TypeFamilies TypeOperators
-  ghc-options: -funbox-strict-fields -fforce-recomp -threaded -rtsopts -with-rtsopts=-N
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+  ghc-options:
+      -funbox-strict-fields -fforce-recomp -threaded -rtsopts -with-rtsopts=-N
+      -Wall
+      -Wcompat
+      -Wincomplete-record-updates
+      -Wincomplete-uni-patterns
+      -Wredundant-constraints
   build-depends:
       base >=4.7 && <4.12
     , containers

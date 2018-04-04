@@ -1,9 +1,3 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
---
--- see: https://github.com/sol/hpack
---
--- hash: 9efdd7fc8d31b07af532918620ca553ac4402b4c2eafc538f61ac02fc23966f3
-
 name:           numhask
 version:        0.3.0.0
 synopsis:       numeric classes
@@ -33,7 +27,13 @@ library
   hs-source-dirs:
       src
   default-extensions: NegativeLiterals OverloadedStrings UnicodeSyntax
-  ghc-options: -Wall
+  ghc-options:
+      -Wall
+      -Wcompat
+      -Wincomplete-record-updates
+      -Wincomplete-uni-patterns
+      -Wredundant-constraints
+
   build-depends:
       base >=4.7 && <4.12
   exposed-modules:

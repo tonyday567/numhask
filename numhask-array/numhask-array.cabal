@@ -1,13 +1,7 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
---
--- see: https://github.com/sol/hpack
---
--- hash: c25ce94110f34527899ea2bc07ca42ce6477fad43d85ad69c0de47f4836fb655
-
 name:           numhask-array
-version:        0.1.2.0
-synopsis:       See readme.md
-description:    See readme.md for description.
+version:        0.1.3.0
+synopsis:       n-dimensional arrays
+description:    n-dimensional arrays founded on numhask.
 category:       project
 homepage:       https://github.com/tonyday567/numhask-array#readme
 bug-reports:    https://github.com/tonyday567/numhask-array/issues
@@ -31,6 +25,12 @@ library
   hs-source-dirs:
       src
   default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+  ghc-options:
+      -Wall
+      -Wcompat
+      -Wincomplete-record-updates
+      -Wincomplete-uni-patterns
+      -Wredundant-constraints
   build-depends:
       QuickCheck
     , adjunctions >=4.0 && <5
@@ -38,11 +38,9 @@ library
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
-    , ghc-typelits-natnormalise >=0.4 && <0.6
-    , numhask-prelude >=0.3 && <0.4
+    , numhask-prelude >=0.0 && <0.1
     , protolude >=0.1 && <0.3
     , singletons >=2.0 && <2.5
-    , typelits-witnesses >=0.2 && <0.4
     , vector >=0.10 && <0.13
   exposed-modules:
       NumHask.Array
@@ -60,11 +58,10 @@ test-suite test
       test
   default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
   build-depends:
-      QuickCheck
-    , base >=4.7 && <4.12
+      base >=4.7 && <4.12
     , doctest
     , numhask-array
-    , numhask-prelude >=0.3 && <0.4
+    , numhask-prelude >=0.0 && <0.1
     , tasty
     , tasty-quickcheck
   other-modules:

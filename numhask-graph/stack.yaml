@@ -3,9 +3,9 @@ resolver: lts-10.2
 packages:
   - .
   - location: ../numhask-prelude
-    extra-deps: true
+    extra-dep: true
   - location: ../numhask
-    extra-deps: true
+    extra-dep: true
 
 extra-deps:
   - diagrams-graphviz-1.4

@@ -10,7 +10,6 @@ packages:
 
 extra-deps:
   - dimensions-0.3.2.0
-  - singletons-2.4.1
   - protolude-0.2.2
 
-allow-newer: true
+# allow-newer: true
