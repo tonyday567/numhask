@@ -33,16 +33,13 @@ import GHC.Exts
 import GHC.Show
 import NumHask.Array.Constraints
 import NumHask.Prelude as P
-import qualified Protolude as Proto
 import NumHask.Shape
 import Numeric.Dimensions as D
-import Numeric.Dimensions.Idx
 import Numeric.Dimensions.XDim
-
 import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
+import qualified Protolude as Proto
 import qualified Test.QuickCheck as QC
-import Control.DeepSeq
 
 -- $setup
 -- >>> :set -XDataKinds
@@ -306,9 +303,6 @@ mmult :: forall c m n k a.
   , Dimensions '[ k, n]
   , Dimensions '[ m, n]
   , Container c
-  , Semiring a
-  , Num a
-  , CRing a
   , KnownNat m
   , KnownNat n
   , KnownNat k
@@ -336,8 +330,6 @@ row i_ = unsafeRow i
 
 unsafeRow :: forall c a m n.
   ( Container c
-  , KnownNat m
-  , KnownNat n
   , Dimensions '[ m, n])
   => Int
   -> Matrix c m n a
@@ -363,7 +355,7 @@ col j_ = unsafeCol j
     j = (Proto.fromIntegral . S.fromSing . S.singByProxy) j_
 
 unsafeCol ::
-     forall c a m n. (Container c, KnownNat m, KnownNat n, Dimensions '[ m, n])
+     forall c a m n. (Container c, Dimensions '[ m, n])
   => Int
   -> Matrix c m n a
   -> Vector c m a

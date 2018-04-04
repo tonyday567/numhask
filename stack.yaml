@@ -1,4 +1,4 @@
-resolver: nightly-2018-04-01
+resolver: nightly-2018-04-04
 
 packages:
   - numhask
@@ -10,7 +10,3 @@ packages:
 
 extra-deps:
   - dimensions-0.3.2.0
-  - protolude-0.2.2
-  - singletons-2.4.1
-
-allow-newer: true

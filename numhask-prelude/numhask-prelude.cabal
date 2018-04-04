@@ -1,0 +1,61 @@
+name:           numhask-prelude
+version:        0.0.1.0
+synopsis:       A numeric prelude
+description:    A numeric prelude, combining protolude and numhask.
+category:       mathematics
+homepage:       https://github.com/tonyday567/numhask#readme
+bug-reports:    https://github.com/tonyday567/numhask/issues
+author:         Tony Day
+maintainer:     tonyday567@gmail.com
+copyright:      Tony Day
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/numhask
+
+library
+  hs-source-dirs:
+      src
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+  ghc-options:
+      -Wall
+      -Wcompat
+      -Wincomplete-record-updates
+      -Wincomplete-uni-patterns
+      -Wredundant-constraints
+  build-depends:
+      QuickCheck >=2.8 && <3
+    , base >=4.7 && <4.12
+    , numhask >=0.2 && <0.3
+    , protolude >=0.1 && <0.3
+    , tasty >= 1.0.1.1 && <1.1
+    , tasty-quickcheck >= 0.9.2 && <1.0
+  exposed-modules:
+      NumHask.Prelude
+      NumHask.Examples
+      NumHask.Laws
+  other-modules:
+      Paths_numhask_prelude
+  default-language: Haskell2010
+
+test-suite test
+  type: exitcode-stdio-1.0
+  main-is: test.hs
+  hs-source-dirs:
+      test
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+  build-depends:
+      base >=4.7 && <5
+    , doctest
+    , numhask-prelude
+    , tasty
+  other-modules:
+      Paths_numhask_prelude
+  default-language: Haskell2010

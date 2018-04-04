@@ -1,0 +1,54 @@
+name:           numhask
+version:        0.2.0.0
+synopsis:       numeric classes
+description:    A numeric class heirarchy.
+category:       mathematics
+homepage:       https://github.com/tonyday567/numhask#readme
+bug-reports:    https://github.com/tonyday567/numhask/issues
+author:         Tony Day
+maintainer:     tonyday567@gmail.com
+copyright:      Tony Day
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+  stack.yaml
+
+extra-doc-files:
+  other/*.svg
+
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/numhask
+
+library
+  hs-source-dirs:
+      src
+  default-extensions: NegativeLiterals OverloadedStrings UnicodeSyntax
+  ghc-options:
+      -Wall
+      -Wcompat
+      -Wincomplete-record-updates
+      -Wincomplete-uni-patterns
+      -Wredundant-constraints
+
+  build-depends:
+      base >=4.7 && <4.12
+  exposed-modules:
+      NumHask.Algebra
+      NumHask.Algebra.Additive
+      NumHask.Algebra.Basis
+      NumHask.Algebra.Distribution
+      NumHask.Algebra.Ring
+      NumHask.Algebra.Field
+      NumHask.Algebra.Integral
+      NumHask.Algebra.Magma
+      NumHask.Algebra.Metric
+      NumHask.Algebra.Module
+      NumHask.Algebra.Multiplicative
+      NumHask.Algebra.Singleton
+  other-modules:
+      Paths_numhask
+  default-language: Haskell2010

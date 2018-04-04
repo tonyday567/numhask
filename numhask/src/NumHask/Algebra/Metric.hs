@@ -31,31 +31,31 @@ class (MultiplicativeUnital a) =>
   abs :: a -> a
 
 instance Signed Double where
-  sign a =
-    if a >= zero
-      then one
-      else negate one
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
   abs = P.abs
 
 instance Signed Float where
-  sign a =
-    if a >= zero
-      then one
-      else negate one
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
   abs = P.abs
 
 instance Signed Int where
-  sign a =
-    if a >= zero
-      then one
-      else negate one
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
   abs = P.abs
 
 instance Signed Integer where
-  sign a =
-    if a >= zero
-      then one
-      else negate one
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
   abs = P.abs
 
 -- | Like Signed, except the codomain can be different to the domain.

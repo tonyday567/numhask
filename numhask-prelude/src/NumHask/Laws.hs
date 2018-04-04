@@ -138,7 +138,7 @@ multiplicativeLaws =
   ]
 
 multiplicativeMonoidalLaws ::
-     (Eq a, MultiplicativeUnital a, MultiplicativeAssociative a) => [Law a]
+     (Eq a, MultiplicativeUnital a) => [Law a]
 multiplicativeMonoidalLaws =
   [ ( "associative: (a * b) * c = a * (b * c)"
     , Ternary (\a b c -> (a `times` b) `times` c == a `times` (b `times` c)))
@@ -415,11 +415,7 @@ multiplicativeModuleLaws =
 
 multiplicativeGroupModuleLawsFail ::
      ( Eq a
-     , Show a
-     , Arbitrary a
      , Eq (r a)
-     , Show (r a)
-     , Arbitrary (r a)
      , Epsilon a
      , Epsilon (r a)
      , MultiplicativeGroupModule r a
@@ -437,14 +433,9 @@ banachLaws ::
      , Fractional a
      , Signed a
      , Foldable r
-     , Fractional b
      , Eq (r a)
-     , Epsilon b
      , Epsilon (r a)
-     , Metric (r a) b
-     , MultiplicativeGroup b
      , Banach r a
-     , Normed (r a) b
      , Singleton r
      )
   => [Law2 (r a) b]
@@ -457,9 +448,7 @@ banachLaws =
   ]
 
 hilbertLaws ::
-    ( Eq (r a)
-    , Eq a
-    , Multiplicative a
+    ( Eq a
     , MultiplicativeModule r a
     , Epsilon a
     , Epsilon (r a)
@@ -478,10 +467,7 @@ hilbertLaws =
 tensorProductLaws ::
      ( Eq (r (r a))
      , Additive (r (r a))
-     , Eq (r a)
-     , Eq a
      , TensorProduct (r a)
-     , Epsilon a
      , Epsilon (r a)
      )
   => [Law2 (r a) a]

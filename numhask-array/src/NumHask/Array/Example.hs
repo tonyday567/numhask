@@ -39,7 +39,6 @@ module NumHask.Array.Example
     
   ) where
 
-import NumHask.Array as A
 import NumHask.Shape
 import NumHask.Prelude as P
 
