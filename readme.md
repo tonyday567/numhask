@@ -5,13 +5,12 @@ numhask
 
 A numeric class heirarchy, providing a structure for numbers and functions that combine them.
 
-For example, the `Num` class in prelude is approximately a `Ring`. In numhask, the class laws and operators flow as follows:
-
 Ring heirarchy
 ---
 
-[![Field Hierarchy](https://tonyday567.github.io/other/field.svg)](https://tonyday567.github.io/other/field.svg)
+For example, the `Num` class in prelude is approximately a `Ring`. In numhask, the class laws and operators flow as follows:
 
+[![Ring Hierarchy](numhask-graph/other/ring.svg)](numhask-graph/other/ring.svg)
 
 Libraries
 ---
@@ -21,7 +20,6 @@ Libraries
 - `numhask-array` n-dimensional arrays with type-level size
 
 There is also some performance analytics in `numhask-bench` and `numhask-graph` produces the above chart.
-
 
 numhask
 ---
@@ -83,7 +81,7 @@ See [bench](numhask-bench/bench.md) for current performance results.
 
 ~~~
 cd numhask-bench
-stack build --exec "$(stack path --local-install-root)/bin/numhask-bench" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/header.md bench/bench.md other/footer.md -t html -o bench.html --filter pandoc-include --mathjax" --exec "$(stack path --local-bin)/pandoc -f markdown -i bench/bench.md -t markdown -o bench.md --filter pandoc-include --mathjax" --file-watch
+stack build --exec "$(stack path --local-install-root)/bin/numhask-bench" --exec "$(stack path --local-bin)/pandoc -f markdown -i bench/bench.md -t markdown -o bench.md --filter pandoc-include --mathjax" --file-watch
 ~~~
 
 numhask-graph
@@ -93,6 +91,3 @@ numhask-graph
 cd numhask-graph
 stack build --exec "$(stack path --local-install-root)/bin/numhask-graph"
 ~~~
-
-
-
