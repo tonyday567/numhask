@@ -35,8 +35,8 @@ library
     , base >=4.7 && <4.12
     , numhask >=0.3 && <0.4
     , protolude >=0.1 && <0.3
-    , tasty
-    , tasty-quickcheck
+    , tasty >= 1.0.1.1 && <1.1
+    , tasty-quickcheck >= 0.9.2 && <1.0
   exposed-modules:
       NumHask.Prelude
       NumHask.Examples
