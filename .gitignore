@@ -2,6 +2,3 @@
 TAGS
 .DS_Store
 .stack-work
-/numhask-bench/numhask-bench.cabal
-/numhask-prelude/numhask-prelude.cabal
-/numhask/numhask.cabal

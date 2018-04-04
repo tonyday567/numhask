@@ -1,0 +1,51 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: aefd430aa23caa91d6347399b0c4979b47ed5f012c0abc2f480c17b24ec08d4d
+
+name:           numhask-bench
+version:        0.0.1
+synopsis:       See readme.md
+description:    See readme.md for description.
+category:       project
+homepage:       https://github.com/tonyday567/numhask-bench#readme
+bug-reports:    https://github.com/tonyday567/numhask-bench/issues
+author:         Tony Day
+maintainer:     tonyday567@gmail.com
+copyright:      Tony Day (c) 2017
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    stack.yaml
+
+source-repository head
+  type: git
+  location: https://github.com/tonyday567/numhask-bench
+
+executable numhask-bench
+  main-is: bench.hs
+  hs-source-dirs:
+      bench
+  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+  ghc-options: -funbox-strict-fields -fforce-recomp -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , formatting
+    , hmatrix
+    , matrix
+    , numhask
+    , numhask-array
+    , numhask-prelude
+    , optparse-generic
+    , perf
+    , protolude
+    , scientific
+    , tdigest
+    , text
+  other-modules:
+      Paths_numhask_bench
+  default-language: Haskell2010
