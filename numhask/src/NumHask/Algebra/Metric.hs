@@ -74,7 +74,7 @@ instance Normed Int Int where
 instance Normed Integer Integer where
   size = P.abs
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
+instance (Multiplicative a, ExpField a) =>
          Normed (Complex a) a where
   size (rx :+ ix) = sqrt (rx * rx + ix * ix)
 
@@ -100,7 +100,7 @@ instance Metric Int Int where
 instance Metric Integer Integer where
   distance a b = abs (a - b)
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
+instance (Multiplicative a, ExpField a) =>
          Metric (Complex a) a where
   distance a b = size (a - b)
 
