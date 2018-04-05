@@ -229,7 +229,7 @@ tensorProductClasses =
   , TensorProduct
   ]
 
-fieldClasses =
+ringClasses =
   [ Magma
   , Unital
   , Associative
@@ -246,8 +246,8 @@ fieldClasses =
 
 main :: IO ()
 main = do
-  let gField = makeGraph (Config 3 30 10 1) fieldClasses dependencies
-  fileSvg "other/field.svg" (600, 600) (gField :: QDiagram SVG V2 Double Any)
+  let gRing = makeGraph (Config 3 30 10 1) ringClasses dependencies
+  fileSvg "other/ring.svg" (600, 600) (gRing :: QDiagram SVG V2 Double Any)
   let gHilbert = makeGraph (Config 3 30 10 1) tensorProductClasses dependencies
   fileSvg
     "other/tensor_product.svg"
