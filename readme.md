@@ -1,7 +1,7 @@
 numhask
 ===
 
-[![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) [![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask) [![lts](https://www.stackage.org/package/numhask/badge/lts)](http://stackage.org/lts/package/numhask) [![nightly](https://www.stackage.org/package/numhask/badge/nightly)](http://stackage.org/nightly/package/numhask) 
+[![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) 
 
 A numeric class heirarchy, providing a structure for numbers and functions that combine them.
 
@@ -24,6 +24,8 @@ There is also some performance analytics in `numhask-bench` and `numhask-graph` 
 numhask
 ---
 
+[![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask) [![lts](https://www.stackage.org/package/numhask/badge/lts)](http://stackage.org/lts/package/numhask) [![nightly](https://www.stackage.org/package/numhask/badge/nightly)](http://stackage.org/nightly/package/numhask)
+
 `numhask` begins with separately named magma-derived classes for addition and multiplication, and then being symetrical in the treatment of the two heirarchies.  A short magma structure is provided with the intention of supplying appropriate classes for operators that are neither addition nor multiplication, but this structure is not hooked up to the main classes.
 
 To be as compatible as practical with the existing haskell ecosystem.  Ints, Integers, Floats, Doubles and Complex are taken from base and given numhask class instances, so they are also Num instances.  Monoid and Semigroup are not used in numhask to maintain compatability.
@@ -39,6 +41,8 @@ In summary, the library doesn't do anything fancy. But if having to define `(*)`
 numhask-prelude
 ---
 
+[![Hackage](https://img.shields.io/hackage/v/numhask-prelude.svg)](https://hackage.haskell.org/package/numhask-prelude) [![lts](https://www.stackage.org/package/numhask-prelude/badge/lts)](http://stackage.org/lts/package/numhask-prelude) [![nightly](https://www.stackage.org/package/numhask-prelude/badge/nightly)](http://stackage.org/nightly/package/numhask-prelude)
+
 ``` {.sourceCode .literate .haskell}
 {-# LANGUAGE NoImplicitPrelude #-}
 import Numhask.Prelude
@@ -51,6 +55,8 @@ See [Examples](numhask-prelude/src/NumHask/Examples.hs) for basic examples, or [
 
 numhask-array
 ---
+
+[![Hackage](https://img.shields.io/hackage/v/numhask-array.svg)](https://hackage.haskell.org/package/numhask-array) [![lts](https://www.stackage.org/package/numhask-array/badge/lts)](http://stackage.org/lts/package/numhask-array) [![nightly](https://www.stackage.org/package/numhask-array/badge/nightly)](http://stackage.org/nightly/package/numhask-array)
 
 An experimental array with:
 
