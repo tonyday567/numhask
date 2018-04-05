@@ -11,7 +11,7 @@ copyright:      Tony Day
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
+cabal-version:  >= 1.18
 
 extra-source-files:
   stack.yaml
