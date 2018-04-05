@@ -1,5 +1,5 @@
 name:           numhask-array
-version:        0.2.0.0
+version:        0.2.0.1
 synopsis:       n-dimensional arrays
 description:    n-dimensional arrays founded on numhask.
 category:       project
@@ -10,7 +10,7 @@ maintainer:     tonyday567@gmail.com
 copyright:      Tony Day
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC==8.0.1 GHC==8.2.1 GHC==8.2.2
+tested-with:    GHC==8.4.1
 build-type:     Simple
 cabal-version:  >= 1.18
 
@@ -34,7 +34,7 @@ library
   build-depends:
       QuickCheck >= 2.0 && < 2.12
     , adjunctions >=4.0 && <5
-    , base >=4.7 && <4.12
+    , base >=4.11 && <4.12
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
@@ -58,7 +58,7 @@ test-suite test
       test
   default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
   build-depends:
-      base >=4.7 && <4.12
+      base >=4.11 && <4.12
     , doctest
     , numhask-array
     , numhask-prelude >=0.0 && <0.1
