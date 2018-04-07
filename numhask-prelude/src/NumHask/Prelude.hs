@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | A prelude for NumHask
@@ -5,7 +6,9 @@ module NumHask.Prelude
   ( -- * Backend
     -- $backend
     module Protolude
-
+#if !MIN_VERSION_base(4,11,0)
+  , (<>)
+#endif
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Additive
@@ -22,6 +25,7 @@ module NumHask.Prelude
 
   ) where
 
+#if MIN_VERSION_base(4,11,0)
 import Protolude
        hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
@@ -29,6 +33,16 @@ import Protolude
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
                zero)
+#else
+import Protolude
+       hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
+               (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
+               atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
+               fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
+               recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
+               zero, (<>))
+import Data.Semigroup ((<>))
+#endif
 
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis

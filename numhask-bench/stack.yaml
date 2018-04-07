@@ -5,11 +5,11 @@ packages:
   - ../numhask
   - ../numhask-prelude
   - ../numhask-array
-  - ../../perf/perf
 
 extra-deps:
   - dimensions-0.3.2.0
   - tdigest-0.1
+  - perf-0.4.0.1
 
 allow-newer: true
 
