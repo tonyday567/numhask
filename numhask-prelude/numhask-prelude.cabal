@@ -1,5 +1,5 @@
 name:           numhask-prelude
-version:        0.0.2.0
+version:        0.0.3.0
 synopsis:       A numeric prelude
 description:    A numeric prelude, combining protolude and numhask.
 category:       mathematics

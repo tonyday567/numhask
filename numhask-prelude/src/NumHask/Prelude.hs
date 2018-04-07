@@ -8,6 +8,7 @@ module NumHask.Prelude
     module Protolude
 #if !MIN_VERSION_base(4,11,0)
   , (<>)
+  , Semigroup
 #endif
     -- * Algebraic Heirarchy
     -- $instances
@@ -40,8 +41,8 @@ import Protolude
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, (<>))
-import Data.Semigroup ((<>))
+               zero, (<>), Semgroup)
+import Data.Semigroup ((<>), Semigroup)
 #endif
 
 import NumHask.Algebra.Additive
