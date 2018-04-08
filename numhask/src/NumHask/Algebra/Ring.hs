@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# language FlexibleInstances, UndecidableInstances, OverlappingInstances #-}
 
 -- | Ring classes. A distinguishment is made between Rings and Commutative Rings.
 module NumHask.Algebra.Ring
@@ -13,7 +14,7 @@ import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Distribution
 import NumHask.Algebra.Multiplicative
-import Prelude (Bool(..), Double, Float, Int, Integer)
+import Prelude (Bool(..), Double, Float, Int, Integer, Real(..))
 
 -- | Semiring
 class (MultiplicativeAssociative a, MultiplicativeUnital a, Distribution a) =>
@@ -96,4 +97,22 @@ class (Semiring a) => StarSemiring a where
 --
 class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 
+
+
+-- | Involutive Ring
+--
+-- > adj (a + b) ==> adj a + adj b
+-- > adj (a * b) ==> adj a * adj b
+-- > adj one = one
+-- > adj (adj a) = a
+-- 
+class Ring a => InvolutiveRing a where
+  adj :: a -> a
+  adj x = x
+
+instance (Ring a, Real a) => InvolutiveRing a
+
+instance Ring a => InvolutiveRing (Complex a) where
+  adj (a :+ b) = a :+ negate b
+  
 
