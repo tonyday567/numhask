@@ -108,8 +108,8 @@ class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 --
 -- > adj (a + b) ==> adj a + adj b
 -- > adj (a * b) ==> adj a * adj b
--- > adj one = one
--- > adj (adj a) = a
+-- > adj one ==> one
+-- > adj (adj a) ==> a
 --
 -- Note: elements for which @adj a == a@ are called "self-adjoint".
 -- 
