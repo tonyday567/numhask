@@ -34,7 +34,10 @@ instance Semiring Bool
 instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
 
 -- | Ring
--- a summary of the laws inherited from the ring super-classes
+-- 
+-- A Ring consists of a set equipped with two binary operations that generalize the arithmetic operations of addition and multiplication; it is an abelian group with a second binary operation that is associative, is distributive over the abelian group operation, and has an identity element.
+-- 
+-- Summary of the laws inherited from the ring super-classes:
 --
 -- > zero + a == a
 -- > a + zero == a
@@ -51,6 +54,7 @@ instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
 -- > (a + b) `times` c == a `times` c + b `times` c
 -- > a `times` zero == zero
 -- > zero `times` a == zero
+-- 
 class ( Semiring a
       , AdditiveGroup a
       ) =>
