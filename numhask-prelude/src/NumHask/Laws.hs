@@ -41,6 +41,7 @@ module NumHask.Laws
   , semiringLaws
   , ringLaws
   , starSemiringLaws
+  , involutiveRingLaws
   ) where
 
 import NumHask.Prelude
@@ -541,3 +542,15 @@ starSemiringLaws = semiringLaws <>
     , Unary (\a -> star a == one + a `times` star a))
     ]
 
+-- | involutive ring
+involutiveRingLaws :: (Eq a, InvolutiveRing a) => [Law a]
+involutiveRingLaws =
+    [ ( "adjoint plus law: adj (a + b) ==> adj a + adj b"
+    , Binary (\a b -> adj (a `plus` b) == adj a `plus` adj b))
+    , ( "adjoint times law: adj (a * b) ==> adj b * adj a"
+    , Binary (\a b -> adj (a `times` b) == adj b `times` adj a))
+    , ( "adjoint multiplicative unit law: adj one ==> one"
+    , Unary (\a -> adj one + a == one + a)) -- fixme: crazy way to get the type
+    , ( "adjoint own inverse law: adj (adj a) ==> a"
+    , Unary (\a -> adj (adj a) == a))
+    ]

@@ -25,6 +25,7 @@ tests =
     , testsFloat
     , testsBool
     , testsComplexFloat
+    , testsComplexInvolutive
     ]
 
 testsInt :: TestTree
@@ -92,4 +93,13 @@ testsComplexFloat =
       testLawOf ([] :: [Complex Float]) <$> expFieldComplexLooseLaws 10
     , testGroup "Metric" $
       testLawOf ([] :: [Complex Float]) <$> metricComplexFloatLaws
+    ]
+
+testsComplexInvolutive :: TestTree
+testsComplexInvolutive =
+  testGroup
+    "Complex Involutive (Float)"
+    [ testGroup "Involutive Ring" $
+      -- fixme: why doesn't Complex Int work here?
+      testLawOf ([] :: [Complex Float]) <$> involutiveRingLaws
     ]
