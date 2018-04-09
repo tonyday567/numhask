@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# language FlexibleInstances, UndecidableInstances #-}
+{-# language FlexibleInstances #-}
 
 -- | Ring classes. A distinguishment is made between Rings and Commutative Rings.
 module NumHask.Algebra.Ring
