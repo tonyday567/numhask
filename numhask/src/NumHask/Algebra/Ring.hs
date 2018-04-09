@@ -15,7 +15,7 @@ import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Distribution
 import NumHask.Algebra.Multiplicative
-import Prelude (Bool(..), Double, Float, Int, Integer, Real(..))
+import Prelude (Bool(..), Double, Float, Int, Integer)
 
 -- | Semiring
 class (MultiplicativeAssociative a, MultiplicativeUnital a, Distribution a) =>
