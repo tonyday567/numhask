@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# language FlexibleInstances, UndecidableInstances, OverlappingInstances #-}
+{-# language FlexibleInstances, UndecidableInstances #-}
 
 -- | Ring classes. A distinguishment is made between Rings and Commutative Rings.
 module NumHask.Algebra.Ring
@@ -8,6 +8,7 @@ module NumHask.Algebra.Ring
   , CRing
   , StarSemiring(..)
   , KleeneAlgebra
+  , InvolutiveRing(..)
   ) where
 
 import Data.Complex (Complex(..))
@@ -105,14 +106,32 @@ class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 -- > adj (a * b) ==> adj a * adj b
 -- > adj one = one
 -- > adj (adj a) = a
+--
+-- Note: elements for which @adj a == a@ are called "self-adjoint".
 -- 
 class Ring a => InvolutiveRing a where
   adj :: a -> a
   adj x = x
 
-instance (Ring a, Real a) => InvolutiveRing a
 
-instance Ring a => InvolutiveRing (Complex a) where
+instance InvolutiveRing Double
+
+instance InvolutiveRing Float
+
+instance InvolutiveRing Integer
+
+instance InvolutiveRing Int
+
+instance InvolutiveRing (Complex Double) where
   adj (a :+ b) = a :+ negate b
-  
 
+instance InvolutiveRing (Complex Float) where
+  adj (a :+ b) = a :+ negate b
+
+instance InvolutiveRing (Complex Int) where
+  adj (a :+ b) = a :+ negate b
+
+instance InvolutiveRing (Complex Integer) where
+  adj (a :+ b) = a :+ negate b
+
+  
