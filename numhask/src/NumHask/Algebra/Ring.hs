@@ -102,8 +102,6 @@ class (Semiring a) => StarSemiring a where
 --
 class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 
-
-
 -- | Involutive Ring
 --
 -- > adj (a + b) ==> adj a + adj b
@@ -112,11 +110,10 @@ class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 -- > adj (adj a) ==> a
 --
 -- Note: elements for which @adj a == a@ are called "self-adjoint".
--- 
+--
 class Ring a => InvolutiveRing a where
   adj :: a -> a
   adj x = x
-
 
 instance InvolutiveRing Double
 
@@ -126,16 +123,5 @@ instance InvolutiveRing Integer
 
 instance InvolutiveRing Int
 
-instance InvolutiveRing (Complex Double) where
+instance (Ring a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
-
-instance InvolutiveRing (Complex Float) where
-  adj (a :+ b) = a :+ negate b
-
-instance InvolutiveRing (Complex Int) where
-  adj (a :+ b) = a :+ negate b
-
-instance InvolutiveRing (Complex Integer) where
-  adj (a :+ b) = a :+ negate b
-
-  
