@@ -58,7 +58,7 @@ testsFloat =
     , testGroup "Signed" $ testLawOf ([] :: [Float]) <$> signedLaws
     , testGroup "Bounded Field" $
       testLawOf ([] :: [Float]) <$> boundedFieldFloatLaws
-    , testGroup "Metric" $ testLawOf ([] :: [Float]) <$> metricFloatLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Float, Float)]) <$> metricFloatLaws
     , testGroup "Quotient Field" $
       testLawOf ([] :: [Float]) <$> quotientFieldLaws
     , testGroup "Exponential Field" $ testLawOf ([] :: [Float]) <$> expFieldLaws
@@ -92,7 +92,7 @@ testsComplexFloat =
     , testGroup "Exponential Field" $
       testLawOf ([] :: [Complex Float]) <$> expFieldComplexLooseLaws 10
     , testGroup "Metric" $
-      testLawOf ([] :: [Complex Float]) <$> metricComplexFloatLaws
+      testLawOf2 ([] :: [(Complex Float, Float)]) <$> metricComplexFloatLaws
     ]
 
 testsComplexInvolutive :: TestTree
@@ -103,3 +103,5 @@ testsComplexInvolutive =
       -- fixme: why doesn't Complex Int work here?
       testLawOf ([] :: [Complex Float]) <$> involutiveRingLaws
     ]
+
+

@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module NumHask.Laws
   ( LawArity(..)
@@ -21,6 +22,7 @@ module NumHask.Laws
   , signedLaws
   , metricFloatLaws 
   , metricComplexFloatLaws
+  , metricContainerFloatLaws
   , boundedFieldFloatLaws
   , quotientFieldLaws 
   , expFieldLaws
@@ -33,8 +35,7 @@ module NumHask.Laws
   , additiveGroupModuleLaws
   , multiplicativeModuleLaws
   , multiplicativeGroupModuleLawsFail
-  , expFieldNaperianLaws
-  , metricNaperianFloatLaws
+  , expFieldContainerLaws
   , tensorProductLaws
   , banachLaws
   , hilbertLaws
@@ -59,6 +60,7 @@ data LawArity a
 data LawArity2 a b
   = Unary2 (a -> Bool)
   | Binary2 (a -> b -> Bool)
+  | Binary2' (a -> a -> Bool)
   | Ternary2 (a -> a -> b -> Bool)
   | Ternary2' (a -> b -> b -> Bool)
   | Ternary2'' (a -> a -> a -> Bool)
@@ -85,6 +87,7 @@ testLawOf2 ::
   -> TestTree
 testLawOf2 _ (name, Unary2 f) = testProperty name f
 testLawOf2 _ (name, Binary2 f) = testProperty name f
+testLawOf2 _ (name, Binary2' f) = testProperty name f
 testLawOf2 _ (name, Ternary2 f) = testProperty name f
 testLawOf2 _ (name, Ternary2' f) = testProperty name f
 testLawOf2 _ (name, Ternary2'' f) = testProperty name f
@@ -209,51 +212,194 @@ integralLaws =
 signedLaws :: (Eq a, Signed a) => [Law a]
 signedLaws = [("sign a * abs a == a", Unary (\a -> sign a `times` abs a == a))]
 
-metricFloatLaws :: () => [Law Float]
+metricFloatLaws :: () => [Law2 Float Float]
 metricFloatLaws =
-  [ ("positive", Binary (\a b -> (distance a b :: Float) >= zero))
-  , ("zero if equal", Unary (\a -> (distance a a :: Float) == zero))
-  , ( "associative"
-    , Binary (\a b -> (distance a b :: Float) ≈ (distance b a :: Float)))
-  , ( "triangle rule - sum of distances > distance"
-    , Ternary
+  [ ("L1: positive", Binary2' (\a b -> (distanceL1 a b :: Float) >= zero))
+  , ("L1: zero if equal", Unary2 (\a -> (distanceL1 a a :: Float) == zero))
+  , ( "L1: associative"
+    , Binary2' (\a b -> (distanceL1 a b :: Float) ≈ (distanceL1 b a :: Float)))
+  , ("L2: positive", Binary2' (\a b -> (distanceL2 a b :: Float) >= zero))
+  , ("L2: zero if equal", Unary2 (\a -> (distanceL2 a a :: Float) == zero))
+  , ( "L2: associative"
+    , Binary2' (\a b -> (distanceL2 a b :: Float) ≈ (distanceL2 b a :: Float)))
+  , ("Lp: positive", Ternary2 (\a b p -> (distanceLp p a b :: Float) >= zero))
+  , ("Lp: zero if equal", Binary2 (\a p -> (distanceLp p a a :: Float) == zero))
+  , ( "Lp: associative"
+    , Ternary2 (\a b p -> (distanceLp p a b :: Float) ≈ (distanceLp p b a :: Float)))
+  , ( "L1: triangle rule - sum of distances > distance"
+    , Ternary2''
         (\a b c ->
            (abs a > 10.0) ||
            (abs b > 10.0) ||
            (abs c > 10.0) ||
            not
              (veryNegative
-                (distance a c + distance b c - (distance a b :: Float))) &&
+                (distanceL1 a c + distanceL1 b c - (distanceL1 a b :: Float))) &&
            not
              (veryNegative
-                (distance a b + distance b c - (distance a c :: Float))) &&
+                (distanceL1 a b + distanceL1 b c - (distanceL1 a c :: Float))) &&
            not
              (veryNegative
-                (distance a b + distance a c - (distance b c :: Float)))))
+                (distanceL1 a b + distanceL1 a c - (distanceL1 b c :: Float)))))
+  , ( "L2: triangle rule - sum of distances > distance"
+    , Ternary2''
+        (\a b c ->
+           (abs a > 10.0) ||
+           (abs b > 10.0) ||
+           (abs c > 10.0) ||
+           not
+             (veryNegative
+                (distanceL2 a c + distanceL2 b c - (distanceL2 a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceL2 a b + distanceL2 b c - (distanceL2 a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceL2 a b + distanceL2 a c - (distanceL2 b c :: Float)))))
+  , ( "Lp: triangle rule - sum of distances > distance"
+    , Quad31
+        (\a b c p ->
+           (p < 1) ||
+           (abs a > 10.0) ||
+           (abs b > 10.0) ||
+           (abs c > 10.0) ||
+           not
+             (veryNegative
+                (distanceLp p a c + distanceLp p b c - (distanceLp p a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p b c - (distanceLp p a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p a c - (distanceLp p b c :: Float)))))
   ]
 
-metricComplexFloatLaws :: () => [Law (Complex Float)]
+metricComplexFloatLaws :: () => [Law2 (Complex Float) Float]
 metricComplexFloatLaws =
-  [ ("positive", Binary (\a b -> (distance a b :: Float) >= zero))
-  , ("zero if equal", Unary (\a -> (distance a a :: Float) == zero))
-  , ( "associative"
-    , Binary (\a b -> (distance a b :: Float) ≈ (distance b a :: Float)))
-  , ( "triangle rule - sum of distances > distance"
-    , Ternary
+  [ ("L1: positive", Binary2' (\a b -> (distanceL1 a b :: Float) >= zero))
+  , ("L1: zero if equal", Unary2 (\a -> (distanceL1 a a :: Float) == zero))
+  , ( "L1: commutative"
+    , Binary2' (\a b -> (distanceL1 a b :: Float) ≈ (distanceL1 b a :: Float)))
+  , ("L2: positive", Binary2' (\a b -> (distanceL2 a b :: Float) >= zero))
+  , ("L2: zero if equal", Unary2 (\a -> (distanceL2 a a :: Float) == zero))
+  , ( "L2: commutative"
+    , Binary2' (\a b -> (distanceL2 a b :: Float) ≈ distanceL2 b a))
+  , ("Lp: positive", Ternary2 (\a b p -> distanceLp p a b >= (zero :: Float)))
+  , ("Lp: zero if equal", Binary2 (\a p -> p <= zero || distanceLp p a a == (zero :: Float)))
+  , ( "Lp: commutative"
+  , Ternary2 (\a b p -> (normL1 p > (10.0 :: Float)) || (normL1 a > (10.0 :: Float) || normL1 b > (10.0 :: Float)) || p <= zero || (distanceLp p a b :: Float) ≈ (distanceLp p b a :: Float)))
+  , ( "L1: triangle rule - sum of distances > distance"
+    , Ternary2''
         (\a b c ->
-           (size a > (10.0 :: Float)) ||
-           (size b > (10.0 :: Float)) ||
-           (size c > (10.0 :: Float)) ||
+           ((normL1 a :: Float) > 10.0) ||
+           ((normL1 b :: Float) > 10.0) ||
+           ((normL1 c :: Float) > 10.0) ||
            not
              (veryNegative
-                (distance a c + distance b c - (distance a b :: Float))) &&
+                (distanceL1 a c + distanceL1 b c - (distanceL1 a b :: Float))) &&
            not
              (veryNegative
-                (distance a b + distance b c - (distance a c :: Float))) &&
+                (distanceL1 a b + distanceL1 b c - (distanceL1 a c :: Float))) &&
            not
              (veryNegative
-                (distance a b + distance a c - (distance b c :: Float)))))
+                (distanceL1 a b + distanceL1 a c - (distanceL1 b c :: Float)))))
+  , ( "L2: triangle rule - sum of distances > distance"
+    , Ternary2''
+        (\a b c ->
+           ((normL1 a :: Float) > 10.0) ||
+           ((normL1 b :: Float) > 10.0) ||
+           ((normL1 c :: Float) > 10.0) ||
+           not
+             (veryNegative
+                (distanceL2 a c + distanceL2 b c - (distanceL2 a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceL2 a b + distanceL2 b c - (distanceL2 a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceL2 a b + distanceL2 a c - (distanceL2 b c :: Float)))))
+    , ( "Lp: triangle rule - sum of distances > distance"
+    , Quad31
+        (\a b c p ->
+           (p < 1) ||
+           ((normL1 a :: Float) > 10.0) ||
+           ((normL1 b :: Float) > 10.0) ||
+           ((normL1 c :: Float) > 10.0) ||
+           not
+             (veryNegative
+                (distanceLp p (a :: Complex Float) c + distanceLp p b c - (distanceLp p a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p b c - (distanceLp p a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p a c - (distanceLp p b c :: Float)))))
+  
   ]
+
+metricContainerFloatLaws :: (Metric (r Float) Float) => [Law2 (r Float) Float]
+metricContainerFloatLaws =
+  [ ("L1: positive", Binary2' (\a b -> (distanceL1 a b :: Float) >= zero))
+  , ("L1: zero if equal", Unary2 (\a -> (distanceL1 a a :: Float) == zero))
+  , ( "L1: commutative"
+    , Binary2' (\a b -> (distanceL1 a b :: Float) ≈ (distanceL1 b a :: Float)))
+  , ("L2: positive", Binary2' (\a b -> (distanceL2 a b :: Float) >= zero))
+  , ("L2: zero if equal", Unary2 (\a -> (distanceL2 a a :: Float) == zero))
+  , ( "L2: commutative"
+    , Binary2' (\a b -> (distanceL2 a b :: Float) ≈ distanceL2 b a))
+  , ("Lp: positive", Ternary2 (\a b p -> distanceLp p a b >= (zero :: Float)))
+  , ("Lp: zero if equal", Binary2 (\a p -> p <= zero || distanceLp p a a == (zero :: Float)))
+  , ( "Lp: commutative"
+  , Ternary2 (\a b p -> (normL1 a > (10.0 :: Float) || normL1 b > (10.0 :: Float)) || p <= zero || (distanceLp p a b :: Float) ≈ (distanceLp p b a :: Float)))
+  , ( "L1: triangle rule - sum of distances > distance"
+    , Ternary2''
+        (\a b c ->
+           ((normL1 a :: Float) > 10.0) ||
+           ((normL1 b :: Float) > 10.0) ||
+           ((normL1 c :: Float) > 10.0) ||
+           not
+             (veryNegative
+                (distanceL1 a c + distanceL1 b c - (distanceL1 a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceL1 a b + distanceL1 b c - (distanceL1 a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceL1 a b + distanceL1 a c - (distanceL1 b c :: Float)))))
+  , ( "L2: triangle rule - sum of distances > distance"
+    , Ternary2''
+        (\a b c ->
+           ((normL1 a :: Float) > 10.0) ||
+           ((normL1 b :: Float) > 10.0) ||
+           ((normL1 c :: Float) > 10.0) ||
+           not
+             (veryNegative
+                (distanceL2 a c + distanceL2 b c - (distanceL2 a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceL2 a b + distanceL2 b c - (distanceL2 a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceL2 a b + distanceL2 a c - (distanceL2 b c :: Float)))))
+    , ( "Lp: triangle rule - sum of distances > distance"
+    , Quad31
+        (\a b c p ->
+           (p < 1) ||
+           ((normL1 a :: Float) > 10.0) ||
+           ((normL1 b :: Float) > 10.0) ||
+           ((normL1 c :: Float) > 10.0) ||
+           not
+             (veryNegative
+                (distanceLp p a c + distanceLp p b c - (distanceLp p a b :: Float))) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p b c - (distanceLp p a c :: Float))) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p a c - (distanceLp p b c :: Float)))))
+  
+  ]
+
 
 -- field
 boundedFieldFloatLaws :: [Law Float]
@@ -319,26 +465,7 @@ expFieldComplexLooseLaws _ =
             (a == zero && nearZero (logBase a b)) || (a ** logBase a b ≈ b))))
   ]
 
-metricNaperianFloatLaws :: (Metric (r Float) Float) => [Law (r Float)]
-metricNaperianFloatLaws =
-  [ ("positive", Binary (\a b -> distance a b >= (zero :: Float)))
-  , ("zero if equal", Unary (\a -> distance a a == (zero :: Float)))
-  , ("associative", Binary (\a b -> distance a b ≈ (distance b a :: Float)))
-  , ( "triangle rule - sum of distances > distance"
-    , Ternary
-        (\a b c ->
-           not
-             (veryNegative
-                (distance a c + distance b c - (distance a b :: Float))) &&
-           not
-             (veryNegative
-                (distance a b + distance b c - (distance a c :: Float))) &&
-           not
-             (veryNegative
-                (distance a b + distance a c - (distance b c :: Float)))))
-  ]
-
-expFieldNaperianLaws ::
+expFieldContainerLaws ::
      ( ExpField (r a)
      , Foldable r
      , ExpField a
@@ -349,7 +476,7 @@ expFieldNaperianLaws ::
      , Ord a
      )
   => [Law (r a)]
-expFieldNaperianLaws =
+expFieldContainerLaws =
   [ ( "sqrt . (**2) ≈ id"
     , Unary
         (\a ->
@@ -430,22 +557,32 @@ multiplicativeGroupModuleLawsFail =
   ]
 
 banachLaws ::
-     ( Ord a
-     , Fractional a
-     , Signed a
-     , Foldable r
+     ( Foldable r
      , Eq (r a)
      , Epsilon (r a)
      , Banach r a
      , Singleton r
+     , Normed a Double
      )
-  => [Law2 (r a) b]
+  => [Law2 (r a) a]
 banachLaws =
-  [ ( "normalize a .* size a ≈ one"
+  [ ( "L1: normalize a .* norm a ≈ one"
     , Unary2
         (\a ->
            a == singleton zero ||
-           (any ((> 10.0) . abs) a || (normalize a .* size a) ≈ a)))
+           (any ((> 10.0) . normL1) a || (normalizeL1 a .* normL1 a) ≈ a)))
+    , ( "L2: normalize a .* norm a ≈ one"
+    , Unary2
+        (\a ->
+           a == singleton zero ||
+           (any ((> 10.0) . normL1) a || (normalizeL2 a .* normL2 a) ≈ a)))
+{-
+    , ( "Lp: normalizeLp a p .* normLp a p ≈ one"
+    , Binary2
+        (\a p ->
+           a == singleton zero ||
+           (any ((> 10.0) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
+-}
   ]
 
 hilbertLaws ::
