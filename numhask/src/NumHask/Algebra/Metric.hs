@@ -13,7 +13,7 @@ module NumHask.Algebra.Metric
 
 import qualified Prelude as P
 import Prelude
-       hiding (Bounded(..), Integral(..), (*), (+), (-), abs, negate, sqrt)
+       hiding (Bounded(..), Integral(..), (*), (/), (+), (-), abs, negate, sqrt, (**))
 
 import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
@@ -58,51 +58,67 @@ instance Signed Integer where
     | otherwise = negate one
   abs = P.abs
 
--- | Like Signed, except the codomain can be different to the domain.
+-- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
+--
+-- Note that the Normed codomain can be different to the domain.
 class Normed a b where
-  size :: a -> b
+  normL1 :: a -> b
+  normL2 :: a -> b
+  normLp :: b -> a -> b
 
 instance Normed Double Double where
-  size = P.abs
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
 
 instance Normed Float Float where
-  size = P.abs
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
 
 instance Normed Int Int where
-  size = P.abs
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
 
 instance Normed Integer Integer where
-  size = P.abs
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
 
-instance (Multiplicative a, ExpField a) =>
+instance (Multiplicative a, ExpField a, Normed a a) =>
          Normed (Complex a) a where
-  size (rx :+ ix) = sqrt (rx * rx + ix * ix)
+  normL1 (rx :+ ix) = normL1 rx + normL1 ix
+  normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
+  normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
--- | distance between numbers
+-- | distance between numbers using L1, L2 or Lp-norms
 --
--- > distance a b >= zero
--- > distance a a == zero
--- > \a b c -> distance a c + distance b c - distance a b >= zero &&
--- >           distance a b + distance b c - distance a c >= zero &&
--- >           distance a b + distance a c - distance b c >= zero &&
-class Metric a b where
-  distance :: a -> a -> b
+-- > distanceL2 a b >= zero
+-- > distanceL2 a a == zero
+-- > \a b c -> distanceL2 a c + distanceL2 b c - distanceL2 a b >= zero &&
+-- >           distanceL2 a b + distanceL2 b c - distanceL2 a c >= zero &&
+-- >           distanceL2 a b + distanceL2 a c - distanceL2 b c >= zero &&
+class (AdditiveGroup a, Normed a b) => Metric a b where
+  distanceL1 :: a -> a -> b
+  distanceL1 a b = normL1 (a - b)
 
-instance Metric Double Double where
-  distance a b = abs (a - b)
+  distanceL2 :: a -> a -> b
+  distanceL2 a b = normL2 (a - b)
 
-instance Metric Float Float where
-  distance a b = abs (a - b)
+  distanceLp :: b -> a -> a -> b
+  distanceLp p a b = normLp p (a - b)
 
-instance Metric Int Int where
-  distance a b = abs (a - b)
+instance Metric Double Double
 
-instance Metric Integer Integer where
-  distance a b = abs (a - b)
+instance Metric Float Float
 
-instance (Multiplicative a, ExpField a) =>
-         Metric (Complex a) a where
-  distance a b = size (a - b)
+instance Metric Int Int
+
+instance Metric Integer Integer
+
+instance (Multiplicative a, ExpField a, Normed a a) =>
+         Metric (Complex a) a
 
 -- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
 class (AdditiveGroup a) =>

@@ -94,9 +94,9 @@ testsVFloat =
       testLawOf ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupLaws
     , testGroup "Signed" $ testLawOf ([] :: [Vector [] 6 Float]) <$> signedLaws
     , testGroup "Metric" $
-      testLawOf ([] :: [Vector [] 6 Float]) <$> metricNaperianFloatLaws
+      testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> metricContainerFloatLaws
     , testGroup "Exponential Field" $
-      testLawOf ([] :: [Vector [] 6 Float]) <$> expFieldNaperianLaws
+      testLawOf ([] :: [Vector [] 6 Float]) <$> expFieldContainerLaws
     , testGroup "Multiplicative Group Module" $
       localOption (QuickCheckTests 1000) .
       testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$>

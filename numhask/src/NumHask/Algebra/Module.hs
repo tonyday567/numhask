@@ -82,11 +82,17 @@ class (MultiplicativeGroup a, MultiplicativeModule r a) =>
 
 -- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
 --
--- > a == singleton zero || normalize a *. size a == a
+-- > a == singleton zero || normalizeL2 a *. normL2 a == a
 class (ExpField a, Normed (r a) a, MultiplicativeGroupModule r a) =>
       Banach r a where
-  normalize :: r a -> r a
-  normalize a = a ./ size a
+  normalizeL1 :: r a -> r a
+  normalizeL1 a = a ./ normL1 a
+
+  normalizeL2 :: r a -> r a
+  normalizeL2 a = a ./ normL2 a
+
+  normalizeLp :: a -> r a -> r a
+  normalizeLp p a = a ./ normLp p a
 
 -- | the inner product of a representable over a semiring
 --

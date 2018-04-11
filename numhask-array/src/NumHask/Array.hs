@@ -658,18 +658,19 @@ instance (Dimensions r, Container c, Signed a) => Signed (Array c r a) where
   sign = fmapRep sign
   abs = fmapRep abs
 
-instance (Functor (Array c r), Foldable (Array c r), ExpField a) =>
+instance (Functor (Array c r), Foldable (Array c r), Normed a a, ExpField a) =>
          Normed (Array c r a) a where
-  size r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
+  normL1 r = foldr (+) zero $ normL1 <$> r
+  normL2 r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
+  normLp p r = (** (one / p)) $ foldr (+) zero $ (** p) . normL1 <$> r
 
 instance (Foldable (Array c r), Dimensions r, Container c, Epsilon a) =>
          Epsilon (Array c r a) where
   nearZero f = and (fmapRep nearZero f)
   aboutEqual a b = and (liftR2 aboutEqual a b)
 
-instance (Foldable (Array c r), Dimensions r, Container c, ExpField a) =>
-         Metric (Array c r a) a where
-  distance a b = size (a - b)
+instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Normed a a) =>
+         Metric (Array c r a) a
 
 instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
   divMod a b = (d, m)
