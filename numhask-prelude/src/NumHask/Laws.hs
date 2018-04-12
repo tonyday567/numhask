@@ -1,4 +1,6 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module NumHask.Laws
@@ -680,14 +682,14 @@ starSemiringLaws = semiringLaws <>
     ]
 
 -- | involutive ring
-involutiveRingLaws :: (Eq a, InvolutiveRing a) => [Law a]
+involutiveRingLaws :: forall a. (Eq a, MultiplicativeUnital a,InvolutiveRing a) => [Law a]
 involutiveRingLaws =
     [ ( "adjoint plus law: adj (a + b) ==> adj a + adj b"
     , Binary (\a b -> adj (a `plus` b) == adj a `plus` adj b))
     , ( "adjoint times law: adj (a * b) ==> adj b * adj a"
     , Binary (\a b -> adj (a `times` b) == adj b `times` adj a))
     , ( "adjoint multiplicative unit law: adj one ==> one"
-    , Unary (\a -> adj one + a == one + a)) -- fixme: crazy way to get the type
+    , Nonary (adj (one :: a) == one))
     , ( "adjoint own inverse law: adj (adj a) ==> a"
     , Unary (\a -> adj (adj a) == a))
     ]
