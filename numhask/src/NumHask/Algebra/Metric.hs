@@ -60,7 +60,13 @@ instance Signed Integer where
 
 -- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
 --
+-- for p >= 1
+--
+-- > normLp p a >= zero
+-- > normLp p zero == zero
+--
 -- Note that the Normed codomain can be different to the domain.
+--
 class Normed a b where
   normL1 :: a -> b
   normL2 :: a -> b
@@ -121,15 +127,19 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
          Metric (Complex a) a
 
 -- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
-class (AdditiveGroup a) =>
+class (Eq a, AdditiveGroup a) =>
       Epsilon a where
   nearZero :: a -> Bool
+  nearZero a = a == zero
+
   aboutEqual :: a -> a -> Bool
-  positive :: (Eq a, Signed a) => a -> Bool
+  aboutEqual a b = nearZero $ a - b
+
+  positive :: (Signed a) => a -> Bool
   positive a = a == abs a
-  veryPositive :: (Eq a, Signed a) => a -> Bool
+  veryPositive :: (Signed a) => a -> Bool
   veryPositive a = P.not (nearZero a) && positive a
-  veryNegative :: (Eq a, Signed a) => a -> Bool
+  veryNegative :: (Signed a) => a -> Bool
   veryNegative a = P.not (nearZero a P.|| positive a)
 
 infixl 4 ≈
@@ -140,19 +150,13 @@ infixl 4 ≈
 
 instance Epsilon Double where
   nearZero a = abs a <= (1e-12 :: Double)
-  aboutEqual a b = nearZero $ a - b
 
 instance Epsilon Float where
   nearZero a = abs a <= (1e-6 :: Float)
-  aboutEqual a b = nearZero $ a - b
 
-instance Epsilon Int where
-  nearZero a = a == zero
-  aboutEqual a b = nearZero $ a - b
+instance Epsilon Int
 
-instance Epsilon Integer where
-  nearZero a = a == zero
-  aboutEqual a b = nearZero $ a - b
+instance Epsilon Integer
 
 instance (Epsilon a) => Epsilon (Complex a) where
   nearZero (rx :+ ix) = nearZero rx && nearZero ix

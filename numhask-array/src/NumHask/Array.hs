@@ -664,7 +664,7 @@ instance (Functor (Array c r), Foldable (Array c r), Normed a a, ExpField a) =>
   normL2 r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
   normLp p r = (** (one / p)) $ foldr (+) zero $ (** p) . normL1 <$> r
 
-instance (Foldable (Array c r), Dimensions r, Container c, Epsilon a) =>
+instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) =>
          Epsilon (Array c r a) where
   nearZero f = and (fmapRep nearZero f)
   aboutEqual a b = and (liftR2 aboutEqual a b)
