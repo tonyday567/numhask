@@ -12,23 +12,23 @@ module NumHask.Laws
   , testLawOf2
   , idempotentLaws
   , additiveLaws
+  , additiveLaws_
   , additiveLawsFail
   , additiveGroupLaws
   , multiplicativeLaws
   , multiplicativeLawsFail
   , multiplicativeMonoidalLaws
   , multiplicativeGroupLaws
+  , multiplicativeGroupLaws_
   , distributionLaws
   , distributionLawsFail
   , integralLaws
   , signedLaws
-  , metricFloatLaws 
-  , metricComplexFloatLaws
-  , metricContainerFloatLaws
-  , boundedFieldFloatLaws
+  , normedLaws
+  , metricLaws
+  , boundedFieldLaws
   , quotientFieldLaws 
   , expFieldLaws
-  , expFieldComplexLooseLaws  
   , additiveBasisLaws
   , additiveGroupBasisLaws
   , multiplicativeBasisLaws
@@ -51,6 +51,7 @@ import NumHask.Prelude
 import Test.Tasty.QuickCheck hiding ((><))
 import Test.Tasty (TestName, TestTree)
 
+-- | unification of law equations
 data LawArity a
   = Nonary Bool
   | Unary (a -> Bool)
@@ -59,18 +60,20 @@ data LawArity a
   | Ornary (a -> a -> a -> a -> Bool)
   | Failiary (a -> Property)
 
+type Law a = (TestName, LawArity a)
+
+-- | unification of law equations with 2 types
 data LawArity2 a b
-  = Unary2 (a -> Bool)
-  | Binary2 (a -> b -> Bool)
-  | Binary2' (a -> a -> Bool)
-  | Ternary2 (a -> a -> b -> Bool)
-  | Ternary2' (a -> b -> b -> Bool)
-  | Ternary2'' (a -> a -> a -> Bool)
+  = Unary10 (a -> Bool)
+  | Unary01 (b -> Bool)
+  | Binary11 (a -> b -> Bool)
+  | Binary20 (a -> a -> Bool)
+  | Ternary21 (a -> a -> b -> Bool)
+  | Ternary12 (a -> b -> b -> Bool)
+  | Ternary30 (a -> a -> a -> Bool)
   | Quad31 (a -> a -> a -> b -> Bool)
   | Quad22 (a -> a -> b -> b -> Bool)
   | Failiary2 (a -> Property)
-
-type Law a = (TestName, LawArity a)
 
 type Law2 a b = (TestName, LawArity2 a b)
 
@@ -87,12 +90,13 @@ testLawOf2 ::
   => [(a, b)]
   -> Law2 a b
   -> TestTree
-testLawOf2 _ (name, Unary2 f) = testProperty name f
-testLawOf2 _ (name, Binary2 f) = testProperty name f
-testLawOf2 _ (name, Binary2' f) = testProperty name f
-testLawOf2 _ (name, Ternary2 f) = testProperty name f
-testLawOf2 _ (name, Ternary2' f) = testProperty name f
-testLawOf2 _ (name, Ternary2'' f) = testProperty name f
+testLawOf2 _ (name, Unary10 f) = testProperty name f
+testLawOf2 _ (name, Unary01 f) = testProperty name f
+testLawOf2 _ (name, Binary11 f) = testProperty name f
+testLawOf2 _ (name, Binary20 f) = testProperty name f
+testLawOf2 _ (name, Ternary21 f) = testProperty name f
+testLawOf2 _ (name, Ternary12 f) = testProperty name f
+testLawOf2 _ (name, Ternary30 f) = testProperty name f
 testLawOf2 _ (name, Quad22 f) = testProperty name f
 testLawOf2 _ (name, Quad31 f) = testProperty name f
 testLawOf2 _ (name, Failiary2 f) = testProperty name f
@@ -104,7 +108,7 @@ idempotentLaws =
   , ("idempotent: a * a == a", Unary (\a -> a * a == a))
   ]
 
--- additive
+-- | additive
 additiveLaws :: (Eq a, Additive a) => [Law a]
 additiveLaws =
   [ ( "associative: (a + b) + c = a + (b + c)"
@@ -114,6 +118,17 @@ additiveLaws =
   , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
   ]
 
+-- | additive with approximate association equality
+additiveLaws_ :: (Eq a, Epsilon a) => [Law a]
+additiveLaws_ =
+  [ ( "associative: (a + b) + c ≈ a + (b + c)"
+    , Ternary (\a b c -> (a + b) + c ≈ a + (b + c)))
+  , ("left id: zero + a = a", Unary (\a -> zero + a == a))
+  , ("right id: a + zero = a", Unary (\a -> a + zero == a))
+  , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
+  ]
+
+-- | additive laws with a failure on association
 additiveLawsFail :: (Eq a, Additive a, Show a, Arbitrary a) => [Law a]
 additiveLawsFail =
   [ ( "associative: (a + b) + c = a + (b + c)"
@@ -162,8 +177,20 @@ multiplicativeLawsFail =
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
   ]
 
-multiplicativeGroupLaws :: (Epsilon a, Eq a, MultiplicativeGroup a) => [Law a]
+multiplicativeGroupLaws :: (Eq a, AdditiveUnital a, MultiplicativeGroup a) => [Law a]
 multiplicativeGroupLaws =
+  [ ( "divide: a == zero || a / a == one"
+    , Unary (\a -> a == zero || (a / a) == one))
+  , ( "recip divide: recip a == one / a"
+    , Unary (\a -> a == zero || recip a == one / a))
+  , ( "recip left: a == zero || recip a * a == one"
+    , Unary (\a -> a == zero || recip a * a == one))
+  , ( "recip right: a == zero || a * recip a == one"
+    , Unary (\a -> a == zero || a * recip a == one))
+  ]
+ 
+multiplicativeGroupLaws_ :: (Eq a, Epsilon a, MultiplicativeGroup a) => [Law a]
+multiplicativeGroupLaws_ =
   [ ( "divide: a == zero || a / a ≈ one"
     , Unary (\a -> a == zero || (a / a) ≈ one))
   , ( "recip divide: recip a == one / a"
@@ -188,7 +215,7 @@ distributionLaws =
   ]
 
 distributionLawsFail ::
-     (Show a, Arbitrary a, Epsilon a, Eq a, Distribution a) => [Law a]
+     (Show a, Eq a, Arbitrary a, Epsilon a, Distribution a) => [Law a]
 distributionLawsFail =
   [ ( "left annihilation: a * zero == zero"
     , Unary (\a -> a `times` zero == zero))
@@ -214,206 +241,56 @@ integralLaws =
 signedLaws :: (Eq a, Signed a) => [Law a]
 signedLaws = [("sign a * abs a == a", Unary (\a -> sign a `times` abs a == a))]
 
-metricFloatLaws :: () => [Law2 Float Float]
-metricFloatLaws =
-  [ ("L1: positive", Binary2' (\a b -> (distanceL1 a b :: Float) >= zero))
-  , ("L1: zero if equal", Unary2 (\a -> (distanceL1 a a :: Float) == zero))
-  , ( "L1: associative"
-    , Binary2' (\a b -> (distanceL1 a b :: Float) ≈ (distanceL1 b a :: Float)))
-  , ("L2: positive", Binary2' (\a b -> (distanceL2 a b :: Float) >= zero))
-  , ("L2: zero if equal", Unary2 (\a -> (distanceL2 a a :: Float) == zero))
-  , ( "L2: associative"
-    , Binary2' (\a b -> (distanceL2 a b :: Float) ≈ (distanceL2 b a :: Float)))
-  , ("Lp: positive", Ternary2 (\a b p -> (distanceLp p a b :: Float) >= zero))
-  , ("Lp: zero if equal", Binary2 (\a p -> (distanceLp p a a :: Float) == zero))
+normedLaws :: forall a b. (Ord b, AdditiveUnital a, AdditiveUnital b, MultiplicativeUnital b, Normed a b) =>
+  [Law2 a b]
+normedLaws =
+  [ ("positive", Binary11 (\a p -> p < (one :: b) || (normLp p a :: b) >= (zero :: b)))
+  , ("preserves zero"
+    , Binary11 (\_ p -> p < (one :: b) || (normLp p (zero :: a) :: b) == (zero :: b)) )
+  ]
+
+-- fixme: Num b is needed for the number literal '10'
+metricLaws :: forall a b. (Num b, Ord b, Signed b, Epsilon b, Metric a b) =>
+  [Law2 a b]
+metricLaws =
+  [ ("Lp: positive",
+     Ternary21 (\a b p -> p < one || distanceLp p a b >= zero))
+  , ("Lp: zero if equal"
+    , Binary11 (\a p -> p < one || distanceLp p a a == zero))
   , ( "Lp: associative"
-    , Ternary2 (\a b p -> (distanceLp p a b :: Float) ≈ (distanceLp p b a :: Float)))
-  , ( "L1: triangle rule - sum of distances > distance"
-    , Ternary2''
-        (\a b c ->
-           (abs a > 10.0) ||
-           (abs b > 10.0) ||
-           (abs c > 10.0) ||
-           not
-             (veryNegative
-                (distanceL1 a c + distanceL1 b c - (distanceL1 a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceL1 a b + distanceL1 b c - (distanceL1 a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceL1 a b + distanceL1 a c - (distanceL1 b c :: Float)))))
-  , ( "L2: triangle rule - sum of distances > distance"
-    , Ternary2''
-        (\a b c ->
-           (abs a > 10.0) ||
-           (abs b > 10.0) ||
-           (abs c > 10.0) ||
-           not
-             (veryNegative
-                (distanceL2 a c + distanceL2 b c - (distanceL2 a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceL2 a b + distanceL2 b c - (distanceL2 a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceL2 a b + distanceL2 a c - (distanceL2 b c :: Float)))))
+    , Ternary21 (\a b p ->
+                  p < one ||
+                  p > (6 :: b) ||
+                 distanceLp p a b ≈ distanceLp p b a))
   , ( "Lp: triangle rule - sum of distances > distance"
     , Quad31
         (\a b c p ->
-           (p < 1) ||
-           (abs a > 10.0) ||
-           (abs b > 10.0) ||
-           (abs c > 10.0) ||
+           (p < one) ||
+           (normL1 a > (10 :: b)) ||
+           (normL1 b > (10 :: b)) ||
+           (normL1 c > (10 :: b)) ||
            not
              (veryNegative
-                (distanceLp p a c + distanceLp p b c - (distanceLp p a b :: Float))) &&
+                (distanceLp p a c + distanceLp p b c - distanceLp p a b)) &&
            not
              (veryNegative
-                (distanceLp p a b + distanceLp p b c - (distanceLp p a c :: Float))) &&
+                (distanceLp p a b + distanceLp p b c - distanceLp p a c)) &&
            not
              (veryNegative
-                (distanceLp p a b + distanceLp p a c - (distanceLp p b c :: Float)))))
+                (distanceLp p a b + distanceLp p a c - distanceLp p b c))))
   ]
-
-metricComplexFloatLaws :: () => [Law2 (Complex Float) Float]
-metricComplexFloatLaws =
-  [ ("L1: positive", Binary2' (\a b -> (distanceL1 a b :: Float) >= zero))
-  , ("L1: zero if equal", Unary2 (\a -> (distanceL1 a a :: Float) == zero))
-  , ( "L1: commutative"
-    , Binary2' (\a b -> (distanceL1 a b :: Float) ≈ (distanceL1 b a :: Float)))
-  , ("L2: positive", Binary2' (\a b -> (distanceL2 a b :: Float) >= zero))
-  , ("L2: zero if equal", Unary2 (\a -> (distanceL2 a a :: Float) == zero))
-  , ( "L2: commutative"
-    , Binary2' (\a b -> (distanceL2 a b :: Float) ≈ distanceL2 b a))
-  , ("Lp: positive", Ternary2 (\a b p -> distanceLp p a b >= (zero :: Float)))
-  , ("Lp: zero if equal", Binary2 (\a p -> p <= zero || distanceLp p a a == (zero :: Float)))
-  , ( "Lp: commutative"
-  , Ternary2 (\a b p -> (normL1 p > (10.0 :: Float)) || (normL1 a > (10.0 :: Float) || normL1 b > (10.0 :: Float)) || p <= zero || (distanceLp p a b :: Float) ≈ (distanceLp p b a :: Float)))
-  , ( "L1: triangle rule - sum of distances > distance"
-    , Ternary2''
-        (\a b c ->
-           ((normL1 a :: Float) > 10.0) ||
-           ((normL1 b :: Float) > 10.0) ||
-           ((normL1 c :: Float) > 10.0) ||
-           not
-             (veryNegative
-                (distanceL1 a c + distanceL1 b c - (distanceL1 a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceL1 a b + distanceL1 b c - (distanceL1 a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceL1 a b + distanceL1 a c - (distanceL1 b c :: Float)))))
-  , ( "L2: triangle rule - sum of distances > distance"
-    , Ternary2''
-        (\a b c ->
-           ((normL1 a :: Float) > 10.0) ||
-           ((normL1 b :: Float) > 10.0) ||
-           ((normL1 c :: Float) > 10.0) ||
-           not
-             (veryNegative
-                (distanceL2 a c + distanceL2 b c - (distanceL2 a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceL2 a b + distanceL2 b c - (distanceL2 a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceL2 a b + distanceL2 a c - (distanceL2 b c :: Float)))))
-    , ( "Lp: triangle rule - sum of distances > distance"
-    , Quad31
-        (\a b c p ->
-           (p < 1) ||
-           ((normL1 a :: Float) > 10.0) ||
-           ((normL1 b :: Float) > 10.0) ||
-           ((normL1 c :: Float) > 10.0) ||
-           not
-             (veryNegative
-                (distanceLp p (a :: Complex Float) c + distanceLp p b c - (distanceLp p a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceLp p a b + distanceLp p b c - (distanceLp p a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceLp p a b + distanceLp p a c - (distanceLp p b c :: Float)))))
-  
-  ]
-
-metricContainerFloatLaws :: (Metric (r Float) Float) => [Law2 (r Float) Float]
-metricContainerFloatLaws =
-  [ ("L1: positive", Binary2' (\a b -> (distanceL1 a b :: Float) >= zero))
-  , ("L1: zero if equal", Unary2 (\a -> (distanceL1 a a :: Float) == zero))
-  , ( "L1: commutative"
-    , Binary2' (\a b -> (distanceL1 a b :: Float) ≈ (distanceL1 b a :: Float)))
-  , ("L2: positive", Binary2' (\a b -> (distanceL2 a b :: Float) >= zero))
-  , ("L2: zero if equal", Unary2 (\a -> (distanceL2 a a :: Float) == zero))
-  , ( "L2: commutative"
-    , Binary2' (\a b -> (distanceL2 a b :: Float) ≈ distanceL2 b a))
-  , ("Lp: positive", Ternary2 (\a b p -> distanceLp p a b >= (zero :: Float)))
-  , ("Lp: zero if equal", Binary2 (\a p -> p <= zero || distanceLp p a a == (zero :: Float)))
-  , ( "Lp: commutative"
-  , Ternary2 (\a b p -> (normL1 a > (10.0 :: Float) || normL1 b > (10.0 :: Float)) || p <= zero || (distanceLp p a b :: Float) ≈ (distanceLp p b a :: Float)))
-  , ( "L1: triangle rule - sum of distances > distance"
-    , Ternary2''
-        (\a b c ->
-           ((normL1 a :: Float) > 10.0) ||
-           ((normL1 b :: Float) > 10.0) ||
-           ((normL1 c :: Float) > 10.0) ||
-           not
-             (veryNegative
-                (distanceL1 a c + distanceL1 b c - (distanceL1 a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceL1 a b + distanceL1 b c - (distanceL1 a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceL1 a b + distanceL1 a c - (distanceL1 b c :: Float)))))
-  , ( "L2: triangle rule - sum of distances > distance"
-    , Ternary2''
-        (\a b c ->
-           ((normL1 a :: Float) > 10.0) ||
-           ((normL1 b :: Float) > 10.0) ||
-           ((normL1 c :: Float) > 10.0) ||
-           not
-             (veryNegative
-                (distanceL2 a c + distanceL2 b c - (distanceL2 a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceL2 a b + distanceL2 b c - (distanceL2 a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceL2 a b + distanceL2 a c - (distanceL2 b c :: Float)))))
-    , ( "Lp: triangle rule - sum of distances > distance"
-    , Quad31
-        (\a b c p ->
-           (p < 1) ||
-           ((normL1 a :: Float) > 10.0) ||
-           ((normL1 b :: Float) > 10.0) ||
-           ((normL1 c :: Float) > 10.0) ||
-           not
-             (veryNegative
-                (distanceLp p a c + distanceLp p b c - (distanceLp p a b :: Float))) &&
-           not
-             (veryNegative
-                (distanceLp p a b + distanceLp p b c - (distanceLp p a c :: Float))) &&
-           not
-             (veryNegative
-                (distanceLp p a b + distanceLp p a c - (distanceLp p b c :: Float)))))
-  
-  ]
-
 
 -- field
-boundedFieldFloatLaws :: [Law Float]
-boundedFieldFloatLaws =
-  [ ( "infinity laws"
+boundedFieldLaws :: forall a. (Eq a, BoundedField a) => [Law a]
+boundedFieldLaws =
+  [ ( "bounded field (infinity) laws"
     , Unary
         (\a ->
-           ((one :: Float) / zero + infinity == infinity) &&
+           ((one ::a) / zero + infinity == infinity) &&
            (infinity + a == infinity) &&
-           isNaN ((infinity :: Float) - infinity) &&
-           isNaN ((infinity :: Float) / infinity) &&
-           isNaN (nan + a) && (zero :: Float) / zero /= nan))
+           isNaN ((infinity :: a) - infinity) &&
+           isNaN ((infinity :: a) / infinity) &&
+           isNaN (nan + a) && (zero :: a) / zero /= nan))
   ]
 
 quotientFieldLaws :: (Ord a, Field a, QuotientField a, FromInteger a) => [Law a]
@@ -429,39 +306,25 @@ quotientFieldLaws =
     , Unary (\a -> round a == floor (a + one / (one + one))))
   ]
 
-expFieldLaws ::
-     (ExpField a, Signed a, Epsilon a, Fractional a, Ord a) => [Law a]
+expFieldLaws :: forall a b.
+     (Num b, AdditiveUnital b, ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]
 expFieldLaws =
   [ ( "sqrt . (**(one+one)) ≈ id"
-    , Unary
+    , Unary10
         (\a ->
-           not (veryPositive a) ||
-           (a > 10.0) ||
+           not (a > (zero :: a)) ||
+           (normL1 a > (10 :: b)) ||
            (sqrt . (** (one + one)) $ a) ≈ a &&
            ((** (one + one)) . sqrt $ a) ≈ a))
   , ( "log . exp ≈ id"
-    , Unary
+    , Unary10
         (\a ->
-           not (veryPositive a) ||
-           (a > 10.0) || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
+           not (a > (zero :: a)) ||
+           (normL1 a > (10 :: b)) || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
   , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
-    , Binary
+    , Binary20
         (\a b ->
-           (not (veryPositive b) ||
-            not (nearZero (a - zero)) ||
-            (a == one) ||
-            (a == zero && nearZero (logBase a b)) || (a ** logBase a b ≈ b))))
-  ]
-
-expFieldComplexLooseLaws :: Float -> [Law (Complex Float)]
-expFieldComplexLooseLaws _ =
-  [ ( "sqrt . (**(one+one)) ≈ id test contains a stack overflow"
-    , Unary (const True))
-  , ("log . exp test contains a stack overflow", Unary (const True))
-  , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
-    , Binary
-        (\a b@(rb :+ ib) ->
-           (not (rb > zero && ib > zero) ||
+           (not (normL1 b > (zero :: b)) ||
             not (nearZero (a - zero)) ||
             (a == one) ||
             (a == zero && nearZero (logBase a b)) || (a ** logBase a b ≈ b))))
@@ -506,12 +369,12 @@ additiveModuleLaws ::
      (Eq (r a), Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
 additiveModuleLaws =
   [ ( "additive module associative: (a + b) .+ c ≈ a + (b .+ c)"
-    , Ternary2 (\a b c -> (a + b) .+ c ≈ a + (b .+ c)))
+    , Ternary21 (\a b c -> (a + b) .+ c ≈ a + (b .+ c)))
   , ( "additive module commutative: (a + b) .+ c ≈ (a .+ c) + b"
-    , Ternary2 (\a b c -> (a + b) .+ c ≈ (a .+ c) + b))
-  , ("additive module unital: a .+ zero == a", Unary2 (\a -> a .+ zero == a))
+    , Ternary21 (\a b c -> (a + b) .+ c ≈ (a .+ c) + b))
+  , ("additive module unital: a .+ zero == a", Unary10 (\a -> a .+ zero == a))
   , ( "module additive equivalence: a .+ b ≈ b +. a"
-    , Binary2 (\a b -> a .+ b ≈ b +. a))
+    , Binary11 (\a b -> a .+ b ≈ b +. a))
   ]
 
 additiveGroupModuleLaws ::
@@ -519,13 +382,13 @@ additiveGroupModuleLaws ::
   => [Law2 (r a) a]
 additiveGroupModuleLaws =
   [ ( "additive group module associative: (a + b) .- c ≈ a + (b .- c)"
-    , Ternary2 (\a b c -> (a + b) .- c ≈ a + (b .- c)))
+    , Ternary21 (\a b c -> (a + b) .- c ≈ a + (b .- c)))
   , ( "additive group module commutative: (a + b) .- c ≈ (a .- c) + b"
-    , Ternary2 (\a b c -> (a + b) .- c ≈ (a .- c) + b))
+    , Ternary21 (\a b c -> (a + b) .- c ≈ (a .- c) + b))
   , ( "additive group module unital: a .- zero == a"
-    , Unary2 (\a -> a .- zero == a))
+    , Unary10 (\a -> a .- zero == a))
   , ( "module additive group equivalence: a .- b ≈ negate b +. a"
-    , Binary2 (\a b -> a .- b ≈ negate b +. a))
+    , Binary11 (\a b -> a .- b ≈ negate b +. a))
   ]
 
 multiplicativeModuleLaws ::
@@ -533,14 +396,14 @@ multiplicativeModuleLaws ::
   => [Law2 (r a) a]
 multiplicativeModuleLaws =
   [ ( "multiplicative module unital: a .* one == a"
-    , Unary2 (\a -> a .* one == a))
+    , Unary10 (\a -> a .* one == a))
   , ( "module right distribution: (a + b) .* c ≈ (a .* c) + (b .* c)"
-    , Ternary2 (\a b c -> (a + b) .* c ≈ (a .* c) + (b .* c)))
+    , Ternary21 (\a b c -> (a + b) .* c ≈ (a .* c) + (b .* c)))
   , ( "module left distribution: c *. (a + b) ≈ (c *. a) + (c *. b)"
-    , Ternary2 (\a b c -> c *. (a + b) ≈ (c *. a) + (c *. b)))
-  , ("annihilation: a .* zero == zero", Unary2 (\a -> a .* zero == zero))
+    , Ternary21 (\a b c -> c *. (a + b) ≈ (c *. a) + (c *. b)))
+  , ("annihilation: a .* zero == zero", Unary10 (\a -> a .* zero == zero))
   , ( "module multiplicative equivalence: a .* b ≈ b *. a"
-    , Binary2 (\a b -> a .* b ≈ b *. a))
+    , Binary11 (\a b -> a .* b ≈ b *. a))
   ]
 
 multiplicativeGroupModuleLawsFail ::
@@ -553,9 +416,9 @@ multiplicativeGroupModuleLawsFail ::
   => [Law2 (r a) a]
 multiplicativeGroupModuleLawsFail =
   [ ( "multiplicative group module unital: a ./ one == a"
-    , Unary2 (\a -> nearZero a || a ./ one == a))
+    , Unary10 (\a -> nearZero a || a ./ one == a))
   , ( "module multiplicative group equivalence: a ./ b ≈ recip b *. a"
-    , Binary2 (\a b -> b == zero || a ./ b ≈ recip b *. a))
+    , Binary11 (\a b -> b == zero || a ./ b ≈ recip b *. a))
   ]
 
 banachLaws ::
@@ -569,18 +432,18 @@ banachLaws ::
   => [Law2 (r a) a]
 banachLaws =
   [ ( "L1: normalize a .* norm a ≈ one"
-    , Unary2
+    , Unary10
         (\a ->
            a == singleton zero ||
            (any ((> 10.0) . normL1) a || (normalizeL1 a .* normL1 a) ≈ a)))
     , ( "L2: normalize a .* norm a ≈ one"
-    , Unary2
+    , Unary10
         (\a ->
            a == singleton zero ||
            (any ((> 10.0) . normL1) a || (normalizeL2 a .* normL2 a) ≈ a)))
 {-
     , ( "Lp: normalizeLp a p .* normLp a p ≈ one"
-    , Binary2
+    , Binary11
         (\a p ->
            a == singleton zero ||
            (any ((> 10.0) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
@@ -595,9 +458,9 @@ hilbertLaws ::
     , Hilbert r a)
   => [Law2 (r a) a]
 hilbertLaws =
-  [ ("commutative a <.> b ≈ b <.> a", Ternary2 (\a b _ -> a <.> b ≈ b <.> a))
+  [ ("commutative a <.> b ≈ b <.> a", Ternary21 (\a b _ -> a <.> b ≈ b <.> a))
   , ( "distributive over addition a <.> (b + c) == a <.> b + a <.> c"
-    , Ternary2'' (\a b c -> a <.> (b + c) ≈ a <.> b + a <.> c))
+    , Ternary30 (\a b c -> a <.> (b + c) ≈ a <.> b + a <.> c))
   , ( "bilinear a <.> (s *. b + c) == s * (a <.> b) + a <.> c"
     , Quad31 (\a b c s -> a <.> (s *. b + c) == s * (a <.> b) + a <.> c))
   , ( "scalar multiplication (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)"
@@ -613,13 +476,13 @@ tensorProductLaws ::
   => [Law2 (r a) a]
 tensorProductLaws =
   [ ( "left distribution over addition a><b + c><b == (a+c) >< b"
-    , Ternary2'' (\a b c -> a >< b + c >< b == (a + c) >< b))
+    , Ternary30 (\a b c -> a >< b + c >< b == (a + c) >< b))
   , ( "right distribution over addition a><b + a><c == a >< (b+c)"
-    , Ternary2'' (\a b c -> a >< b + a >< c == a >< (b + c)))
+    , Ternary30 (\a b c -> a >< b + a >< c == a >< (b + c)))
   -- , ( "left module tensor correspondance a *. (b><c) == (a><b) .* c"
-  --   , Ternary2'' (\a b c -> a *. (b><c) == (a><b) .* c))
+  --   , Ternary30 (\a b c -> a *. (b><c) == (a><b) .* c))
   -- , ( "right module tensor correspondance (a><b) .* c == a *. (b><c)"
-  --   , Ternary2'' (\a b c -> (a><b) .* c == a *. (b><c)))
+  --   , Ternary30 (\a b c -> (a><b) .* c == a *. (b><c)))
   ]
 
 -- basis
@@ -662,7 +525,7 @@ multiplicativeGroupBasisLaws =
   ]
 
 -- | semiring
-semiringLaws :: (Eq a, Semiring a) => [Law a]
+semiringLaws :: (Eq a, Epsilon a, Semiring a) => [Law a]
 semiringLaws = additiveLaws <> distributionLaws <>
     [ ( "associative: (a * b) * c = a * (b * c)"
     , Ternary (\a b c -> (a `times` b) `times` c == a `times` (b `times` c)))
@@ -671,11 +534,11 @@ semiringLaws = additiveLaws <> distributionLaws <>
     ]
 
 -- | ring
-ringLaws :: (Eq a, Ring a) => [Law a]
+ringLaws :: (Eq a, Epsilon a, Ring a) => [Law a]
 ringLaws = semiringLaws <> additiveGroupLaws
 
 -- | starsemiring
-starSemiringLaws :: (Eq a, StarSemiring a) => [Law a]
+starSemiringLaws :: (Eq a, Epsilon a, StarSemiring a) => [Law a]
 starSemiringLaws = semiringLaws <>
     [ ( "star law: star a == one + a `times` star a"
     , Unary (\a -> star a == one + a `times` star a))
