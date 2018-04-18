@@ -16,10 +16,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
--- fixme
-{-# OPTIONS_GHC -fno-warn-deprecations #-}
-{-# LANGUAGE DatatypeContexts #-}
-
 module NumHask.Array where
 
 import Data.Distributive
@@ -31,6 +27,7 @@ import Data.Singletons as S
 import Data.Singletons.TypeLits as S
 import GHC.Exts
 import GHC.Show
+import NumHask.Error (impossible)
 import NumHask.Array.Constraints
 import NumHask.Prelude as P
 import NumHask.Shape
@@ -60,7 +57,7 @@ import qualified Test.QuickCheck as QC
 data family Array (c :: Type -> Type) (ds :: [k]) (a :: Type)
 
 -- | instance where dimensions are known at compile time
-newtype instance (Dimensions ds) =>
+newtype instance
   Array c (ds :: [Nat]) t =
     Array { _getContainer :: c t}
     deriving (Functor, Foldable)
@@ -303,21 +300,19 @@ mmult :: forall c m n k a.
   , Dimensions '[ k, n]
   , Dimensions '[ m, n]
   , Container c
-  , KnownNat m
-  , KnownNat n
-  , KnownNat k
   )
   => Matrix c m k a
   -> Matrix c k n a
   -> Matrix c m n a
-mmult x y = tabulate (\[i, j] -> unsafeRow i x <.> unsafeCol j y)
+mmult x y = tabulate go
+  where
+    go [i, j] = unsafeRow i x <.> unsafeCol j y
+    go _  = impossible "mmult only typechecks on arrays"
 
 -- | extract the row of a matrix
 row :: forall c i a m n.
   ( Dimensions '[ m, n]
   , Container c
-  , KnownNat m
-  , KnownNat n
   , KnownNat i
   , ((S.<) i m) ~ 'True
   )
@@ -328,6 +323,15 @@ row i_ = unsafeRow i
   where
     i = (Proto.fromIntegral . S.fromSing . S.singByProxy) i_
 
+rank2Shape
+  :: Dimensions '[ m, n]
+  => Matrix c m n a
+  -> (Int, Int)
+rank2Shape t =
+  case shape t of
+    [m, n] -> (m, n)
+    _      -> impossible "only typechecks for matricies"
+
 unsafeRow :: forall c a m n.
   ( Container c
   , Dimensions '[ m, n])
@@ -336,14 +340,12 @@ unsafeRow :: forall c a m n.
   -> Vector c n a
 unsafeRow i t@(Array a) = Array $ cslice (i * n) n a
   where
-    [_, n] = shape t
+    (_, n) = rank2Shape t
 
 -- | extract the column of a matrix
 col :: forall c j a m n.
   ( Dimensions '[ m, n]
   , Container c
-  , KnownNat m
-  , KnownNat n
   , KnownNat j
   , ((S.<) j n) ~ 'True
   )
@@ -361,7 +363,7 @@ unsafeCol ::
   -> Vector c m a
 unsafeCol j t@(Array a) = Array $ generate m (\x -> a `idx` (j + x * n))
   where
-    [m, n] = shape t
+    (m, n) = rank2Shape t
 
 -- |
 --
@@ -699,23 +701,23 @@ instance (Dimensions r, Container c, MultiplicativeGroup a) =>
          MultiplicativeGroupBasis (Array c r) a where
   (./.) = liftR2 (/)
 
-instance (Dimensions r, Container c, Additive a) =>
-         AdditiveModule (Array c r) a where
+instance (Container c, Additive a) =>
+         AdditiveModule (Array c (r::[Nat])) a where
   (.+) r s = fmap (s +) r
   (+.) s = fmap (s +)
 
-instance (Dimensions r, Container c, AdditiveGroup a) =>
-         AdditiveGroupModule (Array c r) a where
+instance (Container c, AdditiveGroup a) =>
+         AdditiveGroupModule (Array c (r::[Nat])) a where
   (.-) r s = fmap (\x -> x - s) r
   (-.) s = fmap (\x -> x - s)
 
-instance (Dimensions r, Container c, Multiplicative a) =>
-         MultiplicativeModule (Array c r) a where
+instance (Container c, Multiplicative a) =>
+         MultiplicativeModule (Array c (r :: [Nat])) a where
   (.*) r s = fmap (s *) r
   (*.) s = fmap (s *)
 
-instance (Dimensions r, Container c, MultiplicativeGroup a) =>
-         MultiplicativeGroupModule (Array c r) a where
+instance (Container c, MultiplicativeGroup a) =>
+         MultiplicativeGroupModule (Array c (r::[Nat])) a where
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
 
