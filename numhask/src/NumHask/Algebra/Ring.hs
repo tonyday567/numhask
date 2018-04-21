@@ -12,6 +12,7 @@ module NumHask.Algebra.Ring
   ) where
 
 import Data.Complex (Complex(..))
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Distribution
 import NumHask.Algebra.Multiplicative
@@ -32,6 +33,8 @@ instance Semiring Integer
 instance Semiring Bool
 
 instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
+
+instance Semiring Natural
 
 -- | Ring
 -- 
@@ -111,7 +114,7 @@ class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 --
 -- Note: elements for which @adj a == a@ are called "self-adjoint".
 --
-class Ring a => InvolutiveRing a where
+class Semiring a => InvolutiveRing a where
   adj :: a -> a
   adj x = x
 
@@ -125,3 +128,5 @@ instance InvolutiveRing Int
 
 instance (Ring a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
+
+instance InvolutiveRing Natural

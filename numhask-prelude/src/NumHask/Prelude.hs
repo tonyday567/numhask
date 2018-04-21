@@ -10,6 +10,9 @@ module NumHask.Prelude
   , (<>)
   , Semigroup
 #endif
+
+  , Complex(..)
+  , Natural(..)
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Additive
@@ -44,6 +47,8 @@ import Protolude
                zero, (<>), Semgroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
+
+import GHC.Natural(Natural(..))
 
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis

@@ -6,6 +6,7 @@ module NumHask.Algebra.Distribution
   ) where
 
 import Data.Complex (Complex(..))
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import Prelude (Bool(..), Double, Float, Int, Integer)
@@ -30,3 +31,5 @@ instance Distribution Integer
 instance Distribution Bool
 
 instance (AdditiveGroup a, Distribution a) => Distribution (Complex a)
+
+instance Distribution Natural

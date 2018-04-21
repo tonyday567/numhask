@@ -119,7 +119,7 @@ additiveLaws =
   ]
 
 -- | additive with approximate association equality
-additiveLaws_ :: (Eq a, Epsilon a) => [Law a]
+additiveLaws_ :: (Epsilon a) => [Law a]
 additiveLaws_ =
   [ ( "associative: (a + b) + c ≈ a + (b + c)"
     , Ternary (\a b c -> (a + b) + c ≈ a + (b + c)))
@@ -189,7 +189,7 @@ multiplicativeGroupLaws =
     , Unary (\a -> a == zero || a * recip a == one))
   ]
  
-multiplicativeGroupLaws_ :: (Eq a, Epsilon a, MultiplicativeGroup a) => [Law a]
+multiplicativeGroupLaws_ :: (Epsilon a, MultiplicativeGroup a) => [Law a]
 multiplicativeGroupLaws_ =
   [ ( "divide: a == zero || a / a ≈ one"
     , Unary (\a -> a == zero || (a / a) ≈ one))
@@ -215,7 +215,7 @@ distributionLaws =
   ]
 
 distributionLawsFail ::
-     (Show a, Eq a, Arbitrary a, Epsilon a, Distribution a) => [Law a]
+     (Show a, Arbitrary a, Epsilon a, Distribution a) => [Law a]
 distributionLawsFail =
   [ ( "left annihilation: a * zero == zero"
     , Unary (\a -> a `times` zero == zero))
@@ -250,7 +250,7 @@ normedLaws =
   ]
 
 -- fixme: Num b is needed for the number literal '10'
-metricLaws :: forall a b. (Num b, Ord b, Signed b, Epsilon b, Metric a b) =>
+metricLaws :: forall a b. (Num b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b) =>
   [Law2 a b]
 metricLaws =
   [ ("Lp: positive",
@@ -366,7 +366,7 @@ expFieldContainerLaws =
 
 -- module
 additiveModuleLaws ::
-     (Eq (r a), Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
+     (Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
 additiveModuleLaws =
   [ ( "additive module associative: (a + b) .+ c ≈ a + (b .+ c)"
     , Ternary21 (\a b c -> (a + b) .+ c ≈ a + (b .+ c)))
@@ -378,7 +378,7 @@ additiveModuleLaws =
   ]
 
 additiveGroupModuleLaws ::
-     (Eq (r a), Epsilon a, Epsilon (r a), AdditiveGroupModule r a)
+     (Epsilon a, Epsilon (r a), AdditiveGroupModule r a)
   => [Law2 (r a) a]
 additiveGroupModuleLaws =
   [ ( "additive group module associative: (a + b) .- c ≈ a + (b .- c)"
@@ -392,7 +392,7 @@ additiveGroupModuleLaws =
   ]
 
 multiplicativeModuleLaws ::
-     (Eq (r a), Epsilon a, Epsilon (r a), MultiplicativeModule r a)
+     (Epsilon a, Epsilon (r a), MultiplicativeModule r a)
   => [Law2 (r a) a]
 multiplicativeModuleLaws =
   [ ( "multiplicative module unital: a .* one == a"
@@ -407,9 +407,7 @@ multiplicativeModuleLaws =
   ]
 
 multiplicativeGroupModuleLawsFail ::
-     ( Eq a
-     , Eq (r a)
-     , Epsilon a
+     ( Epsilon a
      , Epsilon (r a)
      , MultiplicativeGroupModule r a
      )
@@ -423,7 +421,6 @@ multiplicativeGroupModuleLawsFail =
 
 banachLaws ::
      ( Foldable r
-     , Eq (r a)
      , Epsilon (r a)
      , Banach r a
      , Singleton r
@@ -451,8 +448,7 @@ banachLaws =
   ]
 
 hilbertLaws ::
-    ( Eq a
-    , MultiplicativeModule r a
+    ( MultiplicativeModule r a
     , Epsilon a
     , Epsilon (r a)
     , Hilbert r a)
@@ -486,7 +482,7 @@ tensorProductLaws =
   ]
 
 -- basis
-additiveBasisLaws :: (Eq (r a), Epsilon (r a), AdditiveBasis r a) => [Law (r a)]
+additiveBasisLaws :: (Epsilon (r a), AdditiveBasis r a) => [Law (r a)]
 additiveBasisLaws =
   [ ( "associative: (a .+. b) .+. c ≈ a .+. (b .+. c)"
     , Ternary (\a b c -> (a .+. b) .+. c ≈ a .+. (b .+. c)))
@@ -512,8 +508,7 @@ multiplicativeBasisLaws =
   ]
 
 multiplicativeGroupBasisLaws ::
-     ( Eq (r a)
-     , Epsilon a
+     ( Epsilon a
      , Epsilon (r a)
      , Singleton r
      , MultiplicativeGroupBasis r a
@@ -525,7 +520,7 @@ multiplicativeGroupBasisLaws =
   ]
 
 -- | semiring
-semiringLaws :: (Eq a, Epsilon a, Semiring a) => [Law a]
+semiringLaws :: (Epsilon a, Semiring a) => [Law a]
 semiringLaws = additiveLaws <> distributionLaws <>
     [ ( "associative: (a * b) * c = a * (b * c)"
     , Ternary (\a b c -> (a `times` b) `times` c == a `times` (b `times` c)))
@@ -534,11 +529,11 @@ semiringLaws = additiveLaws <> distributionLaws <>
     ]
 
 -- | ring
-ringLaws :: (Eq a, Epsilon a, Ring a) => [Law a]
+ringLaws :: (Epsilon a, Ring a) => [Law a]
 ringLaws = semiringLaws <> additiveGroupLaws
 
 -- | starsemiring
-starSemiringLaws :: (Eq a, Epsilon a, StarSemiring a) => [Law a]
+starSemiringLaws :: (Epsilon a, StarSemiring a) => [Law a]
 starSemiringLaws = semiringLaws <>
     [ ( "star law: star a == one + a `times` star a"
     , Unary (\a -> star a == one + a `times` star a))
