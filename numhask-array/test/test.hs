@@ -91,12 +91,14 @@ testsVFloat =
   testGroup
     "Vector 6 Float"
     [ testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupLaws
+      testLawOf ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupLaws_
     , testGroup "Signed" $ testLawOf ([] :: [Vector [] 6 Float]) <$> signedLaws
+    , testGroup "Normed" $
+      testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> normedLaws
     , testGroup "Metric" $
-      testLawOf ([] :: [Vector [] 6 Float]) <$> metricNaperianFloatLaws
+      testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> metricLaws
     , testGroup "Exponential Field" $
-      testLawOf ([] :: [Vector [] 6 Float]) <$> expFieldNaperianLaws
+      testLawOf ([] :: [Vector [] 6 Float]) <$> expFieldContainerLaws
     , testGroup "Multiplicative Group Module" $
       localOption (QuickCheckTests 1000) .
       testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$>

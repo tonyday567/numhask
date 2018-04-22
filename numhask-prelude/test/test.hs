@@ -38,6 +38,8 @@ testsInt =
     , testGroup "Distribution" $ testLawOf ([] :: [Int]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Int]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Int]) <$> signedLaws
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$> metricLaws
     ]
 
 testsFloat :: TestTree
@@ -51,16 +53,17 @@ testsFloat =
     , testGroup "Multiplicative - Associative Fail" $
       testLawOf ([] :: [Float]) <$> multiplicativeLawsFail
     , testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Float]) <$> multiplicativeGroupLaws
+      testLawOf ([] :: [Float]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution - Fail" $
       testLawOf ([] :: [Float]) <$> distributionLawsFail
     , testGroup "Signed" $ testLawOf ([] :: [Float]) <$> signedLaws
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Float, Float)]) <$> normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Float, Float)]) <$> metricLaws
     , testGroup "Bounded Field" $
-      testLawOf ([] :: [Float]) <$> boundedFieldFloatLaws
-    , testGroup "Metric" $ testLawOf ([] :: [Float]) <$> metricFloatLaws
+      testLawOf ([] :: [Float]) <$> boundedFieldLaws
     , testGroup "Quotient Field" $
       testLawOf ([] :: [Float]) <$> quotientFieldLaws
-    , testGroup "Exponential Field" $ testLawOf ([] :: [Float]) <$> expFieldLaws
+    , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Float,Float)]) <$> expFieldLaws
     ]
 
 testsBool :: TestTree
@@ -85,11 +88,16 @@ testsComplexFloat =
     , testGroup "Multiplicative - Associative Fail" $
       testLawOf ([] :: [Complex Float]) <$> multiplicativeLawsFail
     , testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Complex Float]) <$> multiplicativeGroupLaws
+      testLawOf ([] :: [Complex Float]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution - Fail" $
       testLawOf ([] :: [Complex Float]) <$> distributionLawsFail
-    , testGroup "Exponential Field" $
-      testLawOf ([] :: [Complex Float]) <$> expFieldComplexLooseLaws 10
-    , testGroup "Metric" $
-      testLawOf ([] :: [Complex Float]) <$> metricComplexFloatLaws
+    -- , testGroup "Exponential Field" $
+    --   testLawOf2 ([] :: [(Complex Float, Float)]) <$> expFieldLaws 
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Complex Float, Float)]) <$>
+      normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Complex Float, Float)]) <$>
+      metricLaws
+    , testGroup "Involutive Ring" $ testLawOf ([] :: [Complex Float]) <$>
+      involutiveRingLaws
     ]
+
