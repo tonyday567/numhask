@@ -1,17 +1,16 @@
 module LibSpec where
 
 import Test.Hspec
-import Test.Hspec.QuickCheck
 
-import Lib (ourAdd)
+import Test.HUnit.NumHask (shouldBeAbout)
 
 main :: IO ()
 main = hspec spec
 
 spec :: Spec
 spec =
-  describe "Lib" $ do
-    it "works" $ do
-      True `shouldBe` True
-    prop "ourAdd is commutative" $ \x y ->
-      ourAdd x y `shouldBe` ourAdd y x
+  describe "Test.HUnit.NumHask" $ do
+    it "Tests Float values for approximate equality" $ 
+      (1/3 :: Float) `shouldBeAbout` 0.333333
+    it "Tests Double values for approximate equality" $ 
+      (1/3 :: Double) `shouldBeAbout` 0.333333333333
