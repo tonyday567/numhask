@@ -1,6 +1,8 @@
 {-# language DeriveDataTypeable #-}
 module Test.HUnit.NumHask (
+  -- * HUnit combinators
     shouldBeAbout
+    -- * Exceptions
   , FPE(..)
   ) where
 
