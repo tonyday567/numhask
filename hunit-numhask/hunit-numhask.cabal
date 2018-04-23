@@ -1,0 +1,40 @@
+name:                hunit-numhask
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/tonyday567/hunit-numhask
+license:             BSD3
+license-file:        LICENSE
+author:              Marco Zocca
+maintainer:          zocca.marco gmail
+copyright:           2018 Marco Zocca
+category:            Test
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+tested-with:         GHC == 8.4.1
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  hs-source-dirs:      src
+  exposed-modules:     Test.HUnit.NumHask
+  build-depends:       base >= 4.7 && < 5
+                     , exceptions
+                     , HUnit
+                     , numhask
+
+test-suite spec
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , hunit-numhask
+                     , hspec
+                     , QuickCheck
+
+source-repository head
+  type:     git
+  location: https://github.com/githubuser/hunit-numhask
