@@ -1,0 +1,11 @@
+resolver: nightly-2018-04-04
+
+packages:
+- .
+
+extra-deps: 
+- numhask-0.2.0.0
+
+# Override default flag values for local packages and extra-deps
+# flags: {}
+
