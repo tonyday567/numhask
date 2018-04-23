@@ -2,7 +2,7 @@
 module NumHask.Error where
 
 import Protolude
-import Protolude.Error (error)
+import Protolude.Panic (panic)
 
-impossible :: Text -> a
-impossible msg = error ("[impossible]" <> msg)
+impossible :: HasCallStack => Text -> a
+impossible = panic
