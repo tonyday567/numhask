@@ -6,11 +6,17 @@
 module Main where
 
 import NumHask.Prelude
+import GHC.Natural (Natural(..))
 import NumHask.Laws
 
 import Test.DocTest
 import Test.Tasty
        (TestTree, defaultMain, testGroup)
+
+import Test.QuickCheck.Arbitrary
+
+instance Arbitrary Natural where
+  arbitrary = fromInteger . abs <$> arbitrary
 
 main :: IO ()
 main = do
@@ -22,6 +28,7 @@ tests =
   testGroup
     "NumHask"
     [ testsInt
+    , testsNatural
     , testsFloat
     , testsBool
     , testsComplexFloat
@@ -33,6 +40,20 @@ testsInt =
     "Int"
     [ testGroup "Additive" $ testLawOf ([] :: [Int]) <$> additiveLaws
     , testGroup "Additive Group" $ testLawOf ([] :: [Int]) <$> additiveGroupLaws
+    , testGroup "Multiplicative" $
+      testLawOf ([] :: [Int]) <$> multiplicativeLaws
+    , testGroup "Distribution" $ testLawOf ([] :: [Int]) <$> distributionLaws
+    , testGroup "Integral" $ testLawOf ([] :: [Int]) <$> integralLaws
+    , testGroup "Signed" $ testLawOf ([] :: [Int]) <$> signedLaws
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$> metricLaws
+    ]
+
+testsNatural :: TestTree
+testsNatural =
+  testGroup
+    "Natural"
+    [ testGroup "Additive" $ testLawOf ([] :: [Natural]) <$> additiveLaws
     , testGroup "Multiplicative" $
       testLawOf ([] :: [Int]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Int]) <$> distributionLaws

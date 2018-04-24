@@ -24,6 +24,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import GHC.Natural
 import Prelude
        (Double, Float, Int, Integer)
 
@@ -115,6 +116,8 @@ type instance Integer >< Integer = Integer
 type instance Double >< Double = Double
 
 type instance Float >< Float = Float
+
+type instance Natural >< Natural = Natural
 
 -- | representation synthesis
 type family TensorRep k1 k2 where

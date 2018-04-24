@@ -16,6 +16,7 @@ module NumHask.Algebra.Additive
   ) where
 
 import Data.Complex (Complex(..))
+import GHC.Natural (Natural(..))
 
 import qualified Prelude as P
 import Prelude (Bool(..), Double, Float, Int, Integer)
@@ -46,6 +47,9 @@ instance AdditiveMagma Bool where
 instance (AdditiveMagma a) => AdditiveMagma (Complex a) where
   (rx :+ ix) `plus` (ry :+ iy) = (rx `plus` ry) :+ (ix `plus` iy)
 
+instance AdditiveMagma Natural where
+  plus = (P.+)
+
 -- | Unital magma for addition.
 --
 -- > zero `plus` a == a
@@ -72,6 +76,9 @@ instance AdditiveUnital Bool where
 instance (AdditiveUnital a) => AdditiveUnital (Complex a) where
   zero = zero :+ zero
 
+instance AdditiveUnital Natural where
+  zero = 0
+
 -- | Associative magma for addition.
 --
 -- > (a `plus` b) `plus` c == a `plus` (b `plus` c)
@@ -90,6 +97,8 @@ instance AdditiveAssociative Bool
 
 instance (AdditiveAssociative a) => AdditiveAssociative (Complex a)
 
+instance AdditiveAssociative Natural
+
 -- | Commutative magma for addition.
 --
 -- > a `plus` b == b `plus` a
@@ -107,6 +116,8 @@ instance AdditiveCommutative Integer
 instance AdditiveCommutative Bool
 
 instance (AdditiveCommutative a) => AdditiveCommutative (Complex a)
+
+instance AdditiveCommutative Natural
 
 -- | Invertible magma for addition.
 --
@@ -171,6 +182,8 @@ instance Additive Integer
 instance Additive Bool
 
 instance (Additive a) => Additive (Complex a)
+
+instance Additive Natural
 
 -- | Non-commutative left minus
 --

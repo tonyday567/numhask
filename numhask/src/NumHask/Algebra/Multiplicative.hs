@@ -15,6 +15,7 @@ module NumHask.Algebra.Multiplicative
   ) where
 
 import Data.Complex (Complex(..))
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import qualified Prelude as P
 import Prelude (Bool(..), Double, Float, Int, Integer)
@@ -47,6 +48,9 @@ instance (MultiplicativeMagma a, AdditiveGroup a) =>
   (rx :+ ix) `times` (ry :+ iy) =
     (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
+instance MultiplicativeMagma Natural where
+  times = (P.*)
+
 -- | Unital magma for multiplication.
 --
 -- > one `times` a == a
@@ -74,6 +78,9 @@ instance (AdditiveUnital a, AdditiveGroup a, MultiplicativeUnital a) =>
          MultiplicativeUnital (Complex a) where
   one = one :+ zero
 
+instance MultiplicativeUnital Natural where
+  one = 1
+
 -- | Associative magma for multiplication.
 --
 -- > (a `times` b) `times` c == a `times` (b `times` c)
@@ -93,6 +100,8 @@ instance MultiplicativeAssociative Bool
 instance (AdditiveGroup a, MultiplicativeAssociative a) =>
          MultiplicativeAssociative (Complex a)
 
+instance MultiplicativeAssociative Natural
+
 -- | Commutative magma for multiplication.
 --
 -- > a `times` b == b `times` a
@@ -111,6 +120,8 @@ instance MultiplicativeCommutative Bool
 
 instance (AdditiveGroup a, MultiplicativeCommutative a) =>
          MultiplicativeCommutative (Complex a)
+
+instance MultiplicativeCommutative Natural
 
 -- | Invertible magma for multiplication.
 --
@@ -172,6 +183,8 @@ instance Multiplicative Integer
 instance Multiplicative Bool
 
 instance (AdditiveGroup a, Multiplicative a) => Multiplicative (Complex a)
+
+instance Multiplicative Natural
 
 -- | Non-commutative left divide
 --

@@ -10,33 +10,28 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE OverloadedStrings #-}
+
 module NumHask.Array where
 
-import Data.Distributive
-import Data.Functor.Rep
-import Data.Kind
+import Data.Distributive (Distributive(..))
+import Data.Functor.Rep (Representable(..), liftR2, pureRep, fmapRep)
 import Data.List ((!!))
-import Data.Promotion.Prelude
-import Data.Singletons as S
-import Data.Singletons.TypeLits as S
-import GHC.Exts
-import GHC.Show
+import GHC.Exts (IsList(..))
+import GHC.Show (Show(..))
 import NumHask.Error (impossible)
-import NumHask.Array.Constraints
+import NumHask.Array.Constraints (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
 import NumHask.Prelude as P
-import NumHask.Shape
+import NumHask.Shape (HasShape(..))
 import Numeric.Dimensions as D
-import Numeric.Dimensions.XDim
 import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
-import qualified Protolude as Proto
 import qualified Test.QuickCheck as QC
 
 -- $setup
@@ -123,9 +118,6 @@ instance Container [] where
 
 instance (Eq (c t), Dimensions ds) => Eq (Array c ds t) where
     (Array a) == (Array b) = a == b
-
-xdimList :: XDim ds -> [Int]
-xdimList (XDim d) = dimList d
 
 dimList :: Dim ds -> [Int]
 dimList D = []
@@ -322,7 +314,7 @@ row :: forall c i a m n.
   -> Vector c n a
 row i_ = unsafeRow i
   where
-    i = (Proto.fromIntegral . S.fromSing . S.singByProxy) i_
+    i = (fromIntegral . S.fromSing . S.singByProxy) i_
 
 rank2Shape
   :: Dimensions '[ m, n]
@@ -355,7 +347,7 @@ col :: forall c j a m n.
   -> Vector c m a
 col j_ = unsafeCol j
   where
-    j = (Proto.fromIntegral . S.fromSing . S.singByProxy) j_
+    j = (fromIntegral . S.fromSing . S.singByProxy) j_
 
 unsafeCol ::
      forall c a m n. (Container c, Dimensions '[ m, n])
@@ -384,20 +376,6 @@ unsafeSlice ::
   -> Array c r a
   -> Array c r0 a
 unsafeSlice s t = Array (fromList [unsafeIndex t i | i <- sequence s])
-
--- | Slice xs = Map Length xs
-type family Slice (xss :: [[Nat]]) :: [Nat] where
-  Slice xss = Data.Promotion.Prelude.Map LengthSym0 xss
-
--- | AllLT xs n = All (n >) xs
-data AllLTSym0 (a :: S.TyFun [Nat] (S.TyFun Nat Bool -> Type))
-
-data AllLTSym1 (l :: [Nat]) (a :: S.TyFun Nat Bool)
-
-type instance S.Apply AllLTSym0 l = AllLTSym1 l
-
-type instance S.Apply (AllLTSym1 l) n =
-     Data.Promotion.Prelude.All ((S.>@#@$$) n) l
 
 -- |
 --
@@ -428,7 +406,7 @@ slice ::
 -}
 slice s_ = unsafeSlice s
   where
-    s = ((fmap . fmap) fromInteger . fromSing . singByProxy) s_
+    s = ((fmap . fmap) fromInteger . S.fromSing . S.singByProxy) s_
 
 -- |
 --
@@ -446,7 +424,7 @@ foldAlong ::
      , KnownNat s
      , Dimensions uvw
      , uw ~ (Fold s uvw)
-     , w ~ (Data.Promotion.Prelude.Drop 1 vw)
+     , w ~ (S.Drop 1 vw)
      , vw ~ (TailModule s uvw)
      )
   => Proxy s
@@ -463,7 +441,7 @@ foldAlong s_ f a@(Array v) =
        []
        md)
   where
-    s = (Proto.fromIntegral . fromSing . singByProxy) s_
+    s = (fromIntegral . S.fromSing . S.singByProxy) s_
     md = chunkItUp [] (product $ drop s $ shape a) v
 
 -- |
@@ -495,7 +473,7 @@ mapAlong s_ f a@(Array v) =
        []
        md)
   where
-    s = (Proto.fromIntegral . fromSing . singByProxy) s_
+    s = (fromIntegral . S.fromSing . S.singByProxy) s_
     md = chunkItUp [] (product $ drop s $ shape a) v
 
 -- |
@@ -511,7 +489,7 @@ mapAlong s_ f a@(Array v) =
 concatenate ::
      forall c s r t a.
      ( Container c
-     , SingI s
+     , S.SingI s
      , Dimensions r
      , Dimensions t
      , (IsValidConcat s t r) ~ 'True
@@ -523,7 +501,7 @@ concatenate ::
 concatenate s_ r@(Array vr) t@(Array vt) =
   Array . cconcat $ (concat . reverse . P.transpose) [rm, tm]
   where
-    s = (Proto.fromIntegral . fromSing . singByProxy) s_
+    s = (fromIntegral . S.fromSing . S.singByProxy) s_
     rm = chunkItUp [] (product $ drop s $ shape t) vt
     tm = chunkItUp [] (product $ drop s $ shape r) vr
 
@@ -673,7 +651,10 @@ instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) 
   aboutEqual a b = and (liftR2 aboutEqual a b)
 
 instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Normed a a) =>
-         Metric (Array c r a) a
+         Metric (Array c r a) a where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
 instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
   divMod a b = (d, m)

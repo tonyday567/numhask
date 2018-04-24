@@ -8,6 +8,7 @@ module NumHask.Algebra.Integral
   , fromIntegral
   ) where
 
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Ring
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.), fst, snd)
@@ -15,7 +16,7 @@ import Prelude (Double, Float, Int, Integer, (.), fst, snd)
 -- | Integral laws
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
-class (Ring a) =>
+class (Semiring a) =>
       Integral a where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
@@ -28,6 +29,9 @@ instance Integral Int where
   divMod = P.divMod
 
 instance Integral Integer where
+  divMod = P.divMod
+
+instance Integral Natural where
   divMod = P.divMod
 
 -- | toInteger is kept separate from Integral to help with compatability issues.
@@ -56,8 +60,14 @@ instance FromInteger Int where
 instance FromInteger Integer where
   fromInteger = P.fromInteger
 
+instance FromInteger Natural where
+  fromInteger = P.fromInteger
+
 instance ToInteger Int where
   toInteger = P.toInteger
 
 instance ToInteger Integer where
+  toInteger = P.toInteger
+
+instance ToInteger Natural where
   toInteger = P.toInteger
