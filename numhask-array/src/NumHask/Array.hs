@@ -32,7 +32,6 @@ import NumHask.Shape (HasShape(..))
 import Numeric.Dimensions as D
 import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
-import qualified Protolude as Proto
 import qualified Test.QuickCheck as QC
 
 -- $setup
@@ -315,7 +314,7 @@ row :: forall c i a m n.
   -> Vector c n a
 row i_ = unsafeRow i
   where
-    i = (Proto.fromIntegral . S.fromSing . S.singByProxy) i_
+    i = (fromIntegral . S.fromSing . S.singByProxy) i_
 
 rank2Shape
   :: Dimensions '[ m, n]
@@ -348,7 +347,7 @@ col :: forall c j a m n.
   -> Vector c m a
 col j_ = unsafeCol j
   where
-    j = (Proto.fromIntegral . S.fromSing . S.singByProxy) j_
+    j = (fromIntegral . S.fromSing . S.singByProxy) j_
 
 unsafeCol ::
      forall c a m n. (Container c, Dimensions '[ m, n])
@@ -442,7 +441,7 @@ foldAlong s_ f a@(Array v) =
        []
        md)
   where
-    s = (Proto.fromIntegral . S.fromSing . S.singByProxy) s_
+    s = (fromIntegral . S.fromSing . S.singByProxy) s_
     md = chunkItUp [] (product $ drop s $ shape a) v
 
 -- |
@@ -474,7 +473,7 @@ mapAlong s_ f a@(Array v) =
        []
        md)
   where
-    s = (Proto.fromIntegral . S.fromSing . S.singByProxy) s_
+    s = (fromIntegral . S.fromSing . S.singByProxy) s_
     md = chunkItUp [] (product $ drop s $ shape a) v
 
 -- |
@@ -502,7 +501,7 @@ concatenate ::
 concatenate s_ r@(Array vr) t@(Array vt) =
   Array . cconcat $ (concat . reverse . P.transpose) [rm, tm]
   where
-    s = (Proto.fromIntegral . S.fromSing . S.singByProxy) s_
+    s = (fromIntegral . S.fromSing . S.singByProxy) s_
     rm = chunkItUp [] (product $ drop s $ shape t) vt
     tm = chunkItUp [] (product $ drop s $ shape r) vr
 
