@@ -625,15 +625,20 @@ instance (Dimensions r, Container c, Ring a) => Ring (Array c r a)
 
 instance (Dimensions r, Container c, CRing a) => CRing (Array c r a)
 
+instance (Dimensions r, Container c, Semifield a) => Semifield (Array c r a)
+
 instance (Dimensions r, Container c, Field a) => Field (Array c r a)
 
 instance (Dimensions r, Container c, ExpField a) => ExpField (Array c r a) where
   exp = fmapRep exp
   log = fmapRep log
 
-instance (Foldable (Array c r), Dimensions r, Container c, BoundedField a) =>
-         BoundedField (Array c r a) where
+instance (Foldable (Array c r), Dimensions r, Container c, UpperBoundedField a) =>
+         UpperBoundedField (Array c r a) where
   isNaN f = or (fmapRep isNaN f)
+
+instance (Foldable (Array c r), Dimensions r, Container c, LowerBoundedField a) =>
+         LowerBoundedField (Array c r a)
 
 instance (Dimensions r, Container c, Signed a) => Signed (Array c r a) where
   sign = fmapRep sign

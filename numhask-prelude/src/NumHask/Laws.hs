@@ -26,7 +26,8 @@ module NumHask.Laws
   , signedLaws
   , normedLaws
   , metricLaws
-  , boundedFieldLaws
+  , upperBoundedFieldLaws
+  , lowerBoundedFieldLaws
   , quotientFieldLaws 
   , expFieldLaws
   , additiveBasisLaws
@@ -280,18 +281,34 @@ metricLaws =
                 (distanceLp p a b + distanceLp p a c - distanceLp p b c))))
   ]
 
--- field
-boundedFieldLaws :: forall a. (Eq a, BoundedField a) => [Law a]
-boundedFieldLaws =
-  [ ( "bounded field (infinity) laws"
+-- bounded fields
+upperBoundedFieldLaws :: forall a. (Eq a, UpperBoundedField a) => [Law a]
+upperBoundedFieldLaws =
+  [ ( "upper bounded field (infinity) laws"
     , Unary
         (\a ->
            ((one ::a) / zero + infinity == infinity) &&
            (infinity + a == infinity) &&
-           isNaN ((infinity :: a) - infinity) &&
            isNaN ((infinity :: a) / infinity) &&
            isNaN (nan + a) && (zero :: a) / zero /= nan))
   ]
+
+lowerBoundedFieldLaws :: forall a. (Eq a, UpperBoundedField a, LowerBoundedField a) => [Law a]
+lowerBoundedFieldLaws =
+  [ ( "lower bounded field (negative infinity) laws"
+    , Unary
+        (\a ->
+           (negate (one ::a) / zero == negInfinity) &&
+           ((negInfinity :: a) + negInfinity == negInfinity) &&
+           (negInfinity + a == negInfinity) &&
+           isNaN ((infinity :: a) - infinity) &&
+           isNaN ((negInfinity :: a) - negInfinity) &&
+           isNaN ((negInfinity :: a) / negInfinity) &&
+           isNaN (nan + a) && (zero :: a) / zero /= nan))
+  ]
+
+
+
 
 quotientFieldLaws :: (Ord a, Field a, QuotientField a, FromInteger a) => [Law a]
 quotientFieldLaws =

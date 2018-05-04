@@ -80,8 +80,10 @@ testsFloat =
     , testGroup "Signed" $ testLawOf ([] :: [Float]) <$> signedLaws
     , testGroup "Normed" $ testLawOf2 ([] :: [(Float, Float)]) <$> normedLaws
     , testGroup "Metric" $ testLawOf2 ([] :: [(Float, Float)]) <$> metricLaws
-    , testGroup "Bounded Field" $
-      testLawOf ([] :: [Float]) <$> boundedFieldLaws
+    , testGroup "Upper Bounded Field" $
+      testLawOf ([] :: [Float]) <$> upperBoundedFieldLaws
+    , testGroup "Lower Bounded Field" $
+      testLawOf ([] :: [Float]) <$> lowerBoundedFieldLaws
     , testGroup "Quotient Field" $
       testLawOf ([] :: [Float]) <$> quotientFieldLaws
     , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Float,Float)]) <$> expFieldLaws

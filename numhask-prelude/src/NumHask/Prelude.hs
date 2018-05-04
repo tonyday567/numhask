@@ -31,7 +31,7 @@ module NumHask.Prelude
 
 #if MIN_VERSION_base(4,11,0)
 import Protolude
-       hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
+       hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
@@ -39,7 +39,7 @@ import Protolude
                zero)
 #else
 import Protolude
-       hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
+       hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
@@ -68,5 +68,5 @@ import NumHask.Algebra.Singleton
 -- $instances
 -- Re-defines the numeric tower.
 --
--- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool' and 'Complex' are supplied.
+-- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool', 'Complex' and 'Natural'are supplied.
 --

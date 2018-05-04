@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
@@ -110,3 +112,15 @@ import NumHask.Prelude
 -- 6 :+ 8
 -- >>> (1 :+ (-1)) / (2 :+ 2)
 -- 0.0 :+ (-0.5)
+
+newtype PositiveFloat = PositiveFloat { unPositive :: Float } deriving (Show, Eq, AdditiveMagma, AdditiveAssociative, AdditiveUnital, AdditiveCommutative, Additive, MultiplicativeMagma, MultiplicativeUnital, MultiplicativeAssociative, MultiplicativeCommutative, Multiplicative, MultiplicativeInvertible, MultiplicativeGroup, Distribution, Semiring, Ring, CRing, Semifield, UpperBoundedField)
+
+instance AdditiveInvertible PositiveFloat where
+  negate _ = nan
+
+instance AdditiveGroup PositiveFloat
+
+instance Bounded PositiveFloat where
+  minBound = zero
+  maxBound = infinity
+
