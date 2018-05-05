@@ -225,7 +225,6 @@ instance
   , AdditiveUnital (Vector c n a)
   , QC.Arbitrary a
   , AdditiveUnital a
-  , Num a
   ) =>
   QC.Arbitrary (Vector c n a) where
   arbitrary = QC.frequency [(1, pure zero), (9, fromList <$> QC.vector n)]
@@ -240,7 +239,6 @@ instance
   , KnownNat n
   , QC.Arbitrary a
   , AdditiveUnital a
-  , Num a
   ) =>
   QC.Arbitrary (Matrix c m n a) where
   arbitrary = QC.frequency [(1, pure zero), (9, fromList <$> QC.vector (m * n))]

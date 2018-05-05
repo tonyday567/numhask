@@ -87,6 +87,7 @@ testsFloat =
     , testGroup "Quotient Field" $
       testLawOf ([] :: [Float]) <$> quotientFieldLaws
     , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Float,Float)]) <$> expFieldLaws
+    , testGroup "Rational" $ testLawOf ([] :: [Float]) <$> rationalLaws
     ]
 
 testsBool :: TestTree

@@ -44,6 +44,7 @@ library
       NumHask.Algebra.Ring
       NumHask.Algebra.Field
       NumHask.Algebra.Integral
+      NumHask.Algebra.Rational
       NumHask.Algebra.Magma
       NumHask.Algebra.Metric
       NumHask.Algebra.Module

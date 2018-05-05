@@ -1,6 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module NumHask.Laws
@@ -23,6 +25,7 @@ module NumHask.Laws
   , distributionLaws
   , distributionLawsFail
   , integralLaws
+  , rationalLaws
   , signedLaws
   , normedLaws
   , metricLaws
@@ -51,6 +54,12 @@ module NumHask.Laws
 import NumHask.Prelude
 import Test.Tasty.QuickCheck hiding ((><))
 import Test.Tasty (TestName, TestTree)
+
+smallish :: (FromRatio a) => a
+smallish = 10.0
+
+smallish' :: (FromRatio a) => a
+smallish' = 6.0
 
 -- | unification of law equations
 data LawArity a
@@ -238,6 +247,12 @@ integralLaws =
   , ("fromIntegral a = a", Unary (\a -> fromIntegral a == a))
   ]
 
+-- rational
+rationalLaws :: (Eq a, FromRatio a, ToRatio a) => [Law a]
+rationalLaws =
+  [ ("fromRational a = a", Unary (\a -> fromRational a == a))
+  ]
+
 -- metric
 signedLaws :: (Eq a, Signed a) => [Law a]
 signedLaws = [("sign a * abs a == a", Unary (\a -> sign a `times` abs a == a))]
@@ -250,8 +265,7 @@ normedLaws =
     , Binary11 (\_ p -> p < (one :: b) || (normLp p (zero :: a) :: b) == (zero :: b)) )
   ]
 
--- fixme: Num b is needed for the number literal '10'
-metricLaws :: forall a b. (Num b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b) =>
+metricLaws :: forall a b. (FromRatio b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b) =>
   [Law2 a b]
 metricLaws =
   [ ("Lp: positive",
@@ -261,15 +275,15 @@ metricLaws =
   , ( "Lp: associative"
     , Ternary21 (\a b p ->
                   p < one ||
-                  p > (6 :: b) ||
+                  p > (smallish' :: b) ||
                  distanceLp p a b ≈ distanceLp p b a))
   , ( "Lp: triangle rule - sum of distances > distance"
     , Quad31
         (\a b c p ->
            (p < one) ||
-           (normL1 a > (10 :: b)) ||
-           (normL1 b > (10 :: b)) ||
-           (normL1 c > (10 :: b)) ||
+           (normL1 a > (smallish :: b)) ||
+           (normL1 b > (smallish :: b)) ||
+           (normL1 c > (smallish :: b)) ||
            not
              (veryNegative
                 (distanceLp p a c + distanceLp p b c - distanceLp p a b)) &&
@@ -324,7 +338,7 @@ quotientFieldLaws =
   ]
 
 expFieldLaws :: forall a b.
-     (Num b, AdditiveUnital b, ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]
+     (FromInteger b, AdditiveUnital b, ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]
 expFieldLaws =
   [ ( "sqrt . (**(one+one)) ≈ id"
     , Unary10
@@ -353,8 +367,8 @@ expFieldContainerLaws ::
      , ExpField a
      , Epsilon a
      , Signed a
+     , FromRatio a
      , Epsilon (r a)
-     , Fractional a
      , Ord a
      )
   => [Law (r a)]
@@ -363,14 +377,14 @@ expFieldContainerLaws =
     , Unary
         (\a ->
            not (all veryPositive a) ||
-           any (> 10.0) a ||
+           any (> smallish) a ||
            (sqrt . (** (one + one)) $ a) ≈ a &&
            ((** (one + one)) . sqrt $ a) ≈ a))
   , ( "log . exp ≈ id"
     , Unary
         (\a ->
            not (all veryPositive a) ||
-           any (> 10.0) a || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
+           any (> smallish) a || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
   , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
     , Binary
         (\a b ->
@@ -441,7 +455,9 @@ banachLaws ::
      , Epsilon (r a)
      , Banach r a
      , Singleton r
-     , Normed a Double
+     , Signed a
+     , FromRatio a
+     , Ord a
      )
   => [Law2 (r a) a]
 banachLaws =
@@ -449,18 +465,18 @@ banachLaws =
     , Unary10
         (\a ->
            a == singleton zero ||
-           (any ((> 10.0) . normL1) a || (normalizeL1 a .* normL1 a) ≈ a)))
+           (any ((> smallish) . abs) a || (normalizeL1 a .* normL1 a) ≈ a)))
     , ( "L2: normalize a .* norm a ≈ one"
     , Unary10
         (\a ->
            a == singleton zero ||
-           (any ((> 10.0) . normL1) a || (normalizeL2 a .* normL2 a) ≈ a)))
+           (any ((> smallish) . abs) a || (normalizeL2 a .* normL2 a) ≈ a)))
 {-
     , ( "Lp: normalizeLp a p .* normLp a p ≈ one"
     , Binary11
         (\a p ->
            a == singleton zero ||
-           (any ((> 10.0) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
+           (any ((> smallish) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
 -}
   ]
 
