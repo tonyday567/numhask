@@ -12,6 +12,9 @@ module NumHask.Algebra.Ring
   ) where
 
 import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Distribution
 import NumHask.Algebra.Multiplicative
@@ -32,6 +35,26 @@ instance Semiring Integer
 instance Semiring Bool
 
 instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
+
+instance Semiring Natural
+
+instance Semiring Int8
+
+instance Semiring Int16
+
+instance Semiring Int32
+
+instance Semiring Int64
+
+instance Semiring Word
+
+instance Semiring Word8
+
+instance Semiring Word16
+
+instance Semiring Word32
+
+instance Semiring Word64
 
 -- | Ring
 -- 
@@ -70,6 +93,24 @@ instance Ring Integer
 
 instance (Ring a) => Ring (Complex a)
 
+instance Ring Int8
+
+instance Ring Int16
+
+instance Ring Int32
+
+instance Ring Int64
+
+instance Ring Word
+
+instance Ring Word8
+
+instance Ring Word16
+
+instance Ring Word32
+
+instance Ring Word64
+
 -- | CRing is a Ring with Multiplicative Commutation.  It arises often due to '*' being defined as a multiplicative commutative operation.
 class (Multiplicative a, Ring a) =>
       CRing a
@@ -83,6 +124,24 @@ instance CRing Int
 instance CRing Integer
 
 instance (CRing a) => CRing (Complex a)
+
+instance CRing Int8
+
+instance CRing Int16
+
+instance CRing Int32
+
+instance CRing Int64
+
+instance CRing Word
+
+instance CRing Word8
+
+instance CRing Word16
+
+instance CRing Word32
+
+instance CRing Word64
 
 -- | StarSemiring
 --
@@ -111,7 +170,7 @@ class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
 --
 -- Note: elements for which @adj a == a@ are called "self-adjoint".
 --
-class Ring a => InvolutiveRing a where
+class Semiring a => InvolutiveRing a where
   adj :: a -> a
   adj x = x
 
@@ -125,3 +184,24 @@ instance InvolutiveRing Int
 
 instance (Ring a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
+
+instance InvolutiveRing Natural
+
+instance InvolutiveRing Int8
+
+instance InvolutiveRing Int16
+
+instance InvolutiveRing Int32
+
+instance InvolutiveRing Int64
+
+instance InvolutiveRing Word
+
+instance InvolutiveRing Word8
+
+instance InvolutiveRing Word16
+
+instance InvolutiveRing Word32
+
+instance InvolutiveRing Word64
+

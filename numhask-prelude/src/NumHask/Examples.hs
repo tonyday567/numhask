@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
@@ -54,6 +56,21 @@ import NumHask.Prelude
 --
 -- >>> 1 / fromIntegral (1::Int)
 -- 1.0
+--
+-- RebindableSyntax removes the Haskell98 link between literal numbers and base classes.  Literal numbers are pre-processed by ghc as `fromInteger 1` and `fromRational 1.0`.
+--
+-- >>> :t 1
+-- 1 :: Num p => p
+--
+-- >>> :t 1.0
+-- 1.0 :: Fractional p => p
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :t 1
+-- 1 :: FromInteger a => a
+--
+-- >>> :t 1.0
+-- 1.0 :: FromRatio b => b
 --
 -- 'Float' and 'Double' are 'NumHask.Algebra.Fields.Field' instances.
 --
@@ -110,3 +127,15 @@ import NumHask.Prelude
 -- 6 :+ 8
 -- >>> (1 :+ (-1)) / (2 :+ 2)
 -- 0.0 :+ (-0.5)
+
+newtype PositiveFloat = PositiveFloat { unPositive :: Float } deriving (Show, Eq, AdditiveMagma, AdditiveAssociative, AdditiveUnital, AdditiveCommutative, Additive, MultiplicativeMagma, MultiplicativeUnital, MultiplicativeAssociative, MultiplicativeCommutative, Multiplicative, MultiplicativeInvertible, MultiplicativeGroup, Distribution, Semiring, Ring, CRing, Semifield, UpperBoundedField)
+
+instance AdditiveInvertible PositiveFloat where
+  negate _ = nan
+
+instance AdditiveGroup PositiveFloat
+
+instance Bounded PositiveFloat where
+  minBound = zero
+  maxBound = infinity
+

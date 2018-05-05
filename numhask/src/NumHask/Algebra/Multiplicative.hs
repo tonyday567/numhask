@@ -15,6 +15,9 @@ module NumHask.Algebra.Multiplicative
   ) where
 
 import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import qualified Prelude as P
 import Prelude (Bool(..), Double, Float, Int, Integer)
@@ -47,6 +50,36 @@ instance (MultiplicativeMagma a, AdditiveGroup a) =>
   (rx :+ ix) `times` (ry :+ iy) =
     (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
+instance MultiplicativeMagma Natural where
+  times = (P.*)
+
+instance MultiplicativeMagma Int8 where
+  times = (P.*)
+
+instance MultiplicativeMagma Int16 where
+  times = (P.*)
+
+instance MultiplicativeMagma Int32 where
+  times = (P.*)
+
+instance MultiplicativeMagma Int64 where
+  times = (P.*)
+
+instance MultiplicativeMagma Word where
+  times = (P.*)
+
+instance MultiplicativeMagma Word8 where
+  times = (P.*)
+
+instance MultiplicativeMagma Word16 where
+  times = (P.*)
+
+instance MultiplicativeMagma Word32 where
+  times = (P.*)
+
+instance MultiplicativeMagma Word64 where
+  times = (P.*)
+
 -- | Unital magma for multiplication.
 --
 -- > one `times` a == a
@@ -74,6 +107,36 @@ instance (AdditiveUnital a, AdditiveGroup a, MultiplicativeUnital a) =>
          MultiplicativeUnital (Complex a) where
   one = one :+ zero
 
+instance MultiplicativeUnital Natural where
+  one = 1
+
+instance MultiplicativeUnital Int8 where
+  one = 1
+
+instance MultiplicativeUnital Int16 where
+  one = 1
+
+instance MultiplicativeUnital Int32 where
+  one = 1
+
+instance MultiplicativeUnital Int64 where
+  one = 1
+
+instance MultiplicativeUnital Word where
+  one = 1
+
+instance MultiplicativeUnital Word8 where
+  one = 1
+
+instance MultiplicativeUnital Word16 where
+  one = 1
+
+instance MultiplicativeUnital Word32 where
+  one = 1
+
+instance MultiplicativeUnital Word64 where
+  one = 1
+
 -- | Associative magma for multiplication.
 --
 -- > (a `times` b) `times` c == a `times` (b `times` c)
@@ -93,6 +156,26 @@ instance MultiplicativeAssociative Bool
 instance (AdditiveGroup a, MultiplicativeAssociative a) =>
          MultiplicativeAssociative (Complex a)
 
+instance MultiplicativeAssociative Natural
+
+instance MultiplicativeAssociative Int8
+
+instance MultiplicativeAssociative Int16
+
+instance MultiplicativeAssociative Int32
+
+instance MultiplicativeAssociative Int64
+
+instance MultiplicativeAssociative Word
+
+instance MultiplicativeAssociative Word8
+
+instance MultiplicativeAssociative Word16
+
+instance MultiplicativeAssociative Word32
+
+instance MultiplicativeAssociative Word64
+
 -- | Commutative magma for multiplication.
 --
 -- > a `times` b == b `times` a
@@ -111,6 +194,26 @@ instance MultiplicativeCommutative Bool
 
 instance (AdditiveGroup a, MultiplicativeCommutative a) =>
          MultiplicativeCommutative (Complex a)
+
+instance MultiplicativeCommutative Natural
+
+instance MultiplicativeCommutative Int8
+
+instance MultiplicativeCommutative Int16
+
+instance MultiplicativeCommutative Int32
+
+instance MultiplicativeCommutative Int64
+
+instance MultiplicativeCommutative Word
+
+instance MultiplicativeCommutative Word8
+
+instance MultiplicativeCommutative Word16
+
+instance MultiplicativeCommutative Word32
+
+instance MultiplicativeCommutative Word64
 
 -- | Invertible magma for multiplication.
 --
@@ -142,6 +245,7 @@ class MultiplicativeMagma a =>
 instance MultiplicativeIdempotent Bool
 
 -- | product definition avoiding a clash with the Product monoid in base
+-- fixme: fit in with Product in base
 --
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
@@ -172,6 +276,26 @@ instance Multiplicative Integer
 instance Multiplicative Bool
 
 instance (AdditiveGroup a, Multiplicative a) => Multiplicative (Complex a)
+
+instance Multiplicative Natural
+
+instance Multiplicative Int8
+
+instance Multiplicative Int16
+
+instance Multiplicative Int32
+
+instance Multiplicative Int64
+
+instance Multiplicative Word
+
+instance Multiplicative Word8
+
+instance Multiplicative Word16
+
+instance Multiplicative Word32
+
+instance Multiplicative Word64
 
 -- | Non-commutative left divide
 --

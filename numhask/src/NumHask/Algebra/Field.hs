@@ -6,9 +6,8 @@ module NumHask.Algebra.Field
   , Field
   , ExpField(..)
   , QuotientField(..)
-  , BoundedField(..)
-  , infinity
-  , neginfinity
+  , UpperBoundedField(..)
+  , LowerBoundedField(..)
   , TrigField(..)
   ) where
 
@@ -19,15 +18,15 @@ import NumHask.Algebra.Ring
 import Prelude (Bool, Double, Float, Integer, (||))
 import qualified Prelude as P
 
--- | A Semifield is a Field without Commutative Multiplication.
-class (MultiplicativeInvertible a, Ring a) =>
+-- | A Semifield is chosen here to be a Field without an Additive Inverse
+class (MultiplicativeInvertible a, MultiplicativeGroup a, Semiring a) =>
       Semifield a
 
 instance Semifield Double
 
 instance Semifield Float
 
-instance (Semifield a) => Semifield (Complex a)
+instance (Semifield a, AdditiveGroup a) => Semifield (Complex a)
 
 -- | A Field is a Ring plus additive invertible and multiplicative invertible operations.
 --
@@ -126,35 +125,38 @@ instance QuotientField Double where
 -- > zero / zero != nan
 --
 -- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
-class (Field a) =>
-      BoundedField a where
-  maxBound :: a
-  maxBound = one / zero
-  minBound :: a
-  minBound = negate (one / zero)
+class (Semifield a) =>
+      UpperBoundedField a where
+
+  infinity :: a
+  infinity = one / zero
   nan :: a
   nan = zero / zero
+
   isNaN :: a -> Bool
 
--- | prints as `Infinity`
-infinity :: BoundedField a => a
-infinity = maxBound
-
--- | prints as `-Infinity`
-neginfinity :: BoundedField a => a
-neginfinity = minBound
-
-instance BoundedField Float where
+instance UpperBoundedField Float where
   isNaN = P.isNaN
 
-instance BoundedField Double where
+instance UpperBoundedField Double where
   isNaN = P.isNaN
+
+class (Field a) =>
+      LowerBoundedField a where
+
+  negInfinity :: a
+  negInfinity = negate (one / zero)
+
+instance LowerBoundedField Float
+
+instance LowerBoundedField Double
 
 -- | todo: work out boundings for complex
 -- as it stands now, complex is different eg
 --
 -- > one / (zero :: Complex Float) == nan
-instance (BoundedField a) => BoundedField (Complex a) where
+instance (AdditiveGroup a, UpperBoundedField a) =>
+  UpperBoundedField (Complex a) where
   isNaN (rx :+ ix) = isNaN rx || isNaN ix
 
 -- | Trigonometric Field

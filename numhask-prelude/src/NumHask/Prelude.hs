@@ -10,6 +10,10 @@ module NumHask.Prelude
   , (<>)
   , Semigroup
 #endif
+    -- RebindableSyntax takes fromString away so we need to put it back in
+  , fromString
+  , Complex(..)
+  , Natural(..)
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Additive
@@ -21,6 +25,7 @@ module NumHask.Prelude
   , module NumHask.Algebra.Metric
   , module NumHask.Algebra.Module
   , module NumHask.Algebra.Multiplicative
+  , module NumHask.Algebra.Rational
   , module NumHask.Algebra.Ring
   , module NumHask.Algebra.Singleton
 
@@ -28,22 +33,25 @@ module NumHask.Prelude
 
 #if MIN_VERSION_base(4,11,0)
 import Protolude
-       hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
+       hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero)
+               zero, fromRational)
 #else
 import Protolude
-       hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
+       hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, (<>), Semgroup)
+               zero, fromRational, (<>), Semgroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
+
+import Data.String
+import GHC.Natural(Natural(..))
 
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis
@@ -54,6 +62,7 @@ import NumHask.Algebra.Magma
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Rational
 import NumHask.Algebra.Ring
 import NumHask.Algebra.Singleton
 
@@ -63,5 +72,5 @@ import NumHask.Algebra.Singleton
 -- $instances
 -- Re-defines the numeric tower.
 --
--- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool' and 'Complex' are supplied.
+-- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool', 'Complex' and 'Natural'are supplied.
 --

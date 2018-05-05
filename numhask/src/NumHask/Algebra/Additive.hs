@@ -16,6 +16,9 @@ module NumHask.Algebra.Additive
   ) where
 
 import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
 
 import qualified Prelude as P
 import Prelude (Bool(..), Double, Float, Int, Integer)
@@ -46,6 +49,36 @@ instance AdditiveMagma Bool where
 instance (AdditiveMagma a) => AdditiveMagma (Complex a) where
   (rx :+ ix) `plus` (ry :+ iy) = (rx `plus` ry) :+ (ix `plus` iy)
 
+instance AdditiveMagma Natural where
+  plus = (P.+)
+
+instance AdditiveMagma Int8 where
+  plus = (P.+)
+
+instance AdditiveMagma Int16 where
+  plus = (P.+)
+
+instance AdditiveMagma Int32 where
+  plus = (P.+)
+
+instance AdditiveMagma Int64 where
+  plus = (P.+)
+
+instance AdditiveMagma Word where
+  plus = (P.+)
+
+instance AdditiveMagma Word8 where
+  plus = (P.+)
+
+instance AdditiveMagma Word16 where
+  plus = (P.+)
+
+instance AdditiveMagma Word32 where
+  plus = (P.+)
+
+instance AdditiveMagma Word64 where
+  plus = (P.+)
+
 -- | Unital magma for addition.
 --
 -- > zero `plus` a == a
@@ -72,6 +105,36 @@ instance AdditiveUnital Bool where
 instance (AdditiveUnital a) => AdditiveUnital (Complex a) where
   zero = zero :+ zero
 
+instance AdditiveUnital Natural where
+  zero = 0
+
+instance AdditiveUnital Int8 where
+  zero = 0
+
+instance AdditiveUnital Int16 where
+  zero = 0
+
+instance AdditiveUnital Int32 where
+  zero = 0
+
+instance AdditiveUnital Int64 where
+  zero = 0
+
+instance AdditiveUnital Word where
+  zero = 0
+
+instance AdditiveUnital Word8 where
+  zero = 0
+
+instance AdditiveUnital Word16 where
+  zero = 0
+
+instance AdditiveUnital Word32 where
+  zero = 0
+
+instance AdditiveUnital Word64 where
+  zero = 0
+
 -- | Associative magma for addition.
 --
 -- > (a `plus` b) `plus` c == a `plus` (b `plus` c)
@@ -90,6 +153,26 @@ instance AdditiveAssociative Bool
 
 instance (AdditiveAssociative a) => AdditiveAssociative (Complex a)
 
+instance AdditiveAssociative Natural
+
+instance AdditiveAssociative Int8
+
+instance AdditiveAssociative Int16
+
+instance AdditiveAssociative Int32
+
+instance AdditiveAssociative Int64
+
+instance AdditiveAssociative Word
+
+instance AdditiveAssociative Word8
+
+instance AdditiveAssociative Word16
+
+instance AdditiveAssociative Word32
+
+instance AdditiveAssociative Word64
+
 -- | Commutative magma for addition.
 --
 -- > a `plus` b == b `plus` a
@@ -107,6 +190,26 @@ instance AdditiveCommutative Integer
 instance AdditiveCommutative Bool
 
 instance (AdditiveCommutative a) => AdditiveCommutative (Complex a)
+
+instance AdditiveCommutative Natural
+
+instance AdditiveCommutative Int8
+
+instance AdditiveCommutative Int16
+
+instance AdditiveCommutative Int32
+
+instance AdditiveCommutative Int64
+
+instance AdditiveCommutative Word
+
+instance AdditiveCommutative Word8
+
+instance AdditiveCommutative Word16
+
+instance AdditiveCommutative Word32
+
+instance AdditiveCommutative Word64
 
 -- | Invertible magma for addition.
 --
@@ -135,6 +238,33 @@ instance AdditiveInvertible Bool where
 instance (AdditiveInvertible a) => AdditiveInvertible (Complex a) where
   negate (rx :+ ix) = negate rx :+ negate ix
 
+instance AdditiveInvertible Int8 where
+  negate = P.negate
+
+instance AdditiveInvertible Int16 where
+  negate = P.negate
+
+instance AdditiveInvertible Int32 where
+  negate = P.negate
+
+instance AdditiveInvertible Int64 where
+  negate = P.negate
+
+instance AdditiveInvertible Word where
+  negate = P.negate
+
+instance AdditiveInvertible Word8 where
+  negate = P.negate
+
+instance AdditiveInvertible Word16 where
+  negate = P.negate
+
+instance AdditiveInvertible Word32 where
+  negate = P.negate
+
+instance AdditiveInvertible Word64 where
+  negate = P.negate
+
 -- | Idempotent magma for addition.
 --
 -- > a `plus` a == a
@@ -144,6 +274,7 @@ class AdditiveMagma a =>
 instance AdditiveIdempotent Bool
 
 -- | sum definition avoiding a clash with the Sum monoid in base
+-- fixme: fit in with the Sum monoid
 --
 sum :: (Additive a, P.Foldable f) => f a -> a
 sum = P.foldr (+) zero
@@ -171,6 +302,26 @@ instance Additive Integer
 instance Additive Bool
 
 instance (Additive a) => Additive (Complex a)
+
+instance Additive Natural
+
+instance Additive Int8
+
+instance Additive Int16
+
+instance Additive Int32
+
+instance Additive Int64
+
+instance Additive Word
+
+instance Additive Word8
+
+instance Additive Word16
+
+instance Additive Word32
+
+instance Additive Word64
 
 -- | Non-commutative left minus
 --
@@ -213,3 +364,22 @@ instance AdditiveGroup Int
 instance AdditiveGroup Integer
 
 instance (AdditiveGroup a) => AdditiveGroup (Complex a)
+
+instance AdditiveGroup Int8
+
+instance AdditiveGroup Int16
+
+instance AdditiveGroup Int32
+
+instance AdditiveGroup Int64
+
+instance AdditiveGroup Word
+
+instance AdditiveGroup Word8
+
+instance AdditiveGroup Word16
+
+instance AdditiveGroup Word32
+
+instance AdditiveGroup Word64
+

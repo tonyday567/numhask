@@ -24,6 +24,9 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural
 import Prelude
        (Double, Float, Int, Integer)
 
@@ -115,6 +118,26 @@ type instance Integer >< Integer = Integer
 type instance Double >< Double = Double
 
 type instance Float >< Float = Float
+
+type instance Natural >< Natural = Natural
+
+type instance Int8 >< Int8 = Int8
+
+type instance Int16 >< Int16 = Int16
+
+type instance Int32 >< Int32 = Int32
+
+type instance Int64 >< Int64 = Int64
+
+type instance Word >< Word = Word
+
+type instance Word8 >< Word8 = Word8
+
+type instance Word16 >< Word16 = Word16
+
+type instance Word32 >< Word32 = Word32
+
+type instance Word64 >< Word64 = Word64
 
 -- | representation synthesis
 type family TensorRep k1 k2 where
