@@ -57,6 +57,21 @@ import NumHask.Prelude
 -- >>> 1 / fromIntegral (1::Int)
 -- 1.0
 --
+-- RebindableSyntax removes the Haskell98 link between literal numbers and base classes.  Literal numbers are pre-processed by ghc as `fromInteger 1` and `fromRational 1.0`.
+--
+-- >>> :t 1
+-- 1 :: Num p => p
+--
+-- >>> :t 1.0
+-- 1.0 :: Fractional p => p
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :t 1
+-- 1 :: FromInteger a => a
+--
+-- >>> :t 1.0
+-- 1.0 :: FromRatio b => b
+--
 -- 'Float' and 'Double' are 'NumHask.Algebra.Fields.Field' instances.
 --
 -- >>> zero == 0.0

@@ -1,6 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module NumHask.Laws
@@ -23,9 +25,13 @@ module NumHask.Laws
   , distributionLaws
   , distributionLawsFail
   , integralLaws
+  , rationalLaws
   , signedLaws
   , normedLaws
-  , metricLaws
+  , normedBoundedLaws
+  , metricIntegralLaws
+  , metricIntegralBoundedLaws
+  , metricRationalLaws
   , upperBoundedFieldLaws
   , lowerBoundedFieldLaws
   , quotientFieldLaws 
@@ -46,11 +52,21 @@ module NumHask.Laws
   , ringLaws
   , starSemiringLaws
   , involutiveRingLaws
+  , integralsLaws
   ) where
 
 import NumHask.Prelude
 import Test.Tasty.QuickCheck hiding ((><))
 import Test.Tasty (TestName, TestTree)
+
+smallRational :: (FromRatio a) => a
+smallRational = 10.0
+
+smallRationalPower :: (FromRatio a) => a
+smallRationalPower = 6.0
+
+smallIntegralPower :: (FromInteger a) => a
+smallIntegralPower = 6
 
 -- | unification of law equations
 data LawArity a
@@ -238,6 +254,12 @@ integralLaws =
   , ("fromIntegral a = a", Unary (\a -> fromIntegral a == a))
   ]
 
+-- rational
+rationalLaws :: (Eq a, FromRatio a, ToRatio a) => [Law a]
+rationalLaws =
+  [ ("fromRational a = a", Unary (\a -> fromRational a == a))
+  ]
+
 -- metric
 signedLaws :: (Eq a, Signed a) => [Law a]
 signedLaws = [("sign a * abs a == a", Unary (\a -> sign a `times` abs a == a))]
@@ -250,10 +272,17 @@ normedLaws =
     , Binary11 (\_ p -> p < (one :: b) || (normLp p (zero :: a) :: b) == (zero :: b)) )
   ]
 
--- fixme: Num b is needed for the number literal '10'
-metricLaws :: forall a b. (Num b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b) =>
+normedBoundedLaws :: forall a b. (Eq a, Bounded a, Ord b, AdditiveUnital a, AdditiveUnital b, MultiplicativeUnital b, Normed a b) =>
   [Law2 a b]
-metricLaws =
+normedBoundedLaws =
+  [ ("positive or non-minBound", Binary11 (\a p -> a == minBound || p < (one :: b) || (normLp p a :: b) >= (zero :: b)))
+  , ("preserves zero"
+    , Binary11 (\_ p -> p < (one :: b) || (normLp p (zero :: a) :: b) == (zero :: b)) )
+  ]
+
+metricIntegralLaws :: forall a b. (FromInteger b, Ord b, Signed b, Epsilon b, Metric a b) =>
+  [Law2 a b]
+metricIntegralLaws =
   [ ("Lp: positive",
      Ternary21 (\a b p -> p < one || distanceLp p a b >= zero))
   , ("Lp: zero if equal"
@@ -261,15 +290,58 @@ metricLaws =
   , ( "Lp: associative"
     , Ternary21 (\a b p ->
                   p < one ||
-                  p > (6 :: b) ||
+                  p > (smallIntegralPower :: b) ||
                  distanceLp p a b ≈ distanceLp p b a))
   , ( "Lp: triangle rule - sum of distances > distance"
     , Quad31
         (\a b c p ->
            (p < one) ||
-           (normL1 a > (10 :: b)) ||
-           (normL1 b > (10 :: b)) ||
-           (normL1 c > (10 :: b)) ||
+           not
+             (veryNegative
+                (distanceLp p a c + distanceLp p b c - distanceLp p a b)) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p b c - distanceLp p a c)) &&
+           not
+             (veryNegative
+                (distanceLp p a b + distanceLp p a c - distanceLp p b c))))
+  ]
+
+-- triangle rule doesn't apply to bounded Integrals
+metricIntegralBoundedLaws :: forall a b. (FromInteger b, Bounded b, Ord b, Signed b, Epsilon b, Metric a b) =>
+  [Law2 a b]
+metricIntegralBoundedLaws =
+  [ ("Lp: positive",
+     Ternary21 (\a b p -> p < one || distanceLp p a b >= zero || distanceLp p a b == minBound))
+  , ("Lp: zero if equal"
+    , Binary11 (\a p -> p < one || distanceLp p a a == zero))
+  , ( "Lp: associative"
+    , Ternary21 (\a b p ->
+                  p < one ||
+                  p > (smallIntegralPower :: b) ||
+                 distanceLp p a b ≈ distanceLp p b a))
+  ]
+
+
+metricRationalLaws :: forall a b. (FromRatio b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b) =>
+  [Law2 a b]
+metricRationalLaws =
+  [ ("Lp: positive",
+     Ternary21 (\a b p -> p < one || distanceLp p a b >= zero))
+  , ("Lp: zero if equal"
+    , Binary11 (\a p -> p < one || distanceLp p a a == zero))
+  , ( "Lp: associative"
+    , Ternary21 (\a b p ->
+                  p < one ||
+                  p > (smallRationalPower :: b) ||
+                 distanceLp p a b ≈ distanceLp p b a))
+  , ( "Lp: triangle rule - sum of distances > distance"
+    , Quad31
+        (\a b c p ->
+           (p < one) ||
+           (normL1 a > (smallRational :: b)) ||
+           (normL1 b > (smallRational :: b)) ||
+           (normL1 c > (smallRational :: b)) ||
            not
              (veryNegative
                 (distanceLp p a c + distanceLp p b c - distanceLp p a b)) &&
@@ -324,7 +396,7 @@ quotientFieldLaws =
   ]
 
 expFieldLaws :: forall a b.
-     (Num b, AdditiveUnital b, ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]
+     (FromInteger b, AdditiveUnital b, ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]
 expFieldLaws =
   [ ( "sqrt . (**(one+one)) ≈ id"
     , Unary10
@@ -353,8 +425,8 @@ expFieldContainerLaws ::
      , ExpField a
      , Epsilon a
      , Signed a
+     , FromRatio a
      , Epsilon (r a)
-     , Fractional a
      , Ord a
      )
   => [Law (r a)]
@@ -363,14 +435,14 @@ expFieldContainerLaws =
     , Unary
         (\a ->
            not (all veryPositive a) ||
-           any (> 10.0) a ||
+           any (> smallRational) a ||
            (sqrt . (** (one + one)) $ a) ≈ a &&
            ((** (one + one)) . sqrt $ a) ≈ a))
   , ( "log . exp ≈ id"
     , Unary
         (\a ->
            not (all veryPositive a) ||
-           any (> 10.0) a || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
+           any (> smallRational) a || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
   , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
     , Binary
         (\a b ->
@@ -441,7 +513,9 @@ banachLaws ::
      , Epsilon (r a)
      , Banach r a
      , Singleton r
-     , Normed a Double
+     , Signed a
+     , FromRatio a
+     , Ord a
      )
   => [Law2 (r a) a]
 banachLaws =
@@ -449,18 +523,18 @@ banachLaws =
     , Unary10
         (\a ->
            a == singleton zero ||
-           (any ((> 10.0) . normL1) a || (normalizeL1 a .* normL1 a) ≈ a)))
+           (any ((> smallRational) . abs) a || (normalizeL1 a .* normL1 a) ≈ a)))
     , ( "L2: normalize a .* norm a ≈ one"
     , Unary10
         (\a ->
            a == singleton zero ||
-           (any ((> 10.0) . normL1) a || (normalizeL2 a .* normL2 a) ≈ a)))
+           (any ((> smallRational) . abs) a || (normalizeL2 a .* normL2 a) ≈ a)))
 {-
     , ( "Lp: normalizeLp a p .* normLp a p ≈ one"
     , Binary11
         (\a p ->
            a == singleton zero ||
-           (any ((> 10.0) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
+           (any ((> smallRational) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
 -}
   ]
 
@@ -568,3 +642,16 @@ involutiveRingLaws =
     , ( "adjoint own inverse law: adj (adj a) ==> a"
     , Unary (\a -> adj (adj a) == a))
     ]
+
+
+-- integrals are the law groups that apply to Integral-like numbers
+integralsLaws :: (Eq a, AdditiveGroup a, Integral a, Signed a, ToInteger a, FromInteger a, Multiplicative a) => [Law a]
+integralsLaws =
+  additiveLaws <>
+  additiveGroupLaws <>
+  multiplicativeLaws <>
+  distributionLaws <>
+  integralLaws <>
+  signedLaws
+
+

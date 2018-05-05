@@ -3,7 +3,7 @@
 -- | The basic algebraic class structure of a number.
 --
 -- > import NumHask.Algebra
--- > import Prelude hiding (Bounded(..), Integral(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, isNaN, log, logBase, negate, pi, product, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger)
+-- > import Prelude hiding (Integral(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, isNaN, log, logBase, negate, pi, product, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, fromRational)
 --
 module NumHask.Algebra
   ( -- * Mapping from Num
@@ -18,6 +18,7 @@ module NumHask.Algebra
   , module NumHask.Algebra.Metric
   , module NumHask.Algebra.Module
   , module NumHask.Algebra.Multiplicative
+  , module NumHask.Algebra.Rational
   , module NumHask.Algebra.Ring
   , Complex(..)
   ) where
@@ -32,6 +33,7 @@ import NumHask.Algebra.Magma
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Rational
 import NumHask.Algebra.Ring
 
 -- $numMap
