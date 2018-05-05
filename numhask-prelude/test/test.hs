@@ -46,7 +46,6 @@ testsInt =
     , testGroup "Integral" $ testLawOf ([] :: [Int]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Int]) <$> signedLaws
     , testGroup "Normed" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedLaws
-    , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$> metricLaws
     ]
 
 testsNatural :: TestTree
@@ -60,7 +59,6 @@ testsNatural =
     , testGroup "Integral" $ testLawOf ([] :: [Int]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Int]) <$> signedLaws
     , testGroup "Normed" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedLaws
-    , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$> metricLaws
     ]
 
 testsFloat :: TestTree
