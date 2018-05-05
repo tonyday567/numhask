@@ -8,6 +8,8 @@ module NumHask.Algebra.Rational
   , fromRational
   ) where
 
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import GHC.Real (Ratio, Rational)
 import qualified Prelude as P
@@ -50,3 +52,32 @@ instance ToRatio Natural where
 
 instance ToRatio Rational where
   toRatio = P.toRational
+
+instance ToRatio Int8 where
+  toRatio = P.toRational
+
+instance ToRatio Int16 where
+  toRatio = P.toRational
+
+instance ToRatio Int32 where
+  toRatio = P.toRational
+
+instance ToRatio Int64 where
+  toRatio = P.toRational
+
+instance ToRatio Word where
+  toRatio = P.toRational
+
+instance ToRatio Word8 where
+  toRatio = P.toRational
+
+instance ToRatio Word16 where
+  toRatio = P.toRational
+
+instance ToRatio Word32 where
+  toRatio = P.toRational
+
+instance ToRatio Word64 where
+  toRatio = P.toRational
+
+

@@ -6,6 +6,8 @@ module NumHask.Algebra.Distribution
   ) where
 
 import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
@@ -33,3 +35,22 @@ instance Distribution Bool
 instance (AdditiveGroup a, Distribution a) => Distribution (Complex a)
 
 instance Distribution Natural
+
+instance Distribution Int8
+
+instance Distribution Int16
+
+instance Distribution Int32
+
+instance Distribution Int64
+
+instance Distribution Word
+
+instance Distribution Word8
+
+instance Distribution Word16
+
+instance Distribution Word32
+
+instance Distribution Word64
+

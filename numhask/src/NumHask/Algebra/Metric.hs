@@ -16,6 +16,8 @@ import Prelude
        hiding (fromInteger, Bounded(..), Integral(..), (*), (/), (+), (-), abs, negate, sqrt, (**))
 
 import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
@@ -66,6 +68,64 @@ instance Signed Natural where
     | otherwise = one
   abs = id
 
+instance Signed Int8 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
+
+instance Signed Int16 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
+
+instance Signed Int32 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
+
+instance Signed Int64 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
+
+instance Signed Word where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
+
+instance Signed Word8 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
+
+instance Signed Word16 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
+
+instance Signed Word32 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
+
+instance Signed Word64 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
+
 -- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
 --
 -- for p >= 1
@@ -107,6 +167,51 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
 instance Normed Natural Natural where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Int8 Int8 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Int16 Int16 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Int32 Int32 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Int64 Int64 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Word Word where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Word8 Word8 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Word16 Word16 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Word32 Word32 where
+  normL1 = P.abs
+  normL2 = P.abs
+  normLp _ a = P.abs a
+
+instance Normed Word64 Word64 where
   normL1 = P.abs
   normL2 = P.abs
   normLp _ a = P.abs a
@@ -154,6 +259,52 @@ instance Metric Natural Natural where
   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
 
+instance Metric Int8 Int8 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
+
+instance Metric Int16 Int16 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
+
+instance Metric Int32 Int32 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
+
+instance Metric Int64 Int64 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
+
+-- fixme: circular distance may be more appropriate
+instance Metric Word Word where
+  distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
+  distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
+  distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+
+instance Metric Word8 Word8 where
+  distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
+  distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
+  distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+
+instance Metric Word16 Word16 where
+  distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
+  distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
+  distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+
+instance Metric Word32 Word32 where
+  distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
+  distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
+  distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+
+instance Metric Word64 Word64 where
+  distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
+  distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
+  distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+
 -- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
 class (Eq a, AdditiveGroup a) =>
       Epsilon a where
@@ -189,3 +340,22 @@ instance Epsilon Integer
 instance (Epsilon a) => Epsilon (Complex a) where
   nearZero (rx :+ ix) = nearZero rx && nearZero ix
   aboutEqual a b = nearZero $ a - b
+
+instance Epsilon Int8
+
+instance Epsilon Int16
+
+instance Epsilon Int32
+
+instance Epsilon Int64
+
+instance Epsilon Word
+
+instance Epsilon Word8
+
+instance Epsilon Word16
+
+instance Epsilon Word32
+
+instance Epsilon Word64
+
