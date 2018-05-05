@@ -39,6 +39,7 @@ tests =
     , testsWord64
     , testsNatural
     , testsFloat
+    , testsDouble
     , testsBool
     , testsComplexFloat
     ]
@@ -231,6 +232,33 @@ testsFloat =
       testLawOf ([] :: [Float]) <$> quotientFieldLaws
     , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Float,Float)]) <$> expFieldLaws
     , testGroup "Rational" $ testLawOf ([] :: [Float]) <$> rationalLaws
+    ]
+
+testsDouble :: TestTree
+testsDouble =
+  testGroup
+    "Double"
+    [ testGroup "Additive - Associative Fail" $
+      testLawOf ([] :: [Double]) <$> additiveLawsFail
+    , testGroup "Additive Group" $
+      testLawOf ([] :: [Double]) <$> additiveGroupLaws
+    , testGroup "Multiplicative - Associative Fail" $
+      testLawOf ([] :: [Double]) <$> multiplicativeLawsFail
+    , testGroup "MultiplicativeGroup" $
+      testLawOf ([] :: [Double]) <$> multiplicativeGroupLaws_
+    , testGroup "Distribution - Fail" $
+      testLawOf ([] :: [Double]) <$> distributionLawsFail
+    , testGroup "Signed" $ testLawOf ([] :: [Double]) <$> signedLaws
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Double, Double)]) <$> normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Double, Double)]) <$> metricRationalLaws
+    , testGroup "Upper Bounded Field" $
+      testLawOf ([] :: [Double]) <$> upperBoundedFieldLaws
+    , testGroup "Lower Bounded Field" $
+      testLawOf ([] :: [Double]) <$> lowerBoundedFieldLaws
+    , testGroup "Quotient Field" $
+      testLawOf ([] :: [Double]) <$> quotientFieldLaws
+    , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Double,Double)]) <$> expFieldLaws
+    , testGroup "Rational" $ testLawOf ([] :: [Double]) <$> rationalLaws
     ]
 
 testsBool :: TestTree
