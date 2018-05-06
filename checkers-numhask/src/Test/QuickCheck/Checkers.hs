@@ -3,15 +3,8 @@ module Test.QuickCheck.Checkers where
 import Control.Applicative (liftA2)
 
 import Test.QuickCheck (Property, Arbitrary, Gen, Testable(..), property, forAll, (.&.), (==>), conjoin) 
--- import Test.QuickCheck.Random (QCGen, newQCGen)
-
--- import Test.QuickCheck.Gen      (Gen (..)) -- for rand
--- import Test.QuickCheck.Property (Prop(..)) -- for evaluate
-
--- import Test.QuickCheck.Utils
 
 import Control.Arrow (first)
--- import Control.Arrow (Arrow,ArrowChoice,first,second,left,right,(>>>),arr)
 
 
 
@@ -131,11 +124,12 @@ antiSymmetric rel gen =
     forAll (gen a) $ \ b ->
       (a `rel` b) && (b `rel` a) ==> a == b
 
-
+-- | Combinator for a property relating two elements
 binary :: (Show t, Testable prop) => Gen t -> (t -> t -> prop) -> Property
 binary gen rel = forAll gen $ \a ->
   forAll gen $ \b -> rel a b
 
+-- | Combinator for a property relating three elements
 ternary :: (Show t, Testable prop) =>
      Gen t -> (t -> t -> t -> prop) -> Property
 ternary gen rel = forAll gen $ \a ->
@@ -143,28 +137,41 @@ ternary gen rel = forAll gen $ \a ->
     forAll gen $ \c -> rel a b c
 
 
+-- | Associative property
 associative :: (Show a, Eq a) => (a -> a -> a) -> Gen a -> Property
 associative rel gen = ternary gen $ \a b c ->
   (a `rel` b) `rel` c == a `rel` (b `rel` c)
   
 
-
+-- | Right identity z 
+--
+-- a `op` z == a
 rightIdentity
   :: (Show a, Eq a) => t -> (a -> t -> a) -> Gen a -> Property
 rightIdentity z op gen = forAll gen $ \a ->
-  a `op` z `eq` a
+  a `op` z == a
 
+-- | Left identity z 
+--
+-- z `op` a == a
 leftIdentity
   :: (Show a, Eq a) => t -> (t -> a -> a) -> Gen a -> Property
 leftIdentity z op gen = forAll gen $ \a ->
-  z `op` a `eq` a
+  z `op` a == a
 
+-- | Identity z
+--
+-- z `op` a == a `op` z == a
 identity :: (Show a, Eq a) => a -> (a -> a -> a) -> Gen a -> Property
 identity z op gen = conjoin [
     leftIdentity z op gen
   , rightIdentity z op gen
                             ]
 
+-- | Monoid properties
+--
+-- * Identity element
+-- * Binary associative operation
 monoid :: (Show a, Eq a) => a -> (a -> a -> a) -> Gen a -> Property
 monoid z rel gen = conjoin [
     identity z rel gen
