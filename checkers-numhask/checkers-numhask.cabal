@@ -1,0 +1,42 @@
+name:                checkers-numhask
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/tonyday567/checkers-numhask
+license:             BSD3
+license-file:        LICENSE
+author:              Marco Zocca
+maintainer:          ocramz fripost.org
+copyright:           2018 Marco Zocca
+category:            Test
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+tested-with:         GHC == 8.4.1
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  hs-source-dirs:      src
+  exposed-modules:     Test.QuickCheck.Checkers
+                       Test.QuickCheck.Checkers.NumHask
+                       Test.QuickCheck.Utils
+  build-depends:       base >= 4.7 && < 5
+                     , numhask >= 0.2
+                     , QuickCheck
+
+
+test-suite spec
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , checkers-numhask
+                     , hspec
+                     , QuickCheck
+
+source-repository head
+  type:     git
+  location: https://github.com/tonyday567/checkers-numhask
