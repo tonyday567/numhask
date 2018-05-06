@@ -2,7 +2,7 @@ module Test.QuickCheck.Checkers where
 
 import Control.Applicative (liftA2)
 
-import Test.QuickCheck hiding (generate)
+import Test.QuickCheck (Property, Arbitrary, Gen, Testable(..), property, forAll, (.&.), (==>), conjoin) 
 -- import Test.QuickCheck.Random (QCGen, newQCGen)
 
 -- import Test.QuickCheck.Gen      (Gen (..)) -- for rand
@@ -20,14 +20,14 @@ import Control.Arrow (first)
 ----------------------------------------------------------}
 
 -- | Named test
-type Test = (String,Property)
+type Test = (String, Property)
 
 -- | Named batch of tests
-type TestBatch = (String,[Test])
+type TestBatch = (String, [Test])
 
 -- | Flatten a test batch for inclusion in another
 unbatch :: TestBatch -> [Test]
-unbatch (batchName,props) = map (first ((batchName ++ ": ")++)) props
+unbatch (batchName, props) = map (first ((batchName ++ ": ")++)) props
 
 
 
@@ -57,7 +57,8 @@ infix  4 =-=
 
 -- | Types of values that can be tested for equality, perhaps through
 -- random sampling.
-class EqProp a where (=-=) :: a -> a -> Property
+class EqProp a where
+  (=-=) :: a -> a -> Property
 
 -- | For 'Eq' types as 'EqProp' types
 eq :: Eq a => a -> a -> Property
@@ -129,3 +130,43 @@ antiSymmetric rel gen =
   property $ \ a ->
     forAll (gen a) $ \ b ->
       (a `rel` b) && (b `rel` a) ==> a == b
+
+
+binary :: (Show t, Testable prop) => Gen t -> (t -> t -> prop) -> Property
+binary gen rel = forAll gen $ \a ->
+  forAll gen $ \b -> rel a b
+
+ternary :: (Show t, Testable prop) =>
+     Gen t -> (t -> t -> t -> prop) -> Property
+ternary gen rel = forAll gen $ \a ->
+  forAll gen $ \b ->
+    forAll gen $ \c -> rel a b c
+
+
+associative :: (Show a, Eq a) => (a -> a -> a) -> Gen a -> Property
+associative rel gen = ternary gen $ \a b c ->
+  (a `rel` b) `rel` c == a `rel` (b `rel` c)
+  
+
+
+rightIdentity
+  :: (Show a, Eq a) => t -> (a -> t -> a) -> Gen a -> Property
+rightIdentity z op gen = forAll gen $ \a ->
+  a `op` z `eq` a
+
+leftIdentity
+  :: (Show a, Eq a) => t -> (t -> a -> a) -> Gen a -> Property
+leftIdentity z op gen = forAll gen $ \a ->
+  z `op` a `eq` a
+
+identity :: (Show a, Eq a) => a -> (a -> a -> a) -> Gen a -> Property
+identity z op gen = conjoin [
+    leftIdentity z op gen
+  , rightIdentity z op gen
+                            ]
+
+monoid :: (Show a, Eq a) => a -> (a -> a -> a) -> Gen a -> Property
+monoid z rel gen = conjoin [
+    identity z rel gen
+  , associative rel gen
+  ]
