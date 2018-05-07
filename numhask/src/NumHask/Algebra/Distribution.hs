@@ -9,9 +9,12 @@ import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
+import GHC.Real (Ratio((:%)))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Integral
 import Prelude (Bool(..), Double, Float, Int, Integer)
+import qualified Prelude as P
 
 -- | Distribution (and annihilation) laws
 --
@@ -54,3 +57,4 @@ instance Distribution Word32
 
 instance Distribution Word64
 
+instance (P.Ord a, Integral a, MultiplicativeUnital a, AdditiveGroup a, AdditiveInvertible a, AdditiveUnital a, Distribution a) => Distribution (Ratio a)

@@ -247,7 +247,7 @@ distributionLawsFail =
   ]
 
 -- integral
-integralLaws :: (Eq a, Integral a, FromInteger a, ToInteger a) => [Law a]
+integralLaws :: (Eq a, Semiring a, Integral a, FromInteger a, ToInteger a) => [Law a]
 integralLaws =
   [ ( "integral divmod: b == zero || b * (a `div` b) + (a `mod` b) == a"
     , Binary (\a b -> b == zero || b `times` (a `div` b) + (a `mod` b) == a))
@@ -643,9 +643,8 @@ involutiveRingLaws =
     , Unary (\a -> adj (adj a) == a))
     ]
 
-
 -- integrals are the law groups that apply to Integral-like numbers
-integralsLaws :: (Eq a, AdditiveGroup a, Integral a, Signed a, ToInteger a, FromInteger a, Multiplicative a) => [Law a]
+integralsLaws :: (Eq a, Distribution a, Semiring a, AdditiveGroup a, Integral a, Signed a, ToInteger a, FromInteger a, Multiplicative a) => [Law a]
 integralsLaws =
   additiveLaws <>
   additiveGroupLaws <>

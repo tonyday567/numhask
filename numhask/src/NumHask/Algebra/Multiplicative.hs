@@ -18,7 +18,9 @@ import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
+import GHC.Real (Ratio((:%)))
 import NumHask.Algebra.Additive
+import NumHask.Algebra.Integral
 import qualified Prelude as P
 import Prelude (Bool(..), Double, Float, Int, Integer)
 
@@ -80,6 +82,9 @@ instance MultiplicativeMagma Word32 where
 instance MultiplicativeMagma Word64 where
   times = (P.*)
 
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, MultiplicativeMagma a) => MultiplicativeMagma (Ratio a) where
+  (x:%y) `times` (x':%y') = reduce (x `times` x') (y `times` y')
+
 -- | Unital magma for multiplication.
 --
 -- > one `times` a == a
@@ -137,6 +142,9 @@ instance MultiplicativeUnital Word32 where
 instance MultiplicativeUnital Word64 where
   one = 1
 
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, MultiplicativeUnital a) => MultiplicativeUnital (Ratio a) where
+  one = one :% one
+
 -- | Associative magma for multiplication.
 --
 -- > (a `times` b) `times` c == a `times` (b `times` c)
@@ -175,6 +183,9 @@ instance MultiplicativeAssociative Word16
 instance MultiplicativeAssociative Word32
 
 instance MultiplicativeAssociative Word64
+
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, MultiplicativeAssociative a) =>
+         MultiplicativeAssociative (Ratio a)
 
 -- | Commutative magma for multiplication.
 --
@@ -215,6 +226,9 @@ instance MultiplicativeCommutative Word32
 
 instance MultiplicativeCommutative Word64
 
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, MultiplicativeCommutative a) =>
+         MultiplicativeCommutative (Ratio a)
+
 -- | Invertible magma for multiplication.
 --
 -- > ∀ a ∈ A: recip a ∈ A
@@ -235,6 +249,12 @@ instance (AdditiveGroup a, MultiplicativeInvertible a) =>
   recip (rx :+ ix) = (rx `times` d) :+ (negate ix `times` d)
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
+
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, MultiplicativeInvertible a) =>
+         MultiplicativeInvertible (Ratio a) where
+  recip (x :% y)
+    | x P.< zero = negate y :% negate x
+    | P.otherwise = y :% x
 
 -- | Idempotent magma for multiplication.
 --
@@ -297,6 +317,8 @@ instance Multiplicative Word32
 
 instance Multiplicative Word64
 
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, Multiplicative a) => Multiplicative (Ratio a)
+
 -- | Non-commutative left divide
 --
 -- > recip a `times` a = one
@@ -339,3 +361,6 @@ instance MultiplicativeGroup Float
 
 instance (AdditiveGroup a, MultiplicativeGroup a) =>
          MultiplicativeGroup (Complex a)
+
+instance (AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, MultiplicativeGroup a) =>
+         MultiplicativeGroup (Ratio a)
