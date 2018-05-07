@@ -362,7 +362,8 @@ upperBoundedFieldLaws =
            ((one ::a) / zero + infinity == infinity) &&
            (infinity + a == infinity) &&
            isNaN ((infinity :: a) / infinity) &&
-           isNaN (nan + a) && (zero :: a) / zero /= nan))
+           isNaN (nan + a) &&
+           (zero :: a) / zero /= nan))
   ]
 
 lowerBoundedFieldLaws :: forall a. (Eq a, UpperBoundedField a, LowerBoundedField a) => [Law a]

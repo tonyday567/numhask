@@ -6,12 +6,18 @@ module NumHask.Algebra.Integral
   , ToInteger(..)
   , FromInteger(..)
   , fromIntegral
+  , even
+  , odd
+  , (^)
+  , (^^)
   ) where
 
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.), fst, snd)
 
@@ -25,47 +31,103 @@ class (Semiring a) =>
   div a1 a2 = fst (divMod a1 a2)
   mod :: a -> a -> a
   mod a1 a2 = snd (divMod a1 a2)
+
   divMod :: a -> a -> (a, a)
+
+  quot :: a -> a -> a
+  quot a1 a2 = fst (quotRem a1 a2)
+  rem :: a -> a -> a
+  rem a1 a2 = snd (quotRem a1 a2)
+
+  quotRem :: a -> a -> (a, a)
 
 instance Integral Int where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Integer where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Natural where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Int8 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Int16 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Int32 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Int64 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Word where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Word8 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Word16 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Word32 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 instance Integral Word64 where
   divMod = P.divMod
+  quotRem = P.quotRem
 
 -- | toInteger is kept separate from Integral to help with compatability issues.
 class ToInteger a where
   toInteger :: a -> Integer
+
+instance ToInteger Int where
+  toInteger = P.toInteger
+
+instance ToInteger Integer where
+  toInteger = P.toInteger
+
+instance ToInteger Natural where
+  toInteger = P.toInteger
+
+instance ToInteger Int8 where
+  toInteger = P.toInteger
+
+instance ToInteger Int16 where
+  toInteger = P.toInteger
+
+instance ToInteger Int32 where
+  toInteger = P.toInteger
+
+instance ToInteger Int64 where
+  toInteger = P.toInteger
+
+instance ToInteger Word where
+  toInteger = P.toInteger
+
+instance ToInteger Word8 where
+  toInteger = P.toInteger
+
+instance ToInteger Word16 where
+  toInteger = P.toInteger
+
+instance ToInteger Word32 where
+  toInteger = P.toInteger
+
+instance ToInteger Word64 where
+  toInteger = P.toInteger
 
 -- | fromInteger is the most problematic of the 'Num' class operators.  Particularly heinous, it is assumed that any number type can be constructed from an Integer, so that the broad classes of objects that are composed of multiple elements is avoided in haskell.
 class FromInteger a where
@@ -119,39 +181,33 @@ instance FromInteger Word32 where
 instance FromInteger Word64 where
   fromInteger = P.fromInteger
 
-instance ToInteger Int where
-  toInteger = P.toInteger
+-- $operators
 
-instance ToInteger Integer where
-  toInteger = P.toInteger
+even :: (P.Eq a, Integral a) => a -> P.Bool
+even n = n `rem` (one + one) P.== zero
 
-instance ToInteger Natural where
-  toInteger = P.toInteger
+odd :: (P.Eq a, Integral a) => a -> P.Bool
+odd =  P.not . even
 
-instance ToInteger Int8 where
-  toInteger = P.toInteger
+-------------------------------------------------------
+-- | raise a number to a non-negative integral power
+(^) :: (P.Ord b, Integral b, Multiplicative a) => a -> b -> a
+x0 ^ y0 | y0 P.< zero = P.undefined -- P.errorWithoutStackTrace "Negative exponent"
+        | y0 P.== zero = one
+        | P.otherwise = f x0 y0
+    where
+      two = one+one
 
-instance ToInteger Int16 where
-  toInteger = P.toInteger
+      -- f : x0 ^ y0 = x ^ y
+      f x y | even y = f (x * x) (y `quot` two)
+            | y P.== one = x
+            | P.otherwise = g (x * x) (y `quot` two) x
+              -- See Note [Half of y - 1]
+      -- g : x0 ^ y0 = (x ^ y) * z
+      g x y z | even y = g (x * x) (y `quot` two) z
+              | y P.== one = x * z
+              | P.otherwise = g (x * x) (y `quot` two) (x * z)
+                -- See Note [Half of y - 1]
 
-instance ToInteger Int32 where
-  toInteger = P.toInteger
-
-instance ToInteger Int64 where
-  toInteger = P.toInteger
-
-instance ToInteger Word where
-  toInteger = P.toInteger
-
-instance ToInteger Word8 where
-  toInteger = P.toInteger
-
-instance ToInteger Word16 where
-  toInteger = P.toInteger
-
-instance ToInteger Word32 where
-  toInteger = P.toInteger
-
-instance ToInteger Word64 where
-  toInteger = P.toInteger
-
+(^^) :: (MultiplicativeGroup a) => a -> Integer -> a
+(^^) x n = if n P.>= zero then x^n else recip (x ^ negate n)

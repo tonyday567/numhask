@@ -1,3 +1,4 @@
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -15,6 +16,7 @@ import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import Data.Bool (bool)
 import Prelude (Bool, Double, Float, Integer, (||))
 import qualified Prelude as P
 
@@ -96,24 +98,39 @@ instance (TrigField a, ExpField a) => ExpField (Complex a) where
 --
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + one/(one+one))
-class (Field a) =>
+--
+-- fixme: had to redefine Signed operators here because of the Field import in Metric, itself due to Complex being defined there
+class (P.Ord a, Field a) =>
       QuotientField a where
+  properFraction :: a -> (Integer, a)
+
   round :: a -> Integer
+  round x = case properFraction x of
+    (n,r) -> let
+      m         = bool (n+one) (n-one) (r P.< zero)
+      half_down = abs' r - (one/(one+one))
+      abs' a
+        | a P.< zero = negate a
+        | P.otherwise = a
+      in
+        case P.compare half_down zero of
+          P.LT -> n
+          P.EQ -> bool m n (P.even n)
+          P.GT -> m
+
   ceiling :: a -> Integer
+  ceiling x = bool n (n+one) (r P.> zero)
+    where (n,r) = properFraction x
+
   floor :: a -> Integer
-  (^^) :: a -> Integer -> a
+  floor x = bool n (n-one) (r P.< zero)
+    where (n,r) = properFraction x
 
 instance QuotientField Float where
-  round = P.round
-  ceiling = P.ceiling
-  floor = P.floor
-  (^^) = (P.^^)
+  properFraction = P.properFraction
 
 instance QuotientField Double where
-  round = P.round
-  ceiling = P.ceiling
-  floor = P.floor
-  (^^) = (P.^^)
+  properFraction = P.properFraction
 
 -- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
 --

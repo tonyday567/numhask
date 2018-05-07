@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | testing IEEE numbers is a special kind of hell, and one that I reserve for days when I can hardly think, so please forgive the horrible hackery contained within this file.
@@ -14,9 +16,13 @@ import Test.Tasty
        (TestTree, defaultMain, testGroup)
 
 import Test.QuickCheck.Arbitrary
+import Test.QuickCheck.Gen
 
 instance Arbitrary Natural where
   arbitrary = fromInteger . abs <$> arbitrary
+
+instance Arbitrary Rational where
+  arbitrary = reduce <$> (fromInteger <$> arbitrary) <*> (fromInteger <$> arbitrary `suchThat` (>zero))
 
 main :: IO ()
 main = do
@@ -42,6 +48,7 @@ tests =
     , testsDouble
     , testsBool
     , testsComplexFloat
+    , testsRational
     ]
 
 testsInt :: TestTree
@@ -296,3 +303,33 @@ testsComplexFloat =
       involutiveRingLaws
     ]
 
+testsRational :: TestTree
+testsRational =
+  testGroup
+    "Rational"
+    [ testGroup "Additive - Associative" $
+      testLawOf ([] :: [Rational]) <$> additiveLaws
+    , testGroup "Additive Group" $
+      testLawOf ([] :: [Rational]) <$> additiveGroupLaws
+    , testGroup "Multiplicative - Associative" $
+      testLawOf ([] :: [Rational]) <$> multiplicativeLaws
+    , testGroup "MultiplicativeGroup" $
+      testLawOf ([] :: [Rational]) <$> multiplicativeGroupLaws_
+    , testGroup "Distribution" $
+      testLawOf ([] :: [Rational]) <$> distributionLaws
+    , testGroup "Signed" $ testLawOf ([] :: [Rational]) <$> signedLaws
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Rational, Rational)]) <$> normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Rational, Rational)]) <$> metricRationalLaws
+    , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
+
+    -- fixme: rounding and infinities need work
+{-
+    , testGroup "Quotient Field" $
+      testLawOf ([] :: [Rational]) <$> quotientFieldLaws
+    , testGroup "Upper Bounded Field" $
+      testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
+    , testGroup "Lower Bounded Field" $
+      testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
+
+-}
+    ]
