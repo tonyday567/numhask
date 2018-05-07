@@ -1,3 +1,4 @@
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -15,6 +16,7 @@ import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import Data.Bool (bool)
 import Prelude (Bool, Double, Float, Integer, (||))
 import qualified Prelude as P
 
@@ -103,23 +105,25 @@ class (P.Ord a, Field a) =>
   properFraction :: a -> (Integer, a)
 
   round :: a -> Integer
-  round x = round' (abs' r - (one / (one + one))) where
-    (n,r) = properFraction x
-    m     = if r P.< zero then n - one else n + one
-    round' a
-      | a P.== negate one = n
-      | a P.== zero = if P.even n then n else m
-      | P.otherwise = m
-    abs' a
-      | a P.< zero = negate a
-      | P.otherwise = a
+  round x = case properFraction x of
+    (n,r) -> let
+      m         = bool (n+one) (n-one) (r P.< zero)
+      half_down = abs' r - (one/(one+one))
+      abs' a
+        | a P.< zero = negate a
+        | P.otherwise = a
+      in
+        case P.compare half_down zero of
+          P.LT -> n
+          P.EQ -> bool m n (P.even n)
+          P.GT -> m
 
   ceiling :: a -> Integer
-  ceiling x = if r P.> zero then n + one else n
+  ceiling x = bool n (n+one) (r P.> zero)
     where (n,r) = properFraction x
 
   floor :: a -> Integer
-  floor x = if r P.< zero then n - one else n
+  floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
 instance QuotientField Float where

@@ -38,33 +38,34 @@ instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
   (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
-instance (Integral a, Signed a) => AdditiveMagma (Ratio a) where
-  (x:%y) `plus` (x':%y') = reduce (x `times` y' `plus` x' `times` y) (y `times` y')
+instance (P.Ord a, Integral a, Signed a, AdditiveInvertible a) => AdditiveMagma (Ratio a) where
+  (x:%y) `plus` (x':%y') =
+    reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y')
 
-instance (Integral a, Signed a) => AdditiveUnital (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, AdditiveInvertible a) => AdditiveUnital (Ratio a) where
   zero = zero :% one
 
-instance (Signed a, Integral a) => AdditiveAssociative (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => AdditiveAssociative (Ratio a)
 
-instance (Signed a, Integral a) => AdditiveCommutative (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => AdditiveCommutative (Ratio a)
 
-instance (Signed a, Integral a, AdditiveInvertible a) => AdditiveInvertible (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => AdditiveInvertible (Ratio a) where
   negate (x :% y) = negate x :% y
 
-instance (Signed a, Integral a) => Additive (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => Additive (Ratio a)
 
-instance (Signed a, Integral a, AdditiveGroup a) => AdditiveGroup (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveGroup a) => AdditiveGroup (Ratio a)
 
-instance (Signed a, Integral a) => MultiplicativeMagma (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => MultiplicativeMagma (Ratio a) where
   (x:%y) `times` (x':%y') = reduce (x `times` x') (y `times` y')
 
-instance (Signed a, Integral a) => MultiplicativeUnital (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => MultiplicativeUnital (Ratio a) where
   one = one :% one
 
-instance (Signed a, Integral a) =>
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) =>
          MultiplicativeAssociative (Ratio a)
 
-instance (Signed a, Integral a) =>
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) =>
          MultiplicativeCommutative (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) =>
@@ -78,10 +79,10 @@ instance (Signed a, AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a,
 instance (Signed a, AdditiveInvertible a, AdditiveUnital a, Integral a, P.Ord a, Multiplicative a) =>
          MultiplicativeGroup (Ratio a)
 
-instance (Signed a, Integral a) => Distribution (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => Distribution (Ratio a)
 
-instance (Signed a, Integral a) => Semiring (Ratio a)
-instance (Signed a, Integral a, AdditiveGroup a) => Ring (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => Semiring (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveGroup a) => Ring (Ratio a)
 instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a) => CRing (Ratio a)
 instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a) =>
   InvolutiveRing (Ratio a)
@@ -95,10 +96,10 @@ instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a) =>
 instance (P.Ord a, Signed a, ToInteger a, Integral a, Multiplicative a, Ring a) => QuotientField (Ratio a) where
   properFraction (n :% d) = let (w,r) = quotRem n d in (toInteger w,r:%d)
 
-instance (P.Ord a, P.Eq a, Signed a, Integral a, AdditiveInvertible a, Multiplicative a, Ring a) => UpperBoundedField (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a, Multiplicative a, Ring a) => UpperBoundedField (Ratio a) where
   isNaN (n :% d) = n P.== zero P.&& d P.== zero
 
-instance (P.Ord a, P.Eq a, Signed a, Integral a, Multiplicative a, Ring a, AdditiveInvertible a) => LowerBoundedField (Ratio a)
+instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a, AdditiveInvertible a) => LowerBoundedField (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a) => Signed (Ratio a) where
   sign (n :% _)
@@ -117,7 +118,7 @@ instance (P.Ord a, Integral a, Signed a, AdditiveGroup a) => Metric (Ratio a) (R
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (P.Eq a, Signed a, Integral a, AdditiveGroup a) => Epsilon (Ratio a)
+instance (P.Ord a, Signed a, Integral a, AdditiveGroup a) => Epsilon (Ratio a)
 
 instance (FromInteger a, MultiplicativeUnital a) => FromInteger (Ratio a) where
   fromInteger x = fromInteger x :% one
@@ -203,9 +204,16 @@ instance ToRatio Word64 where
 -- | 'reduce' is a subsidiary function used only in this module.
 -- It normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
-reduce :: (Signed a, Integral a) => a -> a -> Ratio a
-reduce x y =  (x `div` d) :% (y `div` d)
-  where d = gcd x y
+reduce :: (P.Ord a, AdditiveInvertible a, Signed a, Integral a) => a -> a -> Ratio a
+reduce x y
+  | x P.== zero P.&& y P.== zero = zero :% zero
+  | z P.== zero = one :% zero
+  | P.otherwise = (x `quot` z) % (y `quot` z)
+  where
+    z = gcd x y
+    n % d
+      | d P.< zero = negate n :% negate d
+      | P.otherwise = n:%d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
 -- every common factor of @x@ and @y@ is also a factor; for example
@@ -216,7 +224,9 @@ reduce x y =  (x `div` d) :% (y `div` d)
 -- Note: Since for signed fixed-width integer types, @'abs' 'minBound' < 0@,
 -- the result may be negative if one of the arguments is @'minBound'@ (and
 -- necessarily is if the other is @0@ or @'minBound'@) for such types.
-gcd :: (Signed a, Integral a) => a -> a -> a
+gcd :: (P.Ord a, Signed a, Integral a) => a -> a -> a
 gcd x y =  gcd' (abs x) (abs y)
   where
-    gcd' a b  =  gcd' b (a `mod` b)
+    gcd' a b
+      | b P.== zero = a
+      | P.otherwise = gcd' b (a `rem` b)
