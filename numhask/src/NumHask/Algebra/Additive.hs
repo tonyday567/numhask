@@ -19,9 +19,11 @@ import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-
+import GHC.Real (Ratio((:%)))
+import NumHask.Algebra.Integral (Integral, reduce)
 import qualified Prelude as P
 import Prelude (Bool(..), Double, Float, Int, Integer)
+import {-# SOURCE #-} NumHask.Algebra.Multiplicative (MultiplicativeUnital(..), MultiplicativeMagma(..))
 
 -- | 'plus' is used as the operator for the additive magma to distinguish from '+' which, by convention, implies commutativity
 --
@@ -79,6 +81,9 @@ instance AdditiveMagma Word32 where
 instance AdditiveMagma Word64 where
   plus = (P.+)
 
+instance (P.Ord a, AdditiveGroup a, Integral a, MultiplicativeMagma a) => AdditiveMagma (Ratio a) where
+  (x:%y) `plus` (x':%y') = reduce (x `times` y' `plus` x' `times` y) (y `times` y')
+
 -- | Unital magma for addition.
 --
 -- > zero `plus` a == a
@@ -135,6 +140,9 @@ instance AdditiveUnital Word32 where
 instance AdditiveUnital Word64 where
   zero = 0
 
+instance (P.Ord a, Integral a, AdditiveGroup a, MultiplicativeMagma a, MultiplicativeUnital a) => AdditiveUnital (Ratio a) where
+  zero = zero :% one
+
 -- | Associative magma for addition.
 --
 -- > (a `plus` b) `plus` c == a `plus` (b `plus` c)
@@ -173,6 +181,8 @@ instance AdditiveAssociative Word32
 
 instance AdditiveAssociative Word64
 
+instance (P.Ord a, Integral a, AdditiveGroup a, MultiplicativeMagma a) => AdditiveAssociative (Ratio a)
+
 -- | Commutative magma for addition.
 --
 -- > a `plus` b == b `plus` a
@@ -210,6 +220,8 @@ instance AdditiveCommutative Word16
 instance AdditiveCommutative Word32
 
 instance AdditiveCommutative Word64
+
+instance (P.Ord a, Integral a, AdditiveGroup a, MultiplicativeMagma a, AdditiveCommutative a) => AdditiveCommutative (Ratio a)
 
 -- | Invertible magma for addition.
 --
@@ -264,6 +276,9 @@ instance AdditiveInvertible Word32 where
 
 instance AdditiveInvertible Word64 where
   negate = P.negate
+
+instance (P.Ord a, Integral a, AdditiveGroup a, MultiplicativeMagma a, AdditiveInvertible a) => AdditiveInvertible (Ratio a) where
+  negate (x :% y) = negate x :% y
 
 -- | Idempotent magma for addition.
 --
@@ -322,6 +337,8 @@ instance Additive Word16
 instance Additive Word32
 
 instance Additive Word64
+
+instance (P.Ord a, Integral a, AdditiveGroup a, MultiplicativeMagma a, Additive a, MultiplicativeUnital a) => Additive (Ratio a)
 
 -- | Non-commutative left minus
 --
@@ -382,4 +399,6 @@ instance AdditiveGroup Word16
 instance AdditiveGroup Word32
 
 instance AdditiveGroup Word64
+
+instance (P.Ord a, Integral a, AdditiveGroup a, MultiplicativeMagma a, AdditiveGroup a, MultiplicativeUnital a) => AdditiveGroup (Ratio a)
 

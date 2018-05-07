@@ -38,7 +38,7 @@ import Protolude
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational)
+               zero, fromRational, reduce, gcd)
 #else
 import Protolude
        hiding (Integral(..), Rep, Semiring(..), (*), (**),
@@ -46,7 +46,7 @@ import Protolude
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
                recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational, (<>), Semgroup)
+               zero, fromRational, reduce, gcd, (<>), Semigroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
 

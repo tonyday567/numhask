@@ -6,20 +6,25 @@ module NumHask.Algebra.Integral
   , ToInteger(..)
   , FromInteger(..)
   , fromIntegral
+  -- * $integral_functionality
+  , reduce
+  , gcd
   ) where
 
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import NumHask.Algebra.Ring
+import GHC.Real (Ratio(..))
+-- import NumHask.Algebra.Ring
+-- import NumHask.Algebra.Metric (abs)
+import {-# SOURCE #-} NumHask.Algebra.Additive (AdditiveUnital(..), AdditiveInvertible(..))
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.), fst, snd)
 
 -- | Integral laws
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
-class (Semiring a) =>
-      Integral a where
+class Integral a where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
   div a1 a2 = fst (divMod a1 a2)
@@ -155,3 +160,28 @@ instance ToInteger Word32 where
 instance ToInteger Word64 where
   toInteger = P.toInteger
 
+-- * $integral_functions
+-- integral functionality is largely based on GHC.Real
+--
+-- | 'reduce' is a subsidiary function used only in this module.
+-- It normalises a ratio by dividing both numerator and denominator by
+-- their greatest common divisor.
+reduce :: (P.Ord a, AdditiveInvertible a, AdditiveUnital a, Integral a) => a -> a -> Ratio a
+reduce x y =  (x `div` d) :% (y `div` d)
+  where d = gcd x y
+
+-- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
+-- every common factor of @x@ and @y@ is also a factor; for example
+-- @'gcd' 4 2 = 2@, @'gcd' (-4) 6 = 2@, @'gcd' 0 4@ = @4@. @'gcd' 0 0@ = @0@.
+-- (That is, the common divisor that is \"greatest\" in the divisibility
+-- preordering.)
+--
+-- Note: Since for signed fixed-width integer types, @'abs' 'minBound' < 0@,
+-- the result may be negative if one of the arguments is @'minBound'@ (and
+-- necessarily is if the other is @0@ or @'minBound'@) for such types.
+gcd :: (P.Ord a, AdditiveInvertible a, AdditiveUnital a, Integral a) => a -> a -> a
+gcd x y =  gcd' (abs' x) (abs' y)
+  where
+    gcd' a b  =  gcd' b (a `mod` b)
+
+    abs' a = if a P.< zero then negate a else a
