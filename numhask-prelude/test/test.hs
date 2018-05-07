@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | testing IEEE numbers is a special kind of hell, and one that I reserve for days when I can hardly think, so please forgive the horrible hackery contained within this file.
@@ -17,6 +19,9 @@ import Test.QuickCheck.Arbitrary
 
 instance Arbitrary Natural where
   arbitrary = fromInteger . abs <$> arbitrary
+
+instance Arbitrary Rational where
+  arbitrary = (:%) <$> (fromInteger <$> arbitrary) <*> (fromInteger <$> arbitrary)
 
 main :: IO ()
 main = do
@@ -42,6 +47,7 @@ tests =
     , testsDouble
     , testsBool
     , testsComplexFloat
+    , testsRational
     ]
 
 testsInt :: TestTree
@@ -296,3 +302,28 @@ testsComplexFloat =
       involutiveRingLaws
     ]
 
+testsRational :: TestTree
+testsRational =
+  testGroup
+    "Rational"
+    [ testGroup "Additive - Associative Fail" $
+      testLawOf ([] :: [Rational]) <$> additiveLawsFail
+    , testGroup "Additive Group" $
+      testLawOf ([] :: [Rational]) <$> additiveGroupLaws
+    , testGroup "Multiplicative - Associative Fail" $
+      testLawOf ([] :: [Rational]) <$> multiplicativeLawsFail
+    , testGroup "MultiplicativeGroup" $
+      testLawOf ([] :: [Rational]) <$> multiplicativeGroupLaws_
+    , testGroup "Distribution - Fail" $
+      testLawOf ([] :: [Rational]) <$> distributionLawsFail
+    , testGroup "Signed" $ testLawOf ([] :: [Rational]) <$> signedLaws
+    , testGroup "Normed" $ testLawOf2 ([] :: [(Rational, Rational)]) <$> normedLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Rational, Rational)]) <$> metricRationalLaws
+    , testGroup "Upper Bounded Field" $
+      testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
+    , testGroup "Lower Bounded Field" $
+      testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
+    , testGroup "Quotient Field" $
+      testLawOf ([] :: [Rational]) <$> quotientFieldLaws
+    , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
+    ]

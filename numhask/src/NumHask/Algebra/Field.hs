@@ -96,24 +96,37 @@ instance (TrigField a, ExpField a) => ExpField (Complex a) where
 --
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + one/(one+one))
-class (Field a) =>
+--
+-- fixme: had to redefine Signed operators here because of the Field import in Metric, itself due to Complex being defined there
+class (P.Ord a, Field a) =>
       QuotientField a where
+  properFraction :: a -> (Integer, a)
+
   round :: a -> Integer
+  round x = round' (abs' r - (one / (one + one))) where
+    (n,r) = properFraction x
+    m     = if r P.< zero then n - one else n + one
+    round' a
+      | a P.== negate one = n
+      | a P.== zero = if P.even n then n else m
+      | P.otherwise = m
+    abs' a
+      | a P.< zero = negate a
+      | P.otherwise = a
+
   ceiling :: a -> Integer
+  ceiling x = if r P.> zero then n + one else n
+    where (n,r) = properFraction x
+
   floor :: a -> Integer
-  (^^) :: a -> Integer -> a
+  floor x = if r P.< zero then n - one else n
+    where (n,r) = properFraction x
 
 instance QuotientField Float where
-  round = P.round
-  ceiling = P.ceiling
-  floor = P.floor
-  (^^) = (P.^^)
+  properFraction = P.properFraction
 
 instance QuotientField Double where
-  round = P.round
-  ceiling = P.ceiling
-  floor = P.floor
-  (^^) = (P.^^)
+  properFraction = P.properFraction
 
 -- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
 --

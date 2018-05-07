@@ -36,17 +36,17 @@ import Protolude
        hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
-               fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
-               recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational)
+               fromIntegral, even, odd, infinity, isNaN, log, logBase, negate, pi, product,
+               properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
+               zero, fromRational, Ratio(..), Rational, reduce, gcd)
 #else
 import Protolude
        hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
-               fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
-               recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational, (<>), Semgroup)
+               fromIntegral, even, odd, infinity, isNaN, log, logBase, negate, pi, product,
+               properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
+               zero, fromRational, Ratio(..), Rational, reduce, gcd, (<>), Semigroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
 
