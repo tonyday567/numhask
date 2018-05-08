@@ -11,20 +11,16 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-import Options.Generic
-import NumHask.Prelude hiding ((%))
-import Perf hiding (zero)
-import Formatting
-import qualified Data.Text as Text
-import NumHask.Array
-import qualified Numeric.LinearAlgebra as H
-import qualified Data.Matrix as Matrix
-import Data.TDigest
 import Data.Scientific
-import qualified Protolude as P
-
-instance ToInteger Cycle where
-  toInteger = P.toInteger
+import Data.TDigest
+import Formatting
+import NumHask.Array
+import NumHask.Prelude hiding ((%))
+import Options.Generic
+import Perf hiding (zero)
+import qualified Data.Matrix as Matrix
+import qualified Data.Text as Text
+import qualified Numeric.LinearAlgebra as H
 
 -- | compute a percentile
 --

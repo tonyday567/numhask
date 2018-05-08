@@ -1,4 +1,6 @@
 {-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -178,6 +180,8 @@ instance (AdditiveGroup a, UpperBoundedField a) =>
   isNaN (rx :+ ix) = isNaN rx || isNaN ix
 
 class (UpperBoundedField a, LowerBoundedField a) => BoundedField a
+
+instance (UpperBoundedField a, LowerBoundedField a) => BoundedField a
 
 -- | Trigonometric Field
 class (P.Ord a, Field a) =>

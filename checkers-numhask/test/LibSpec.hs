@@ -1,7 +1,7 @@
 module LibSpec where
 
 import Test.Hspec
-import Test.Hspec.QuickCheck
+-- import Test.Hspec.QuickCheck
 
 
 main :: IO ()
