@@ -17,6 +17,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
 module NumHask.Array where
 
@@ -665,6 +667,11 @@ instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
       x = liftR2 divMod a b
       d = fmap fst x
       m = fmap snd x
+  quotRem a b = (q, r)
+    where
+      x = liftR2 quotRem a b
+      q = fmap fst x
+      r = fmap snd x
 
 instance (Foldable (Array c r), CRing a, Semiring a, Dimensions r, Container c) =>
          Hilbert (Array c r) a where

@@ -7,6 +7,7 @@ packages:
 
 extra-deps:
   - diagrams-graphviz-1.4
+  - protolude-0.2.2
   #- git: https://github.com/diagrams/diagrams-lib
   #  commit: fad4346e792d6cc089a8116f08cf48d8028ee813
   # - diagrams-lib-1.4.2

@@ -1,13 +1,9 @@
 module Test.QuickCheck.Checkers.NumHask where
 
-import Control.Applicative (liftA2)
-
-import Test.QuickCheck (Property, Arbitrary, Gen, Testable(..), property, forAll, (.&.), (==>), (===), conjoin) 
+import Test.QuickCheck (Property, Gen, forAll, conjoin) 
 import Test.QuickCheck.Checkers
 
 import NumHask.Algebra
-
-
 
 -- | Unital Magma
 unital :: (Show a, Eq a, Unital a) => Gen a -> Property

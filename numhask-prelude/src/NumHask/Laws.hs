@@ -383,7 +383,7 @@ lowerBoundedFieldLaws =
 
 
 
-quotientFieldLaws :: (Ord a, Field a, QuotientField a, FromInteger a) => [Law a]
+quotientFieldLaws :: (Field a, QuotientField a, FromInteger a) => [Law a]
 quotientFieldLaws =
   [ ( "a - one < floor a <= a <= ceiling a < a + one"
     , Unary

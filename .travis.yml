@@ -1,34 +1,34 @@
-# This is the simple Travis configuration, which is intended for use
-# on applications which do not require cross-platform and
-# multiple-GHC-version support. For more information and other
-# options, see:
-#
-# https://docs.haskellstack.org/en/stable/travis_ci/
-#
-# Copy these contents into the root directory of your Github project in a file
-# named .travis.yml
+# https://serokell.io/posts/2018-01-24-using-travis-CI-for-Haskell-projects.html
 
-# Use new container infrastructure to enable caching
-sudo: false
+sudo: true
 
-# Do not choose a language; we provide our own build tools.
-language: generic
+language: haskell
 
 # Caching so the next build will be fast too.
 cache:
   directories:
   - $HOME/.stack
+  - $HOME/build/tonyday567/numhask/.stack-work
 
 # Ensure necessary system libraries are present
 addons:
   apt:
+    sources:
+      - sourceline: 'ppa:hvr/ghc' # PPA of Haskell packages
     packages:
-      - libgmp-dev
+      - libgmp-dev           # required by cabal
+      - cabal-install-2.0    # required by GHC 8.x
 
 env:
   - PACKAGEDIR="numhask"
   - PACKAGEDIR="numhask-prelude"
   - PACKAGEDIR="numhask-array"
+  - PACKAGEDIR="numhask-bench"
+  - PACKAGEDIR="checkers-numhask"
+  - PACKAGEDIR="hunit-numhask"
+
+allow_failures:
+  - env: PACKAGEDIR="numhask-bench"
 
 before_install:
   - cd ${PACKAGEDIR}

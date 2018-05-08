@@ -1,4 +1,4 @@
-resolver: nightly-2018-04-04
+resolver: nightly-2018-05-06
 
 packages:
   - .
@@ -8,7 +8,7 @@ packages:
 
 extra-deps:
   - dimensions-0.3.2.0
-  - tdigest-0.1
+  - tdigest-0.2
   - perf-0.4.0.1
 
 allow-newer: true
