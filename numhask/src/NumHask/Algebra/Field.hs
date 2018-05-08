@@ -9,6 +9,7 @@ module NumHask.Algebra.Field
   , QuotientField(..)
   , UpperBoundedField(..)
   , LowerBoundedField(..)
+  , BoundedField
   , TrigField(..)
   ) where
 
@@ -175,6 +176,8 @@ instance LowerBoundedField Double
 instance (AdditiveGroup a, UpperBoundedField a) =>
   UpperBoundedField (Complex a) where
   isNaN (rx :+ ix) = isNaN rx || isNaN ix
+
+class (UpperBoundedField a, LowerBoundedField a) => BoundedField a
 
 -- | Trigonometric Field
 class (P.Ord a, Field a) =>
