@@ -23,12 +23,8 @@ env:
   - PACKAGEDIR="numhask"
   - PACKAGEDIR="numhask-prelude"
   - PACKAGEDIR="numhask-array"
-  - PACKAGEDIR="numhask-bench"
   - PACKAGEDIR="checkers-numhask"
   - PACKAGEDIR="hunit-numhask"
-
-allow_failures:
-  - env: PACKAGEDIR="numhask-bench"
 
 before_install:
   - cd ${PACKAGEDIR}
