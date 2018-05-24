@@ -12,6 +12,7 @@ module NumHask.Algebra.Multiplicative
   , MultiplicativeRightCancellative(..)
   , MultiplicativeLeftCancellative(..)
   , MultiplicativeGroup(..)
+  , MultiplicativeIdempotent
   ) where
 
 import Data.Complex (Complex(..))
