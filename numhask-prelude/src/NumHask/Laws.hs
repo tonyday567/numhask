@@ -361,39 +361,30 @@ upperBoundedFieldLaws =
         (\a ->
            ((one ::a) / zero + infinity == infinity) &&
            (infinity + a == infinity) &&
-           isNaN ((infinity :: a) / infinity) &&
-           isNaN (nan + a) &&
            (zero :: a) / zero /= nan))
   ]
 
-lowerBoundedFieldLaws :: forall a. (Eq a, UpperBoundedField a, LowerBoundedField a) => [Law a]
+lowerBoundedFieldLaws :: forall a. (Eq a, LowerBoundedField a) => [Law a]
 lowerBoundedFieldLaws =
   [ ( "lower bounded field (negative infinity) laws"
     , Unary
         (\a ->
            (negate (one ::a) / zero == negInfinity) &&
            ((negInfinity :: a) + negInfinity == negInfinity) &&
-           (negInfinity + a == negInfinity) &&
-           isNaN ((infinity :: a) - infinity) &&
-           isNaN ((negInfinity :: a) - negInfinity) &&
-           isNaN ((negInfinity :: a) / negInfinity) &&
-           isNaN (nan + a) && (zero :: a) / zero /= nan))
+           (negInfinity + a == negInfinity)))
   ]
 
-
-
-
-quotientFieldLaws :: (Field a, QuotientField a, FromInteger a) => [Law a]
+quotientFieldLaws :: (Field a, QuotientField a Integer, FromInteger a) => [Law2 a Integer]
 quotientFieldLaws =
   [ ( "a - one < floor a <= a <= ceiling a < a + one"
-    , Unary
+    , Unary10
         (\a ->
-           ((a - one) < fromIntegral (floor a)) &&
-           (fromIntegral (floor a) <= a) &&
-           (a <= fromIntegral (ceiling a)) &&
-           (fromIntegral (ceiling a) < a + one)))
+           ((a - one) < (fromInteger (floor a))) &&
+           (fromInteger (floor a) <= a) &&
+           (a <= fromInteger (ceiling a)) &&
+           (fromInteger (ceiling a) < a + one)))
   , ( "round a == floor (a + one/(one+one))"
-    , Unary (\a -> round a == floor (a + one / (one + one))))
+    , Unary10 (\a -> (round a :: Integer) == ((floor (a + one / (one + one))))))
   ]
 
 expFieldLaws :: forall a b.

@@ -1,6 +1,7 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -19,8 +20,9 @@ import Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import NumHask.Algebra.Integral
 import Data.Bool (bool)
-import Prelude (Bool, Double, Float, Integer, (||))
+import Prelude (Double, Float, Integer, (||))
 import qualified Prelude as P
 
 -- | A Semifield is chosen here to be a Field without an Additive Inverse
@@ -93,9 +95,19 @@ instance ExpField Float where
   (**) = (P.**)
 
 -- | todo: bottom is here somewhere???
-instance (TrigField a, ExpField a) => ExpField (Complex a) where
+instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
   exp (rx :+ ix) = exp rx * cos ix :+ exp rx * sin ix
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2 ix rx
+    where
+      atan2 y x
+        | x P.> zero = atan (y / x)
+        | x P.== zero P.&& y P.> zero = pi / (one + one)
+        | x P.< one P.&& y P.> one = pi + atan (y / x)
+        | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
+          negate (atan2 (negate y) x)
+        | y P.== zero = pi -- must be after the previous test on zero y
+        | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
+        | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
 -- | quotient fields explode constraints if they allow for polymorphic integral types
 --
@@ -103,11 +115,11 @@ instance (TrigField a, ExpField a) => ExpField (Complex a) where
 -- > round a == floor (a + one/(one+one))
 --
 -- fixme: had to redefine Signed operators here because of the Field import in Metric, itself due to Complex being defined there
-class (P.Ord a, Field a) =>
-      QuotientField a where
-  properFraction :: a -> (Integer, a)
+class (P.Ord a, Field a, P.Eq b, Integral b, AdditiveGroup b, MultiplicativeUnital b) =>
+      QuotientField a b where
+  properFraction :: a -> (b, a)
 
-  round :: a -> Integer
+  round :: a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)
@@ -118,30 +130,27 @@ class (P.Ord a, Field a) =>
       in
         case P.compare half_down zero of
           P.LT -> n
-          P.EQ -> bool m n (P.even n)
+          P.EQ -> bool m n (even n)
           P.GT -> m
 
-  ceiling :: a -> Integer
+  ceiling :: a -> b
   ceiling x = bool n (n+one) (r P.> zero)
     where (n,r) = properFraction x
 
-  floor :: a -> Integer
+  floor :: a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
-instance QuotientField Float where
+instance QuotientField Float Integer where
   properFraction = P.properFraction
 
-instance QuotientField Double where
+instance QuotientField Double Integer where
   properFraction = P.properFraction
 
 -- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
 --
 -- > one / zero + infinity == infinity
 -- > infinity + a == infinity
--- > isNaN (infinity - infinity)
--- > isNaN (infinity / infinity)
--- > isNaN (nan + a)
 -- > zero / zero != nan
 --
 -- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
@@ -153,13 +162,9 @@ class (Semifield a) =>
   nan :: a
   nan = zero / zero
 
-  isNaN :: a -> Bool
+instance UpperBoundedField Float
 
-instance UpperBoundedField Float where
-  isNaN = P.isNaN
-
-instance UpperBoundedField Double where
-  isNaN = P.isNaN
+instance UpperBoundedField Double
 
 class (Field a) =>
       LowerBoundedField a where
@@ -176,15 +181,14 @@ instance LowerBoundedField Double
 --
 -- > one / (zero :: Complex Float) == nan
 instance (AdditiveGroup a, UpperBoundedField a) =>
-  UpperBoundedField (Complex a) where
-  isNaN (rx :+ ix) = isNaN rx || isNaN ix
+  UpperBoundedField (Complex a)
 
 class (UpperBoundedField a, LowerBoundedField a) => BoundedField a
 
 instance (UpperBoundedField a, LowerBoundedField a) => BoundedField a
 
 -- | Trigonometric Field
-class (P.Ord a, Field a) =>
+class (Field a) =>
       TrigField a where
   pi :: a
   sin :: a -> a
@@ -201,16 +205,6 @@ class (P.Ord a, Field a) =>
   asinh :: a -> a
   acosh :: a -> a
   atanh :: a -> a
-  atan2 :: a -> a -> a
-  atan2 y x
-    | x P.> zero = atan (y / x)
-    | x P.== zero P.&& y P.> zero = pi / (one + one)
-    | x P.< one P.&& y P.> one = pi + atan (y / x)
-    | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
-      negate (atan2 (negate y) x)
-    | y P.== zero = pi -- must be after the previous test on zero y
-    | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
-    | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
 instance TrigField Double where
   pi = P.pi

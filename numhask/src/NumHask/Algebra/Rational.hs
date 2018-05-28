@@ -93,11 +93,10 @@ instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a) =>
 instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a) =>
   Field (Ratio a)
 
-instance (P.Ord a, Signed a, ToInteger a, Integral a, Multiplicative a, Ring a) => QuotientField (Ratio a) where
-  properFraction (n :% d) = let (w,r) = quotRem n d in (toInteger w,r:%d)
+instance (P.Ord a, Signed a, ToInteger a, Integral a, Multiplicative a, Ring a, P.Eq b, AdditiveGroup b, Integral b, FromInteger b) => QuotientField (Ratio a) b where
+  properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
 
-instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a, Multiplicative a, Ring a) => UpperBoundedField (Ratio a) where
-  isNaN (n :% d) = n P.== zero P.&& d P.== zero
+instance (P.Ord a, Signed a, Integral a, AdditiveInvertible a, Multiplicative a, Ring a) => UpperBoundedField (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, Multiplicative a, Ring a, AdditiveInvertible a) => LowerBoundedField (Ratio a)
 

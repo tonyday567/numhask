@@ -10,8 +10,9 @@ module NumHask.Prelude
   , (<>)
   , Semigroup
 #endif
-    -- RebindableSyntax takes fromString away so we need to put it back in
+    -- RebindableSyntax takes fromString and fail away so we need to put it back in
   , fromString
+  , fail
   , Complex(..)
   , Natural(..)
     -- * Algebraic Heirarchy
@@ -36,20 +37,21 @@ import Protolude
        hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
-               fromIntegral, even, odd, infinity, isNaN, log, logBase, negate, pi, product,
+               fromIntegral, even, odd, infinity, log, logBase, negate, pi, product,
                properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational, Ratio(..), Rational, reduce, gcd)
+               zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract)
 #else
 import Protolude
        hiding (Integral(..), Rep, Semiring(..), (*), (**),
                (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
-               fromIntegral, even, odd, infinity, isNaN, log, logBase, negate, pi, product,
+               fromIntegral, even, odd, infinity, log, logBase, negate, pi, product,
                properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational, Ratio(..), Rational, reduce, gcd, (<>), Semigroup)
+               zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract, (<>), Semigroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
 
+import Control.Monad (fail)
 import Data.String
 import GHC.Natural(Natural(..))
 

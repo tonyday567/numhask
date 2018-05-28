@@ -13,6 +13,7 @@ module NumHask.Algebra.Additive
   , AdditiveRightCancellative(..)
   , AdditiveLeftCancellative(..)
   , AdditiveGroup(..)
+  , subtract
   ) where
 
 import Data.Complex (Complex(..))
@@ -383,3 +384,5 @@ instance AdditiveGroup Word32
 
 instance AdditiveGroup Word64
 
+subtract :: (AdditiveGroup a) => a -> a -> a
+subtract = P.flip (-)

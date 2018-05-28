@@ -634,8 +634,7 @@ instance (Dimensions r, Container c, ExpField a) => ExpField (Array c r a) where
   log = fmapRep log
 
 instance (Foldable (Array c r), Dimensions r, Container c, UpperBoundedField a) =>
-         UpperBoundedField (Array c r a) where
-  isNaN f = or (fmapRep isNaN f)
+         UpperBoundedField (Array c r a)
 
 instance (Foldable (Array c r), Dimensions r, Container c, LowerBoundedField a) =>
          LowerBoundedField (Array c r a)

@@ -237,7 +237,7 @@ testsFloat =
     , testGroup "Lower Bounded Field" $
       testLawOf ([] :: [Float]) <$> lowerBoundedFieldLaws
     , testGroup "Quotient Field" $
-      testLawOf ([] :: [Float]) <$> quotientFieldLaws
+      testLawOf2 ([] :: [(Float,Integer)]) <$> quotientFieldLaws
     , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Float,Float)]) <$> expFieldLaws
     , testGroup "Rational" $ testLawOf ([] :: [Float]) <$> rationalLaws
     ]
@@ -264,7 +264,7 @@ testsDouble =
     , testGroup "Lower Bounded Field" $
       testLawOf ([] :: [Double]) <$> lowerBoundedFieldLaws
     , testGroup "Quotient Field" $
-      testLawOf ([] :: [Double]) <$> quotientFieldLaws
+      testLawOf2 ([] :: [(Double,Integer)]) <$> quotientFieldLaws
     , testGroup "Exponential Field" $ testLawOf2 ([] :: [(Double,Double)]) <$> expFieldLaws
     , testGroup "Rational" $ testLawOf ([] :: [Double]) <$> rationalLaws
     ]
