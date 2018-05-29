@@ -107,14 +107,14 @@ instance (MultiplicativeGroup a, AdditiveGroup a, Semiring a) => Field (Complex 
 -- | todo: bottom is here somewhere???
 instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
   exp (rx :+ ix) = exp rx * cos ix :+ exp rx * sin ix
-  log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2 ix rx
+  log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
     where
-      atan2 y x
+      atan2' y x
         | x P.> zero = atan (y / x)
         | x P.== zero P.&& y P.> zero = pi / (one + one)
         | x P.< one P.&& y P.> one = pi + atan (y / x)
         | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
-          negate (atan2 (negate y) x)
+          negate (atan2' (negate y) x)
         | y P.== zero = pi -- must be after the previous test on zero y
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
