@@ -39,7 +39,7 @@ executable numhask-bench
     , matrix
     , numhask
     , numhask-array
-    , numhask-prelude
+    , numhask-prelude >= 0.1.0.0 && < 0.2
     , optparse-generic
     , perf
     , protolude

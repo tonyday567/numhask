@@ -1,9 +1,10 @@
-resolver: nightly-2018-05-06
+resolver: nightly-2018-05-28
 
 packages:
   - numhask
   - numhask-prelude
   - numhask-array
+  - numhask-test
   # - numhask-bench
   # - numhask-graph
   # - ../perf/perf

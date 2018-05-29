@@ -38,7 +38,8 @@ library
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
-    , numhask-prelude >=0.0 && <0.1
+    , numhask-prelude >=0.1.0.0 && <0.2
+    , numhask-test >=0.1.0.0 && <0.2
     , protolude >=0.1 && <0.3
     , singletons >=2.0 && <2.5
     , vector >=0.10 && <0.13
@@ -61,7 +62,8 @@ test-suite test
       base >=4.11 && <4.12
     , doctest
     , numhask-array
-    , numhask-prelude >=0.0 && <0.1
+    , numhask-prelude >=0.1.0.0 && <0.2
+    , numhask-test >=0.1.0.0 && <0.2
     , tasty
     , tasty-quickcheck
   other-modules:
