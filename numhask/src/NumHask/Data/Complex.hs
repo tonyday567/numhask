@@ -8,8 +8,9 @@ import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Algebra.Distribution
+import NumHask.Algebra.Field
 
-import Prelude hiding (Num(..), negate, sin, cos)
+import Prelude hiding (Num(..), negate, sin, cos, sqrt)
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
@@ -36,10 +37,6 @@ realPart (x :+ _) =  x
 -- | Extracts the imaginary part of a complex number.
 imagPart :: Complex a -> a
 imagPart (_ :+ y) =  y
-
-
-
-
 
 
 
@@ -92,14 +89,15 @@ instance (Semiring a, AdditiveGroup a) => InvolutiveRing (Complex a)
 
 
 
--- mkPolar r theta  =  r * cos theta :+ r * sin theta
+mkPolar :: TrigField a => a -> a -> Complex a
+mkPolar r theta  =  r * cos theta :+ r * sin theta
 
 
--- -- | @'cis' t@ is a complex value with magnitude @1@
--- -- and phase @t@ (modulo @2*'pi'@).
--- {-# SPECIALISE cis :: Double -> Complex Double #-}
--- cis              :: Floating a => a -> Complex a
--- cis theta        =  cos theta :+ sin theta
+-- | @'cis' t@ is a complex value with magnitude @1@
+-- and phase @t@ (modulo @2*'pi'@).
+{-# SPECIALISE cis :: Double -> Complex Double #-}
+cis              :: TrigField a => a -> Complex a
+cis theta        =  cos theta :+ sin theta
 
 -- -- | The function 'polar' takes a complex number and
 -- -- returns a (magnitude, phase) pair in canonical form:
@@ -109,18 +107,17 @@ instance (Semiring a, AdditiveGroup a) => InvolutiveRing (Complex a)
 -- polar            :: (RealFloat a) => Complex a -> (a,a)
 -- polar z          =  (magnitude z, phase z)
 
--- -- | The nonnegative magnitude of a complex number.
--- {-# SPECIALISE magnitude :: Complex Double -> Double #-}
--- magnitude :: (RealFloat a) => Complex a -> a
--- magnitude (x:+y) =  scaleFloat k
---                      (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
---                     where k  = max (exponent x) (exponent y)
---                           mk = - k
---                           sqr z = z * z
+-- | The nonnegative magnitude of a complex number.
+{-# SPECIALISE magnitude :: Complex Double -> Double #-}
+magnitude :: (ExpField a, RealFloat a) => Complex a -> a
+magnitude (x :+ y) =  scaleFloat k (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
+                    where k  = max (exponent x) (exponent y)
+                          mk = - k
+                          sqr z = z * z
 
--- -- | The phase of a complex number, in the range @(-'pi', 'pi']@.
--- -- If the magnitude is zero, then so is the phase.
--- {-# SPECIALISE phase :: Complex Double -> Double #-}
--- phase :: (RealFloat a) => Complex a -> a
--- phase (0 :+ 0)   = 0            -- SLPJ July 97 from John Peterson
--- phase (x:+y)     = atan2 y xa
+-- | The phase of a complex number, in the range @(-'pi', 'pi']@.
+-- If the magnitude is zero, then so is the phase.
+{-# SPECIALISE phase :: Complex Double -> Double #-}
+phase :: (RealFloat a) => Complex a -> a
+phase (0 :+ 0)   = 0            -- SLPJ July 97 from John Peterson
+phase (x :+ y)   = atan2 y x
