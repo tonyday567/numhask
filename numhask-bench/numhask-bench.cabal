@@ -46,6 +46,4 @@ executable numhask-bench
     , scientific
     , tdigest
     , text
-  other-modules:
-      Paths_numhask_bench
   default-language: Haskell2010

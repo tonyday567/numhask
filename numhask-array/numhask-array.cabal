@@ -65,6 +65,4 @@ test-suite test
     , numhask-test >=0.1.0.0 && <0.2
     , tasty
     , tasty-quickcheck
-  other-modules:
-      Paths_numhask_array
   default-language: Haskell2010

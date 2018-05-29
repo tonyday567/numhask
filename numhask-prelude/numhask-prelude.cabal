@@ -51,6 +51,4 @@ test-suite test
   build-depends:
       doctest
     , numhask-prelude
-  other-modules:
-      Paths_numhask_prelude
   default-language: Haskell2010
