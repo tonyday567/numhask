@@ -49,9 +49,7 @@ test-suite test
       test
   default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
   build-depends:
-      base >=4.7 && <5
-    , QuickCheck >=2.8 && <3
-    , doctest
+      doctest
     , numhask-prelude
   other-modules:
       Paths_numhask_prelude

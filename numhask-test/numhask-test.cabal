@@ -49,7 +49,6 @@ test-suite test
   build-depends:
       base >=4.7 && <5
     , QuickCheck >=2.8 && <3
-    , doctest
     , numhask-test
     , numhask-prelude >= 0.1.0.0 && < 0.2
     , tasty

@@ -9,12 +9,9 @@
 module Main where
 
 import NumHask.Prelude
-import GHC.Natural (Natural(..))
 import NumHask.Laws
 
-import Test.DocTest
-import Test.Tasty
-       (TestTree, defaultMain, testGroup)
+import Test.Tasty (TestTree, defaultMain, testGroup)
 
 import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Gen

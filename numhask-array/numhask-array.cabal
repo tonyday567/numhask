@@ -39,7 +39,6 @@ library
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
     , numhask-prelude >=0.1.0.0 && <0.2
-    , numhask-test >=0.1.0.0 && <0.2
     , protolude >=0.1 && <0.3
     , singletons >=2.0 && <2.5
     , vector >=0.10 && <0.13
