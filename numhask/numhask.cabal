@@ -50,6 +50,4 @@ library
       NumHask.Algebra.Module
       NumHask.Algebra.Multiplicative
       NumHask.Algebra.Singleton
-  other-modules:
-      Paths_numhask
   default-language: Haskell2010

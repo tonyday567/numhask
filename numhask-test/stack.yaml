@@ -4,7 +4,5 @@ packages:
   - .
   - ../numhask
   - ../numhask-prelude
-  - ../numhask-test
 
-extra-deps:
-  - dimensions-0.3.2.0 # not on stack
+extra-deps: []

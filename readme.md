@@ -45,13 +45,26 @@ numhask-prelude
 
 ``` {.sourceCode .literate .haskell}
 {-# LANGUAGE NoImplicitPrelude #-}
-import Numhask.Prelude
+import NumHask.Prelude
 ```
 
 'Numhask.Prelude' is designed as a drop-in replacement for Prelude and 'NoImplicitPrelude' is obligatory. Behind the scenes, the module wraps [protolude](https://www.stackage.org/package/protolude).
 
 See [Examples](numhask-prelude/src/NumHask/Examples.hs) for basic examples, or [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier usage.
 
+
+numhask-test
+---
+
+[![Hackage](https://img.shields.io/hackage/v/numhask-test.svg)](https://hackage.haskell.org/package/numhask-test) [![lts](https://www.stackage.org/package/numhask-test/badge/lts)](http://stackage.org/lts/package/numhask-test) [![nightly](https://www.stackage.org/package/numhask-test/badge/nightly)](http://stackage.org/nightly/package/numhask-test)
+
+``` {.sourceCode .literate .haskell}
+{-# LANGUAGE NoImplicitPrelude #-}
+import NumHask.Prelude
+import NumHask.Laws
+```
+
+Laws and a test harness for numhask. 'NumHask.Laws' is a representation of laws for each of the numhask classes.
 
 numhask-array
 ---

@@ -40,6 +40,4 @@ executable numhask-graph
     , primitive
     , protolude
     , text
-  other-modules:
-      Paths_numhask_graph
   default-language: Haskell2010
