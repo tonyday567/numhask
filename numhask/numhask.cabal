@@ -50,4 +50,6 @@ library
       NumHask.Algebra.Module
       NumHask.Algebra.Multiplicative
       NumHask.Algebra.Singleton
+      NumHask.Data                  
+  other-modules:
   default-language: Haskell2010
