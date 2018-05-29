@@ -20,10 +20,10 @@ module NumHask.Algebra
   , module NumHask.Algebra.Multiplicative
   , module NumHask.Algebra.Rational
   , module NumHask.Algebra.Ring
-  , Complex(..)
+  , module NumHask.Data.Complex
   ) where
 
-import Data.Complex (Complex(..))
+import NumHask.Data.Complex (Complex(..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis
 import NumHask.Algebra.Distribution
