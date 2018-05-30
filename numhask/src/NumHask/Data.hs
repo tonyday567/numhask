@@ -43,6 +43,11 @@ instance (AdditiveUnital a, AdditiveMagma a) => Additive (Sum a) where
 instance (AdditiveInvertible a, AdditiveUnital a) => AdditiveGroup (Sum a) where
 
 
+instance AdditiveMagma a => Semigroup (Sum a) where
+  (Sum x) <> (Sum y) = Sum $ x `plus` y
+
+instance AdditiveUnital a => Monoid (Sum a) where
+  mempty = Sum zero
 
 
 
@@ -80,3 +85,10 @@ instance MultiplicativeMagma a => MultiplicativeCommutative (Product a)
 instance MultiplicativeUnital a => Multiplicative (Product a) where
 
 instance (MultiplicativeUnital a, MultiplicativeInvertible a) => MultiplicativeGroup (Product a) where
+
+
+instance MultiplicativeMagma a => Semigroup (Product a) where
+  (Product x) <> (Product y) = Product $ x `times` y
+
+instance MultiplicativeUnital a => Monoid (Product a) where
+  mempty = Product one 
