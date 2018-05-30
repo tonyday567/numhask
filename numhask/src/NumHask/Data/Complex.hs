@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric, DeriveDataTypeable, DeriveFunctor, GeneralizedNewtypeDeriving, DeriveFoldable, DeriveTraversable #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module NumHask.Data.Complex where
 
 import GHC.Generics (Generic, Generic1)
@@ -9,8 +10,9 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Algebra.Distribution
 import NumHask.Algebra.Field
+import NumHask.Algebra.Metric
 
-import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip)
+import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**))
 import qualified Prelude as P ( (&&), (>), (<=), (<), (==), otherwise, Ord(..) )
 
 -- -----------------------------------------------------------------------------
@@ -21,7 +23,7 @@ infix  6  :+
 -- | Complex numbers are an algebraic type.
 --
 -- For a complex number @z@, @'abs' z@ is a number with the magnitude of @z@,
--- but oriented in the positive real direction, whereas @'signum' z@
+-- but oriented in the positive real direction, whereas @'sign' z@
 -- has the phase of @z@, but unit magnitude.
 --
 -- The 'Foldable' and 'Traversable' instances traverse the real part first.
@@ -97,10 +99,22 @@ instance (Semiring a, AdditiveGroup a) => Ring (Complex a)
 
 instance (Semiring a, AdditiveGroup a) => InvolutiveRing (Complex a)
 
-
+instance (MultiplicativeAssociative a, MultiplicativeUnital a, AdditiveGroup a, Semiring a) =>
+   CRing (Complex a)
 
 instance (MultiplicativeGroup a, AdditiveGroup a, Semiring a) => Field (Complex a) 
 
+
+instance (Multiplicative a, ExpField a, Normed a a) =>
+         Normed (Complex a) a where
+  normL1 (rx :+ ix) = normL1 rx + normL1 ix
+  normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
+  normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
+
+instance (Multiplicative a, ExpField a, Normed a a) => Metric (Complex a) a where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
 
 
@@ -126,8 +140,6 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
 
 -- * Helpers from Data.Complex 
 
-
-
 mkPolar :: TrigField a => a -> a -> Complex a
 mkPolar r theta  =  r * cos theta :+ r * sin theta
 
@@ -138,13 +150,13 @@ mkPolar r theta  =  r * cos theta :+ r * sin theta
 cis              :: TrigField a => a -> Complex a
 cis theta        =  cos theta :+ sin theta
 
--- -- | The function 'polar' takes a complex number and
--- -- returns a (magnitude, phase) pair in canonical form:
--- -- the magnitude is nonnegative, and the phase in the range @(-'pi', 'pi']@;
--- -- if the magnitude is zero, then so is the phase.
--- {-# SPECIALISE polar :: Complex Double -> (Double,Double) #-}
--- polar            :: (RealFloat a) => Complex a -> (a,a)
--- polar z          =  (magnitude z, phase z)
+-- | The function 'polar' takes a complex number and
+-- returns a (magnitude, phase) pair in canonical form:
+-- the magnitude is nonnegative, and the phase in the range @(-'pi', 'pi']@;
+-- if the magnitude is zero, then so is the phase.
+{-# SPECIALISE polar :: Complex Double -> (Double,Double) #-}
+polar            :: (RealFloat a, ExpField a) => Complex a -> (a,a)
+polar z          =  (magnitude z, phase z)
 
 -- | The nonnegative magnitude of a complex number.
 {-# SPECIALISE magnitude :: Complex Double -> Double #-}
