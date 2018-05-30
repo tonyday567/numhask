@@ -1,5 +1,5 @@
 name:           numhask
-version:        0.2.2.0
+version:        0.2.3.0
 synopsis:       numeric classes
 description:    A numeric class heirarchy.
 category:       mathematics
@@ -50,4 +50,6 @@ library
       NumHask.Algebra.Module
       NumHask.Algebra.Multiplicative
       NumHask.Algebra.Singleton
+      NumHask.Data                  
+  other-modules:
   default-language: Haskell2010
