@@ -12,10 +12,10 @@ import Language.Haskell.Exts
 main :: IO ()
 main = do
   (CLOptions fpath) <- execParser clOpts
-  mod <- fromParseResult <$> parseFile fpath
-  print $ head $ unpack mod
+  mods <- fromParseResult <$> parseFile fpath
+  print $ head $ unpack mods
 
-unpack :: Module l -> [Either (Decl l) (Decl l)]
+unpack :: Module l -> [Decl l]
 unpack modd = concat $ unpackTyClDecl <$> unpackModuleDecls modd
 
 unpackModuleDecls :: Module l -> [Decl l]
@@ -24,10 +24,9 @@ unpackModuleDecls moddecl = case moddecl of
   _ -> []
 
 -- | Horrible hack to extract typeclass or instance declarations
-unpackTyClDecl :: Decl l -> [Either (Decl l) (Decl l)]
+unpackTyClDecl :: Decl l -> [(Decl l)]
 unpackTyClDecl decl = case decl of
-  cd@ClassDecl{} -> [Left cd]
-  ci@InstDecl{} -> [Right ci]
+  cd@ClassDecl{} -> [cd]
   _ -> []
 
 
