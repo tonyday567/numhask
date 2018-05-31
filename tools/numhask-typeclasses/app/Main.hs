@@ -23,7 +23,7 @@ unpackModuleDecls moddecl = case moddecl of
   Module _ _ _ _ decls -> decls
   _ -> []
 
--- | Horrible hack to extract typeclass or instance declarations
+-- | Horrible hack to extract typeclass declarations
 unpackTyClDecl :: Decl l -> [(Decl l)]
 unpackTyClDecl decl = case decl of
   cd@ClassDecl{} -> [cd]
