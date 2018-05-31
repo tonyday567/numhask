@@ -9,14 +9,14 @@ import Language.Haskell.Exts
 
 
 
--- main :: IO (Module SrcSpanInfo)
+main :: IO ()
 main = do
   (CLOptions fpath) <- execParser clOpts
   mod <- fromParseResult <$> parseFile fpath
   print $ head $ unpack mod
 
+unpack :: Module l -> [Either (Decl l) (Decl l)]
 unpack modd = concat $ unpackTyClDecl <$> unpackModuleDecls modd
---   pure $ unpackTyClDecl `map` decls
 
 unpackModuleDecls :: Module l -> [Decl l]
 unpackModuleDecls moddecl = case moddecl of
