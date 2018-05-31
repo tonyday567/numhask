@@ -7,8 +7,19 @@ import Language.Haskell.Exts
 
 
 
+main :: IO (ParseResult (Module SrcSpanInfo)) 
+main = do
+  (CLOptions fpath) <- execParser clOpts
+  parseFile fpath
 
-main = print "hello!"
+
+
+
+clOpts = info (clOptions <**> helper) (
+  fullDesc <> progDesc "Analyze a NumHask module"
+    -- <> header ""
+                                      )
+
 
 
 
