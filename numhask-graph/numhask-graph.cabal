@@ -21,7 +21,7 @@ executable numhask-typeclasses
   main-is: numhask-typeclasses.hs
   hs-source-dirs:
                  app
-  default-extensions: OverloadedStrings
+  -- default-extensions: OverloadedStrings
   build-depends:
                 base >=4.7 && <4.12
               , containers
