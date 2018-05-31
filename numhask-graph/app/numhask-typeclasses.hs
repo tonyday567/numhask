@@ -16,7 +16,7 @@ main = do
 
 
 clOpts = info (clOptions <**> helper) (
-  fullDesc <> progDesc "Analyze a NumHask module"
+  fullDesc <> progDesc "Analyze a NumHask module with haskell-src-exts"
     -- <> header ""
                                       )
 
