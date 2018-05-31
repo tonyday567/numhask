@@ -13,19 +13,22 @@ import Language.Haskell.Exts
 main = do
   (CLOptions fpath) <- execParser clOpts
   mod <- fromParseResult <$> parseFile fpath
-  print mod
+  print $ head $ unpack mod
 
-unpackModuleDecls :: Module l -> Maybe [Decl l]
+unpack modd = concat $ unpackTyClDecl <$> unpackModuleDecls modd
+--   pure $ unpackTyClDecl `map` decls
+
+unpackModuleDecls :: Module l -> [Decl l]
 unpackModuleDecls moddecl = case moddecl of
-  Module _ _ _ _ decls -> Just decls
-  _ -> Nothing
+  Module _ _ _ _ decls -> decls
+  _ -> []
 
 -- | Horrible hack to extract typeclass or instance declarations
-unpackTyClDecl :: Decl l -> Maybe (Either (Decl l) (Decl l))
+unpackTyClDecl :: Decl l -> [Either (Decl l) (Decl l)]
 unpackTyClDecl decl = case decl of
-  cd@ClassDecl{} -> Just $ Left cd
-  ci@InstDecl{} -> Just $ Right ci
-  _ -> Nothing
+  cd@ClassDecl{} -> [Left cd]
+  ci@InstDecl{} -> [Right ci]
+  _ -> []
 
 
 clOpts :: ParserInfo CLOptions
