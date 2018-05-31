@@ -15,6 +15,17 @@ main = do
   mod <- fromParseResult <$> parseFile fpath
   print mod
 
+unpackModuleDecls :: Module l -> Maybe [Decl l]
+unpackModuleDecls moddecl = case moddecl of
+  Module _ _ _ _ decls -> Just decls
+  _ -> Nothing
+
+-- | Horrible hack to extract typeclass or instance declarations
+unpackTyClDecl :: Decl l -> Maybe (Either (Decl l) (Decl l))
+unpackTyClDecl decl = case decl of
+  cd@ClassDecl{} -> Just $ Left cd
+  ci@InstDecl{} -> Just $ Right ci
+  _ -> Nothing
 
 
 clOpts :: ParserInfo CLOptions
