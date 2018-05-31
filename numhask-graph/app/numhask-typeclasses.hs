@@ -32,5 +32,6 @@ clOptions :: Parser CLOptions
 clOptions = CLOptions <$>
   strOption (
      long "filepath" <>
+     short 'p' <>
      metavar "FILEPATH" <>
      help "Filepath of the module to be analyzed" )
