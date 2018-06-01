@@ -13,6 +13,8 @@ NB : very preliminary, PRs welcome
 
 # Example
 
+  In this version, only the first typeclass is processed.
+
   > numhask-typeclasses -p numhask/numhask/src/NumHask/Algebra/Additive.hs
 
   Just (ClassDecl () Nothing (DHApp () (DHead () (Ident () "AdditiveMagma")) (UnkindedVar () (Ident () "a"))) [] (Just [ClsDecl () (TypeSig () [Ident () "plus"] (TyFun () (TyVar () (Ident () "a")) (TyFun () (TyVar () (Ident () "a")) (TyVar () (Ident () "a")))))]))
