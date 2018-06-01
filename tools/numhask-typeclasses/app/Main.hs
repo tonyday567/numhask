@@ -14,11 +14,7 @@ main :: IO ()
 main = do
   (CLOptions fpath) <- execParser clOpts
   mods <- fromParseResult <$> parseFile fpath
-  -- print $ head $ unpack mods
-  -- pure $ const () <$> unpack mods
   let modh = stripAnnotations mods
-  -- pure $ map (\(a,b,c) -> const () <$> a <*> b <*> c) mods'
-  -- pure mods'
   print modh
 
 stripAnnotations :: Module b -> Maybe (Decl ())
