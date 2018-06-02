@@ -5,9 +5,10 @@ packages:
   - numhask-prelude
   - numhask-array
   - numhask-test
-  # - numhask-bench
+  - numhask-bench
   # - numhask-graph
-  # - ../perf/perf
 
 extra-deps:
   - dimensions-0.3.2.0
+  - perf-0.4.1.0
+  - perf-analysis-0.0.1.1
