@@ -3,20 +3,28 @@ module Main where
 
 import Data.Maybe
 
-import qualified Options.Applicative as O (Parser, ParserInfo, info, helper, fullDesc, progDesc, header, strOption, long, short, metavar, help)
+import qualified Options.Applicative as O (Parser, ParserInfo, execParser, info, helper, fullDesc, progDesc, header, strOption, long, short, metavar, help)
 import Options.Applicative ( (<**>) )
 import Data.Semigroup
 
--- import Language.Haskell.Exts
-
--- import HsSyn
--- import HsDecls
-
-import Language.Haskell.GHC.ExactPrint.Parsers
--- import GHC
+import qualified Data.Map as M
 
 
-main = print "hello!"
+import GHC hiding (parseModule, ParsedSource(..))
+import HsSyn (HsModule(..))
+import HsDecls (HsDecl(..))
+
+import Language.Haskell.GHC.ExactPrint
+
+-- main = print "hello!"
+
+main = do 
+  (CLOptions fpath) <- O.execParser clOpts
+  modse <- parseModule fpath
+  case modse of
+    Left (_, e) -> error e
+    Right (anns, psource) -> pure psource
+
 
 
 -- main :: IO ()
