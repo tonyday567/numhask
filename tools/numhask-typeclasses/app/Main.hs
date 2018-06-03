@@ -3,33 +3,42 @@ module Main where
 
 import Data.Maybe
 
-import Options.Applicative
+import qualified Options.Applicative as O (Parser, ParserInfo, info, helper, fullDesc, progDesc, header, strOption, long, short, metavar, help)
+import Options.Applicative ( (<**>) )
 import Data.Semigroup
 
-import Language.Haskell.Exts
+-- import Language.Haskell.Exts
+
+-- import HsSyn
+-- import HsDecls
+
+import Language.Haskell.GHC.ExactPrint.Parsers
+-- import GHC
 
 
+main = print "hello!"
 
-main :: IO ()
-main = do
-  (CLOptions fpath) <- execParser clOpts
-  mods <- fromParseResult <$> parseFile fpath
-  let modh = stripAnnotations mods
-  print modh
 
-stripAnnotations :: Module b -> Maybe (Decl ())
-stripAnnotations mo = head $ filter isJust $ uTyClDecl `map` unpackModuleDecls mo
+-- main :: IO ()
+-- main = do
+--   (CLOptions fpath) <- execParser clOpts
+--   mods <- fromParseResult <$> parseFile fpath
+--   let modh = stripAnnotations mods
+--   print modh
 
-unpackModuleDecls :: Module l -> [Decl l]
-unpackModuleDecls moddecl = case moddecl of
-  Module _ _ _ _ decls -> decls
-  _ -> []
+-- stripAnnotations :: Module b -> Maybe (Decl ())
+-- stripAnnotations mo = head $ filter isJust $ uTyClDecl `map` unpackModuleDecls mo
 
--- | Strip source position annotations
-uTyClDecl :: Decl b -> Maybe (Decl ())
-uTyClDecl d = case d of
-  cd@ClassDecl{} -> Just $ const () <$> cd
-  _ -> Nothing
+-- unpackModuleDecls :: Module l -> [Decl l]
+-- unpackModuleDecls moddecl = case moddecl of
+--   Module _ _ _ _ decls -> decls
+--   _ -> []
+
+-- -- | Strip source position annotations
+-- uTyClDecl :: Decl b -> Maybe (Decl ())
+-- uTyClDecl d = case d of
+--   cd@ClassDecl{} -> Just $ const () <$> cd
+--   _ -> Nothing
   
 
 
@@ -37,10 +46,10 @@ uTyClDecl d = case d of
 
 -- * Command line option parsing
 
-clOpts :: ParserInfo CLOptions
-clOpts = info (clOptions <**> helper) (
-  fullDesc <> progDesc "Analyze a NumHask module with haskell-src-exts"
-    -- <> header ""
+clOpts :: O.ParserInfo CLOptions
+clOpts = O.info (clOptions <**> O.helper) (
+  O.fullDesc <> O.progDesc "Analyze a NumHask module with haskell-src-exts"
+    -- <> O.header ""
                                       )
 
 data CLOptions = CLOptions {
@@ -48,10 +57,10 @@ data CLOptions = CLOptions {
   } deriving (Eq, Show)
 
 
-clOptions :: Parser CLOptions
+clOptions :: O.Parser CLOptions
 clOptions = CLOptions <$>
-  strOption (
-     long "filepath" <>
-     short 'p' <>
-     metavar "FILEPATH" <>
-     help "Filepath of the module to be analyzed" )
+  O.strOption (
+     O.long "filepath" <>
+     O.short 'p' <>
+     O.metavar "FILEPATH" <>
+     O.help "Filepath of the module to be analyzed" )

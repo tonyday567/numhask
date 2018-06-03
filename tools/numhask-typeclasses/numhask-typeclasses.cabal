@@ -29,7 +29,9 @@ executable numhask-typeclasses
   build-depends:
                 base >=4.7 && <4.12
               , containers
-              , haskell-src-exts
+              -- , haskell-src-exts
+              , ghc
+              , ghc-exactprint
               , optparse-applicative
               , text  
 
