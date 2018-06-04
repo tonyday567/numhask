@@ -13,6 +13,8 @@ import qualified Data.Map as M
 import GHC hiding (parseModule, ParsedSource(..))
 import HsSyn (HsModule(..))
 import HsDecls (HsDecl(..))
+import Outputable (Outputable(..), SDoc(..), printSDoc)
+import Pretty (Mode(..))
 
 import Language.Haskell.GHC.ExactPrint
 
@@ -23,7 +25,12 @@ main = do
   modse <- parseModule fpath
   case modse of
     Left (_, e) -> error e
-    Right (anns, psource) -> pure psource
+    Right (anns, psource) -> do
+      let hsmod = unLoc psource
+          decls = hsmodDecls hsmod
+          hsdecls = filter (\x -> case x of (TyClD _) -> True; _ -> False) $
+            unLoc `map` decls
+      traverse (putStrLn . ppr) hsdecls
 
 
 
