@@ -378,14 +378,24 @@ quotientFieldLaws :: (Field a, QuotientField a Integer, FromInteger a) => [Law2 
 quotientFieldLaws =
   [ ( "a - one < floor a <= a <= ceiling a < a + one"
     , Unary10
-        (\a ->
-           ((a - one) < (fromInteger (floor a))) &&
-           (fromInteger (floor a) <= a) &&
-           (a <= fromInteger (ceiling a)) &&
-           (fromInteger (ceiling a) < a + one)))
+      (\a ->
+        ((a - one) < (fromInteger (floor a)))
+          && (fromInteger (floor a) <= a)
+          && (a <= fromInteger (ceiling a))
+          && (fromInteger (ceiling a) < a + one)
+      )
+    )
   , ( "round a == floor (a + one/(one+one))"
-    , Unary10 (\a -> (round a :: Integer) == ((floor (a + one / (one + one))))))
-  ]
+    , Unary10
+      (\a -> case even ((floor $ a + one / (one + one)) :: Integer) of
+        True  -> ((round a :: Integer) == (floor $ a + (one / (one + one))))
+        False -> ((round a :: Integer) == (ceiling $ a - (one / (one + one))))
+      )
+    )
+  ] where
+    sign' a
+      | (floor a :: Integer) < 0 = -1
+      | otherwise = 1
 
 expFieldLaws :: forall a b.
      (FromInteger b, AdditiveUnital b, ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]

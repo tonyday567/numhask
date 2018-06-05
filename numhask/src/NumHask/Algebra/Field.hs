@@ -130,7 +130,7 @@ class (P.Ord a, Field a, P.Eq b, Integral b, AdditiveGroup b, MultiplicativeUnit
       in
         case P.compare half_down zero of
           P.LT -> n
-          P.EQ -> bool n m (even n)
+          P.EQ -> bool m n (even n)
           P.GT -> m
 
   ceiling :: a -> b
