@@ -30,7 +30,20 @@ import NumHask.Algebra.Metric
 import NumHask.Algebra.Ring
 import NumHask.Algebra.Field
 
-data Ratio a = !a :% !a deriving (P.Eq, P.Show)
+data Ratio a = !a :% !a deriving (P.Show)
+
+instance (P.Eq a, AdditiveUnital a) => P.Eq (Ratio a) where
+  a == b
+    | (isRNaN a P.|| isRNaN b) = P.False
+    | P.otherwise = (x P.== x') P.&& (y P.== y')
+      where
+        (x:%y) = a
+        (x':%y') = b
+
+isRNaN :: (P.Eq a, AdditiveUnital a) => Ratio a -> P.Bool
+isRNaN (x :% y) | (x P.== zero P.&& y P.== zero) = P.True
+                | P.otherwise                    = P.False
+
 
 type Rational = Ratio Integer
 
@@ -39,8 +52,11 @@ instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
 instance (P.Ord a, Integral a, Signed a, AdditiveInvertible a) => AdditiveMagma (Ratio a) where
-  (x:%y) `plus` (x':%y') =
-    reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y')
+  (x :% y) `plus` (x' :% y')
+    | (y P.== zero P.&& y' P.== zero) = sign (x `plus` x') :% zero
+    | (y P.== zero)                   = x :% y
+    | (y' P.== zero)                  = x' :% y'
+    | P.otherwise = reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y')
 
 instance (P.Ord a, Integral a, Signed a, AdditiveInvertible a) => AdditiveUnital (Ratio a) where
   zero = zero :% one

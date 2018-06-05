@@ -319,13 +319,10 @@ testsRational =
     , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
 
     -- fixme: rounding and infinities need work
-{-
-    , testGroup "Quotient Field" $
-      testLawOf ([] :: [Rational]) <$> quotientFieldLaws
-    , testGroup "Upper Bounded Field" $
-      testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
-    , testGroup "Lower Bounded Field" $
-      testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
 
--}
+    , testGroup "Quotient Field" $ testLawOf2 ([] :: [(Rational, Integer)]) <$> quotientFieldLaws
+    , testGroup "Upper Bounded Field" $ testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
+    , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
+
+
     ]
