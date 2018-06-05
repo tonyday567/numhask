@@ -1,7 +1,7 @@
 numhask
 ===
 
-[![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) 
+[![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) [![Gitter chat](https://badges.gitter.im/numhask/Lobby.png)](https://gitter.im/numhask/Lobby)
 
 A numeric class heirarchy, providing a structure for numbers and functions that combine them.
 
