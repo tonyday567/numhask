@@ -14,7 +14,7 @@ module NumHask.Prelude
   , fromString
   , fail
   , Complex(..)
-  , LogField(..)
+  , module NumHask.Data.LogField
   , Natural(..)
     -- * Algebraic Heirarchy
     -- $instances

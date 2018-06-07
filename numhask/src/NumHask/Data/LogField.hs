@@ -1,6 +1,19 @@
 {-# LANGUAGE DeriveGeneric, DeriveDataTypeable, DeriveFunctor, GeneralizedNewtypeDeriving, DeriveFoldable, DeriveTraversable, GADTs #-}
 {-# LANGUAGE FlexibleInstances, FlexibleContexts, UndecidableInstances, MultiParamTypeClasses #-}
-module NumHask.Data.LogField where
+module NumHask.Data.LogField 
+    (
+    -- * @LogField@
+    LogField()
+    -- ** Isomorphism to normal-domain
+    , logField
+    , fromLogField
+    -- ** Isomorphism to log-domain
+    , logToLogField
+    , logFromLogField
+    -- ** Additional operations
+    , accurateSum, accurateProduct
+    , pow
+    )where
 
 import           GHC.Generics                   ( Generic
                                                 , Generic1

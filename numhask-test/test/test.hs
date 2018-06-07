@@ -22,8 +22,8 @@ instance Arbitrary Natural where
 instance Arbitrary Rational where
   arbitrary = reduce <$> (fromInteger <$> arbitrary) <*> (fromInteger <$> arbitrary `suchThat` (>zero))
 
-instance (Signed a, Arbitrary a) => Arbitrary (LogField a) where
-  arbitrary = (LogField . abs) <$> arbitrary
+instance (Signed a, Arbitrary a, ExpField a) => Arbitrary (LogField a) where
+  arbitrary = logField . abs <$> arbitrary
 
 main :: IO ()
 main = defaultMain tests
