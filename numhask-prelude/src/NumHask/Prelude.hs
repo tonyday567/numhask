@@ -14,6 +14,7 @@ module NumHask.Prelude
   , fromString
   , fail
   , Complex(..)
+  , LogField(..)
   , Natural(..)
     -- * Algebraic Heirarchy
     -- $instances
@@ -67,6 +68,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Rational
 import NumHask.Algebra.Ring
 import NumHask.Algebra.Singleton
+import NumHask.Data.LogField
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.

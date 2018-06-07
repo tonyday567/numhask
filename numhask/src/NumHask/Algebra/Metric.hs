@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DefaultSignatures     #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
@@ -306,12 +307,13 @@ instance Metric Word64 Word64 where
   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
 
 -- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
-class (Eq a, AdditiveGroup a) =>
+class (Eq a, AdditiveUnital a) =>
       Epsilon a where
   nearZero :: a -> Bool
   nearZero a = a == zero
 
   aboutEqual :: a -> a -> Bool
+  default aboutEqual :: AdditiveGroup a => a -> a -> Bool
   aboutEqual a b = nearZero $ a - b
 
   positive :: (Signed a) => a -> Bool
@@ -337,7 +339,7 @@ instance Epsilon Int
 
 instance Epsilon Integer
 
-instance (Epsilon a) => Epsilon (Complex a) where
+instance (Epsilon a, AdditiveGroup a) => Epsilon (Complex a) where
   nearZero (rx :+ ix) = nearZero rx && nearZero ix
   aboutEqual a b = nearZero $ a - b
 

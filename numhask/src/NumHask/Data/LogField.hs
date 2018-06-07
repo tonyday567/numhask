@@ -13,6 +13,7 @@ import           NumHask.Algebra.Distribution
 import           NumHask.Algebra.Field
 import           NumHask.Algebra.Integral
 import           NumHask.Algebra.Rational
+import           NumHask.Algebra.Metric
 
 import           Prelude                 hiding ( Num(..)
                                                 , negate
@@ -60,12 +61,6 @@ import qualified Data.Foldable                 as F
 -- > logField (p + q) == logField p + logField q
 -- > logField (p * q) == logField p * logField q
 --
--- TODO: what to do with this note?
--- (Do note, however, that subtraction can and negation will throw
--- errors: since @LogField@ can only represent the positive half of
--- 'Double'. 'Num' is the wrong abstraction to put at the bottom
--- of the numeric type-class hierarchy; but alas, we're stuck with
--- it.)
 --
 -- Performing operations in the log-domain is cheap, prevents
 -- underflow, and is otherwise very nice for dealing with miniscule
@@ -92,59 +87,6 @@ import qualified Data.Foldable                 as F
 -- Which is, of course, the whole point of this module.
 newtype LogField a = LogField a
       deriving (Eq, Ord, Read, Data, Generic, Generic1, Functor, Foldable, Traversable)
-    -- TODO original has comment: , Ord -- Should we really perpetuate the Ord lie?
-    -- why is the comment there?
-
-----------------------------------------------------------------
--- | Constructor which does semantic conversion from normal-domain
--- to log-domain. Throws errors on negative and NaN inputs. If @p@
--- is non-negative, then following equivalence holds:
---
--- > logField p == logToLogField (log p)
-logField :: (ExpField a) => a -> LogField a
-{-# INLINE [0] logField #-}
--- TODO: should we use NOINLINE or [~0] to avoid the possibility of code bloat?
-logField = LogField . log
-
-
--- TODO: figure out what to do here, removed guards
--- | Constructor which assumes the argument is already in the
--- log-domain.
-logToLogField :: a -> LogField a
-logToLogField = LogField
-
-
--- | Semantically convert our log-domain value back into the
--- normal-domain. Beware of overflow\/underflow. The following
--- equivalence holds (without qualification):
---
--- > fromLogField == exp . logFromLogField
---
-fromLogField :: ExpField a => LogField a -> a
-{-# INLINE [0] fromLogField #-}
--- TODO: should we use NOINLINE or [~0] to avoid the possibility of code bloat?
-fromLogField (LogField x) = exp x
-
-
--- | Return the log-domain value itself without conversion.
-logFromLogField :: LogField a -> a
-logFromLogField (LogField x) = x
-
-
--- These are our module-specific versions of "log\/exp" and "exp\/log";
--- They do the same things but also have a @LogField@ in between
--- the logarithm and exponentiation. In order to ensure these rules
--- fire, we have to delay the inlining on two of the four
--- con-\/destructors.
-
-{-# RULES
--- Out of log-domain and back in
-"log/fromLogField"       forall x. log (fromLogField x) = logFromLogField x
-"LogField/fromLogField"  forall x. LogField (fromLogField x) = x
-
--- Into log-domain and back out
-"fromLogField/LogField"  forall x. fromLogField (LogField x) = x
-    #-}
 
 ----------------------------------------------------------------
 -- To show it, we want to show the normal-domain value rather than
@@ -164,70 +106,65 @@ instance (ExpField a, Show a) => Show (LogField a) where
             . showsPrec 11 y
             )
 
-
--- TODO: never worked with FFI, so i don't really know what's going on
 ----------------------------------------------------------------
--- Technically these should use 'Foreign.C.CDouble' however there's
--- no isomorphism provided to normal 'Double'. The former is
--- documented as being a newtype of the later, and so this should
--- be safe.
-
--- #ifdef __USE_FFI__
--- #define LOG1P_WHICH_VERSION FFI version.
--- #else
--- #define LOG1P_WHICH_VERSION naive version! \
---     Contact the maintainer with any FFI difficulties.
--- #endif
-
-
--- | Definition: @log1p == log . (1+)@. Standard C libraries provide
--- a special definition for 'log1p' which is more accurate than
--- doing the naive thing, especially for very small arguments. For
--- example, the naive version underflows around @2 ** -53@, whereas
--- the specialized version underflows around @2 ** -1074@. This
--- function is used by ('+') and ('-') on @LogField@.
+-- | Constructor which does semantic conversion from normal-domain
+-- to log-domain. Throws errors on negative and NaN inputs. If @p@
+-- is non-negative, then following equivalence holds:
 --
--- N.B. The @statistics:Statistics.Math@ module provides a pure
--- Haskell implementation of @log1p@ for those who are interested.
--- We do not copy it here because it relies on the @vector@ package
--- which is non-portable. If there is sufficient interest, a portable
--- variant of that implementation could be made. Contact the
--- maintainer if the FFI and naive implementations are insufficient
--- for your needs.
---
--- /This installation was compiled to use the LOG1P_WHICH_VERSION/
+-- > logField p == logToLogField (log p)
+logField :: (ExpField a) => a -> LogField a
+{-# INLINE [0] logField #-}
+logField = LogField . log
 
--- #ifdef __USE_FFI__
--- foreign import ccall unsafe "math.h log1p"
---     log1p :: Double -> Double
--- #else
--- See statistics:Statistics.Math for a more accurate Haskell
--- implementation.
+
+-- TODO: figure out what to do here, removed guards
+-- | Constructor which assumes the argument is already in the
+-- log-domain.
+logToLogField :: a -> LogField a
+logToLogField = LogField
+
+
+-- | Semantically convert our log-domain value back into the
+-- normal-domain. Beware of overflow\/underflow. The following
+-- equivalence holds (without qualification):
+--
+-- > fromLogField == exp . logFromLogField
+--
+fromLogField :: ExpField a => LogField a -> a
+{-# INLINE [0] fromLogField #-}
+fromLogField (LogField x) = exp x
+
+
+-- | Return the log-domain value itself without conversion.
+logFromLogField :: LogField a -> a
+logFromLogField (LogField x) = x
+
+
+-- These are our module-specific versions of "log\/exp" and "exp\/log";
+-- They do the same things but also have a @LogField@ in between
+-- the logarithm and exponentiation. In order to ensure these rules
+-- fire, we have to delay the inlining on two of the four
+-- con-\/destructors.
+
+{-# RULES
+-- Out of log-domain and back in
+"log/fromLogField"       forall x. log (fromLogField x) = logFromLogField x
+-- TODO: Rewrite-rule too complicated
+"LogField/fromLogField"  forall x. LogField (fromLogField x) = x
+
+-- Into log-domain and back out
+"fromLogField/LogField"  forall x. fromLogField (LogField x) = x
+    #-}
+
+
 log1p :: ExpField a => a -> a
 {-# INLINE [0] log1p #-}
 log1p x = log (one + x)
--- #endif
 
-
--- | Definition: @expm1 == subtract 1 . exp@. Standard C libraries
--- provide a special definition for 'expm1' which is more accurate
--- than doing the naive thing, especially for very small arguments.
--- This function isn't needed internally, but is provided for
--- symmetry with 'log1p'.
---
--- /This installation was compiled to use the LOG1P_WHICH_VERSION/
-
--- #ifdef __USE_FFI__
--- foreign import ccall unsafe "math.h expm1"
---     expm1 :: Double -> Double
--- #else
 expm1 :: ExpField a => a -> a
 {-# INLINE [0] expm1 #-}
 expm1 x = exp x - one
--- #endif
 
--- CPP guarded because they won't fire if we're using the FFI versions
--- #if !defined(__USE_FFI__)
 {-# RULES
 -- Into log-domain and back out
 "expm1/log1p"    forall x. expm1 (log1p x) = x
@@ -235,16 +172,14 @@ expm1 x = exp x - one
 -- Out of log-domain and back in
 "log1p/expm1"    forall x. log1p (expm1 x) = x
     #-}
--- #endif
 
 instance (ExpField a, LowerBoundedField a, Ord a) => AdditiveMagma (LogField a) where
-      (LogField x) `plus` (LogField y)
-            -- TODO unsure what to do here...currentl only negInfinity because of the 0-element
-            | x == y
-            && x == negInfinity
-            && y == negInfinity = LogField x -- @0+0 == 0@,
-            | x >= y          = LogField (x + log1p (exp (y - x)))
-            | otherwise       = LogField (y + log1p (exp (x - y)))
+    x@(LogField x') `plus` y@(LogField y')
+        | x == zero && y == zero = zero
+        | x == zero     = y
+        | y == zero     = x
+        | x >= y          = LogField (x' + log1p (exp (y' - x')))
+        | otherwise       = LogField (y' + log1p (exp (x' - y')))
 
 instance (LowerBoundedField a, ExpField a, Ord a) => AdditiveUnital (LogField a) where
       zero = LogField negInfinity
@@ -256,15 +191,9 @@ instance (LowerBoundedField a,ExpField a, Ord a) => AdditiveCommutative (LogFiel
 instance (LowerBoundedField a, ExpField a, Ord a) => Additive (LogField a)
 
 instance (AdditiveMagma a, LowerBoundedField a, Eq a) => MultiplicativeMagma (LogField a) where
-      (LogField x) `times ` (LogField y)
-      -- TODO unsure what to do here...
-        | (x == negInfinity || y == negInfinity) = LogField negInfinity
-        | otherwise = LogField (x `plus` y)
-      -- original
-      -- |    isInfinite x
-      -- && isInfinite y
-      -- && x == negate y = LogField negativeInfinity -- @0*infinity == 0@
-      -- | otherwise        = LogField (x+y)
+    (LogField x) `times ` (LogField y)
+        | x == negInfinity || y == negInfinity  = LogField negInfinity
+        | otherwise                             = LogField (x `plus` y)
 
 instance (AdditiveUnital a, LowerBoundedField a, Eq a) => MultiplicativeUnital (LogField a) where
     one = LogField zero
@@ -274,7 +203,7 @@ instance (AdditiveAssociative a, LowerBoundedField a, Eq a) => MultiplicativeAss
 instance (AdditiveCommutative a, LowerBoundedField a, Eq a) => MultiplicativeCommutative (LogField a)
 
 instance (AdditiveInvertible a, LowerBoundedField a, Eq a) => MultiplicativeInvertible (LogField a) where
-        recip (LogField x) = LogField $ negate x
+    recip (LogField x) = LogField $ negate x
 
 instance (AdditiveUnital a
         , AdditiveAssociative a
@@ -301,7 +230,12 @@ instance (Multiplicative (LogField a), AdditiveInvertible a, AdditiveGroup a, Lo
 
 instance (LowerBoundedField a, ExpField a, Ord a, AdditiveMagma a) => Distribution (LogField a)
 
--- TODO: okay?
+-- unable to provide this instance because there is no Field (LogField a) instance
+-- instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
+--     exp (LogField x) = (LogField $ exp x)
+--     log (LogField x) = (LogField $ log x)
+--     (**) x (LogField y) = pow x $ exp y
+
 instance (FromInteger a, ExpField a) => FromInteger (LogField a) where
     fromInteger = logField . fromInteger
 
@@ -314,84 +248,9 @@ instance (FromRatio a, ExpField a) => FromRatio (LogField a) where
 instance (ToRatio a, ExpField a) => ToRatio (LogField a) where
     toRatio = toRatio . fromLogField
 
-
-
-----------------------------------------------------------------
--- These all work without causing underflow. However, do note that
--- they tend to induce more of the floating-point fuzz than using
--- regular floating numbers because @exp . log@ doesn't really equal
--- @id@. In any case, our main aim is for preventing underflow when
--- multiplying many small numbers (and preventing overflow for
--- multiplying many large numbers) so we're not too worried about
--- +\/- 4e-16.
-
--- instance Num LogField where
---     -- N.B. In Hugs (Sept2006) the (>=) always returns True if
---     --      either isNaN. This does not constitute a bug since we
---     --      maintain the invariant that values wrapped by 'LogField'
---     --      are not NaN.
-
---     (*) (LogField x) (LogField y)
---         |    isInfinite x
---           && isInfinite y
---           && x == negate y = LogField negativeInfinity -- @0*infinity == 0@
---         | otherwise        = LogField (x+y)
-
---     (+) (LogField x) (LogField y)
---         | x == y
---           && isInfinite x
---           && isInfinite y = LogField x -- @0+0 == 0@, @infinity+infinity == infinity@
---         | x >= y          = LogField (x + log1p (exp (y - x)))
---         | otherwise       = LogField (y + log1p (exp (x - y)))
-
---     (-) (LogField x) (LogField y)
---         |    x == negativeInfinity
---           && y == negativeInfinity = LogField negativeInfinity -- @0-0 == 0@
---         | otherwise =
---             -- BUG: Will throw error if x < y
---             -- TODO: flip @x@ and @y@ when @y > x@.
---             -- Also, will throw error if (x,y) is (infinity,infinity)
---             LogField (guardIsANumber "(-)" (x + log1p (negate (exp (y - x)))))
-
---     signum (LogField x)
---         | x == negativeInfinity = 0
---         | x >  negativeInfinity = 1
---         | otherwise             = errorOutOfRange "signum"
---         -- The extra guard protects against NaN, in case someone
---         -- broke the invariant. That shouldn't be possible and
---         -- so noone else bothers to check, but we check here just
---         -- in case.
-
---     negate _    = errorOutOfRange "negate"
-
---     abs         = id
-
---     fromInteger = LogField . log
---                 . guardNonNegative "fromInteger" . fromInteger
-
-
--- instance Fractional LogField where
---     -- n/0 == infinity is handled seamlessly for us. We must catch
---     -- 0/0 and infinity/infinity NaNs, and handle 0/infinity.
---     (/) (LogField x) (LogField y)
---         | x == y
---           && isInfinite x
---           && isInfinite y       = errorOutOfRange "(/)"
---         | x == negativeInfinity = LogField negativeInfinity -- @0/infinity == 0@
---         | otherwise             = LogField (x-y)
-
---     fromRational = LogField . log
---                  . guardNonNegative "fromRational" . fromRational
-
-
--- Just for fun. The more coercion functions the better. Though
--- Rationals are very buggy when it comes to transfinite values
--- instance Real LogField where
---     toRational (LogField x)
---         | isInfinite ex || isNaN ex = errorOutOfRange "toRational"
---         | otherwise                 = toRational ex
---         where
---         ex = exp x
+instance (Epsilon a, ExpField a, LowerBoundedField a, Ord a) => Epsilon (LogField a) where
+    nearZero (LogField x) = nearZero $ exp x
+    aboutEqual (LogField x) (LogField y) = aboutEqual (exp x) (exp y) 
 
 
 ----------------------------------------------------------------
@@ -401,21 +260,13 @@ instance (ToRatio a, ExpField a) => ToRatio (LogField a) where
 -- > LogField (p ** m) == LogField p `pow` m
 --
 -- /Since: 0.13/
-pow :: (ExpField a) => LogField a -> a -> LogField a
+pow :: (ExpField a, LowerBoundedField a, Ord a) => LogField a -> a -> LogField a
 {-# INLINE pow #-}
 infixr 8 `pow`
---TODO check for NaN
--- pow (LogField x) m | isNaN mx  = LogField zero
---                    | otherwise = LogField mx
-pow (LogField x) m = LogField mx
-    where
-    -- N.B., will be NaN when @x == negativeInfinity && m == 0@
-    -- (which is true when m is -0 as well as +0). We check for NaN
-    -- after multiplying, rather than checking this precondition
-    -- before multiplying, in an attempt to simplify/optimize the
-    -- generated code.
-    -- TODO: benchmark.
-          mx = m * x
+pow x@(LogField x') m 
+    | x == zero && m == zero = LogField zero
+    | x == zero              = x
+    | otherwise              = LogField $ m * x'
 
 
 -- Some good test cases:
@@ -442,10 +293,6 @@ accurateSum xs = LogField (theMax + log theSum)
 
     -- compute @\log \sum_{x \in xs} \exp(x - theMax)@
     theSum = F.foldl' (\acc (LogField x) -> acc + exp (x - theMax)) zero xs
-
--- TODO: expose a single-pass version for the special case where
--- the first element of the list is (promised to be) the maximum
--- element?
 
 -- | /O(n)/. Compute the product of a finite list of 'LogField's,
 -- being careful to avoid numerical error due to loss of precision.
