@@ -22,6 +22,9 @@ instance Arbitrary Natural where
 instance Arbitrary Rational where
   arbitrary = reduce <$> (fromInteger <$> arbitrary) <*> (fromInteger <$> arbitrary `suchThat` (>zero))
 
+instance (Signed a, Arbitrary a, ExpField a) => Arbitrary (LogField a) where
+  arbitrary = logField . abs <$> arbitrary
+
 main :: IO ()
 main = defaultMain tests
 
@@ -45,6 +48,7 @@ tests =
     , testsBool
     , testsComplexFloat
     , testsRational
+    , testsLogFieldDouble
     ]
 
 testsInt :: TestTree
@@ -325,4 +329,23 @@ testsRational =
     , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
 
 
+    ]
+
+    --  testGroup "Distribution" $ testLawOf ([] :: [Int]) <$> distributionLaws
+    -- , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$>
+    --   metricIntegralLaws
+    -- , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedBoundedLaws
+
+testsLogFieldDouble :: TestTree
+testsLogFieldDouble =
+  testGroup
+    "LogField Double"
+    [ testGroup "Additive - Associative Fail" $
+      testLawOf ([] :: [LogField Double]) <$> additiveLawsFail
+    , testGroup "Multiplicative - Associative Fail" $
+      testLawOf ([] :: [LogField Double]) <$> multiplicativeLawsFail
+    , testGroup "MultiplicativeGroup" $
+      testLawOf ([] :: [LogField Double]) <$> multiplicativeGroupLaws_
+    , testGroup "Distribution - Fail" $
+      testLawOf ([] :: [LogField Double]) <$> distributionLawsFail
     ]

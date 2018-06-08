@@ -136,7 +136,7 @@ additiveLaws =
   ]
 
 -- | additive with approximate association equality
-additiveLaws_ :: (Epsilon a) => [Law a]
+additiveLaws_ :: (Epsilon a, Additive a) => [Law a]
 additiveLaws_ =
   [ ( "associative: (a + b) + c ≈ a + (b + c)"
     , Ternary (\a b c -> (a + b) + c ≈ a + (b + c)))
@@ -280,7 +280,7 @@ normedBoundedLaws =
     , Binary11 (\_ p -> p < (one :: b) || (normLp p (zero :: a) :: b) == (zero :: b)) )
   ]
 
-metricIntegralLaws :: forall a b. (FromInteger b, Ord b, Signed b, Epsilon b, Metric a b) =>
+metricIntegralLaws :: forall a b. (FromInteger b, Ord b, Signed b, Epsilon b, Metric a b, AdditiveGroup b) =>
   [Law2 a b]
 metricIntegralLaws =
   [ ("Lp: positive",
@@ -323,7 +323,7 @@ metricIntegralBoundedLaws =
   ]
 
 
-metricRationalLaws :: forall a b. (FromRatio b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b) =>
+metricRationalLaws :: forall a b. (FromRatio b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b, Additive a, AdditiveGroup b) =>
   [Law2 a b]
 metricRationalLaws =
   [ ("Lp: positive",
@@ -457,7 +457,7 @@ expFieldContainerLaws =
 
 -- module
 additiveModuleLaws ::
-     (Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
+     (Epsilon a, Epsilon (r a), AdditiveModule r a, Additive (r a)) => [Law2 (r a) a]
 additiveModuleLaws =
   [ ( "additive module associative: (a + b) .+ c ≈ a + (b .+ c)"
     , Ternary21 (\a b c -> (a + b) .+ c ≈ a + (b .+ c)))
@@ -469,7 +469,7 @@ additiveModuleLaws =
   ]
 
 additiveGroupModuleLaws ::
-     (Epsilon a, Epsilon (r a), AdditiveGroupModule r a)
+     (Epsilon a, Epsilon (r a), AdditiveGroupModule r a, Additive (r a))
   => [Law2 (r a) a]
 additiveGroupModuleLaws =
   [ ( "additive group module associative: (a + b) .- c ≈ a + (b .- c)"
@@ -483,7 +483,7 @@ additiveGroupModuleLaws =
   ]
 
 multiplicativeModuleLaws ::
-     (Epsilon a, Epsilon (r a), MultiplicativeModule r a)
+     (Epsilon a, Epsilon (r a), MultiplicativeModule r a, Additive (r a))
   => [Law2 (r a) a]
 multiplicativeModuleLaws =
   [ ( "multiplicative module unital: a .* one == a"
@@ -544,7 +544,8 @@ hilbertLaws ::
     ( MultiplicativeModule r a
     , Epsilon a
     , Epsilon (r a)
-    , Hilbert r a)
+    , Hilbert r a
+    , Additive (r a))
   => [Law2 (r a) a]
 hilbertLaws =
   [ ("commutative a <.> b ≈ b <.> a", Ternary21 (\a b _ -> a <.> b ≈ b <.> a))
@@ -561,6 +562,7 @@ tensorProductLaws ::
      , Additive (r (r a))
      , TensorProduct (r a)
      , Epsilon (r a)
+     , Additive (r a)
      )
   => [Law2 (r a) a]
 tensorProductLaws =
