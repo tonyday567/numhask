@@ -374,7 +374,7 @@ lowerBoundedFieldLaws =
            (negInfinity + a == negInfinity)))
   ]
 
-quotientFieldLaws :: (Field a, QuotientField a Integer, FromInteger a) => [Law2 a Integer]
+quotientFieldLaws :: (Field a, QuotientField a Integer, FromInteger a, Ord a) => [Law2 a Integer]
 quotientFieldLaws =
   [ ( "a - one < floor a <= a <= ceiling a < a + one"
     , Unary10
