@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DefaultSignatures #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -115,11 +116,12 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
 -- > round a == floor (a + one/(one+one))
 --
 -- fixme: had to redefine Signed operators here because of the Field import in Metric, itself due to Complex being defined there
-class (P.Ord a, Field a, P.Eq b, Integral b, AdditiveGroup b, MultiplicativeUnital b) =>
+class (Field a, Integral b, AdditiveGroup b, MultiplicativeUnital b) =>
       QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
+  default round :: (P.Ord a, P.Eq b) => a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)
@@ -134,10 +136,12 @@ class (P.Ord a, Field a, P.Eq b, Integral b, AdditiveGroup b, MultiplicativeUnit
           P.GT -> m
 
   ceiling :: a -> b
+  default ceiling :: (P.Ord a) => a -> b
   ceiling x = bool n (n+one) (r P.> zero)
     where (n,r) = properFraction x
 
   floor :: a -> b
+  default floor :: (P.Ord a) => a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
