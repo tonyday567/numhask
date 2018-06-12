@@ -1,207 +1,130 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# language FlexibleInstances #-}
-
--- | Ring classes. A distinguishment is made between Rings and Commutative Rings.
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+-- | The Ring hirarchy
 module NumHask.Algebra.Ring
-  ( Semiring
-  , Ring
-  , CRing
-  , StarSemiring(..)
-  , KleeneAlgebra
-  , InvolutiveRing(..)
-  ) where
+    (
+        MultiplicativeMagma
+    ,   MComb(..)
+    ,   MultiplicativeUnital
+    ,   MultiplicativeSemigroup
+    ,   MultiplicativeCommutative
+    ,   MultiplicativeInvertible
+    ,   MultiplicativeIdempotent
+    ,   Absorbing
+    ,   Distribution
+    ,   Semiring
+    ,   Ring
+    ,   CommutativeRing
+    ,   IntegralDomain
+    )
+    where
 
-import Data.Complex (Complex(..))
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Distribution
-import NumHask.Algebra.Multiplicative
-import Prelude (Bool(..), Double, Float, Int, Integer)
+import Data.Coerce
+
+-- | 'times' is used as the operator for the multiplicative magam to distinguish from '*' which, by convention, implies commutativity
+--
+-- > ∀ a,b ∈ A: a `times` b ∈ A
+--
+-- law is true by construction in Haskell
+class MultiplicativeMagma a where
+    times :: a -> a -> a
+
+newtype MagmaCompat a = MComb a
+
+instance (MultiplicativeMagma a) => Magma (MagmaCompat a) where
+    comb = coerce times
+
+-- | A Unital Magma
+--
+-- > unit comb a = a
+-- > a comb unit = a
+--
+class MultiplicativeMagma a =>
+    MultiplicativeUnital a where
+    one :: a
+
+instance (MultiplicativeUnital a) => Unital (MagmaCompat a) where
+    unit = coerce one
+  
+-- | A semigroup is an associative Magma
+--
+-- > (a comb b) comb c = a comb (b comb c)
+class MultiplicativeMagma a =>
+    MultiplicativeSemigroup a where
+    (*) = times
+
+instance (MultiplicativeSemigroup a) => Unital (MagmaCompat a)
+
+-- | A Monoid is a Semigroup with an identity element
+--
+class (MultiplicativeUnital a, MultiplicativeSemigroup a) => MultiplicativeMonoid a
+instance (MultiplicativeUnital a, MultiplicativeSemigroup a) => MultiplicativeMonoid a
+
+-- | A Commutative Magma
+--
+-- > a comb b = b comb a
+class MultiplicativeMagma a =>
+    MultiplicativeCommutative a
+
+instance (MultiplicativeCommutative a) => Commutative (MagmaCompat a)
+
+-- | An Invertible Magma
+--
+-- > ∀ a ∈ T: inv a ∈ T
+--
+-- law is true by construction in Haskell
+--
+class MultiplicativeMagma a =>
+    MultiplicativeInvertible a where
+    recip :: a -> a
+
+instance (MultiplicativeMagma a) => Unital (MagmaCompat a) where
+    unit = coerce one
+
+-- | An Idempotent Magma
+--
+-- > a comb a = a
+class MultiplicativeMagma a =>
+    MultiplicativeIdempotent a
+
+instance (MultiplicativeIdempotent a) => Idempotent (MagmaCompat a)
+
+-- | A magma with an absorbing Element
+--
+-- > a `times` zero = zero
+class MultiplicativeMagma a =>
+    Absorbing a where
+    zero :: a
+
+-- | Distribution laws
+--
+-- > a `times` (b + c) == a `times` b + a `times` c
+-- > (a `times` b) * c == a `times` c + b `times` c
+class (Additive a, MultiplicativeMagma a) =>
+    Distribution a
 
 -- | Semiring
-class (MultiplicativeAssociative a, MultiplicativeUnital a, Distribution a) =>
-      Semiring a
-
-instance Semiring Double
-
-instance Semiring Float
-
-instance Semiring Int
-
-instance Semiring Integer
-
-instance Semiring Bool
-
-instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
-
-instance Semiring Natural
-
-instance Semiring Int8
-
-instance Semiring Int16
-
-instance Semiring Int32
-
-instance Semiring Int64
-
-instance Semiring Word
-
-instance Semiring Word8
-
-instance Semiring Word16
-
-instance Semiring Word32
-
-instance Semiring Word64
+class (Monoid a, MultiplicativeMonoid a, Distribution a, Absorbing a) =>
+    Semiring a
+instance (Monoid a, MultiplicativeMonoid a, Distribution a, Absorbing a) =>
+    Semiring a
 
 -- | Ring
--- 
--- A Ring consists of a set equipped with two binary operations that generalize the arithmetic operations of addition and multiplication; it is an abelian group with a second binary operation that is associative, is distributive over the abelian group operation, and has an identity element.
--- 
--- Summary of the laws inherited from the ring super-classes:
---
--- > zero + a == a
--- > a + zero == a
--- > (a + b) + c == a + (b + c)
--- > a + b == b + a
--- > a - a = zero
--- > negate a = zero - a
--- > negate a + a = zero
--- > a + negate a = zero
--- > one `times` a == a
--- > a `times` one == a
--- > (a `times` b) `times` c == a `times` (b `times` c)
--- > a `times` (b + c) == a `times` b + a `times` c
--- > (a + b) `times` c == a `times` c + b `times` c
--- > a `times` zero == zero
--- > zero `times` a == zero
--- 
-class ( Semiring a
-      , AdditiveGroup a
-      ) =>
-      Ring a
+class (Semiring a, AbelianGroup a) =>
+    Ring a
+instance (Semiring a, AbelianGroup a) =>
+    Ring a
 
-instance Ring Double
+-- | Ring with a commutative Multiplication
+class (Ring a, MultiplicativeCommutative a) =>
+    CommutativeRing a
+instance (Ring a, MultiplicativeCommutative a) =>
+    CommutativeRing a
 
-instance Ring Float
-
-instance Ring Int
-
-instance Ring Integer
-
-instance (Ring a) => Ring (Complex a)
-
-instance Ring Int8
-
-instance Ring Int16
-
-instance Ring Int32
-
-instance Ring Int64
-
-instance Ring Word
-
-instance Ring Word8
-
-instance Ring Word16
-
-instance Ring Word32
-
-instance Ring Word64
-
--- | CRing is a Ring with Multiplicative Commutation.  It arises often due to '*' being defined as a multiplicative commutative operation.
-class (Multiplicative a, Ring a) =>
-      CRing a
-
-instance CRing Double
-
-instance CRing Float
-
-instance CRing Int
-
-instance CRing Integer
-
-instance (CRing a) => CRing (Complex a)
-
-instance CRing Int8
-
-instance CRing Int16
-
-instance CRing Int32
-
-instance CRing Int64
-
-instance CRing Word
-
-instance CRing Word8
-
-instance CRing Word16
-
-instance CRing Word32
-
-instance CRing Word64
-
--- | StarSemiring
---
--- > star a = one + a `times` star a
---
-class (Semiring a) => StarSemiring a where
-    star :: a -> a
-    star a = one + plus' a
-
-    plus' :: a -> a
-    plus' a = a `times` star a
-
--- | KleeneAlgebra
---
--- > a `times` x + x = a ==> star a `times` x + x = x
--- > x `times` a + x = a ==> x `times` star a + x = x
---
-class (StarSemiring a, AdditiveIdempotent a) => KleeneAlgebra a
-
--- | Involutive Ring
---
--- > adj (a + b) ==> adj a + adj b
--- > adj (a * b) ==> adj a * adj b
--- > adj one ==> one
--- > adj (adj a) ==> a
---
--- Note: elements for which @adj a == a@ are called "self-adjoint".
---
-class Semiring a => InvolutiveRing a where
-  adj :: a -> a
-  adj x = x
-
-instance InvolutiveRing Double
-
-instance InvolutiveRing Float
-
-instance InvolutiveRing Integer
-
-instance InvolutiveRing Int
-
-instance (Ring a) => InvolutiveRing (Complex a) where
-  adj (a :+ b) = a :+ negate b
-
-instance InvolutiveRing Natural
-
-instance InvolutiveRing Int8
-
-instance InvolutiveRing Int16
-
-instance InvolutiveRing Int32
-
-instance InvolutiveRing Int64
-
-instance InvolutiveRing Word
-
-instance InvolutiveRing Word8
-
-instance InvolutiveRing Word16
-
-instance InvolutiveRing Word32
-
-instance InvolutiveRing Word64
-
+-- | generalization of ring of integers
+--  product of any two nonzero elements is nonzero, also
+--  if a ≠ 0, an equality ab = ac implies b = c.
+class (CommutativeRing a) =>
+    IntegralDomain a
