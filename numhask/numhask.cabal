@@ -40,15 +40,13 @@ library
       NumHask.Algebra
       NumHask.Algebra.Additive
       NumHask.Algebra.Basis
-      NumHask.Algebra.Distribution
       NumHask.Algebra.Ring
       NumHask.Algebra.Field
       NumHask.Algebra.Integral
       NumHask.Algebra.Rational
-      NumHask.Algebra.Magma
+      NumHask.Algebra.Group
       NumHask.Algebra.Metric
       NumHask.Algebra.Module
-      NumHask.Algebra.Multiplicative
       NumHask.Algebra.Singleton
       NumHask.Data
       NumHask.Data.Complex   
