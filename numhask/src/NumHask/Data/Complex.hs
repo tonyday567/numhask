@@ -5,12 +5,12 @@ module NumHask.Data.Complex where
 import GHC.Generics (Generic, Generic1)
 import Data.Data (Data)
 
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ring
-import NumHask.Algebra.Distribution
-import NumHask.Algebra.Field
-import NumHask.Algebra.Metric
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Distribution
+import NumHask.Algebra.Abstract.Field
+import NumHask.Analysis.Metric
 
 import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**))
 import qualified Prelude as P ( (&&), (>), (<=), (<), (==), otherwise, Ord(..) )
