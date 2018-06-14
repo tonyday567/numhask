@@ -4,20 +4,30 @@
 {-# LANGUAGE FlexibleInstances #-}
 -- | The Group hirarchy
 module NumHask.Algebra.Group
-  ( Magma(..)
-  , Unital(..)
-  , Semigroup
-  , Commutative
-  , Addition
-  , Invertible(..)
-  , Idempotent
-  , Monoidal
-  , CMonoidal
-  , Loop
-  , Group
-  , groupSwap
-  , Abelian
-  ) where
+      ( Magma(..)
+      , Unital(..)
+      , one
+      , zero
+      , Semigroup(..)
+      , Commutative(..)
+      , Add(..)
+      , Addition(..)
+      , Invertible(..)
+      , neg
+      , recip
+      , Idempotent(..)
+      , Monoid(..)
+      , Invertible(..)
+      , Mult(..)
+      , Multplicative(..)
+      , Group(..)
+      , groupSwap
+      , AbelianGroup(..)
+      )
+where
+
+import           Data.Coerce
+import qualified Prelude                       as P
 
 -- * Magma structure
 -- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,comb) consisting of
@@ -42,6 +52,9 @@ module NumHask.Algebra.Group
 class Magma a where
   comb :: a -> a -> a
 
+instance (P.Semigroup a) => (Magma a) where
+  comb = (P.<>)
+
 -- | A Unital Magma
 --
 -- > unit comb a = a
@@ -51,11 +64,21 @@ class Magma a =>
       Unital a where
   unit :: a
 
+one :: Unital (Mult a) => a
+one = coerce (unit :: (Mult a))
+
+zero :: Unital (Add a) => a
+zero = coerce (unit :: (Add a))
+
 -- | A semigroup is an associative Magma
 --
 -- > (a comb b) comb c = a comb (b comb c)
 class Magma a =>
-      Semigroup a
+      Semigroup a where
+      infixl 6 <>
+      (<>) = comb
+
+instance (P.Semigroup a) => (Semigroup a)
 
 -- | A Commutative Magma
 --
@@ -63,15 +86,22 @@ class Magma a =>
 class Magma a =>
       Commutative a
 
-class (Semigroup a, Commutative a) => Addition a where
+newtype Add a = Add a
+
+class (Semigroup (Add a), Commutative (Add a)) => Addition a where
       infixl 6 +
-      (+) = comb
-instance (Semigroup a, Commutative a) => Addition a
+      (+) = coerce comb
+
+instance (Semigroup (Add a), Commutative (Add a)) => Addition a
 
 -- | A Monoid is a Semigroup with an identity element
 --
-class (Unital a, Semigroup a) => Monoid a
+class (Unital a, Semigroup a) => Monoid a where
+      mempty = unit
 instance (Unital a, Semigroup a) => Monoid a
+
+instance (P.Monoid a) => (Monoid a) where
+      unit = P.mempty
 
 -- | An Invertible Magma
 --
@@ -83,9 +113,36 @@ class Magma a =>
       Invertible a where
   inv :: a -> a
 
+neg :: Invertible (Add a) => a -> a
+neg = coerce inv
+
+recip :: Invertible (Mult a) => a -> a
+recip = coerce inv
+
 -- | A group is a Monoid with an invertible
 class (Monoid a, Invertible a) => Group a
 instance (Monoid a, Invertible a) => Group a
+
+-- | A magma with an absorbing Element
+--
+-- > a `times` absorb = absorb
+class Magma a =>
+    Absorbing a where
+    absorb :: a
+
+newtype Mult a = Mult a
+
+class (Absorbing (Mult a), Commutative (Mult a)) =>
+      Multplicative a where
+    infixl 6 *
+    (*) = coerce comb
+
+    zero' :: a
+    zero' = coerce absorb
+
+
+instance (Absorbing (Mult a), Commutative (Mult a)) =>
+    Multplicative a
 
 -- | An Idempotent Magma
 --
@@ -96,10 +153,10 @@ class Magma a =>
 -- | see http://chris-taylor.github.io/blog/2013/02/25/xor-trick/
 groupSwap :: (Group a) => (a, a) -> (a, a)
 groupSwap (a, b) =
-  let a' = a comb b
-      b' = a comb (inv b)
-      a'' = inv b' comb a'
-  in (a'', b')
+      let a'  = a comb b
+          b'  = a comb (inv b)
+          a'' = inv b' comb a'
+      in  (a'', b')
 
 -- | An Abelian Group is associative, unital, invertible and commutative
 class (Group a, Addition a) =>

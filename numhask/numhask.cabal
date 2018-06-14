@@ -38,13 +38,12 @@ library
       base >=4.7 && <4.12
   exposed-modules:
       NumHask.Algebra
-      NumHask.Algebra.Additive
+      NumHask.Algebra.Group
       NumHask.Algebra.Basis
       NumHask.Algebra.Ring
       NumHask.Algebra.Field
       NumHask.Algebra.Integral
       NumHask.Algebra.Rational
-      NumHask.Algebra.Group
       NumHask.Algebra.Metric
       NumHask.Algebra.Module
       NumHask.Algebra.Singleton

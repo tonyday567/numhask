@@ -9,7 +9,7 @@ module NumHask.Algebra
   ( -- * Mapping from Num
     --
     -- $numMap
-    module NumHask.Algebra.Additive
+    module NumHask.Algebra.Group
   , module NumHask.Algebra.Basis
   , module NumHask.Algebra.Distribution
   , module NumHask.Algebra.Field
@@ -23,13 +23,12 @@ module NumHask.Algebra
   , module NumHask.Data.Complex
   ) where
 
+import NumHask.Algebra.Group
 import NumHask.Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
 import NumHask.Algebra.Basis
 import NumHask.Algebra.Distribution
 import NumHask.Algebra.Field
 import NumHask.Algebra.Integral
-import NumHask.Algebra.Group
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
