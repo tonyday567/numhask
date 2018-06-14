@@ -22,6 +22,7 @@ module NumHask.Algebra.Ring
     where
 
 import Data.Coerce
+import NumHask.Algebra.Group
 
 -- | 'times' is used as the operator for the multiplicative magam to distinguish from '*' which, by convention, implies commutativity
 --
