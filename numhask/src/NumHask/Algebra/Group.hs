@@ -109,7 +109,7 @@ class (Unital a, Semigroup a) => Monoid a where
 instance (Unital a, Semigroup a) => Monoid a
 
 instance (P.Monoid a) => (Monoid a) where
-      unit = P.mempty
+      mempty = P.mempty
 
 -- | An Invertible Magma
 --
