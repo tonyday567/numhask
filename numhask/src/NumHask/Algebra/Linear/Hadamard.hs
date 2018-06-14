@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Element-by-element operations
-module NumHask.Algebra.Basis
+module NumHask.Algebra.Linear.Hadamard
   ( 
   --   AdditiveBasis(..)
   -- , AdditiveGroupBasis(..)
@@ -11,8 +11,31 @@ module NumHask.Algebra.Basis
   -- , MultiplicativeGroupBasis(..)
   ) where
 
--- import NumHask.Algebra.Additive
--- import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Multiplicative
+
+-- FIXME: cleanup
+-- | element by element multiplication
+--
+-- > (a .*. b) .*. c == a .*. (b .*. c)
+-- > singleton one .*. a = a
+-- > a .*. singelton one = a
+-- > a .*. b == b .*. a
+class (Multiplicative a) =>
+      MultiplicativeBasis m a where
+  infixl 7 .*.
+  (.*.) :: m a -> m a -> m a
+
+-- | element by element division
+--
+-- > a ./. a == singleton one
+class (MultiplicativeGroup a) =>
+      MultiplicativeGroupBasis m a where
+  infixl 7 ./.
+  (./.) :: m a -> m a -> m a
+
+--FIXME the hadamard product has a relationship between laws
+
 
 -- -- | element by element addition
 -- --
@@ -32,22 +55,3 @@ module NumHask.Algebra.Basis
 --       AdditiveGroupBasis m a where
 --   infixl 6 .-.
 --   (.-.) :: m a -> m a -> m a
-
--- -- | element by element multiplication
--- --
--- -- > (a .*. b) .*. c == a .*. (b .*. c)
--- -- > singleton one .*. a = a
--- -- > a .*. singelton one = a
--- -- > a .*. b == b .*. a
--- class (Multiplicative a) =>
---       MultiplicativeBasis m a where
---   infixl 7 .*.
---   (.*.) :: m a -> m a -> m a
-
--- -- | element by element division
--- --
--- -- > a ./. a == singleton one
--- class (MultiplicativeGroup a) =>
---       MultiplicativeGroupBasis m a where
---   infixl 7 ./.
---   (./.) :: m a -> m a -> m a

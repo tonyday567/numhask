@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
 -- | The Group hirarchy
-module Numhask.Algebra.Addition
+module NumHask.Algebra.Abstract.Addition
       ( zero
       , Add(..)
       , coerceFA

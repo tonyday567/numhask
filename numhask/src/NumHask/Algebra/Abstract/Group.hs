@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
 -- | The Group hirarchy
-module Numhask.Algebra.Group
+module NumHask.Algebra.Abstract.Group
       ( Magma(..)
       , Unital(..)
       , Semigroup(..)

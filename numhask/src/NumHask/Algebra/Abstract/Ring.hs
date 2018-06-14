@@ -5,7 +5,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MonoLocalBinds #-}
 -- | The Ring hirarchy
-module NumHask.Algebra.Ring
+module NumHask.Algebra.Abstract.Ring
     (
         Distribution
     ,   Semiring

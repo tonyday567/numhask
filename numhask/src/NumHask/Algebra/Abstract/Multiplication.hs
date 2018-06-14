@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
 -- | The Group hirarchy
-module Numhask.Algebra.Multiplication
+module Numhask.Algebra.Abstract.Multiplication
       ( one
       , recip
       , Mult(..)

@@ -16,8 +16,8 @@ import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Multiplication
+import NumHask.Algebra.Addition
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.), fst, snd)
 
@@ -191,7 +191,7 @@ odd =  P.not . even
 
 -------------------------------------------------------
 -- | raise a number to a non-negative integral power
-(^) :: (P.Ord b, Integral b, Multiplicative a) => a -> b -> a
+(^) :: (P.Ord b, Integral b) => a -> b -> a
 x0 ^ y0 | y0 P.< zero = P.undefined -- P.errorWithoutStackTrace "Negative exponent"
         | y0 P.== zero = one
         | P.otherwise = f x0 y0

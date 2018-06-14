@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module Numhask.Algebra.PreludeCompat where
+module NumHask.Algebra.PreludeCompat where
 
 import Numhask.Algebra.Group as N
 import Numhask.Algebra.Addition as N

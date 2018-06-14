@@ -5,7 +5,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
-module NumHask.Algebra.Field
+module NumHask.Algebra.Abstract.Field
   ( Semifield
   , Field
   , ExpField(..)
@@ -142,8 +142,11 @@ class (Semifield a) =>
 
   infinity :: a
   infinity = one / zero
+
   nan :: a
   nan = zero / zero
+
+  isNan :: a -> Bool
 
 instance UpperBoundedField Float
 
