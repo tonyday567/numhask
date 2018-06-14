@@ -20,13 +20,13 @@ import           GHC.Generics                   ( Generic
                                                 )
 import           Data.Data                      ( Data )
 
-import           NumHask.Algebra.Additive
-import           NumHask.Algebra.Multiplicative
-import           NumHask.Algebra.Distribution
-import           NumHask.Algebra.Field
+import           NumHask.Algebra.Abstract.Additive
+import           NumHask.Algebra.Abstract.Multiplicative
+import           NumHask.Algebra.Abstract.Distribution
+import           NumHask.Algebra.Abstract.Field
 import           NumHask.Algebra.Integral
-import           NumHask.Algebra.Rational
-import           NumHask.Algebra.Metric
+import           NumHask.Algebra.Abstract.Rational
+import           NumHask.Algebra.Abstract.Metric
 
 import           Prelude                 hiding ( Num(..)
                                                 , negate

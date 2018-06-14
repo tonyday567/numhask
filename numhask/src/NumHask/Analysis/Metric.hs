@@ -20,10 +20,10 @@ import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Field
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Integral
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Integral
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
 --

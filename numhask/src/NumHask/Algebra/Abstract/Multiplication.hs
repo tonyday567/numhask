@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
 -- | The Group hirarchy
-module Numhask.Algebra.Abstract.Multiplication
+module NumHask.Algebra.Abstract.Multiplication
       ( one
       , recip
       , Mult(..)
@@ -20,10 +20,11 @@ module Numhask.Algebra.Abstract.Multiplication
       )
       where
 
-import           Numhask.Algebra.Group
+import           Numhask.Algebra.Abstract.Group
 import qualified Prelude                       as P
 
 newtype Mult a = Mult a
+    deriving (Eq, Ord, Read, Show, Bounded, Generic, Generic1, Functor)
 
 one :: Unital (Mult a) => a
 one = let (Mult a) = unit in a

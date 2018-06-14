@@ -21,9 +21,10 @@ module NumHask.Algebra.Abstract.Addition
       where
 
 import qualified Prelude                       as P
-import           Numhask.Algebra.Group
+import           Numhask.Algebra.Abstract.Group
 
 newtype Add a = Add a
+      deriving (Eq, Ord, Read, Show, Bounded, Generic, Generic1, Functor)
 
 class (Semigroup (Add a), Commutative (Add a)) => Addition a where
       infixl 6 +

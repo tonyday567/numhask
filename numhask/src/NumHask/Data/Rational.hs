@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
-module NumHask.Algebra.Rational
+module NumHask.Data.Rational
   ( Ratio(..)
   , Rational
   , ToRatio(..)
@@ -22,13 +22,13 @@ import GHC.Natural (Natural(..))
 import qualified GHC.Real
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Distribution
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Distribution
 import NumHask.Algebra.Integral
-import NumHask.Algebra.Metric
-import NumHask.Algebra.Ring
-import NumHask.Algebra.Field
+import NumHask.Analysis.Metric
+import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Field
 
 data Ratio a = !a :% !a deriving (P.Show)
 

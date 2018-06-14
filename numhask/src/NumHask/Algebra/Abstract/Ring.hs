@@ -15,7 +15,7 @@ module NumHask.Algebra.Abstract.Ring
     )
     where
 
-import NumHask.Algebra.Group
+import NumHask.Algebra.Abstract.Group
 
 -- | Distribution laws
 --

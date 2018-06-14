@@ -19,11 +19,11 @@ module NumHask.Algebra.Abstract.Module
   , TensorProduct(..)
   ) where
 
-import NumHask.Algebra.Addition
-import NumHask.Algebra.Field
-import NumHask.Algebra.Metric
-import NumHask.Algebra.Multiplication
-import NumHask.Algebra.Ring
+import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Metric
+import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Ring
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural

@@ -15,9 +15,9 @@ module NumHask.Algebra.Integral
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import NumHask.Algebra.Ring
-import NumHask.Algebra.Multiplication
-import NumHask.Algebra.Addition
+import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Addition
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.), fst, snd)
 
