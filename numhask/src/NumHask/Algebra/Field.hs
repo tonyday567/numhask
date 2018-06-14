@@ -16,7 +16,7 @@ module NumHask.Algebra.Field
   , TrigField(..)
   ) where
 
-import Ring
+import NumHask.Algebra.Ring
 
 -- | A Field is a Intetral domain in which every non-zero element has a multiplicative inverse.
 --

@@ -39,6 +39,8 @@ library
   exposed-modules:
       NumHask.Algebra
       NumHask.Algebra.Group
+      NumHask.Algebra.Addition
+      NumHask.Algebra.PreludeCompat
       NumHask.Algebra.Basis
       NumHask.Algebra.Ring
       NumHask.Algebra.Field

@@ -2,25 +2,26 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MonoLocalBinds #-}
 -- | The Ring hirarchy
 module NumHask.Algebra.Ring
     (
-        Distribution(..)
-    ,   Semiring(..)
-    ,   Ring(..)
-    ,   CommutativeRing(..)
-    ,   IntegralDomain(..)
+        Distribution
+    ,   Semiring
+    ,   Ring
+    ,   CommutativeRing
+    ,   IntegralDomain
     )
     where
 
-import Data.Coerce
 import NumHask.Algebra.Group
 
 -- | Distribution laws
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
-class (Additive a, Multiplicative a) =>
+class (Addition a, Multiplication a) =>
     Distribution a
 
 -- | Semiring
