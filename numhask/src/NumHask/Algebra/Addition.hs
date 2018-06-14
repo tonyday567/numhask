@@ -9,30 +9,14 @@
 {-# LANGUAGE MonoLocalBinds #-}
 -- | The Group hirarchy
 module Numhask.Algebra.Addition
-      ( Magma(..)
-      , Unital(..)
-      , one
-      , zero
-      , Semigroup(..)
-      , Commutative
+      ( zero
       , Add(..)
       , coerceFA
       , coerceFA'
       , coerceTA
       , coerceTA'
       , Addition(..)
-      , Invertible(..)
       , neg
-      , recip
-      , Idempotent
-      , Monoid(..)
-      , Mult(..)
-      , coerceM
-      , coerceM'
-      , Multiplication(..)
-      , Group
-      , groupSwap
-      , AbelianGroup
       )
       where
 
@@ -42,19 +26,6 @@ import qualified Prelude                       as P
 import           Numhask.Algebra.Group
 
 newtype Add a = Add a
-
---less flexible coerces for better instances
-coerceFA :: (Add a -> Add a -> Add a) -> a -> a -> a
-coerceFA f a b = let (Add res) = f (Add a) (Add b) in res
-
-coerceFA' :: (Add a -> Add a) -> a -> a
-coerceFA' f a = let (Add res) = f (Add a) in res
-
-coerceTA :: (a -> a -> a) -> (Add a -> Add a -> Add a)
-coerceTA f (Add a) (Add b) = Add P.$ f a b
-
-coerceTA' :: (a -> a) -> (Add a -> Add a)
-coerceTA' f (Add a) = Add P.$ f a
 
 class (Semigroup (Add a), Commutative (Add a)) => Addition a where
       infixl 6 +
@@ -76,3 +47,16 @@ zero = let (Add a) = unit in a
 
 neg :: Invertible (Add a) => a -> a
 neg = coerceFA' inv
+
+--less flexible coerces for better inference in instances
+coerceFA :: (Add a -> Add a -> Add a) -> a -> a -> a
+coerceFA f a b = let (Add res) = f (Add a) (Add b) in res
+
+coerceFA' :: (Add a -> Add a) -> a -> a
+coerceFA' f a = let (Add res) = f (Add a) in res
+
+coerceTA :: (a -> a -> a) -> (Add a -> Add a -> Add a)
+coerceTA f (Add a) (Add b) = Add P.$ f a b
+
+coerceTA' :: (a -> a) -> (Add a -> Add a)
+coerceTA' f (Add a) = Add P.$ f a
