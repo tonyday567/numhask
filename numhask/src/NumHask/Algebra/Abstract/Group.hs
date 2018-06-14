@@ -81,9 +81,9 @@ instance (Unital a, Semigroup a) => Monoid a
 
 -- | An Invertible Magma
 --
--- > ∀ a ∈ T: a `comb` inv a = unit
+-- > ∀ a,b ∈ T: inv a `comb` (a `comb` b) = b = (b `comb` a) `comb` inv a
 --
-class Unital a =>
+class Magma a =>
       Invertible a where
   inv :: a -> a
 
