@@ -14,6 +14,7 @@ module NumHask.Algebra.Group
       , Addition(..)
       , Invertible(..)
       , neg
+      , (-)
       , recip
       , Idempotent(..)
       , Monoid(..)
@@ -92,6 +93,9 @@ class (Semigroup (Add a), Commutative (Add a)) => Addition a where
       infixl 6 +
       (+) = coerce comb
 
+      sum :: (P.Foldable f, Unital (Add a)) => f a -> a
+      sum = P.foldr (+) zero
+
 instance (Semigroup (Add a), Commutative (Add a)) => Addition a
 
 -- | A Monoid is a Semigroup with an identity element
@@ -105,19 +109,29 @@ instance (P.Monoid a) => (Monoid a) where
 
 -- | An Invertible Magma
 --
--- > ∀ a ∈ T: inv a ∈ T
+-- > ∀ a ∈ T: a `comb` inv a = unit
 --
--- law is true by construction in Haskell
---
-class Magma a =>
+class Unital a =>
       Invertible a where
   inv :: a -> a
 
 neg :: Invertible (Add a) => a -> a
 neg = coerce inv
 
+class Invertible (Add a) => AdditiveInverse a where
+      infixl 6 *
+      (-) :: a -> a -> a
+      (-) a b = a + neg b
+instance Invertible (Add a) => AdditiveInverse a
+
 recip :: Invertible (Mult a) => a -> a
 recip = coerce inv
+
+class Invertible (Mult a) => MutlInverse a where
+      infixl 6 *
+      (/) :: a -> a -> a
+      (/) a b = a * recip b
+instance Invertible (Add a) => AdditiveInverse a
 
 -- | A group is a Monoid with an invertible
 class (Monoid a, Invertible a) => Group a
@@ -140,6 +154,8 @@ class (Absorbing (Mult a), Commutative (Mult a)) =>
     zero' :: a
     zero' = coerce absorb
 
+    product :: (P.Foldable f, Unital (Mult a)) => f a -> a
+    product = P.foldr (*) one
 
 instance (Absorbing (Mult a), Commutative (Mult a)) =>
     Multplicative a
