@@ -20,8 +20,6 @@ module Numhask.Algebra.Addition
       )
       where
 
--- FIXME: why can't i coerce? (never used it...)
-import           Data.Coerce
 import qualified Prelude                       as P
 import           Numhask.Algebra.Group
 
