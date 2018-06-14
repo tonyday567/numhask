@@ -17,26 +17,9 @@ module NumHask.Algebra.Field
   , TrigField(..)
   ) where
 
-import Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Integral
-import Data.Bool (bool)
-import Prelude (Double, Float, Integer, (||))
-import qualified Prelude as P
 
--- | A Semifield is chosen here to be a Field without an Additive Inverse
-class (MultiplicativeInvertible a, MultiplicativeGroup a, Semiring a) =>
-      Semifield a
-
-instance Semifield Double
-
-instance Semifield Float
-
-instance (Semifield a, AdditiveGroup a) => Semifield (Complex a)
-
--- | A Field is a Ring plus additive invertible and multiplicative invertible operations.
+-- | A Field is a Intetral domain in which every non-zero element has a multiplicative inverse.
 --
 -- A summary of the rules inherited from super-classes of Field
 --
@@ -60,7 +43,7 @@ instance (Semifield a, AdditiveGroup a) => Semifield (Complex a)
 -- > recip a = one / a
 -- > recip a * a = one
 -- > a * recip a = one
-class (AdditiveGroup a, MultiplicativeGroup a, Ring a) =>
+class (IntegralDomain a) =>
       Field a
 
 instance Field Double
