@@ -96,6 +96,10 @@ class (Semigroup (Add a), Commutative (Add a)) => Addition a where
       sum :: (P.Foldable f, Unital (Add a)) => f a -> a
       sum = P.foldr (+) zero
 
+      infixl 6 *
+      (-) :: Invertible (Add a) => a -> a -> a
+      (-) a b = a + neg b
+
 instance (Semigroup (Add a), Commutative (Add a)) => Addition a
 
 -- | A Monoid is a Semigroup with an identity element
@@ -118,20 +122,8 @@ class Unital a =>
 neg :: Invertible (Add a) => a -> a
 neg = coerce inv
 
-class Invertible (Add a) => AdditiveInverse a where
-      infixl 6 *
-      (-) :: a -> a -> a
-      (-) a b = a + neg b
-instance Invertible (Add a) => AdditiveInverse a
-
 recip :: Invertible (Mult a) => a -> a
 recip = coerce inv
-
-class Invertible (Mult a) => MutlInverse a where
-      infixl 6 *
-      (/) :: a -> a -> a
-      (/) a b = a * recip b
-instance Invertible (Add a) => AdditiveInverse a
 
 -- | A group is a Monoid with an invertible
 class (Monoid a, Invertible a) => Group a
@@ -156,6 +148,10 @@ class (Absorbing (Mult a), Commutative (Mult a)) =>
 
     product :: (P.Foldable f, Unital (Mult a)) => f a -> a
     product = P.foldr (*) one
+
+    infixl 6 *
+    (/) :: Invertible (Mult a) => a -> a -> a
+    (/) a b = a * recip b
 
 instance (Absorbing (Mult a), Commutative (Mult a)) =>
     Multplicative a
