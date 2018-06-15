@@ -21,7 +21,7 @@ module NumHask.Algebra.Abstract.Addition
       where
 
 import qualified Prelude                       as P
-import           Numhask.Algebra.Abstract.Group
+import           NumHask.Algebra.Abstract.Group
 
 newtype Add a = Add a
       deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
