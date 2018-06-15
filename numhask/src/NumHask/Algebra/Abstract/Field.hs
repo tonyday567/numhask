@@ -124,7 +124,7 @@ class (Field a, Integral b) => QuotientField a b where
           P.GT -> m
 
   ceiling :: a -> b
-  default ceiling ::(P.Ord a, Invertible (Add b)) => a -> b
+  default ceiling ::(P.Ord a) => a -> b
   ceiling x = bool n (n+one) (r P.> zero)
     where (n,r) = properFraction x
 

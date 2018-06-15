@@ -14,19 +14,19 @@ instance Magma (Add Int) where
 instance Unital (Add Int) where
     unit = coerce (0 :: Int)
 
-instance M.Semigroup (Add Int)
+instance N.Semigroup (Add Int)
 
 instance Commutative (Add Int)
 
 instance Invertible (Add Int) where
-    inv= coerceTA' (-1 P.*)
+    inv= coerceTA' (P.negate)
 
 instance Magma (Mult Int) where
-    comb = coerceTA (P.*)
+    comb = coerceTM (P.*)
 
 instance Unital (Mult Int) where
     unit = coerce (1 :: Int)
 
-instance M.Semigroup (Mult Int)
+instance N.Semigroup (Mult Int)
 
 instance Commutative (Mult Int)

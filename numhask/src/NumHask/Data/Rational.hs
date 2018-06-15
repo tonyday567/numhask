@@ -22,9 +22,9 @@ import GHC.Natural (Natural(..))
 import qualified GHC.Real
 import qualified Prelude as P
 import Prelude (Double, Float, Int, Integer, (.))
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Distribution
+import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Integral
 import NumHask.Analysis.Metric
 import NumHask.Algebra.Abstract.Ring

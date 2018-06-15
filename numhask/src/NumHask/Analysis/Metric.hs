@@ -26,6 +26,7 @@ import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplication
 import NumHask.Algebra.Abstract.Group
+import NumHask.Data.PreludeCompat
 import NumHask.Algebra.Integral
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain

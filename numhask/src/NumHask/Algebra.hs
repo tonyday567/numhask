@@ -21,7 +21,7 @@ module NumHask.Algebra
   , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Data.Rational
   , module NumHask.Algebra.Abstract.Ring
-  , module NumHask.Data.Complex
+  -- , module NumHask.Data.Complex
   ) where
 
 import NumHask.Algebra.Linear.Hamard
@@ -35,7 +35,7 @@ import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Data.Rational
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Data.Complex (Complex(..))
+-- import NumHask.Data.Complex (Complex(..))
 
 -- $numMap
 --

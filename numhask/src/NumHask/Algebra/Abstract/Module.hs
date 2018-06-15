@@ -5,22 +5,21 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra for Modules
 module NumHask.Algebra.Abstract.Module
   ( AdditiveModule(..)
   , AdditiveGroupModule(..)
-  , MultiplicativeModule(..)
   , MultiplicativeGroupModule(..)
-  , Banach(..)
-  , Hilbert(..)
   , type (><)
   , TensorProduct(..)
   ) where
 
 import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
 import NumHask.Analysis.Metric
 import NumHask.Algebra.Abstract.Multiplication
 import NumHask.Algebra.Abstract.Ring
@@ -30,6 +29,22 @@ import GHC.Natural
 import Prelude
        (Double, Float, Int, Integer)
 
+-- | a module
+--   A Module over r a is a (Ring a), an abelian (Group r a) 
+--   and an scalar-mult. (.*, *.) with the laws:
+-- > a .* one == a
+-- > (a + b) .* c == (a .* c) + (b .* c)
+-- > c *. (a + b) == (c *. a) + (c *. b)
+-- > a .* zero == zero
+-- > a .* b == b *. a
+class (Ring a, AbelianGroup (r a)) => Module r a where
+  infixl 7 .*
+  (.*) :: r a -> a -> r a
+  infixl 7 *.
+  (*.) :: a -> r a -> r a
+
+--FIXME: What is this? definitly not usual modules...
+-- We can fizzle out a more complicated hirarchy, if needed
 -- | Additive Module Laws
 --
 -- > (a + b) .+ c == a + (b .+ c)
@@ -50,7 +65,7 @@ class (Addition a) =>
 -- > (a + b) .- c == (a .- c) + b
 -- > a .- zero == a
 -- > a .- b == negate b +. a
-class (AdditiveGroup a, AdditiveModule r a) =>
+class (Group (Add a), AdditiveModule r a) =>
       AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
@@ -58,31 +73,33 @@ class (AdditiveGroup a, AdditiveModule r a) =>
   infixl 6 -.
   (-.) :: a -> r a -> r a
 
--- | Multiplicative Module Laws
---
--- > a .* one == a
--- > (a + b) .* c == (a .* c) + (b .* c)
--- > c *. (a + b) == (c *. a) + (c *. b)
--- > a .* zero == zero
--- > a .* b == b *. a
-class (Multiplicative a) =>
-      MultiplicativeModule r a where
-  infixl 7 .*
-  (.*) :: r a -> a -> r a
-  infixl 7 *.
-  (*.) :: a -> r a -> r a
+-- -- | Multiplicative Module Laws
+-- --
+-- -- > a .* one == a
+-- -- > (a + b) .* c == (a .* c) + (b .* c)
+-- -- > c *. (a + b) == (c *. a) + (c *. b)
+-- -- > a .* zero == zero
+-- -- > a .* b == b *. a
+-- class (Multiplication a) =>
+--       MultiplicativeModule r a where
+--   infixl 7 .*
+--   (.*) :: r a -> a -> r a
+--   infixl 7 *.
+--   (*.) :: a -> r a -> r a
+
 
 -- | Division Module Laws
 --
 -- > nearZero a || a ./ one == a
 -- > b == zero || a ./ b == recip b *. a
-class (MultiplicativeGroup a, MultiplicativeModule r a) =>
+class (Module r a, Field a) =>
       MultiplicativeGroupModule r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
   infixl 7 /.
   (/.) :: a -> r a -> r a
 
+--FIXME: Why is the Tensorproduct here?
 -- | tensorial type
 type family (><) (a :: k1) (b :: k2) :: *
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE DefaultSignatures     #-}
+{-# LANGUAGE MonoLocalBinds     #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
@@ -10,10 +10,12 @@ module NumHask.Analysis.Banach
   , Metric(..)
   , Epsilon(..)
   , (≈)
+  , Hilbert(..)
   ) where
 
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Module
 import NumHask.Analysis.Metric
 import qualified Prelude as P
 -- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
