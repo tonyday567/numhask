@@ -32,12 +32,6 @@ one = let (Mult a) = unit in a
 recip :: Invertible (Mult a) => a -> a
 recip = coerceM' inv
 
-coerceM :: (Mult a -> Mult a -> Mult a) -> a -> a -> a
-coerceM f a b = let (Mult res) = f (Mult a) (Mult b) in res
-
-coerceM' :: (Mult a -> Mult a) -> a -> a
-coerceM' f a = let (Mult res) = f (Mult a) in res
-
 class (Absorbing (Mult a), Monoid (Mult a)) =>
       Multiplication a where
     infixl 6 *
