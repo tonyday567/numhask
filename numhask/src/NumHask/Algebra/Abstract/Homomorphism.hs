@@ -1,12 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
--- {-# LANGUAGE NoImplicitPrelude #-}
--- {-# LANGUAGE UndecidableInstances #-}
--- {-# LANGUAGE FlexibleInstances #-}
--- {-# LANGUAGE FlexibleContexts #-}
--- {-# LANGUAGE ConstrainedClassMethods #-}
--- {-# LANGUAGE RoleAnnotations #-}
--- {-# LANGUAGE ScopedTypeVariables #-}
--- {-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 -- | The Homomorphism Hirarchy
 module NumHask.Algebra.Abstract.Homomorphism
       ( 
