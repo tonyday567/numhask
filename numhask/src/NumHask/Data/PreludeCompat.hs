@@ -1,9 +1,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 module NumHask.Data.PreludeCompat where
 
-import Numhask.Algebra.Abstract.Group as N
-import Numhask.Algebra.Abstract.Addition as N
-import Numhask.Algebra.Abstract.Multiplication as N
+import NumHask.Algebra.Abstract.Group as N
+import NumHask.Algebra.Abstract.Addition as N
+import NumHask.Algebra.Abstract.Multiplication as N
 
 import Data.Coerce
 import Prelude as P

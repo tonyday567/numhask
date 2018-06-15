@@ -20,11 +20,11 @@ module NumHask.Algebra.Abstract.Multiplication
       )
       where
 
-import           Numhask.Algebra.Abstract.Group
+import           NumHask.Algebra.Abstract.Group
 import qualified Prelude                       as P
 
 newtype Mult a = Mult a
-    deriving (Eq, Ord, Read, Show, Bounded, Generic, Generic1, Functor)
+    deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
 
 one :: Unital (Mult a) => a
 one = let (Mult a) = unit in a
