@@ -21,7 +21,7 @@ module NumHask.Algebra.Abstract.Module
 
 import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Metric
+import NumHask.Analysis.Metric
 import NumHask.Algebra.Abstract.Multiplication
 import NumHask.Algebra.Abstract.Ring
 import Data.Int (Int8, Int16, Int32, Int64)

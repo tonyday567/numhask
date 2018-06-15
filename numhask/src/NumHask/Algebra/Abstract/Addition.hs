@@ -7,6 +7,8 @@
 {-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
 -- | The Group hirarchy
 module NumHask.Algebra.Abstract.Addition
       ( zero
@@ -21,6 +23,7 @@ module NumHask.Algebra.Abstract.Addition
       where
 
 import qualified Prelude                       as P
+import qualified GHC.Generics                  as P
 import           NumHask.Algebra.Abstract.Group
 
 newtype Add a = Add a

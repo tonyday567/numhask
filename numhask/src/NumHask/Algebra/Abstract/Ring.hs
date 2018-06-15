@@ -16,6 +16,8 @@ module NumHask.Algebra.Abstract.Ring
     where
 
 import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Multiplication
 
 -- | Distribution laws
 --
@@ -47,5 +49,6 @@ instance (Ring a, Commutative (Mult a)) =>
 --  rules:
 --  product of any two nonzero elements is nonzero, also
 --  if a ≠ 0, an equality ab = ac implies b = c.
-class (CommutativeRing a) =>
+--  this essentially is a generalization of division and a fundamental step towards a Field
+class (CommutativeRing a, Invertible (Mult a)) =>
     IntegralDomain a

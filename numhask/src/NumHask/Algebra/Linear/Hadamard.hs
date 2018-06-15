@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Element-by-element operations
@@ -11,8 +12,9 @@ module NumHask.Algebra.Linear.Hadamard
   -- , MultiplicativeGroupBasis(..)
   ) where
 
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Multiplication
 
 -- FIXME: cleanup
 -- | element by element multiplication
@@ -21,7 +23,7 @@ import NumHask.Algebra.Abstract.Multiplicative
 -- > singleton one .*. a = a
 -- > a .*. singelton one = a
 -- > a .*. b == b .*. a
-class (Multiplicative a) =>
+class (Multiplication a) =>
       MultiplicativeBasis m a where
   infixl 7 .*.
   (.*.) :: m a -> m a -> m a
@@ -29,7 +31,7 @@ class (Multiplicative a) =>
 -- | element by element division
 --
 -- > a ./. a == singleton one
-class (MultiplicativeGroup a) =>
+class (Group (Mult a)) =>
       MultiplicativeGroupBasis m a where
   infixl 7 ./.
   (./.) :: m a -> m a -> m a

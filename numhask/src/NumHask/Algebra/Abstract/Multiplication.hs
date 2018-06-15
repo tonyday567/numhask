@@ -7,6 +7,8 @@
 {-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveFunctor #-}
 -- | The Group hirarchy
 module NumHask.Algebra.Abstract.Multiplication
       ( one
@@ -22,6 +24,7 @@ module NumHask.Algebra.Abstract.Multiplication
 
 import           NumHask.Algebra.Abstract.Group
 import qualified Prelude                       as P
+import qualified GHC.Generics                  as P
 
 newtype Mult a = Mult a
     deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
@@ -30,13 +33,13 @@ one :: Unital (Mult a) => a
 one = let (Mult a) = unit in a
 
 recip :: Invertible (Mult a) => a -> a
-recip = coerceM' inv
+recip = coerceFM' inv
 
 class (Absorbing (Mult a), Monoid (Mult a)) =>
       Multiplication a where
     infixl 6 *
     (*) :: a -> a -> a
-    (*) = coerceM comb
+    (*) = coerceFM comb
 
     zero' :: a
     zero' = let (Mult a) = absorb in a
