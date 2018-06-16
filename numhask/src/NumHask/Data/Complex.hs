@@ -1,18 +1,18 @@
 {-# LANGUAGE DeriveGeneric, DeriveDataTypeable, DeriveFunctor, GeneralizedNewtypeDeriving, DeriveFoldable, DeriveTraversable #-}
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, UndecidableInstances #-}
 module NumHask.Data.Complex where
 
 import GHC.Generics (Generic, Generic1)
 import Data.Data (Data)
 
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Multiplication
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Distribution
 import NumHask.Algebra.Abstract.Field
 import NumHask.Analysis.Metric
 
-import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**))
+import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**), Semigroup)
 import qualified Prelude as P ( (&&), (>), (<=), (<), (==), otherwise, Ord(..) )
 
 -- -----------------------------------------------------------------------------
@@ -42,85 +42,60 @@ imagPart :: Complex a -> a
 imagPart (_ :+ y) =  y
 
 
+instance (Magma (Add a)) => Magma (Add (Complex a)) where
+  (Add (rx :+ ix)) `comb` (Add (ry :+ iy)) = Add $ (rx `plus` ry) :+ (ix `plus` iy)
 
+instance (Unital (Add a)) => Unital (Add (Complex a)) where
+  unit = Add (zero :+ zero)
 
-instance (AdditiveMagma a) => AdditiveMagma (Complex a) where
-  (rx :+ ix) `plus` (ry :+ iy) = (rx `plus` ry) :+ (ix `plus` iy)
+instance (Semigroup (Add a)) => Semigroup (Add (Complex a))
 
-instance (AdditiveUnital a) => AdditiveUnital (Complex a) where
-  zero = zero :+ zero  
+instance (Commutative (Add a)) => Commutative (Add (Complex a))
 
-instance (AdditiveAssociative a) => AdditiveAssociative (Complex a)
+instance (Invertible (Add a)) => Invertible (Add (Complex a)) where
+  inv (Add (rx :+ ix)) = Add $ neg rx :+ neg ix
 
-instance (AdditiveCommutative a) => AdditiveCommutative (Complex a)
+instance (Multiplication a, AbelianGroup (Add a)) => Absorbing (Mult (Complex a)) where
+  absorb = Mult $ zero' :+ zero'
 
-instance (Additive a) => Additive (Complex a)
+instance (Distribution a, AbelianGroup (Add a)) => Distribution (Complex a)
 
-instance (AdditiveInvertible a) => AdditiveInvertible (Complex a) where
-  negate (rx :+ ix) = negate rx :+ negate ix
+instance (AbelianGroup (Add a), Unital (Mult a)) => Unital (Mult (Complex a)) where
+  unit = Mult $ one :+ zero
 
-instance (AdditiveGroup a) => AdditiveGroup (Complex a)
-
-
-instance (Distribution a, AdditiveGroup a) => Distribution (Complex a)
-
-
-instance (AdditiveUnital a, AdditiveGroup a, MultiplicativeUnital a) => MultiplicativeUnital (Complex a) where
-  one = one :+ zero
-
-instance (MultiplicativeMagma a, AdditiveGroup a) => MultiplicativeMagma (Complex a) where
-  (rx :+ ix) `times` (ry :+ iy) =
+instance (Magma (Mult a), AbelianGroup (Add a)) => Magma (Mult (Complex a)) where
+  (Mult (rx :+ ix)) `comb` (Mult (ry :+ iy)) = Mult $
     (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
-instance (MultiplicativeMagma a, AdditiveGroup a) => MultiplicativeCommutative (Complex a)
+instance (Commutative (Mult a), AbelianGroup (Add a)) => Commutative (Mult (Complex a))
 
-instance (MultiplicativeUnital a, MultiplicativeAssociative a, AdditiveGroup a) => Multiplicative (Complex a)
-
-
-instance (AdditiveGroup a, MultiplicativeInvertible a) => MultiplicativeInvertible (Complex a) where
-  recip (rx :+ ix) = (rx `times` d) :+ (negate ix `times` d)
+instance (AbelianGroup (Add a), Invertible (Mult a)) => Invertible (Mult (Complex a)) where
+  inv (Mult (rx :+ ix)) = Mult $ (rx `times` d) :+ (neg ix `times` d)
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
 
+instance (AbelianGroup (Add a), Semigroup (Mult a)) =>
+         Semigroup (Mult (Complex a))
 
-
-instance (MultiplicativeUnital a, MultiplicativeAssociative a, MultiplicativeInvertible a, AdditiveGroup a) => MultiplicativeGroup (Complex a)    
-
-
-
-
-instance (AdditiveGroup a, MultiplicativeAssociative a) =>
-         MultiplicativeAssociative (Complex a)
-
-
-instance (Semiring a, AdditiveGroup a) => Semiring (Complex a)
-
-instance (Semiring a, AdditiveGroup a) => Ring (Complex a)
-
-instance (Semiring a, AdditiveGroup a) => InvolutiveRing (Complex a)
-
-instance (MultiplicativeAssociative a, MultiplicativeUnital a, AdditiveGroup a, Semiring a) =>
-   CRing (Complex a)
-
-instance (MultiplicativeGroup a, AdditiveGroup a, Semiring a) => Field (Complex a) 
-
-
-instance (Multiplicative a, ExpField a, Normed a a) =>
+instance (Multiplication a, ExpField a, Normed a a) =>
          Normed (Complex a) a where
   normL1 (rx :+ ix) = normL1 rx + normL1 ix
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
-instance (Multiplicative a, ExpField a, Normed a a) => Metric (Complex a) a where
+instance (Multiplication a, ExpField a, Normed a a) => Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
+instance (IntegralDomain a) => IntegralDomain (Complex a)
 
+instance (Field a) => Field (Complex a)
 
 -- | todo: bottom is here somewhere???
+-- | is it possible to get rid of P.Ord?
 instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
-  exp (rx :+ ix) = exp rx * cos ix :+ exp rx * sin ix
+  exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
     where
       atan2' y x
@@ -128,20 +103,16 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.> zero = pi / (one + one)
         | x P.< one P.&& y P.> one = pi + atan (y / x)
         | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
-          negate (atan2' (negate y) x)
+          neg (atan2' (neg y) x)
         | y P.== zero = pi -- must be after the previous test on zero y
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
 
-
-
-
-
 -- * Helpers from Data.Complex 
 
 mkPolar :: TrigField a => a -> a -> Complex a
-mkPolar r theta  =  r * cos theta :+ r * sin theta
+mkPolar r theta  =  (r * cos theta) :+ (r * sin theta)
 
 
 -- | @'cis' t@ is a complex value with magnitude @1@

@@ -20,13 +20,14 @@ import           GHC.Generics                   ( Generic
                                                 )
 import           Data.Data                      ( Data )
 
-import           NumHask.Algebra.Abstract.Additive
-import           NumHask.Algebra.Abstract.Multiplicative
-import           NumHask.Algebra.Abstract.Distribution
+import           NumHask.Algebra.Abstract.Addition
+import           NumHask.Algebra.Abstract.Group
+import           NumHask.Algebra.Abstract.Multiplication
 import           NumHask.Algebra.Abstract.Field
+import           NumHask.Algebra.Abstract.Ring
 import           NumHask.Algebra.Integral
-import           NumHask.Algebra.Abstract.Rational
-import           NumHask.Algebra.Abstract.Metric
+import           NumHask.Data.Rational
+import           NumHask.Analysis.Metric
 
 import           Prelude                 hiding ( Num(..)
                                                 , negate
@@ -41,6 +42,7 @@ import           Prelude                 hiding ( Num(..)
                                                 , recip
                                                 , (**)
                                                 , toInteger
+                                                , Semigroup
                                                 )
 import qualified Data.Foldable                 as F
 
@@ -186,62 +188,42 @@ expm1 x = exp x - one
 "log1p/expm1"    forall x. log1p (expm1 x) = x
     #-}
 
-instance (ExpField a, LowerBoundedField a, Ord a) => AdditiveMagma (LogField a) where
-    x@(LogField x') `plus` y@(LogField y')
-        | x == zero && y == zero = zero
-        | x == zero     = y
-        | y == zero     = x
-        | x >= y          = LogField (x' + log1p (exp (y' - x')))
-        | otherwise       = LogField (y' + log1p (exp (x' - y')))
+instance (ExpField a, LowerBoundedField a, Ord a) => Magma (Add (LogField a)) where
+    (Add x@(LogField x')) `comb` (Add y@(LogField y'))
+        | x == zero && y == zero = Add zero
+        | x == zero     = Add y
+        | y == zero     = Add x
+        | x >= y          = Add $ LogField (x' + log1p (exp (y' - x')))
+        | otherwise       = Add $ LogField (y' + log1p (exp (x' - y')))
 
-instance (LowerBoundedField a, ExpField a, Ord a) => AdditiveUnital (LogField a) where
-      zero = LogField negInfinity
+instance (LowerBoundedField a, ExpField a, Ord a) => Unital (Add (LogField a)) where
+    unit = Add $ LogField negInfinity
 
-instance (LowerBoundedField a, ExpField a, Ord a) => AdditiveAssociative (LogField a)
+instance (LowerBoundedField a, ExpField a, Ord a) => Semigroup (Add (LogField a))
 
-instance (LowerBoundedField a,ExpField a, Ord a) => AdditiveCommutative (LogField a)
+instance (LowerBoundedField a, ExpField a, Ord a) => Commutative (Add (LogField a))
 
-instance (LowerBoundedField a, ExpField a, Ord a) => Additive (LogField a)
+instance (Magma (Add a), LowerBoundedField a, Eq a) => Magma (Mult (LogField a)) where
+    (Mult (LogField x)) `comb ` (Mult (LogField y))
+        | x == negInfinity || y == negInfinity  = Mult $ LogField negInfinity
+        | otherwise                             = Mult $ LogField (x `plus` y)
 
-instance (AdditiveMagma a, LowerBoundedField a, Eq a) => MultiplicativeMagma (LogField a) where
-    (LogField x) `times ` (LogField y)
-        | x == negInfinity || y == negInfinity  = LogField negInfinity
-        | otherwise                             = LogField (x `plus` y)
+instance (Unital (Add a), LowerBoundedField a, Eq a) => Unital (Mult (LogField a)) where
+    unit = Mult $ LogField zero
 
-instance (AdditiveUnital a, LowerBoundedField a, Eq a) => MultiplicativeUnital (LogField a) where
-    one = LogField zero
+instance (Semigroup (Add a), LowerBoundedField a, Eq a) => Semigroup (Mult (LogField a))
 
-instance (AdditiveAssociative a, LowerBoundedField a, Eq a) => MultiplicativeAssociative (LogField a)
+instance (Commutative (Add a), LowerBoundedField a, Eq a) => Commutative (Mult (LogField a))
 
-instance (AdditiveCommutative a, LowerBoundedField a, Eq a) => MultiplicativeCommutative (LogField a)
+instance (Invertible (Add a), LowerBoundedField a, Eq a) => Invertible (Mult (LogField a)) where
+    inv (Mult (LogField x)) = Mult $ LogField $ neg x
 
-instance (AdditiveInvertible a, LowerBoundedField a, Eq a) => MultiplicativeInvertible (LogField a) where
-    recip (LogField x) = LogField $ negate x
+instance (Multiplication (LogField a), Group (Add a), LowerBoundedField a, Eq a) => Group (Mult (LogField a))
 
-instance (AdditiveUnital a
-        , AdditiveAssociative a
-        , AdditiveCommutative a
-        , Additive a
-        , LowerBoundedField a
-        , Eq a) => Multiplicative (LogField a)
+instance (Magma (Add a), LowerBoundedField a, Eq a) => Absorbing (Mult (LogField a)) where
+    absorb = Mult $ LogField negInfinity
 
-instance (AdditiveUnital a
-      , AdditiveAssociative a
-      , AdditiveInvertible a
-      , AdditiveLeftCancellative a
-      , LowerBoundedField a
-      , Eq a) => MultiplicativeLeftCancellative (LogField a)
-
-instance (AdditiveUnital a
-    , AdditiveAssociative a
-    , AdditiveInvertible a
-    , AdditiveRightCancellative a
-    , LowerBoundedField a
-    , Eq a) => MultiplicativeRightCancellative (LogField a)
-
-instance (Multiplicative (LogField a), AdditiveInvertible a, AdditiveGroup a, LowerBoundedField a, Eq a) => MultiplicativeGroup (LogField a)
-
-instance (LowerBoundedField a, ExpField a, Ord a, AdditiveMagma a) => Distribution (LogField a)
+instance (LowerBoundedField a, ExpField a, Ord a) => Distribution (LogField a)
 
 -- unable to provide this instance because there is no Field (LogField a) instance
 -- instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where

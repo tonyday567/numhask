@@ -51,8 +51,7 @@ library
       NumHask.Analysis.Banach
       NumHask.Algebra.Abstract.Module
       NumHask.Data
-    --   NumHask.Data.Complex   
-    --   NumHask.Data.LogField    
-      NumHask.Data.PreludeCompat     
+      NumHask.Data.Complex   
+      NumHask.Data.LogField       
   other-modules:
   default-language: Haskell2010

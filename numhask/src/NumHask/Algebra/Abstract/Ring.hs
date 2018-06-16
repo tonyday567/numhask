@@ -18,6 +18,20 @@ module NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Multiplication
+import qualified Prelude                       as P
+import           Data.Complex                   ( Complex(..) )
+import           Data.Int                       ( Int8
+                                                , Int16
+                                                , Int32
+                                                , Int64
+                                                )
+import           Data.Word                      ( Word
+                                                , Word8
+                                                , Word16
+                                                , Word32
+                                                , Word64
+                                                )
+import           GHC.Natural                    ( Natural(..) )
 
 -- | Distribution laws
 --
@@ -25,6 +39,25 @@ import NumHask.Algebra.Abstract.Multiplication
 -- > (a * b) * c == a * c + b * c
 class (Addition a, Multiplication a) =>
     Distribution a
+
+instance Distribution P.Double
+
+instance Distribution P.Float
+
+instance (Distribution a, AbelianGroup (Add a)) => Distribution (Complex a)
+
+instance Distribution P.Int
+instance Distribution P.Integer 
+instance Distribution Natural 
+instance Distribution Int8 
+instance Distribution Int16 
+instance Distribution Int32 
+instance Distribution Int64 
+instance Distribution Word 
+instance Distribution Word8 
+instance Distribution Word16 
+instance Distribution Word32 
+instance Distribution Word64 
 
 -- | Semiring
 -- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
@@ -52,3 +85,9 @@ instance (Ring a, Commutative (Mult a)) =>
 --  this essentially is a generalization of division and a fundamental step towards a Field
 class (CommutativeRing a, Invertible (Mult a)) =>
     IntegralDomain a
+
+instance IntegralDomain P.Double
+
+instance IntegralDomain P.Float
+
+instance (IntegralDomain a) => IntegralDomain (Complex a)

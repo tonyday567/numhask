@@ -11,17 +11,34 @@ module NumHask.Algebra.Integral
   , odd
   , (^)
   , (^^)
-  ) where
+  )
+where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
-import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Multiplication
-import NumHask.Algebra.Abstract.Addition
-import qualified Prelude as P
-import Prelude (Double, Float, Int, Integer, (.), fst, snd)
+import           Data.Int                       ( Int8
+                                                , Int16
+                                                , Int32
+                                                , Int64
+                                                )
+import           Data.Word                      ( Word
+                                                , Word8
+                                                , Word16
+                                                , Word32
+                                                , Word64
+                                                )
+import           GHC.Natural                    ( Natural(..) )
+import           NumHask.Algebra.Abstract.Group
+import           NumHask.Algebra.Abstract.Ring
+import           NumHask.Algebra.Abstract.Multiplication
+import           NumHask.Algebra.Abstract.Addition
+import qualified Prelude                       as P
+import           Prelude                        ( Double
+                                                , Float
+                                                , Int
+                                                , Integer
+                                                , (.)
+                                                , fst
+                                                , snd
+                                                )
 
 -- | Integral laws
 --
@@ -43,53 +60,53 @@ class (Semiring a) =>
 
   quotRem :: a -> a -> (a, a)
 
--- instance Integral Int where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Int where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Integer where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Integer where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Natural where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Natural where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Int8 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Int8 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Int16 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Int16 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Int32 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Int32 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Int64 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Int64 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Word where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Word where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Word8 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Word8 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Word16 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Word16 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Word32 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Word32 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
--- instance Integral Word64 where
---   divMod = P.divMod
---   quotRem = P.quotRem
+instance Integral Word64 where
+  divMod = P.divMod
+  quotRem = P.quotRem
 
 -- | toInteger is kept separate from Integral to help with compatability issues.
 class ToInteger a where
@@ -189,27 +206,28 @@ even :: (P.Eq a, Integral a) => a -> P.Bool
 even n = n `rem` (one + one) P.== zero
 
 odd :: (P.Eq a, Integral a) => a -> P.Bool
-odd =  P.not . even
+odd = P.not . even
 
 -------------------------------------------------------
 -- | raise a number to a non-negative integral power
 (^) :: (P.Ord b, Group (Mult a), Absorbing (Mult a), Integral b) => a -> b -> a
-x0 ^ y0 | y0 P.< zero = P.undefined -- P.errorWithoutStackTrace "Negative exponent"
-        | y0 P.== zero = one
-        | P.otherwise = f x0 y0
-    where
-      two = one+one
+x0 ^ y0 | y0 P.< zero  = P.undefined
+        | -- P.errorWithoutStackTrace "Negative exponent"
+          y0 P.== zero = one
+        | P.otherwise  = f x0 y0
+ where
+  two = one + one
 
-      -- f : x0 ^ y0 = x ^ y
-      f x y | even y = f (x * x) (y `quot` two)
-            | y P.== one = x
-            | P.otherwise = g (x * x) (y `quot` two) x
-              -- See Note [Half of y - 1]
-      -- g : x0 ^ y0 = (x ^ y) * z
-      g x y z | even y = g (x * x) (y `quot` two) z
-              | y P.== one = x * z
-              | P.otherwise = g (x * x) (y `quot` two) (x * z)
+  -- f : x0 ^ y0 = x ^ y
+  f x y | even y      = f (x * x) (y `quot` two)
+        | y P.== one  = x
+        | P.otherwise = g (x * x) (y `quot` two) x
+          -- See Note [Half of y - 1]
+  -- g : x0 ^ y0 = (x ^ y) * z
+  g x y z | even y      = g (x * x) (y `quot` two) z
+          | y P.== one  = x * z
+          | P.otherwise = g (x * x) (y `quot` two) (x * z)
                 -- See Note [Half of y - 1]
 
 (^^) :: (Group (Mult a), Invertible (Add a), Integral a, P.Ord a) => a -> a -> a
-(^^) x n = if n P.>= zero then x^n else recip (x ^ neg n)
+(^^) x n = if n P.>= zero then x ^ n else recip (x ^ neg n)
