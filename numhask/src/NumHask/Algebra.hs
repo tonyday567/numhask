@@ -10,29 +10,28 @@ module NumHask.Algebra
     --
     -- $numMap
     module NumHask.Algebra.Abstract.Group
-  , module NumHask.Algebra.Linear.Hamard
-  , module NumHask.Algebra.Abstract.Distribution
+  , module NumHask.Algebra.Linear.Hadamard
   , module NumHask.Algebra.Abstract.Field
-  , module NumHask.Algebra.Abstract.Integral
-  , module NumHask.Algebra.Abstract.Group
+  , module NumHask.Algebra.Integral
   , module NumHask.Analysis.Metric
   , module NumHask.Analysis.Banach
   , module NumHask.Algebra.Abstract.Module
-  , module NumHask.Algebra.Abstract.Multiplicative
+  , module NumHask.Algebra.Abstract.Multiplication
+  , module NumHask.Algebra.Abstract.Addition
   , module NumHask.Data.Rational
   , module NumHask.Algebra.Abstract.Ring
   -- , module NumHask.Data.Complex
   ) where
 
-import NumHask.Algebra.Linear.Hamard
-import NumHask.Algebra.Abstract.Distribution
+import NumHask.Algebra.Linear.Hadamard
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Integral
+import NumHask.Algebra.Integral
 import NumHask.Algebra.Abstract.Group
 import NumHask.Analysis.Metric
 import NumHask.Analysis.Banach
 import NumHask.Algebra.Abstract.Module
-import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Addition
 import NumHask.Data.Rational
 import NumHask.Algebra.Abstract.Ring
 -- import NumHask.Data.Complex (Complex(..))
