@@ -300,4 +300,4 @@ instance Invertible (Add Word64) where
   inv = coerceTA' P.negate
 
 --- idempotent
-instance Idempotent (Add Bool)
+instance Idempotent (Add P.Bool)
