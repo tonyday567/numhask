@@ -8,19 +8,6 @@ import NumHask.Algebra.Abstract.Multiplication as N
 import Data.Coerce
 import Prelude as P
 
-instance Magma (Add Int) where
-    comb = coerceTA (P.+)
-
-instance Unital (Add Int) where
-    unit = coerce (0 :: Int)
-
-instance N.Semigroup (Add Int)
-
-instance Commutative (Add Int)
-
-instance Invertible (Add Int) where
-    inv= coerceTA' (P.negate)
-
 instance Magma (Mult Int) where
     comb = coerceTM (P.*)
 
