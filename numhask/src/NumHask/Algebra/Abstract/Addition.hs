@@ -19,7 +19,6 @@ module NumHask.Algebra.Abstract.Addition
       , coerceTA'
       , Addition
       , (+)
-      , sum
       , (-)
       , neg
       )
@@ -28,19 +27,19 @@ module NumHask.Algebra.Abstract.Addition
 import qualified Prelude                       as P
 import qualified GHC.Generics                  as P
 import           NumHask.Algebra.Abstract.Group
+import           Data.Coerce
 
 newtype Add a = Add a
       deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
 
-class (Semigroup (Add a), Commutative (Add a)) => Addition a
+class (Semigroup (Add a), Commutative (Add a)) => Addition a where
+      sum :: (P.Foldable f, Unital (Add a)) => f a -> a
+      sum = P.foldr (+) zero
 instance (Semigroup (Add a), Commutative (Add a)) => Addition a
 
 infixl 6 +
 (+) :: Addition a => a -> a -> a
 (+) = coerceFA comb
-
-sum :: (P.Foldable f, Unital (Add a), Addition a) => f a -> a
-sum = P.foldr (+) zero
 
 infixl 6 -
 (-) :: (Invertible (Add a), Addition a) => a -> a -> a

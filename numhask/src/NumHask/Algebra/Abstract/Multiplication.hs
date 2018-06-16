@@ -21,7 +21,6 @@ module NumHask.Algebra.Abstract.Multiplication
       , Multiplication
       , (*)
       , zero'
-      , product
       , (/)
       )
       where
@@ -39,7 +38,9 @@ one = let (Mult a) = unit in a
 recip :: Invertible (Mult a) => a -> a
 recip = coerceFM' inv
 
-class (Absorbing (Mult a), Monoid (Mult a)) => Multiplication a
+class (Absorbing (Mult a), Monoid (Mult a)) => Multiplication a where
+    product :: (P.Foldable f, Multiplication a) => f a -> a
+    product = P.foldr (*) one
 instance (Absorbing (Mult a), Monoid (Mult a)) => Multiplication a
 
 infixl 6 *
@@ -48,9 +49,6 @@ infixl 6 *
 
 zero' :: Multiplication a => a
 zero' = let (Mult a) = absorb in a
-
-product :: (P.Foldable f, Multiplication a) => f a -> a
-product = P.foldr (*) one
 
 infixl 6 /
 (/) :: (Invertible (Mult a), Multiplication a) => a -> a -> a
