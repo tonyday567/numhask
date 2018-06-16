@@ -2,6 +2,7 @@ resolver: nightly-2018-05-06
 
 packages:
   - .
-  - ../numhask
+  # - ../numhask
 
-extra-deps: []
+extra-deps:
+  - numhask-0.2.3.0

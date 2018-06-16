@@ -1,5 +1,5 @@
 name:           numhask-prelude
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       A numeric prelude
 description:    A numeric prelude, combining protolude and numhask.
 category:       mathematics
@@ -32,7 +32,7 @@ library
       -Wredundant-constraints
   build-depends:
       base >=4.7 && <4.12
-    , numhask >=0.2.2.0 && <0.3
+    , numhask >=0.2.3.0 && <0.3
     , protolude >=0.1 && <0.3
   exposed-modules:
       NumHask.Prelude
