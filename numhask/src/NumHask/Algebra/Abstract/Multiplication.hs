@@ -18,7 +18,11 @@ module NumHask.Algebra.Abstract.Multiplication
       , coerceFM'
       , coerceTM
       , coerceTM'
-      , Multiplication(..)
+      , Multiplication
+      , (*)
+      , zero'
+      , product
+      , (/)
       )
       where
 
@@ -35,24 +39,22 @@ one = let (Mult a) = unit in a
 recip :: Invertible (Mult a) => a -> a
 recip = coerceFM' inv
 
-class (Absorbing (Mult a), Monoid (Mult a)) =>
-      Multiplication a where
-    infixl 6 *
-    (*) :: a -> a -> a
-    (*) = coerceFM comb
+class (Absorbing (Mult a), Monoid (Mult a)) => Multiplication a
+instance (Absorbing (Mult a), Monoid (Mult a)) => Multiplication a
 
-    zero' :: a
-    zero' = let (Mult a) = absorb in a
+infixl 6 *
+(*) :: Multiplication a => a -> a -> a
+(*) = coerceFM comb
 
-    product :: P.Foldable f => f a -> a
-    product = P.foldr (*) one
+zero' :: Multiplication a => a
+zero' = let (Mult a) = absorb in a
 
-    infixl 6 /
-    (/) :: Invertible (Mult a) => a -> a -> a
-    (/) a b = a * recip b
+product :: (P.Foldable f, Multiplication a) => f a -> a
+product = P.foldr (*) one
 
-instance (Absorbing (Mult a), Monoid (Mult a)) =>
-    Multiplication a
+infixl 6 /
+(/) :: (Invertible (Mult a), Multiplication a) => a -> a -> a
+(/) a b = a * recip b
 
 --less flexible coerces for better inference in instances
 coerceFM :: (Mult a -> Mult a -> Mult a) -> a -> a -> a
