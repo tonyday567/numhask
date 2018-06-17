@@ -83,10 +83,10 @@ instance (AdditionConstraints a) => Unital (Add (Ratio a)) where
   unit = Add (zero :% one)
 
 --FIXME are the laws correct? When is it a Commutative etc.?
-instance (AdditionConstraints a, Semigroup (Add a), Semigroup (Mult a)) 
+instance (AdditionConstraints a, Semigroup (Add a), Semigroup (Mult a))
   => Semigroup (Add (Ratio a))
 
-instance (AdditionConstraints a, Commutative (Add a), Commutative (Mult a)) 
+instance (AdditionConstraints a, Commutative (Add a), Commutative (Mult a))
   => Commutative (Add (Ratio a))
 
 instance (AdditionConstraints a) => Invertible (Add (Ratio a)) where
@@ -231,16 +231,15 @@ instance ToRatio Word64 where
 -- | 'reduce' is a subsidiary function used only in this module.
 -- It normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
-reduce :: (P.Ord a, Invertible (Add a), Signed a, Integral a) => a -> a -> Ratio a
-reduce x y
-  | x P.== zero P.&& y P.== zero = zero :% zero
-  | z P.== zero = one :% zero
-  | P.otherwise = (x `quot` z) % (y `quot` z)
-  where
-    z = gcd x y
-    n % d
-      | d P.< zero = neg n :% neg d
-      | P.otherwise = n:%d
+reduce
+  :: (P.Ord a, Invertible (Add a), Signed a, Integral a) => a -> a -> Ratio a
+reduce x y | x P.== zero P.&& y P.== zero = zero :% zero
+           | z P.== zero                  = one :% zero
+           | P.otherwise                  = (x `quot` z) % (y `quot` z)
+ where
+  z = gcd x y
+  n % d | d P.< zero  = neg n :% neg d
+        | P.otherwise = n :% d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
 -- every common factor of @x@ and @y@ is also a factor; for example
@@ -252,8 +251,7 @@ reduce x y
 -- the result may be negative if one of the arguments is @'minBound'@ (and
 -- necessarily is if the other is @0@ or @'minBound'@) for such types.
 gcd :: (P.Ord a, Signed a, Integral a) => a -> a -> a
-gcd x y =  gcd' (abs x) (abs y)
-  where
-    gcd' a b
-      | b P.== zero = a
-      | P.otherwise = gcd' b (a `rem` b)
+gcd x y = gcd' (abs x) (abs y)
+ where
+  gcd' a b | b P.== zero = a
+           | P.otherwise = gcd' b (a `rem` b)

@@ -18,6 +18,7 @@ module NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Multiplication
+import qualified Prelude                       as P
 
 -- | Distribution laws
 --
@@ -52,3 +53,9 @@ instance (Ring a, Commutative (Mult a)) =>
 --  this essentially is a generalization of division and a fundamental step towards a Field
 class (CommutativeRing a, Invertible (Mult a)) =>
     IntegralDomain a
+
+instance IntegralDomain P.Double
+
+instance IntegralDomain P.Float
+
+instance (Field a) => IntegralDomain (Complex a)
