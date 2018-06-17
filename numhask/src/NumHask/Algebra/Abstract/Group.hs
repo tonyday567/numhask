@@ -11,12 +11,14 @@
 module NumHask.Algebra.Abstract.Group
       ( Magma(..)
       , Unital(..)
-      , Semigroup(..)
+      , Semigroup
+      , (<>)
       , Commutative
       , Absorbing(..)
       , Invertible(..)
       , Idempotent
-      , Monoid(..)
+      , Monoid
+      , mempty
       , Group
       , groupSwap
       , AbelianGroup
@@ -61,10 +63,11 @@ class Magma a =>
 --
 -- > (a comb b) comb c = a comb (b comb c)
 class Magma a =>
-      Semigroup a where
-      infixl 6 <>
-      (<>) :: a -> a -> a
-      (<>) = comb
+      Semigroup a
+
+infixl 6 <>
+(<>) :: Semigroup a => a -> a -> a
+(<>) = comb
 
 -- | A Commutative Magma
 --
@@ -74,10 +77,11 @@ class Magma a =>
 
 -- | A Monoid is a Semigroup with an identity element
 --
-class (Unital a, Semigroup a) => Monoid a where
-      mempty :: a
-      mempty = unit
+class (Unital a, Semigroup a) => Monoid a
 instance (Unital a, Semigroup a) => Monoid a
+
+mempty :: Monoid a => a
+mempty = unit
 
 -- | An Invertible Magma
 --

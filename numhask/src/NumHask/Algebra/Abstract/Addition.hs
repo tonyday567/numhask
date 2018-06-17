@@ -21,6 +21,7 @@ module NumHask.Algebra.Abstract.Addition
       , (+)
       , (-)
       , neg
+      , plus
       )
 where
 

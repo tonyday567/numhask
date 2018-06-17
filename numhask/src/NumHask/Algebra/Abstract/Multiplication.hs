@@ -24,6 +24,7 @@ module NumHask.Algebra.Abstract.Multiplication
       , (*)
       , zero'
       , (/)
+      , times
       )
       where
 
