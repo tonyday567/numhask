@@ -19,6 +19,7 @@ import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Multiplication
 import qualified Prelude                       as P
+import           Data.Complex                   ( Complex(..) )
 
 -- | Distribution laws
 --
@@ -26,6 +27,12 @@ import qualified Prelude                       as P
 -- > (a * b) * c == a * c + b * c
 class (Addition a, Multiplication a) =>
     Distribution a
+
+instance Distribution P.Double
+
+instance Distribution P.Float
+
+instance (Distribution a, AbelianGroup (Add a)) => Distribution (Complex a)
 
 -- | Semiring
 -- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
@@ -58,4 +65,4 @@ instance IntegralDomain P.Double
 
 instance IntegralDomain P.Float
 
-instance (Field a) => IntegralDomain (Complex a)
+instance (IntegralDomain a) => IntegralDomain (Complex a)

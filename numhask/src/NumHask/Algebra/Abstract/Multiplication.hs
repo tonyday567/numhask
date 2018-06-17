@@ -273,3 +273,54 @@ instance (AbelianGroup (Add a), Invertible (Mult a)) =>
 
 ---idempotent
 instance Idempotent (Mult P.Bool)
+
+--absorbing
+instance Absorbing (Mult P.Double) where
+    absorb = coerce (0 :: P.Double)
+    
+instance Absorbing (Mult P.Float) where
+    absorb = coerce (0 :: P.Float)
+    
+instance Absorbing (Mult P.Int) where
+    absorb = coerce (0 :: P.Int)
+    
+instance Absorbing (Mult P.Integer) where
+    absorb = coerce (0 :: P.Integer)
+    
+instance Absorbing (Mult P.Bool) where
+    absorb = coerce P.False
+    
+instance (Absorbing (Mult a), Addition a, Invertible (Add a)) => Absorbing (Mult (Complex a)) where
+    absorb = Mult P.$ (elem) :+ (elem)
+        where
+            elem = let (Mult x) = absorb in x
+    
+instance Absorbing (Mult Natural) where
+    absorb = coerce (0 :: Natural)
+    
+instance Absorbing (Mult Int8) where
+    absorb = coerce (0 :: Int8)
+    
+instance Absorbing (Mult Int16) where
+    absorb = coerce (0 :: Int16)
+    
+instance Absorbing (Mult Int32) where
+    absorb = coerce (0 :: Int32)
+    
+instance Absorbing (Mult Int64) where
+    absorb = coerce (0 :: Int64)
+    
+instance Absorbing (Mult Word) where
+    absorb = coerce (0 :: Word)
+    
+instance Absorbing (Mult Word8) where
+    absorb = coerce (0 :: Word8)
+    
+instance Absorbing (Mult Word16) where
+    absorb = coerce (0 :: Word16)
+    
+instance Absorbing (Mult Word32) where
+    absorb = coerce (0 :: Word32)
+    
+instance Absorbing (Mult Word64) where
+    absorb = coerce (0 :: Word64)
