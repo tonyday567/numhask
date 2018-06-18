@@ -20,6 +20,18 @@ import NumHask.Algebra.Abstract.Addition
 import NumHask.Algebra.Abstract.Multiplication
 import qualified Prelude                       as P
 import           Data.Complex                   ( Complex(..) )
+import           Data.Int                       ( Int8
+                                                , Int16
+                                                , Int32
+                                                , Int64
+                                                )
+import           Data.Word                      ( Word
+                                                , Word8
+                                                , Word16
+                                                , Word32
+                                                , Word64
+                                                )
+import           GHC.Natural                    ( Natural(..) )
 
 -- | Distribution laws
 --
@@ -33,6 +45,19 @@ instance Distribution P.Double
 instance Distribution P.Float
 
 instance (Distribution a, AbelianGroup (Add a)) => Distribution (Complex a)
+
+instance Distribution P.Int
+instance Distribution P.Integer 
+instance Distribution Natural 
+instance Distribution Int8 
+instance Distribution Int16 
+instance Distribution Int32 
+instance Distribution Int64 
+instance Distribution Word 
+instance Distribution Word8 
+instance Distribution Word16 
+instance Distribution Word32 
+instance Distribution Word64 
 
 -- | Semiring
 -- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
