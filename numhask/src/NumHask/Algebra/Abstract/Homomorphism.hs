@@ -6,17 +6,16 @@
 module NumHask.Algebra.Abstract.Homomorphism
       ( 
           Hom(..)
-      ,   Endo(..)
+      ,   Endo
       ,   Iso(..)
-      ,   Automorphism(..)
+      ,   Automorphism
       )
       where
 
-import qualified Prelude                       as P
 import NumHask.Algebra.Abstract.Group
 
 -- | A Homomorphism between two magmas
--- law: forall a b. hom(a `comb` b) = hom(a) `comb` hom(b)
+-- law: forall a b. hom(a `magma` b) = hom(a) `magma` hom(b)
 class (Magma a, Magma b) => Hom a b where
     hom :: a -> b
 

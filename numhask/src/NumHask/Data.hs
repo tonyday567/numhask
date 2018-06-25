@@ -2,12 +2,10 @@
 {-# LANGUAGE DeriveFunctor, GeneralizedNewtypeDeriving #-}
 module NumHask.Data where
 
-import GHC.Generics
-import Data.Coerce (coerce)
-
-import NumHask.Algebra
-
-import Prelude hiding (Num(..), sum, recip)
+import           Prelude                 hiding ( Num(..)
+                                                , sum
+                                                , recip
+                                                )
 
 -- -- | Monoid under addition.
 -- --

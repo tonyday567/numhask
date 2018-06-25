@@ -39,13 +39,14 @@ library
   exposed-modules:
       NumHask.Algebra
       NumHask.Algebra.Abstract.Group
-      NumHask.Algebra.Abstract.Addition
-      NumHask.Algebra.Abstract.Multiplication
+      NumHask.Algebra.Abstract.Additive
+      NumHask.Algebra.Abstract.Multiplicative
       NumHask.Algebra.Linear.Hadamard
       NumHask.Algebra.Abstract.Ring
       NumHask.Algebra.Abstract.Field
       NumHask.Algebra.Abstract.Homomorphism
       NumHask.Algebra.Integral
+      NumHask.Algebra.Natural
       NumHask.Data.Rational
       NumHask.Analysis.Metric
       NumHask.Analysis.Banach

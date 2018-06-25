@@ -1,11 +1,16 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Element-by-element operations
 module NumHask.Algebra.Linear.Hadamard
   ( 
+      HadamardMultiplication(..)
+    , HadamardDivision(..)
+    , Hadamard
   --   AdditiveBasis(..)
   -- , AdditiveGroupBasis(..)
   -- , MultiplicativeBasis(..)
@@ -13,8 +18,7 @@ module NumHask.Algebra.Linear.Hadamard
   ) where
 
 import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Addition
-import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Multiplicative
 
 -- FIXME: cleanup
 -- | element by element multiplication
@@ -24,17 +28,20 @@ import NumHask.Algebra.Abstract.Multiplication
 -- > a .*. singelton one = a
 -- > a .*. b == b .*. a
 class (Multiplication a) =>
-      MultiplicativeBasis m a where
+  HadamardMultiplication m a where
   infixl 7 .*.
   (.*.) :: m a -> m a -> m a
 
 -- | element by element division
 --
 -- > a ./. a == singleton one
-class (Group (Mult a)) =>
-      MultiplicativeGroupBasis m a where
+class (Group (Product a)) =>
+  HadamardDivision m a where
   infixl 7 ./.
   (./.) :: m a -> m a -> m a
+
+class (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a
+instance (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a
 
 --FIXME the hadamard product has a relationship between laws
 

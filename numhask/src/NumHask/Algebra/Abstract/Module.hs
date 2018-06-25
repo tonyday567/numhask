@@ -15,13 +15,12 @@ module NumHask.Algebra.Abstract.Module
   , MultiplicativeGroupModule(..)
   , type (><)
   , TensorProduct(..)
+  , Module(..)
   ) where
 
-import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group
-import NumHask.Analysis.Metric
-import NumHask.Algebra.Abstract.Multiplication
 import NumHask.Algebra.Abstract.Ring
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
@@ -65,7 +64,7 @@ class (Addition a) =>
 -- > (a + b) .- c == (a .- c) + b
 -- > a .- zero == a
 -- > a .- b == negate b +. a
-class (Group (Add a), AdditiveModule r a) =>
+class (Group (Sum a), AdditiveModule r a) =>
       AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a

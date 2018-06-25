@@ -9,15 +9,14 @@ module NumHask.Analysis.Banach
   , Normed(..)
   , Metric(..)
   , Epsilon(..)
-  , (≈)
   , Hilbert(..)
+  , Banach(..)
   ) where
 
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Module
 import NumHask.Analysis.Metric
-import qualified Prelude as P
 -- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
 --
 -- > a == singleton zero || normalizeL2 a *. normL2 a == a

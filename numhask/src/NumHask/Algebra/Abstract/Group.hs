@@ -28,32 +28,32 @@ module NumHask.Algebra.Abstract.Group
 import qualified Prelude                       as P
 
 -- * Magma structure
--- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,comb) consisting of
+-- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,magma) consisting of
 --
 -- - a type a, and
 --
--- - a function (comb) :: T -> T -> T
+-- - a function (magma) :: T -> T -> T
 --
 -- The mathematical laws for a magma are:
 --
--- - comb is defined for all possible pairs of type T, and
+-- - magma is defined for all possible pairs of type T, and
 --
--- - comb is closed in the set of all possible values of type T
+-- - magma is closed in the set of all possible values of type T
 --
 -- or, more tersly,
 --
--- > ∀ a, b ∈ T: a comb b ∈ T
+-- > ∀ a, b ∈ T: a magma b ∈ T
 --
 -- These laws are true by construction in haskell: the type signature of 'magma' and the above mathematical laws are synonyms.
 --
 --
 class Magma a where
-  comb :: a -> a -> a
+  magma :: a -> a -> a
 
 -- | A Unital Magma
 --
--- > unit comb a = a
--- > a comb unit = a
+-- > unit magma a = a
+-- > a magma unit = a
 --
 class Magma a =>
       Unital a where
@@ -61,17 +61,17 @@ class Magma a =>
 
 -- | A semigroup is an associative Magma
 --
--- > (a comb b) comb c = a comb (b comb c)
+-- > (a magma b) magma c = a magma (b magma c)
 class Magma a =>
       Semigroup a
 
 infixl 6 <>
 (<>) :: Semigroup a => a -> a -> a
-(<>) = comb
+(<>) = magma
 
 -- | A Commutative Magma
 --
--- > a comb b = b comb a
+-- > a magma b = b magma a
 class Magma a =>
       Commutative a
 
@@ -85,7 +85,7 @@ mempty = unit
 
 -- | An Invertible Magma
 --
--- > ∀ a,b ∈ T: inv a `comb` (a `comb` b) = b = (b `comb` a) `comb` inv a
+-- > ∀ a,b ∈ T: inv a `magma` (a `magma` b) = b = (b `magma` a) `magma` inv a
 --
 class Magma a =>
       Invertible a where
@@ -103,16 +103,16 @@ class Magma a =>
     absorb :: a
 -- | An Idempotent Magma
 --
--- > a comb a = a
+-- > a magma a = a
 class Magma a =>
       Idempotent a
 
 -- | see http://chris-taylor.github.io/blog/2013/02/25/xor-trick/
 groupSwap :: (Group a) => (a, a) -> (a, a)
 groupSwap (a, b) =
-      let a'  = a `comb` b
-          b'  = a `comb` (inv b)
-          a'' = (inv b') `comb` a'
+      let a'  = a `magma` b
+          b'  = a `magma` (inv b)
+          a'' = (inv b') `magma` a'
       in  (a'', b')
 
 -- | An Abelian Group is associative, unital, invertible and commutative

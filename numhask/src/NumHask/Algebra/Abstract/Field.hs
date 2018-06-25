@@ -20,14 +20,14 @@ where
 
 import           NumHask.Algebra.Abstract.Group
 import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Abstract.Multiplication
-import           NumHask.Algebra.Abstract.Addition
+import           NumHask.Algebra.Abstract.Multiplicative
+import           NumHask.Algebra.Abstract.Additive
 import           NumHask.Algebra.Integral
 import           Data.Bool                      ( bool )
 import qualified Prelude                       as P
 import           Data.Complex                   ( Complex(..) )
 
--- | A Field is a Intetral domain in which every non-zero element has a multiplicative inverse.
+-- | A Field is a Integral domain in which every non-zero element has a multiplicative inverse.
 --
 -- A summary of the rules inherited from super-classes of Field
 --
@@ -96,7 +96,7 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.> zero = pi / (one + one)
         | x P.< one P.&& y P.> one = pi + atan (y / x)
         | (x P.<= zero P.&& y P.< zero) P.|| (x P.< zero) =
-          neg (atan2 (neg y) x)
+          negate (atan2 (negate y) x)
         | y P.== zero = pi -- must be after the previous test on zero y
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
@@ -111,13 +111,13 @@ class (Field a, Integral b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round ::(P.Ord a, P.Eq b, Invertible (Add b)) => a -> b
+  default round ::(P.Ord a, P.Eq b, Invertible (Sum b)) => a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)
       half_down = abs' r - (one/(one+one))
       abs' a
-        | a P.< zero = neg a
+        | a P.< zero = negate a
         | P.otherwise = a
       in
         case P.compare half_down zero of
@@ -131,7 +131,7 @@ class (Field a, Integral b) => QuotientField a b where
     where (n,r) = properFraction x
 
   floor :: a -> b
-  default floor ::(P.Ord a, Invertible (Add b)) => a -> b
+  default floor ::(P.Ord a, Invertible (Sum b)) => a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
@@ -157,17 +157,19 @@ class (IntegralDomain a) =>
   nan :: a
   nan = zero / zero
 
-  isNan :: a -> P.Bool
+  isNaN :: a -> P.Bool
 
-instance UpperBoundedField P.Float
+instance UpperBoundedField P.Float where
+  isNaN = P.isNaN
 
-instance UpperBoundedField P.Double
+instance UpperBoundedField P.Double where
+  isNaN = P.isNaN
 
 class (Field a) =>
       LowerBoundedField a where
 
   negInfinity :: a
-  negInfinity = neg (one / zero)
+  negInfinity = negate (one / zero)
 
 instance LowerBoundedField P.Float
 
