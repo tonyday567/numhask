@@ -1,13 +1,16 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveFunctor, GeneralizedNewtypeDeriving #-}
 module NumHask.Data where
 
-import GHC.Generics
 import Data.Coerce (coerce)
-
+import GHC.Generics
 import NumHask.Algebra
-
 import Prelude hiding (Num(..), sum, recip)
+
+#if !MIN_VERSION_base(4,11,0)
+import Data.Semigroup ((<>), Semigroup)
+#endif
 
 -- | Monoid under addition.
 --
