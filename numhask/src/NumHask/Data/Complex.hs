@@ -6,8 +6,8 @@ import GHC.Generics (Generic, Generic1)
 import Data.Data (Data)
 
 import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Addition
-import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
 import NumHask.Analysis.Metric
@@ -42,40 +42,40 @@ imagPart :: Complex a -> a
 imagPart (_ :+ y) =  y
 
 
-instance (Magma (Add a)) => Magma (Add (Complex a)) where
-  (Add (rx :+ ix)) `comb` (Add (ry :+ iy)) = Add $ (rx `plus` ry) :+ (ix `plus` iy)
+instance (Magma (Sum a)) => Magma (Sum (Complex a)) where
+  (Sum (rx :+ ix)) `comb` (Sum (ry :+ iy)) = Sum $ (rx `plus` ry) :+ (ix `plus` iy)
 
-instance (Unital (Add a)) => Unital (Add (Complex a)) where
-  unit = Add (zero :+ zero)
+instance (Unital (Sum a)) => Unital (Sum (Complex a)) where
+  unit = Sum (zero :+ zero)
 
-instance (Semigroup (Add a)) => Semigroup (Add (Complex a))
+instance (Semigroup (Sum a)) => Semigroup (Sum (Complex a))
 
-instance (Commutative (Add a)) => Commutative (Add (Complex a))
+instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
 
-instance (Invertible (Add a)) => Invertible (Add (Complex a)) where
-  inv (Add (rx :+ ix)) = Add $ neg rx :+ neg ix
+instance (Invertible (Sum a)) => Invertible (Sum (Complex a)) where
+  inv (Sum (rx :+ ix)) = Sum $ neg rx :+ neg ix
 
-instance (Multiplication a, AbelianGroup (Add a)) => Absorbing (Mult (Complex a)) where
-  absorb = Mult $ zero' :+ zero'
+instance (Multiplication a, AbelianGroup (Sum a)) => Absorbing (Product (Complex a)) where
+  absorb = Product $ zero' :+ zero'
 
-instance (Distribution a, AbelianGroup (Add a)) => Distribution (Complex a)
+instance (Distributive  a, AbelianGroup (Sum a)) => Distributive  (Complex a)
 
-instance (AbelianGroup (Add a), Unital (Mult a)) => Unital (Mult (Complex a)) where
-  unit = Mult $ one :+ zero
+instance (AbelianGroup (Sum a), Unital (Product a)) => Unital (Product (Complex a)) where
+  unit = Product $ one :+ zero
 
-instance (Magma (Mult a), AbelianGroup (Add a)) => Magma (Mult (Complex a)) where
-  (Mult (rx :+ ix)) `comb` (Mult (ry :+ iy)) = Mult $
+instance (Magma (Product a), AbelianGroup (Sum a)) => Magma (Product (Complex a)) where
+  (Product (rx :+ ix)) `comb` (Product (ry :+ iy)) = Product $
     (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
-instance (Commutative (Mult a), AbelianGroup (Add a)) => Commutative (Mult (Complex a))
+instance (Commutative (Product a), AbelianGroup (Sum a)) => Commutative (Product (Complex a))
 
-instance (AbelianGroup (Add a), Invertible (Mult a)) => Invertible (Mult (Complex a)) where
-  inv (Mult (rx :+ ix)) = Mult $ (rx `times` d) :+ (neg ix `times` d)
+instance (AbelianGroup (Sum a), Invertible (Product a)) => Invertible (Product (Complex a)) where
+  inv (Product (rx :+ ix)) = Product $ (rx `times` d) :+ (neg ix `times` d)
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
 
-instance (AbelianGroup (Add a), Semigroup (Mult a)) =>
-         Semigroup (Mult (Complex a))
+instance (AbelianGroup (Sum a), Semigroup (Product a)) =>
+         Semigroup (Product (Complex a))
 
 instance (Multiplication a, ExpField a, Normed a a) =>
          Normed (Complex a) a where

@@ -9,7 +9,6 @@ module NumHask.Analysis.Banach
   , Normed(..)
   , Metric(..)
   , Epsilon(..)
-  , (≈)
   , Hilbert(..)
   ) where
 

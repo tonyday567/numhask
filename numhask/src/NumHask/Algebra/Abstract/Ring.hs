@@ -7,7 +7,7 @@
 -- | The Ring hirarchy
 module NumHask.Algebra.Abstract.Ring
     (
-        Distribution
+        Distributive
     ,   Semiring
     ,   Ring
     ,   CommutativeRing
@@ -16,8 +16,8 @@ module NumHask.Algebra.Abstract.Ring
     where
 
 import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Addition
-import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Multiplicative
 import qualified Prelude                       as P
 import           Data.Complex                   ( Complex(..) )
 import           Data.Int                       ( Int8
@@ -33,49 +33,49 @@ import           Data.Word                      ( Word
                                                 )
 import           GHC.Natural                    ( Natural(..) )
 
--- | Distribution laws
+-- | Distributive  laws
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
 class (Addition a, Multiplication a) =>
-    Distribution a
+    Distributive a
 
-instance Distribution P.Double
+instance Distributive P.Double
 
-instance Distribution P.Float
+instance Distributive P.Float
 
-instance (Distribution a, AbelianGroup (Add a)) => Distribution (Complex a)
+instance (Distributive a, AbelianGroup (Sum a)) => Distributive (Complex a)
 
-instance Distribution P.Int
-instance Distribution P.Integer 
-instance Distribution Natural 
-instance Distribution Int8 
-instance Distribution Int16 
-instance Distribution Int32 
-instance Distribution Int64 
-instance Distribution Word 
-instance Distribution Word8 
-instance Distribution Word16 
-instance Distribution Word32 
-instance Distribution Word64 
+instance Distributive P.Int
+instance Distributive P.Integer
+instance Distributive Natural
+instance Distributive Int8
+instance Distributive Int16
+instance Distributive Int32
+instance Distributive Int64
+instance Distributive Word
+instance Distributive Word8
+instance Distributive Word16
+instance Distributive Word32
+instance Distributive Word64
 
 -- | Semiring
 -- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
-class (Monoid (Add a), Monoid (Mult a), Distribution a) =>
+class (Monoid (Sum a), Monoid (Product a), Distributive a) =>
     Semiring a where
-instance (Monoid (Add a), Monoid (Mult a), Distribution a) =>
+instance (Monoid (Sum a), Monoid (Product a), Distributive a) =>
     Semiring a
 
 -- | Ring
-class (Semiring a, AbelianGroup (Add a)) =>
+class (Semiring a, AbelianGroup (Sum a)) =>
     Ring a
-instance (Semiring a, AbelianGroup (Add a)) =>
+instance (Semiring a, AbelianGroup (Sum a)) =>
     Ring a
 
 -- | Ring with a commutative Multiplication
-class (Ring a, Commutative (Mult a)) =>
+class (Ring a, Commutative (Product a)) =>
     CommutativeRing a
-instance (Ring a, Commutative (Mult a)) =>
+instance (Ring a, Commutative (Product a)) =>
     CommutativeRing a
 
 -- | generalization of ring of integers
@@ -83,7 +83,7 @@ instance (Ring a, Commutative (Mult a)) =>
 --  product of any two nonzero elements is nonzero, also
 --  if a ≠ 0, an equality ab = ac implies b = c.
 --  this essentially is a generalization of division and a fundamental step towards a Field
-class (CommutativeRing a, Invertible (Mult a)) =>
+class (CommutativeRing a, Invertible (Product a)) =>
     IntegralDomain a
 
 instance IntegralDomain P.Double

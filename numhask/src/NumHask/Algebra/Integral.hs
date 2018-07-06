@@ -28,8 +28,8 @@ import           Data.Word                      ( Word
 import           GHC.Natural                    ( Natural(..) )
 import           NumHask.Algebra.Abstract.Group
 import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Abstract.Multiplication
-import           NumHask.Algebra.Abstract.Addition
+import           NumHask.Algebra.Abstract.Multiplicative
+import           NumHask.Algebra.Abstract.Additive
 import qualified Prelude                       as P
 import           Prelude                        ( Double
                                                 , Float
@@ -210,7 +210,7 @@ odd = P.not . even
 
 -------------------------------------------------------
 -- | raise a number to a non-negative integral power
-(^) :: (P.Ord b, Group (Mult a), Absorbing (Mult a), Integral b) => a -> b -> a
+(^) :: (P.Ord b, Group (Product a), Absorbing (Product a), Integral b) => a -> b -> a
 x0 ^ y0 | y0 P.< zero  = P.undefined
         | -- P.errorWithoutStackTrace "Negative exponent"
           y0 P.== zero = one
@@ -229,5 +229,5 @@ x0 ^ y0 | y0 P.< zero  = P.undefined
           | P.otherwise = g (x * x) (y `quot` two) (x * z)
                 -- See Note [Half of y - 1]
 
-(^^) :: (Group (Mult a), Invertible (Add a), Integral a, P.Ord a) => a -> a -> a
+(^^) :: (Group (Product a), Invertible (Sum a), Integral a, P.Ord a) => a -> a -> a
 (^^) x n = if n P.>= zero then x ^ n else recip (x ^ neg n)

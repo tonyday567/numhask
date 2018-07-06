@@ -11,7 +11,7 @@ module NumHask.Analysis.Metric
   , Normed(..)
   , Metric(..)
   , Epsilon(..)
-  , (≈)
+  , (~=)
   ) where
 
 import qualified Prelude as P
@@ -22,9 +22,9 @@ import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import NumHask.Algebra.Abstract.Addition
+import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Integral
 
@@ -33,7 +33,7 @@ import NumHask.Algebra.Integral
 -- > abs a * sign a == a
 --
 -- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
-class (Unital (Mult a)) =>
+class (Unital (Product a)) =>
       Signed a where
   sign :: a -> a
   abs :: a -> a
@@ -310,13 +310,13 @@ class Metric a b where
 --   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
 
 -- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
-class (Eq a, Unital (Add a)) =>
+class (Eq a, Unital (Sum a)) =>
       Epsilon a where
   nearZero :: a -> Bool
   nearZero a = a == zero
 
   aboutEqual :: a -> a -> Bool
-  default aboutEqual :: (Group (Add a), Commutative (Add a)) => a -> a -> Bool
+  default aboutEqual :: (Group (Sum a), Commutative (Sum a)) => a -> a -> Bool
   aboutEqual a b = nearZero $ a - b
 
   positive :: (Signed a) => a -> Bool
@@ -326,11 +326,10 @@ class (Eq a, Unital (Add a)) =>
   veryNegative :: (Signed a) => a -> Bool
   veryNegative a = P.not (nearZero a P.|| positive a)
 
-infixl 4 ≈
+infixl 4 ~=
 
--- | todo: is utf perfectly acceptable these days?
-(≈) :: (Epsilon a) => a -> a -> Bool
-(≈) = aboutEqual
+(~=) :: (Epsilon a) => a -> a -> Bool
+(~=) = aboutEqual
 
 -- instance Epsilon Double where
 --   nearZero a = abs a <= (1e-12 :: Double)
@@ -342,7 +341,7 @@ infixl 4 ≈
 
 -- instance Epsilon Integer
 
--- instance (Epsilon a, Group (Add a)) => Epsilon (Complex a) where
+-- instance (Epsilon a, Group (Sum a)) => Epsilon (Complex a) where
 --   nearZero (rx :+ ix) = nearZero rx && nearZero ix
 --   aboutEqual a b = nearZero $ a - b
 

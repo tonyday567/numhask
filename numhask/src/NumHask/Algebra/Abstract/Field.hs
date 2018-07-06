@@ -20,14 +20,14 @@ where
 
 import           NumHask.Algebra.Abstract.Group
 import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Abstract.Multiplication
-import           NumHask.Algebra.Abstract.Addition
+import           NumHask.Algebra.Abstract.Multiplicative
+import           NumHask.Algebra.Abstract.Additive
 import           NumHask.Algebra.Integral
 import           Data.Bool                      ( bool )
 import qualified Prelude                       as P
 import           Data.Complex                   ( Complex(..) )
 
--- | A Field is a Intetral domain in which every non-zero element has a multiplicative inverse.
+-- | A Field is a Integral domain in which every non-zero element has a multiplicative inverse.
 --
 -- A summary of the rules inherited from super-classes of Field
 --
@@ -111,7 +111,7 @@ class (Field a, Integral b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round ::(P.Ord a, P.Eq b, Invertible (Add b)) => a -> b
+  default round ::(P.Ord a, P.Eq b, Invertible (Sum b)) => a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)
@@ -131,7 +131,7 @@ class (Field a, Integral b) => QuotientField a b where
     where (n,r) = properFraction x
 
   floor :: a -> b
-  default floor ::(P.Ord a, Invertible (Add b)) => a -> b
+  default floor ::(P.Ord a, Invertible (Sum b)) => a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 

@@ -18,8 +18,8 @@ module NumHask.Algebra.Linear.Hadamard
   ) where
 
 import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Addition
-import NumHask.Algebra.Abstract.Multiplication
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Multiplicative
 
 -- FIXME: cleanup
 -- | element by element multiplication
@@ -36,7 +36,7 @@ class (Multiplication a) =>
 -- | element by element division
 --
 -- > a ./. a == singleton one
-class (Group (Mult a)) =>
+class (Group (Product a)) =>
   HadamardDivision m a where
   infixl 7 ./.
   (./.) :: m a -> m a -> m a

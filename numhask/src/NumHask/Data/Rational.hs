@@ -40,9 +40,9 @@ import           Prelude                        ( Double
                                                 , Integer
                                                 , (.)
                                                 )
-import           NumHask.Algebra.Abstract.Addition
+import           NumHask.Algebra.Abstract.Additive
 import           NumHask.Algebra.Abstract.Group
-import           NumHask.Algebra.Abstract.Multiplication
+import           NumHask.Algebra.Abstract.Multiplicative
 import           NumHask.Algebra.Abstract.Ring
 import           NumHask.Algebra.Integral
 import           NumHask.Analysis.Metric
@@ -51,7 +51,7 @@ import           NumHask.Algebra.Abstract.Field
 
 data Ratio a = !a :% !a deriving (P.Show)
 
-instance (P.Eq a, Unital (Add a)) => P.Eq (Ratio a) where
+instance (P.Eq a, Unital (Sum a)) => P.Eq (Ratio a) where
   a == b
     | (isRNaN a P.|| isRNaN b) = P.False
     | P.otherwise = (x P.== x') P.&& (y P.== y')
@@ -59,7 +59,7 @@ instance (P.Eq a, Unital (Add a)) => P.Eq (Ratio a) where
         (x:%y) = a
         (x':%y') = b
 
-isRNaN :: (P.Eq a, Unital (Add a)) => Ratio a -> P.Bool
+isRNaN :: (P.Eq a, Unital (Sum a)) => Ratio a -> P.Bool
 isRNaN (x :% y) | (x P.== zero P.&& y P.== zero) = P.True
                 | P.otherwise                    = P.False
 
@@ -70,57 +70,57 @@ instance  (P.Ord a, Multiplication a, Integral a)  => P.Ord (Ratio a)  where
   (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
-type AdditionConstraints a = (P.Ord a, Integral a, Signed a, Invertible (Add a))
+type AdditionConstraints a = (P.Ord a, Integral a, Signed a, Invertible (Sum a))
 
-instance (AdditionConstraints a) => Magma (Add (Ratio a)) where
-  (Add (x :% y)) `comb` (Add (x' :% y'))
-    | (y P.== zero P.&& y' P.== zero) = Add (sign (x `plus` x') :% zero)
-    | (y P.== zero)                   = Add (x :% y)
-    | (y' P.== zero)                  = Add (x' :% y')
-    | P.otherwise = Add (reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y'))
+instance (AdditionConstraints a) => Magma (Sum (Ratio a)) where
+  (Sum (x :% y)) `comb` (Sum (x' :% y'))
+    | (y P.== zero P.&& y' P.== zero) = Sum (sign (x `plus` x') :% zero)
+    | (y P.== zero)                   = Sum (x :% y)
+    | (y' P.== zero)                  = Sum (x' :% y')
+    | P.otherwise = Sum (reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y'))
 
-instance (AdditionConstraints a) => Unital (Add (Ratio a)) where
-  unit = Add (zero :% one)
+instance (AdditionConstraints a) => Unital (Sum (Ratio a)) where
+  unit = Sum (zero :% one)
 
 --FIXME are the laws correct? When is it a Commutative etc.?
-instance (AdditionConstraints a, Semigroup (Add a), Semigroup (Mult a))
-  => Semigroup (Add (Ratio a))
+instance (AdditionConstraints a, Semigroup (Sum a), Semigroup (Product a))
+  => Semigroup (Sum (Ratio a))
 
-instance (AdditionConstraints a, Commutative (Add a), Commutative (Mult a))
-  => Commutative (Add (Ratio a))
+instance (AdditionConstraints a, Commutative (Sum a), Commutative (Product a))
+  => Commutative (Sum (Ratio a))
 
-instance (AdditionConstraints a) => Invertible (Add (Ratio a)) where
-  inv (Add (x :% y)) = Add (neg x :% y)
+instance (AdditionConstraints a) => Invertible (Sum (Ratio a)) where
+  inv (Sum (x :% y)) = Sum (neg x :% y)
 
-instance (AdditionConstraints a) => Magma (Mult (Ratio a)) where
-  (Mult (x:%y)) `comb` (Mult (x':%y')) = Mult (reduce (x `times` x') (y `times` y'))
+instance (AdditionConstraints a) => Magma (Product (Ratio a)) where
+  (Product (x:%y)) `comb` (Product (x':%y')) = Product (reduce (x `times` x') (y `times` y'))
 
-instance (AdditionConstraints a) => Unital (Mult (Ratio a)) where
-  unit = Mult (one :% one)
+instance (AdditionConstraints a) => Unital (Product (Ratio a)) where
+  unit = Product (one :% one)
 
-instance (AdditionConstraints a, Semigroup (Mult a)) =>
-         Semigroup (Mult (Ratio a))
+instance (AdditionConstraints a, Semigroup (Product a)) =>
+         Semigroup (Product (Ratio a))
 
-instance (AdditionConstraints a, Commutative (Mult a)) =>
-         Commutative (Mult (Ratio a))
-
-instance (AdditionConstraints a) =>
-         Invertible (Mult (Ratio a)) where
-  inv (Mult (x :% y))
-    | x P.< zero = Mult (neg y :% neg x)
-    | P.otherwise = Mult (y :% x)
+instance (AdditionConstraints a, Commutative (Product a)) =>
+         Commutative (Product (Ratio a))
 
 instance (AdditionConstraints a) =>
-        Absorbing (Mult (Ratio a)) where
-  absorb = Mult (zero :% one)
+         Invertible (Product (Ratio a)) where
+  inv (Product (x :% y))
+    | x P.< zero = Product (neg y :% neg x)
+    | P.otherwise = Product (y :% x)
 
-instance (AdditionConstraints a, Commutative (Mult a)) => Distribution (Ratio a)
+instance (AdditionConstraints a) =>
+        Absorbing (Product (Ratio a)) where
+  absorb = Product (zero :% one)
+
+instance (AdditionConstraints a, Commutative (Product a)) => Distributive  (Ratio a)
 
 instance (AdditionConstraints a, IntegralDomain a) => IntegralDomain (Ratio a)
 
 instance (AdditionConstraints a, Field a) => Field (Ratio a)
 
-instance (AdditionConstraints a, ToInteger a, Field a, P.Eq b, Group (Add  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
+instance (AdditionConstraints a, ToInteger a, Field a, P.Eq b, Group (Sum  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
 
 instance (AdditionConstraints a, Ring a, IntegralDomain a) => UpperBoundedField (Ratio a) where
@@ -140,14 +140,14 @@ instance (AdditionConstraints a) => Normed (Ratio a) (Ratio a) where
   normL2 = abs
   normLp _ = abs
 
-instance (AdditionConstraints a, Commutative (Mult a)) => Metric (Ratio a) (Ratio a) where
+instance (AdditionConstraints a, Commutative (Product a)) => Metric (Ratio a) (Ratio a) where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (AdditionConstraints a, Commutative (Mult a)) => Epsilon (Ratio a)
+instance (AdditionConstraints a, Commutative (Product a)) => Epsilon (Ratio a)
 
-instance (FromInteger a, Unital (Mult a)) => FromInteger (Ratio a) where
+instance (FromInteger a, Unital (Product a)) => FromInteger (Ratio a) where
   fromInteger x = fromInteger x :% one
 
 -- | toRatio is equivalent to `Real` in base.
@@ -232,7 +232,7 @@ instance ToRatio Word64 where
 -- It normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
 reduce
-  :: (P.Ord a, Invertible (Add a), Signed a, Integral a) => a -> a -> Ratio a
+  :: (P.Ord a, Invertible (Sum a), Signed a, Integral a) => a -> a -> Ratio a
 reduce x y | x P.== zero P.&& y P.== zero = zero :% zero
            | z P.== zero                  = one :% zero
            | P.otherwise                  = (x `quot` z) % (y `quot` z)
