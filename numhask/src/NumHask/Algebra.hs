@@ -9,40 +9,40 @@ module NumHask.Algebra
   ( -- * Mapping from Num
     --
     -- $numMap
-    module NumHask.Algebra.Additive
-  , module NumHask.Algebra.Basis
-  , module NumHask.Algebra.Distribution
-  , module NumHask.Algebra.Field
+    module NumHask.Algebra.Abstract.Group
+  , module NumHask.Algebra.Linear.Hadamard
+  , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Integral
-  , module NumHask.Algebra.Magma
-  , module NumHask.Algebra.Metric
-  , module NumHask.Algebra.Module
-  , module NumHask.Algebra.Multiplicative
-  , module NumHask.Algebra.Rational
-  , module NumHask.Algebra.Ring
+  , module NumHask.Analysis.Metric
+  , module NumHask.Analysis.Banach
+  , module NumHask.Algebra.Abstract.Module
+  , module NumHask.Algebra.Abstract.Multiplicative
+  , module NumHask.Algebra.Abstract.Additive
+  , module NumHask.Data.Rational
+  , module NumHask.Algebra.Abstract.Ring
   , module NumHask.Data.Complex
   ) where
 
-import NumHask.Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Basis
-import NumHask.Algebra.Distribution
-import NumHask.Algebra.Field
+import NumHask.Algebra.Linear.Hadamard
+import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Integral
-import NumHask.Algebra.Magma
-import NumHask.Algebra.Metric
-import NumHask.Algebra.Module
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Rational
-import NumHask.Algebra.Ring
+import NumHask.Algebra.Abstract.Group
+import NumHask.Analysis.Metric
+import NumHask.Analysis.Banach
+import NumHask.Algebra.Abstract.Module
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Data.Rational
+import NumHask.Algebra.Abstract.Ring
+import NumHask.Data.Complex (Complex(..))
 
 -- $numMap
 --
--- `Num` is a very old part of haskell, and a lot of different numeric concepts are tossed in there. The closest analogue in numhask is the `Ring` class, which combines the classical `+`, `-` and `*`, together with the distribution laws.
+-- `Num` is a very old part of haskell, and a lot of different numeric concepts are tossed in there. The closest analogue in numhask is the `Ring` class, which magmaines the classical `+`, `-` and `*`, together with the Distributive  laws.
 --
 -- ![ring example](other/ring.svg)
 --
--- No attempt is made, however, to reconstruct the particular combination of laws and classes that represent the old `Num`.  A rough mapping of `Num` to numhask classes follows:
+-- No attempt is made, however, to reconstruct the particular magmaination of laws and classes that represent the old `Num`.  A rough mapping of `Num` to numhask classes follows:
 --
 -- > -- | Basic numeric class.
 -- > class  Num a  where

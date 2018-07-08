@@ -1,42 +1,33 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
-module NumHask.Algebra.Field
-  ( Semifield
-  , Field
+module NumHask.Algebra.Abstract.Field
+  ( Field
   , ExpField(..)
   , QuotientField(..)
   , UpperBoundedField(..)
   , LowerBoundedField(..)
   , BoundedField
   , TrigField(..)
-  ) where
+  )
+where
 
-import Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ring
-import NumHask.Algebra.Integral
-import Data.Bool (bool)
-import Prelude (Double, Float, Integer, (||))
-import qualified Prelude as P
+import           NumHask.Algebra.Abstract.Group
+import           NumHask.Algebra.Abstract.Ring
+import           NumHask.Algebra.Abstract.Multiplicative
+import           NumHask.Algebra.Abstract.Additive
+import           NumHask.Algebra.Integral
+import           Data.Bool                      ( bool )
+import qualified Prelude                       as P
+import           Data.Complex                   ( Complex(..) )
 
--- | A Semifield is chosen here to be a Field without an Additive Inverse
-class (MultiplicativeInvertible a, MultiplicativeGroup a, Semiring a) =>
-      Semifield a
-
-instance Semifield Double
-
-instance Semifield Float
-
-instance (Semifield a, AdditiveGroup a) => Semifield (Complex a)
-
--- | A Field is a Ring plus additive invertible and multiplicative invertible operations.
+-- | A Field is a Integral domain in which every non-zero element has a multiplicative inverse.
 --
 -- A summary of the rules inherited from super-classes of Field
 --
@@ -60,12 +51,12 @@ instance (Semifield a, AdditiveGroup a) => Semifield (Complex a)
 -- > recip a = one / a
 -- > recip a * a = one
 -- > a * recip a = one
-class (AdditiveGroup a, MultiplicativeGroup a, Ring a) =>
+class (IntegralDomain a) =>
       Field a
 
-instance Field Double
+instance Field P.Double
 
-instance Field Float
+instance Field P.Float
 
 instance (Field a) => Field (Complex a)
 
@@ -85,26 +76,26 @@ class (Field a) =>
   sqrt :: a -> a
   sqrt a = a ** (one / (one + one))
 
-instance ExpField Double where
+instance ExpField P.Double where
   exp = P.exp
   log = P.log
   (**) = (P.**)
 
-instance ExpField Float where
+instance ExpField P.Float where
   exp = P.exp
   log = P.log
   (**) = (P.**)
 
 -- | todo: bottom is here somewhere???
 instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
-  exp (rx :+ ix) = exp rx * cos ix :+ exp rx * sin ix
+  exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2 ix rx
     where
       atan2 y x
         | x P.> zero = atan (y / x)
         | x P.== zero P.&& y P.> zero = pi / (one + one)
         | x P.< one P.&& y P.> one = pi + atan (y / x)
-        | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
+        | (x P.<= zero P.&& y P.< zero) P.|| (x P.< zero) =
           negate (atan2 (negate y) x)
         | y P.== zero = pi -- must be after the previous test on zero y
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
@@ -116,12 +107,11 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
 -- > round a == floor (a + one/(one+one))
 --
 -- fixme: had to redefine Signed operators here because of the Field import in Metric, itself due to Complex being defined there
-class (Field a, Integral b, AdditiveGroup b, MultiplicativeUnital b) =>
-      QuotientField a b where
+class (Field a, Integral b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round :: (P.Ord a, P.Eq b) => a -> b
+  default round ::(P.Ord a, P.Eq b, Invertible (Sum b)) => a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)
@@ -136,19 +126,19 @@ class (Field a, Integral b, AdditiveGroup b, MultiplicativeUnital b) =>
           P.GT -> m
 
   ceiling :: a -> b
-  default ceiling :: (P.Ord a) => a -> b
+  default ceiling ::(P.Ord a) => a -> b
   ceiling x = bool n (n+one) (r P.> zero)
     where (n,r) = properFraction x
 
   floor :: a -> b
-  default floor :: (P.Ord a) => a -> b
+  default floor ::(P.Ord a, Invertible (Sum b)) => a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
-instance QuotientField Float Integer where
+instance QuotientField P.Float P.Integer where
   properFraction = P.properFraction
 
-instance QuotientField Double Integer where
+instance QuotientField P.Double P.Integer where
   properFraction = P.properFraction
 
 -- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
@@ -158,17 +148,22 @@ instance QuotientField Double Integer where
 -- > zero / zero != nan
 --
 -- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
-class (Semifield a) =>
+class (IntegralDomain a) =>
       UpperBoundedField a where
 
   infinity :: a
   infinity = one / zero
+
   nan :: a
   nan = zero / zero
 
-instance UpperBoundedField Float
+  isNaN :: a -> P.Bool
 
-instance UpperBoundedField Double
+instance UpperBoundedField P.Float where
+  isNaN = P.isNaN
+
+instance UpperBoundedField P.Double where
+  isNaN = P.isNaN
 
 class (Field a) =>
       LowerBoundedField a where
@@ -176,16 +171,16 @@ class (Field a) =>
   negInfinity :: a
   negInfinity = negate (one / zero)
 
-instance LowerBoundedField Float
+instance LowerBoundedField P.Float
 
-instance LowerBoundedField Double
+instance LowerBoundedField P.Double
 
 -- | todo: work out boundings for complex
 -- as it stands now, complex is different eg
 --
 -- > one / (zero :: Complex Float) == nan
-instance (AdditiveGroup a, UpperBoundedField a) =>
-  UpperBoundedField (Complex a)
+-- instance (UpperBoundedField a) =>
+--   UpperBoundedField (Complex a)
 
 class (UpperBoundedField a, LowerBoundedField a) => BoundedField a
 
@@ -210,7 +205,7 @@ class (Field a) =>
   acosh :: a -> a
   atanh :: a -> a
 
-instance TrigField Double where
+instance TrigField P.Double where
   pi = P.pi
   sin = P.sin
   cos = P.cos
@@ -223,7 +218,7 @@ instance TrigField Double where
   acosh = P.acosh
   atanh = P.atanh
 
-instance TrigField Float where
+instance TrigField P.Float where
   pi = P.pi
   sin = P.sin
   cos = P.cos
