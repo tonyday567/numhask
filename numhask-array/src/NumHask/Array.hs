@@ -685,12 +685,10 @@ instance (Dimensions r, Container c, Addition a) =>
          AdditiveBasis (Array c r) a where
   (.+.) = liftR2 (+)
 
--- FIXME: ???
-{-
+
 instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
          AdditiveGroupBasis (Array c r) a where
   (.-.) = liftR2 (-)
--}
 
 instance (Dimensions r, Container c, Multiplication a) =>
          HadamardMultiplication (Array c r) a where
@@ -710,23 +708,18 @@ instance (Container c, AbelianGroup (Sum a)) =>
   (.-) r s = fmap (\x -> x - s) r
   (-.) s = fmap (\x -> x - s)
 
--- FIXME: Could not deduce (Associative (Array c r a))
-{-
-instance (Container c, Multiplication a, P.Distributive a, Invertible (Sum a)) =>
+
+instance (Dimensions r, Container c, Multiplication a, P.Distributive a, Invertible (Sum a)) =>
          Module (Array c (r :: [Nat])) a where
   (.*) r s = fmap (`times` s) r
   (*.) s = fmap (s `times`)
--}
 
-{-
-instance (Container c, Field a, AbelianGroup (Product a), Invertible (Sum a), P.Distributive a) =>
+instance (Dimensions r, Container c, Field a, AbelianGroup (Product a), Invertible (Sum a), P.Distributive a) =>
          MultiplicativeGroupModule (Array c (r::[Nat])) a where
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
 
--}
 
-{-
 instance ( Foldable (Array c r)
          , Dimensions r
          , Container c
@@ -737,5 +730,3 @@ instance ( Foldable (Array c r)
   (><) m n = tabulate (\i -> index m i *. n)
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
-
--}

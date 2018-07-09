@@ -59,7 +59,7 @@ class (Addition a) =>
 -- | element by element subtraction
 --
 -- > a .-. a = pure zero
-class (AbelianGroup a) =>
+class (AbelianGroup (Sum a)) =>
       AdditiveGroupBasis m a where
   infixl 6 .-.
   (.-.) :: m a -> m a -> m a
