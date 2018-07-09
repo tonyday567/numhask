@@ -19,7 +19,6 @@ module NumHask.Laws
   , additionGroupLaws
   , multiplicationLaws
   , multiplicationLawsFail
-  , multiplicationMonoidalLaws
   , multiplicationGroupLaws
   , multiplicationGroupLaws_
   , distributionLaws
@@ -139,7 +138,7 @@ additionLaws =
 additionLaws_ :: (Epsilon a, Addition a) => [Law a]
 additionLaws_ =
   [ ( "associative: (a + b) + c ≈ a + (b + c)"
-    , Ternary (\a b c -> (a + b) + c ≈ a + (b + c)))
+    , Ternary (\a b c -> (a + b) + c ~= a + (b + c)))
   , ("left id: zero + a = a", Unary (\a -> zero + a == a))
   , ("right id: a + zero = a", Unary (\a -> a + zero == a))
   , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
@@ -155,7 +154,7 @@ additionLawsFail =
   , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
   ]
 
-additionGroupLaws :: (Eq a, AbelianGroup a) => [Law a]
+additionGroupLaws :: (Eq a, AbelianGroup (Sum a)) => [Law a]
 additionGroupLaws =
   [ ("minus: a - a = zero", Unary (\a -> (a - a) == zero))
   , ("negate minus: negate a == zero - a", Unary (\a -> negate a == zero - a))
@@ -185,7 +184,7 @@ multiplicationLawsFail =
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
   ]
 
-multiplicationGroupLaws :: (Eq a, Unital (Sum a), AbelianGroup (Product a)) => [Law a]
+multiplicationGroupLaws :: (Eq a, Unital (Sum a), Absorbing (Product a), AbelianGroup (Product a)) => [Law a]
 multiplicationGroupLaws =
   [ ( "divide: a == zero || a / a == one"
     , Unary (\a -> a == zero || (a / a) == one))
@@ -197,16 +196,16 @@ multiplicationGroupLaws =
     , Unary (\a -> a == zero || a * recip a == one))
   ]
  
-multiplicationGroupLaws_ :: (Epsilon a, AbelianGroup (Product a)) => [Law a]
+multiplicationGroupLaws_ :: (Epsilon a, Absorbing (Product a), AbelianGroup (Product a)) => [Law a]
 multiplicationGroupLaws_ =
-  [ ( "divide: a == zero || a / a ≈ one"
-    , Unary (\a -> a == zero || (a / a) ≈ one))
+  [ ( "divide: a == zero || a / a ~= one"
+    , Unary (\a -> a == zero || (a / a) ~= one))
   , ( "recip divide: recip a == one / a"
     , Unary (\a -> a == zero || recip a == one / a))
-  , ( "recip left: a == zero || recip a * a ≈ one"
-    , Unary (\a -> a == zero || recip a * a ≈ one))
-  , ( "recip right: a == zero || a * recip a ≈ one"
-    , Unary (\a -> a == zero || a * recip a ≈ one))
+  , ( "recip left: a == zero || recip a * a ~= one"
+    , Unary (\a -> a == zero || recip a * a ~= one))
+  , ( "recip right: a == zero || a * recip a ~= one"
+    , Unary (\a -> a == zero || a * recip a ~= one))
   ]
 
 -- distribution
@@ -282,7 +281,7 @@ metricIntegralLaws =
     , Ternary21 (\a b p ->
                   p < one ||
                   p > (smallIntegralPower :: b) ||
-                 distanceLp p a b ≈ distanceLp p b a))
+                 distanceLp p a b ~= distanceLp p b a))
   , ( "Lp: triangle rule - sum of distances > distance"
     , Quad31
         (\a b c p ->
@@ -310,11 +309,11 @@ metricIntegralBoundedLaws =
     , Ternary21 (\a b p ->
                   p < one ||
                   p > (smallIntegralPower :: b) ||
-                 distanceLp p a b ≈ distanceLp p b a))
+                 distanceLp p a b ~= distanceLp p b a))
   ]
 
 
-metricRationalLaws :: forall a b. (FromRatio b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b, Addition a, AbelianGroup b) =>
+metricRationalLaws :: forall a b. (FromRatio b, Ord b, Signed b, Epsilon b, Metric a b, Normed a b, Addition a, AbelianGroup (Sum b)) =>
   [Law2 a b]
 metricRationalLaws =
   [ ("Lp: positive",
@@ -325,7 +324,7 @@ metricRationalLaws =
     , Ternary21 (\a b p ->
                   p < one ||
                   p > (smallRationalPower :: b) ||
-                 distanceLp p a b ≈ distanceLp p b a))
+                 distanceLp p a b ~= distanceLp p b a))
   , ( "Lp: triangle rule - sum of distances > distance"
     , Quad31
         (\a b c p ->
@@ -391,25 +390,25 @@ quotientFieldLaws =
 expFieldLaws :: forall a b.
      (FromInteger b, Unital (Sum b), ExpField a, Normed a b, Epsilon a, Ord a, Ord b) => [Law2 a b]
 expFieldLaws =
-  [ ( "sqrt . (**(one+one)) ≈ id"
+  [ ( "sqrt . (**(one+one)) ~= id"
     , Unary10
         (\a ->
            not (a > (zero :: a)) ||
            (normL1 a > (10 :: b)) ||
-           (sqrt . (** (one + one)) $ a) ≈ a &&
-           ((** (one + one)) . sqrt $ a) ≈ a))
-  , ( "log . exp ≈ id"
+           (sqrt . (** (one + one)) $ a) ~= a &&
+           ((** (one + one)) . sqrt $ a) ~= a))
+  , ( "log . exp ~= id"
     , Unary10
         (\a ->
            not (a > (zero :: a)) ||
-           (normL1 a > (10 :: b)) || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
-  , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
+           (normL1 a > (10 :: b)) || (log . exp $ a) ~= a && (exp . log $ a) ~= a))
+  , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
     , Binary20
         (\a b ->
            (not (normL1 b > (zero :: b)) ||
             not (nearZero (a - zero)) ||
             (a == one) ||
-            (a == zero && nearZero (logBase a b)) || (a ** logBase a b ≈ b))))
+            (a == zero && nearZero (logBase a b)) || (a ** logBase a b ~= b))))
   ]
 
 expFieldContainerLaws ::
@@ -424,53 +423,53 @@ expFieldContainerLaws ::
      )
   => [Law (r a)]
 expFieldContainerLaws =
-  [ ( "sqrt . (**2) ≈ id"
+  [ ( "sqrt . (**2) ~= id"
     , Unary
         (\a ->
            not (all veryPositive a) ||
            any (> smallRational) a ||
-           (sqrt . (** (one + one)) $ a) ≈ a &&
-           ((** (one + one)) . sqrt $ a) ≈ a))
-  , ( "log . exp ≈ id"
+           (sqrt . (** (one + one)) $ a) ~= a &&
+           ((** (one + one)) . sqrt $ a) ~= a))
+  , ( "log . exp ~= id"
     , Unary
         (\a ->
            not (all veryPositive a) ||
-           any (> smallRational) a || (log . exp $ a) ≈ a && (exp . log $ a) ≈ a))
-  , ( "for +ive b, a != 0,1: a ** logBase a b ≈ b"
+           any (> smallRational) a || (log . exp $ a) ~= a && (exp . log $ a) ~= a))
+  , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
     , Binary
         (\a b ->
            (not (all veryPositive b) ||
             not (all nearZero a) ||
             all (== one) a ||
             (all (== zero) a && all nearZero (logBase a b)) ||
-            (a ** logBase a b ≈ b))))
+            (a ** logBase a b ~= b))))
   ]
 
 -- module
 additionModuleLaws ::
      (Epsilon a, Epsilon (r a), AdditiveModule r a, Addition (r a)) => [Law2 (r a) a]
 additionModuleLaws =
-  [ ( "addition module associative: (a + b) .+ c ≈ a + (b .+ c)"
-    , Ternary21 (\a b c -> (a + b) .+ c ≈ a + (b .+ c)))
-  , ( "addition module commutative: (a + b) .+ c ≈ (a .+ c) + b"
-    , Ternary21 (\a b c -> (a + b) .+ c ≈ (a .+ c) + b))
+  [ ( "addition module associative: (a + b) .+ c ~= a + (b .+ c)"
+    , Ternary21 (\a b c -> (a + b) .+ c ~= a + (b .+ c)))
+  , ( "addition module commutative: (a + b) .+ c ~= (a .+ c) + b"
+    , Ternary21 (\a b c -> (a + b) .+ c ~= (a .+ c) + b))
   , ("addition module unital: a .+ zero == a", Unary10 (\a -> a .+ zero == a))
-  , ( "module addition equivalence: a .+ b ≈ b +. a"
-    , Binary11 (\a b -> a .+ b ≈ b +. a))
+  , ( "module addition equivalence: a .+ b ~= b +. a"
+    , Binary11 (\a b -> a .+ b ~= b +. a))
   ]
 
 additionGroupModuleLaws ::
      (Epsilon a, Epsilon (r a), AdditiveGroupModule r a, Addition (r a))
   => [Law2 (r a) a]
 additionGroupModuleLaws =
-  [ ( "addition group module associative: (a + b) .- c ≈ a + (b .- c)"
-    , Ternary21 (\a b c -> (a + b) .- c ≈ a + (b .- c)))
-  , ( "addition group module commutative: (a + b) .- c ≈ (a .- c) + b"
-    , Ternary21 (\a b c -> (a + b) .- c ≈ (a .- c) + b))
+  [ ( "addition group module associative: (a + b) .- c ~= a + (b .- c)"
+    , Ternary21 (\a b c -> (a + b) .- c ~= a + (b .- c)))
+  , ( "addition group module commutative: (a + b) .- c ~= (a .- c) + b"
+    , Ternary21 (\a b c -> (a + b) .- c ~= (a .- c) + b))
   , ( "addition group module unital: a .- zero == a"
     , Unary10 (\a -> a .- zero == a))
-  , ( "module addition group equivalence: a .- b ≈ negate b +. a"
-    , Binary11 (\a b -> a .- b ≈ negate b +. a))
+  , ( "module addition group equivalence: a .- b ~= negate b +. a"
+    , Binary11 (\a b -> a .- b ~= negate b +. a))
   ]
 
 multiplicationModuleLaws ::
@@ -479,13 +478,13 @@ multiplicationModuleLaws ::
 multiplicationModuleLaws =
   [ ( "multiplication module unital: a .* one == a"
     , Unary10 (\a -> a .* one == a))
-  , ( "module right distribution: (a + b) .* c ≈ (a .* c) + (b .* c)"
-    , Ternary21 (\a b c -> (a + b) .* c ≈ (a .* c) + (b .* c)))
-  , ( "module left distribution: c *. (a + b) ≈ (c *. a) + (c *. b)"
-    , Ternary21 (\a b c -> c *. (a + b) ≈ (c *. a) + (c *. b)))
+  , ( "module right distribution: (a + b) .* c ~= (a .* c) + (b .* c)"
+    , Ternary21 (\a b c -> (a + b) .* c ~= (a .* c) + (b .* c)))
+  , ( "module left distribution: c *. (a + b) ~= (c *. a) + (c *. b)"
+    , Ternary21 (\a b c -> c *. (a + b) ~= (c *. a) + (c *. b)))
   , ("annihilation: a .* zero == zero", Unary10 (\a -> a .* zero == zero))
-  , ( "module multiplication equivalence: a .* b ≈ b *. a"
-    , Binary11 (\a b -> a .* b ≈ b *. a))
+  , ( "module multiplication equivalence: a .* b ~= b *. a"
+    , Binary11 (\a b -> a .* b ~= b *. a))
   ]
 
 multiplicationGroupModuleLawsFail ::
@@ -497,8 +496,8 @@ multiplicationGroupModuleLawsFail ::
 multiplicationGroupModuleLawsFail =
   [ ( "multiplication group module unital: a ./ one == a"
     , Unary10 (\a -> nearZero a || a ./ one == a))
-  , ( "module multiplication group equivalence: a ./ b ≈ recip b *. a"
-    , Binary11 (\a b -> b == zero || a ./ b ≈ recip b *. a))
+  , ( "module multiplication group equivalence: a ./ b ~= recip b *. a"
+    , Binary11 (\a b -> b == zero || a ./ b ~= recip b *. a))
   ]
 
 banachLaws ::
@@ -508,25 +507,26 @@ banachLaws ::
      , Signed a
      , FromRatio a
      , Ord a
+     , Applicative r
      )
   => [Law2 (r a) a]
 banachLaws =
-  [ ( "L1: normalize a .* norm a ≈ one"
+  [ ( "L1: normalize a .* norm a ~= one"
     , Unary10
         (\a ->
-           a == singleton zero ||
-           (any ((> smallRational) . abs) a || (normalizeL1 a .* normL1 a) ≈ a)))
-    , ( "L2: normalize a .* norm a ≈ one"
+           a == pure zero ||
+           (any ((> smallRational) . abs) a || (normalizeL1 a .* normL1 a) ~= a)))
+    , ( "L2: normalize a .* norm a ~= one"
     , Unary10
         (\a ->
-           a == singleton zero ||
-           (any ((> smallRational) . abs) a || (normalizeL2 a .* normL2 a) ≈ a)))
+           a == pure zero ||
+           (any ((> smallRational) . abs) a || (normalizeL2 a .* normL2 a) ~= a)))
 {-
-    , ( "Lp: normalizeLp a p .* normLp a p ≈ one"
+    , ( "Lp: normalizeLp a p .* normLp a p ~= one"
     , Binary11
         (\a p ->
-           a == singleton zero ||
-           (any ((> smallRational) . normL1) a || (normalizeLp p a .* normLp p a) ≈ a)))
+           a == pure zero ||
+           (any ((> smallRational) . normL1) a || (normalizeLp p a .* normLp p a) ~= a)))
 -}
   ]
 
@@ -538,9 +538,9 @@ hilbertLaws ::
     , Addition (r a))
   => [Law2 (r a) a]
 hilbertLaws =
-  [ ("commutative a <.> b ≈ b <.> a", Ternary21 (\a b _ -> a <.> b ≈ b <.> a))
+  [ ("commutative a <.> b ~= b <.> a", Ternary21 (\a b _ -> a <.> b ~= b <.> a))
   , ( "distributive over addition a <.> (b + c) == a <.> b + a <.> c"
-    , Ternary30 (\a b c -> a <.> (b + c) ≈ a <.> b + a <.> c))
+    , Ternary30 (\a b c -> a <.> (b + c) ~= a <.> b + a <.> c))
   , ( "bilinear a <.> (s *. b + c) == s * (a <.> b) + a <.> c"
     , Quad31 (\a b c s -> a <.> (s *. b + c) == s * (a <.> b) + a <.> c))
   , ( "scalar multiplication (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)"
@@ -569,20 +569,20 @@ tensorProductLaws =
 -- basis
 additionBasisLaws :: (Epsilon (r a), AdditiveBasis r a) => [Law (r a)]
 additionBasisLaws =
-  [ ( "associative: (a .+. b) .+. c ≈ a .+. (b .+. c)"
-    , Ternary (\a b c -> (a .+. b) .+. c ≈ a .+. (b .+. c)))
+  [ ( "associative: (a .+. b) .+. c ~= a .+. (b .+. c)"
+    , Ternary (\a b c -> (a .+. b) .+. c ~= a .+. (b .+. c)))
   , ("left id: zero .+. a = a", Unary (\a -> zero .+. a == a))
   , ("right id: a .+. zero = a", Unary (\a -> a .+. zero == a))
   , ("commutative: a .+. b == b .+. a", Binary (\a b -> a .+. b == b .+. a))
   ]
 
-additionGroupBasisLaws :: (Eq (r a), AdditiveGroupBasis r a) => [Law (r a)]
+additionGroupBasisLaws :: (Eq (r a), Unital (Sum a), AdditiveGroupBasis r a, Applicative r) => [Law (r a)]
 additionGroupBasisLaws =
-  [ ( "minus: a .-. a = singleton zero"
-    , Unary (\a -> (a .-. a) == singleton zero))
+  [ ( "minus: a .-. a = pure zero"
+    , Unary (\a -> (a .-. a) == pure zero))
   ]
 
-multiplicationBasisLaws :: (Eq (r a), HadamardMultiplication r a) => [Law (r a)]
+multiplicationBasisLaws :: (Eq (r a), HadamardMultiplication r a, Applicative r) => [Law (r a)]
 multiplicationBasisLaws =
   [ ( "associative: (a .*. b) .*. c == a .*. (b .*. c)"
     , Ternary (\a b c -> (a .*. b) .*. c == a .*. (b .*. c)))
@@ -596,11 +596,12 @@ multiplicationGroupBasisLaws ::
      ( Epsilon a
      , Epsilon (r a)
      , HadamardDivision r a
+     , Applicative r
      )
   => [Law (r a)]
 multiplicationGroupBasisLaws =
-  [ ( "basis divide: a ./. a ≈ pure one"
-    , Unary (\a -> a == pure zero || (a ./. a) ≈ pure one))
+  [ ( "basis divide: a ./. a ~= pure one"
+    , Unary (\a -> a == pure zero || (a ./. a) ~= pure one))
   ]
 
 -- | semiring
@@ -638,7 +639,7 @@ involutiveRingLaws =
 
 
 -- integrals are the law groups that apply to Integral-like numbers
-integralsLaws :: (Eq a, AbelianGroup a, Integral a, Signed a, ToInteger a, FromInteger a, Multiplication a) => [Law a]
+integralsLaws :: (Eq a, AbelianGroup a, Integral a, Signed a, ToInteger a, FromInteger a, Multiplication a, AbelianGroup (Sum a), AbelianGroup (Product a)) => [Law a]
 integralsLaws =
   additionLaws <>
   additionGroupLaws <>

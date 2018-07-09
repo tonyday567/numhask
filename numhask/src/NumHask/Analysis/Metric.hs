@@ -58,19 +58,19 @@ class (Unital (Product a)) =>
   sign :: a -> a
   abs :: a -> a
 
--- instance Signed Double where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Double where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
--- instance Signed Float where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Float where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
 instance Signed Int where
   sign a
@@ -79,76 +79,76 @@ instance Signed Int where
     | otherwise = negate one
   abs = P.abs
 
--- instance Signed Integer where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Integer where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
--- instance Signed Natural where
---   sign a
---     | a == zero = zero
---     | otherwise = one
---   abs = id
+instance Signed Natural where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = id
 
--- instance Signed Int8 where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Int8 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
--- instance Signed Int16 where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Int16 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
--- instance Signed Int32 where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Int32 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
--- instance Signed Int64 where
---   sign a
---     | a == zero = zero
---     | a > zero = one
---     | otherwise = negate one
---   abs = P.abs
+instance Signed Int64 where
+  sign a
+    | a == zero = zero
+    | a > zero = one
+    | otherwise = negate one
+  abs = P.abs
 
--- instance Signed Word where
---   sign a
---     | a == zero = zero
---     | otherwise = one
---   abs = P.abs
+instance Signed Word where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
 
--- instance Signed Word8 where
---   sign a
---     | a == zero = zero
---     | otherwise = one
---   abs = P.abs
+instance Signed Word8 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
 
--- instance Signed Word16 where
---   sign a
---     | a == zero = zero
---     | otherwise = one
---   abs = P.abs
+instance Signed Word16 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
 
--- instance Signed Word32 where
---   sign a
---     | a == zero = zero
---     | otherwise = one
---   abs = P.abs
+instance Signed Word32 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
 
--- instance Signed Word64 where
---   sign a
---     | a == zero = zero
---     | otherwise = one
---   abs = P.abs
+instance Signed Word64 where
+  sign a
+    | a == zero = zero
+    | otherwise = one
+  abs = P.abs
 
 -- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
 --
@@ -252,84 +252,84 @@ class Metric a b where
   distanceL2 :: a -> a -> b
   distanceLp :: b -> a -> a -> b
 
--- instance Metric Double Double where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Double Double where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Float Float where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Float Float where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Int Int where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Int Int where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Integer Integer where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Integer Integer where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance (Multiplication a, ExpField a, Normed a a) =>
---          Metric (Complex a) a where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance (Multiplication a, ExpField a, Normed a a) =>
+         Metric (Complex a) a where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Natural Natural where
---   distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
---   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
---   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+instance Metric Natural Natural where
+  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
+  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- instance Metric Int8 Int8 where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Int8 Int8 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Int16 Int16 where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Int16 Int16 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Int32 Int32 where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Int32 Int32 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- instance Metric Int64 Int64 where
---   distanceL1 a b = normL1 (a - b)
---   distanceL2 a b = normL2 (a - b)
---   distanceLp p a b = normLp p (a - b)
+instance Metric Int64 Int64 where
+  distanceL1 a b = normL1 (a - b)
+  distanceL2 a b = normL2 (a - b)
+  distanceLp p a b = normLp p (a - b)
 
--- -- fixme: circular distance may be more appropriate
--- instance Metric Word Word where
---   distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
---   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
---   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+-- fixme: circular distance may be more appropriate
+instance Metric Word Word where
+  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
+  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- instance Metric Word8 Word8 where
---   distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
---   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
---   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+instance Metric Word8 Word8 where
+  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
+  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- instance Metric Word16 Word16 where
---   distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
---   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
---   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+instance Metric Word16 Word16 where
+  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
+  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- instance Metric Word32 Word32 where
---   distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
---   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
---   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+instance Metric Word32 Word32 where
+  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
+  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- instance Metric Word64 Word64 where
---   distanceL1 a b = fromInteger $ normL1 (toInteger a - toInteger b)
---   distanceL2 a b = fromInteger $ normL2 (toInteger a - toInteger b)
---   distanceLp p a b = fromInteger (normLp (toInteger p) (toInteger a - toInteger b))
+instance Metric Word64 Word64 where
+  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
+  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
+-- | FIXME: This should probably be split off into some sort of alternative Equality logic, but to what end?
 class (Eq a, Unital (Sum a)) =>
       Epsilon a where
   nearZero :: a -> Bool
@@ -351,35 +351,31 @@ infixl 4 ~=
 (~=) :: (Epsilon a) => a -> a -> Bool
 (~=) = aboutEqual
 
--- instance Epsilon Double where
---   nearZero a = abs a <= (1e-12 :: Double)
+instance Epsilon Double where
+  nearZero a = abs a <= (1e-12 :: Double)
 
--- instance Epsilon Float where
---   nearZero a = abs a <= (1e-6 :: Float)
+instance Epsilon Float where
+  nearZero a = abs a <= (1e-6 :: Float)
 
--- instance Epsilon Int
+instance Epsilon Int
 
--- instance Epsilon Integer
+instance Epsilon Integer
 
--- instance (Epsilon a, Group (Sum a)) => Epsilon (Complex a) where
---   nearZero (rx :+ ix) = nearZero rx && nearZero ix
---   aboutEqual a b = nearZero $ a - b
+instance Epsilon Int8
 
--- instance Epsilon Int8
+instance Epsilon Int16
 
--- instance Epsilon Int16
+instance Epsilon Int32
 
--- instance Epsilon Int32
+instance Epsilon Int64
 
--- instance Epsilon Int64
+instance Epsilon Word
 
--- instance Epsilon Word
+instance Epsilon Word8
 
--- instance Epsilon Word8
+instance Epsilon Word16
 
--- instance Epsilon Word16
+instance Epsilon Word32
 
--- instance Epsilon Word32
-
--- instance Epsilon Word64
+instance Epsilon Word64
 

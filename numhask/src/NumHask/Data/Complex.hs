@@ -88,6 +88,9 @@ instance (Multiplication a, ExpField a, Normed a a) => Metric (Complex a) a wher
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
+instance (AbelianGroup (Sum a), Epsilon a) => Epsilon (Complex a) where
+  nearZero (a :+ b) = nearZero a && nearZero b
+
 instance (IntegralDomain a) => IntegralDomain (Complex a)
 
 instance (Field a) => Field (Complex a)
@@ -108,6 +111,9 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
+
+instance (Ring a) => InvolutiveRing (Complex a) where
+  adj (a :+ b) = a :+ negate b
 
 -- * Helpers from Data.Complex 
 

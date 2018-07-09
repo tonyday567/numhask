@@ -52,10 +52,10 @@ import           GHC.Natural                    ( Natural(..) )
 newtype Sum a = Sum a
       deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
 
-class (Associative (Sum a), Commutative (Sum a)) => Addition a where
-      sum :: (P.Foldable f, Unital (Sum a)) => f a -> a
+class (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Addition a where
+      sum :: (P.Foldable f) => f a -> a
       sum = P.foldr (+) zero
-instance (Associative (Sum a), Commutative (Sum a)) => Addition a
+instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Addition a
 
 plus :: Magma (Sum a) => a -> a -> a
 plus = coerceFA magma
