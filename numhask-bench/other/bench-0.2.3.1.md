@@ -20,18 +20,18 @@ multiplication for:
     square matrix size: 10
 
     creation
-    hmatrix:                  7.80e4
-    matrix:                   2.74e3
-    Array []:                 2.90e4
-    Array Vector(Boxed):      5.32e4
+    hmatrix:                  4.70e4
+    matrix:                   2.77e3
+    Array []:                 2.37e4
+    Array Vector(Boxed):      5.41e4
 
     mmult
     run                        first      2nd      3rd   median      av.
 
-    hmatrix                   1.32e4   7.15e3   2.38e3   2.18e3   3.37e3
-    matrix                    3.69e4   1.97e4   1.98e4   1.84e4   2.23e4
-    []                        1.76e4   2.32e2   1.96e2   1.41e2   8.18e2
-    Boxed                     1.83e4   7.01e3   6.44e3   6.23e3   9.24e3
+    hmatrix                   2.03e4   6.94e3   2.49e3   2.20e3   3.36e3
+    matrix                    4.09e4   1.96e4   1.92e4   1.59e4   2.08e4
+    []                        1.77e4   3.24e2   1.92e2   1.33e2   7.74e2
+    Boxed                     1.89e4   7.33e3   6.68e3   6.42e3   9.40e3
 
 All measurements are in cycles. See
 [perf](https://hackage.haskell.org/package/perf) for what this is. The
@@ -44,13 +44,13 @@ NumHask.Array operations
     square matrix size: 10
     run                        first      2nd      3rd   median      av.
 
-    row                       4.73e3   9.50e2   4.44e2   3.59e2   3.69e2
-    col                       1.52e3   3.86e2   1.82e2   1.26e2   4.70e2
-    unsafeRow                 1.34e3   1.40e2   4.00e1   3.84e1   4.05e1
-    unsafeCol                 5.08e2   1.38e2   1.14e2   1.12e2   8.13e2
-    unsafeIndex               3.47e3   4.32e2   2.06e2   1.84e2   1.98e2
-    concat                    2.48e4   8.89e3   8.01e3   7.18e3   1.28e4
-    transpose                 3.80e2   5.80e1   2.60e1   2.22e1   2.33e1
+    row                       4.95e3   6.68e2   4.50e2   3.27e2   6.56e2
+    col                       1.01e3   5.18e2   1.52e2   1.20e2   1.30e2
+    unsafeRow                 1.21e3   1.34e2   3.80e1   3.45e1   3.68e1
+    unsafeCol                 5.22e2   1.36e2   1.32e2   1.09e2   8.11e2
+    unsafeIndex               4.65e3   4.18e2   2.86e2   1.84e2   1.99e2
+    concat                    2.31e4   8.87e3   7.77e3   8.16e3   1.38e4
+    transpose                 4.06e2   6.80e1   2.20e1   2.19e1   2.30e1
 
 recipe
 ------
