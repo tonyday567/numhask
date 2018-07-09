@@ -587,11 +587,6 @@ instance (Dimensions r, Container c, Invertible (Sum a)) =>
          Invertible (Sum (Array c r a)) where
   inv (Sum a) = Sum (fmapRep negate a)
 
--- instance (Dimensions r, Container c, Addition a) => Addition (Array c r a)
-
--- instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
---         AbelianGroup (Sum (Array c r a))
-
 instance (Dimensions r, Container c, Magma (Product a)) =>
          Magma (Product (Array c r a)) where
   (Product a) `magma` (Product b) = Product (liftR2 times a b)
@@ -614,20 +609,8 @@ instance (Dimensions r, Container c, Associative (Product a), Unital (Product a)
          Absorbing (Product (Array c r a)) where
   absorb = Product (pureRep zero')
 
--- instance (Dimensions r, Container c, Multiplication a) =>
---         Multiplication (Array c r a)
-
--- instance (Dimensions r, Container c, AbelianGroup (Product a)) =>
---          AbelianGroup (Product (Array c r a))
-
 instance (Dimensions r, Container c, Magma (Product a), Absorbing (Product a), Addition a, Associative (Product a), Unital (Product a)) =>
          P.Distributive (Array c r a)
-
--- instance (Dimensions r, Container c, Semiring a) => Semiring (Array c r a)
-
--- instance (Dimensions r, Container c, Ring a) => Ring (Array c r a)
-
--- instance (Dimensions r, Container c, CommutativeRing a) => CommutativeRing (Array c r a)
 
 instance (Dimensions r, Container c, IntegralDomain a) => IntegralDomain (Array c r a)
 
