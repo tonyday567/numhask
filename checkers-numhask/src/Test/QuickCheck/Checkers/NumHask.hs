@@ -9,8 +9,8 @@ import NumHask.Algebra
 unital :: (Show a, Eq a, Unital a) => Gen a -> Property
 unital gen =
     forAll gen $ \a -> conjoin [
-        a ⊕ unit `eq` a
-      , unit ⊕ a `eq` a
+        a `magma` unit `eq` a
+      , unit `magma` a `eq` a
       ]
 
 
