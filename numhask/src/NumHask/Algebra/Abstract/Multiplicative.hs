@@ -56,10 +56,10 @@ one = let (Product a) = unit in a
 recip :: Invertible (Product a) => a -> a
 recip = coerceFM' inv
 
-class (Absorbing (Product a), Monoid (Product a)) => Multiplication a where
+class (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplication a where
     product :: (P.Foldable f) => f a -> a
     product = P.foldr (*) one
-instance (Absorbing (Product a), Monoid (Product a)) => Multiplication a
+instance (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplication a
 
 times :: Magma (Product a) => a -> a -> a
 times = coerceFM magma
@@ -191,38 +191,38 @@ instance Unital (Product Word64) where
     unit = coerce (1 :: Word64)
 
 --- semigroup
-instance Semigroup (Product P.Double)
+instance Associative (Product P.Double)
 
-instance Semigroup (Product P.Float)
+instance Associative (Product P.Float)
 
-instance Semigroup (Product P.Int)
+instance Associative (Product P.Int)
 
-instance Semigroup (Product P.Integer)
+instance Associative (Product P.Integer)
 
-instance Semigroup (Product P.Bool)
+instance Associative (Product P.Bool)
 
-instance (AbelianGroup (Sum a), Semigroup (Product a)) =>
-    Semigroup (Product (Complex a))
+instance (AbelianGroup (Sum a), Associative (Product a)) =>
+    Associative (Product (Complex a))
 
-instance Semigroup (Product Natural)
+instance Associative (Product Natural)
 
-instance Semigroup (Product Int8)
+instance Associative (Product Int8)
 
-instance Semigroup (Product Int16)
+instance Associative (Product Int16)
 
-instance Semigroup (Product Int32)
+instance Associative (Product Int32)
 
-instance Semigroup (Product Int64)
+instance Associative (Product Int64)
 
-instance Semigroup (Product Word)
+instance Associative (Product Word)
 
-instance Semigroup (Product Word8)
+instance Associative (Product Word8)
 
-instance Semigroup (Product Word16)
+instance Associative (Product Word16)
 
-instance Semigroup (Product Word32)
+instance Associative (Product Word32)
 
-instance Semigroup (Product Word64)
+instance Associative (Product Word64)
 
 --- commutative
 instance Commutative (Product P.Double)

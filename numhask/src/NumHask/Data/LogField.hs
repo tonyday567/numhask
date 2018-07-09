@@ -42,7 +42,6 @@ import           Prelude                 hiding ( Num(..)
                                                 , recip
                                                 , (**)
                                                 , toInteger
-                                                , Semigroup
                                                 )
 import qualified Data.Foldable                 as F
 
@@ -198,7 +197,7 @@ instance (ExpField a, LowerBoundedField a, Ord a) => Magma (Sum (LogField a)) wh
 instance (LowerBoundedField a, ExpField a, Ord a) => Unital (Sum (LogField a)) where
     unit = Sum $ LogField negInfinity
 
-instance (LowerBoundedField a, ExpField a, Ord a) => Semigroup (Sum (LogField a))
+instance (LowerBoundedField a, ExpField a, Ord a) => Associative (Sum (LogField a))
 
 instance (LowerBoundedField a, ExpField a, Ord a) => Commutative (Sum (LogField a))
 
@@ -210,7 +209,7 @@ instance (Magma (Sum a), LowerBoundedField a, Eq a) => Magma (Product (LogField 
 instance (Unital (Sum a), LowerBoundedField a, Eq a) => Unital (Product (LogField a)) where
     unit = Product $ LogField zero
 
-instance (Semigroup (Sum a), LowerBoundedField a, Eq a) => Semigroup (Product (LogField a))
+instance (Associative (Sum a), LowerBoundedField a, Eq a) => Associative (Product (LogField a))
 
 instance (Commutative (Sum a), LowerBoundedField a, Eq a) => Commutative (Product (LogField a))
 

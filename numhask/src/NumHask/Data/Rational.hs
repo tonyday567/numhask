@@ -5,6 +5,7 @@
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# OPTIONS_GHC -Wall #-}
+
 -- | Integral classes
 module NumHask.Data.Rational
   ( Ratio(..)
@@ -83,7 +84,7 @@ instance (AdditionConstraints a) => Unital (Sum (Ratio a)) where
 
 --FIXME are the laws correct? When is it a Commutative etc.?
 instance (AdditionConstraints a)
-  => Semigroup (Sum (Ratio a))
+  => Associative (Sum (Ratio a))
 
 instance (AdditionConstraints a)
   => Commutative (Sum (Ratio a))
@@ -98,7 +99,7 @@ instance (AdditionConstraints a) => Unital (Product (Ratio a)) where
   unit = Product (one :% one)
 
 instance (AdditionConstraints a) =>
-         Semigroup (Product (Ratio a))
+         Associative (Product (Ratio a))
 
 instance (AdditionConstraints a) =>
          Commutative (Product (Ratio a))

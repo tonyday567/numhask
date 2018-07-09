@@ -12,7 +12,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
 import NumHask.Analysis.Metric
 
-import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**), Semigroup)
+import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**))
 import qualified Prelude as P ( (&&), (>), (<=), (<), (==), otherwise, Ord(..) )
 
 -- -----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ instance (Magma (Sum a)) => Magma (Sum (Complex a)) where
 instance (Unital (Sum a)) => Unital (Sum (Complex a)) where
   unit = Sum (zero :+ zero)
 
-instance (Semigroup (Sum a)) => Semigroup (Sum (Complex a))
+instance (Associative (Sum a)) => Associative (Sum (Complex a))
 
 instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
 
@@ -74,8 +74,8 @@ instance (AbelianGroup (Sum a), Invertible (Product a)) => Invertible (Product (
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
 
-instance (AbelianGroup (Sum a), Semigroup (Product a)) =>
-         Semigroup (Product (Complex a))
+instance (AbelianGroup (Sum a), Associative (Product a)) =>
+         Associative (Product (Complex a))
 
 instance (Multiplication a, ExpField a, Normed a a) =>
          Normed (Complex a) a where

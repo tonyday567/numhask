@@ -13,24 +13,23 @@ module NumHask.Prelude
     -- RebindableSyntax takes fromString and fail away so we need to put it back in
   , fromString
   , fail
-  , Complex(..)
-  , module NumHask.Data.LogField
-  , Natural(..)
     -- * Algebraic Heirarchy
     -- $instances
-  , module NumHask.Algebra.Additive
-  , module NumHask.Algebra.Basis
-  , module NumHask.Algebra.Distribution
-  , module NumHask.Algebra.Field
+  , module NumHask.Algebra.Abstract.Additive
+  , module NumHask.Algebra.Abstract.Field
+  , module NumHask.Algebra.Abstract.Group
+  , module NumHask.Algebra.Abstract.Homomorphism
+  , module NumHask.Algebra.Abstract.Module
+  , module NumHask.Algebra.Abstract.Multiplicative
+  , module NumHask.Algebra.Abstract.Ring
   , module NumHask.Algebra.Integral
-  , module NumHask.Algebra.Magma
-  , module NumHask.Algebra.Metric
-  , module NumHask.Algebra.Module
-  , module NumHask.Algebra.Multiplicative
-  , module NumHask.Algebra.Rational
-  , module NumHask.Algebra.Ring
-  , module NumHask.Algebra.Singleton
-
+  , module NumHask.Algebra.Linear.Hadamard
+  , module NumHask.Algebra.Natural
+  , module NumHask.Analysis.Banach
+  , module NumHask.Analysis.Metric
+  , module NumHask.Data.Complex   
+  , module NumHask.Data.LogField       
+  , module NumHask.Data.Rational
   ) where
 
 #if MIN_VERSION_base(4,11,0)
@@ -40,7 +39,7 @@ import Protolude
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, even, odd, infinity, log, logBase, negate, pi, product,
                properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract)
+               zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract, Complex(..), Sum(..), Product(..), isNaN, realPart, imagPart, polar, phase, mkPolar, magnitude, cis)
 #else
 import Protolude
        hiding (Integral(..), Rep, Semiring(..), (*), (**),
@@ -48,27 +47,29 @@ import Protolude
                atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
                fromIntegral, even, odd, infinity, log, logBase, negate, pi, product,
                properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract, (<>), Semigroup)
+               zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract, Complex(..), Sum(..), Product(..), isNaN, realPart, imagPart, polar, phase, mkPolar, magnitude, cis
+               (<>), Semigroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
 
 import Control.Monad (fail)
 import Data.String
-import GHC.Natural(Natural(..))
 
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Basis
-import NumHask.Algebra.Distribution
-import NumHask.Algebra.Field
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Homomorphism
+import NumHask.Algebra.Abstract.Module
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Integral
-import NumHask.Algebra.Magma
-import NumHask.Algebra.Metric
-import NumHask.Algebra.Module
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Rational
-import NumHask.Algebra.Ring
-import NumHask.Algebra.Singleton
-import NumHask.Data.LogField
+import NumHask.Algebra.Linear.Hadamard
+import NumHask.Algebra.Natural
+import NumHask.Analysis.Banach
+import NumHask.Analysis.Metric
+import NumHask.Data.Complex   
+import NumHask.Data.LogField       
+import NumHask.Data.Rational
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.
