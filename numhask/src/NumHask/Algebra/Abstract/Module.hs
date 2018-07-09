@@ -36,7 +36,7 @@ import Prelude
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Ring a, AbelianGroup (r a)) => Module r a where
+class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
   infixl 7 .*
   (.*) :: r a -> a -> r a
   infixl 7 *.
