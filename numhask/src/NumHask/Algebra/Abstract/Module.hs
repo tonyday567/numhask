@@ -72,21 +72,6 @@ class (Group (Sum a), AdditiveModule r a) =>
   infixl 6 -.
   (-.) :: a -> r a -> r a
 
--- -- | Multiplicative Module Laws
--- --
--- -- > a .* one == a
--- -- > (a + b) .* c == (a .* c) + (b .* c)
--- -- > c *. (a + b) == (c *. a) + (c *. b)
--- -- > a .* zero == zero
--- -- > a .* b == b *. a
--- class (Multiplication a) =>
---       MultiplicativeModule r a where
---   infixl 7 .*
---   (.*) :: r a -> a -> r a
---   infixl 7 *.
---   (*.) :: a -> r a -> r a
-
-
 -- | Division Module Laws
 --
 -- > nearZero a || a ./ one == a

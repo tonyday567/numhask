@@ -159,7 +159,7 @@ unind ns x =
     ns
 
 instance forall r c. (Dimensions r, Container c) =>
-  Distributive (Array c r) where
+  Data.Distributive.Distributive (Array c r) where
   distribute f = Array $ generate n $ \i -> fmap (\(Array v) -> idx v i) f
     where
       n = dimVal $ dim @r
@@ -178,7 +178,7 @@ instance forall r c. (Dimensions r, Container c) =>
 instance
     ( Item (Array c r a) ~ Item (c a)
     , Dimensions r
-    , AdditiveUnital a
+    , Unital (Sum a)
     , IsList (c a)
     ) =>
     IsList (Array c r a) where
@@ -224,9 +224,9 @@ instance
   ( IsList (c a)
   , Item (c a) ~ a
   , KnownNat n
-  , AdditiveUnital (Vector c n a)
+  , Unital (Sum (Vector c n a))
   , QC.Arbitrary a
-  , AdditiveUnital a
+  , Unital (Sum a)
   ) =>
   QC.Arbitrary (Vector c n a) where
   arbitrary = QC.frequency [(1, pure zero), (9, fromList <$> QC.vector n)]
@@ -236,11 +236,11 @@ instance
 instance
   ( IsList (c a)
   , Item (c a) ~ a
-  , AdditiveUnital (Matrix c m n a)
+  , Unital (Sum (Matrix c m n a))
   , KnownNat m
   , KnownNat n
   , QC.Arbitrary a
-  , AdditiveUnital a
+  , Unital (Sum a)
   ) =>
   QC.Arbitrary (Matrix c m n a) where
   arbitrary = QC.frequency [(1, pure zero), (9, fromList <$> QC.vector (m * n))]
@@ -260,7 +260,7 @@ instance
 --  [3, 6, 9]]
 (><) :: forall c (r :: [Nat]) (s :: [Nat]) a.
   ( Container c
-  , CRing a
+  , CommutativeRing a
   , Dimensions r
   , Dimensions s
   , Dimensions ((D.++) r s))
@@ -569,63 +569,67 @@ squeeze ::
   -> Array c t a
 squeeze (Array x) = Array x
 
-instance (Dimensions r, Container c, AdditiveMagma a) =>
-         AdditiveMagma (Array c r a) where
-  plus = liftR2 plus
+instance (Dimensions r, Container c, Magma (Sum a)) =>
+         Magma (Sum (Array c r a)) where
+  (Sum a) `magma` (Sum b) = Sum (liftR2 plus a b)
 
-instance (Dimensions r, Container c, AdditiveUnital a) =>
-         AdditiveUnital (Array c r a) where
-  zero = pureRep zero
+instance (Dimensions r, Container c, Unital (Sum a)) =>
+         Unital (Sum (Array c r a)) where
+  unit = Sum (pureRep zero)
 
-instance (Dimensions r, Container c, AdditiveAssociative a) =>
-         AdditiveAssociative (Array c r a)
+instance (Dimensions r, Container c, Associative (Sum a)) =>
+         Associative (Sum (Array c r a))
 
-instance (Dimensions r, Container c, AdditiveCommutative a) =>
-         AdditiveCommutative (Array c r a)
+instance (Dimensions r, Container c, Commutative (Sum a)) =>
+         Commutative (Sum (Array c r a))
 
-instance (Dimensions r, Container c, AdditiveInvertible a) =>
-         AdditiveInvertible (Array c r a) where
-  negate = fmapRep negate
+instance (Dimensions r, Container c, Invertible (Sum a)) =>
+         Invertible (Sum (Array c r a)) where
+  inv (Sum a) = Sum (fmapRep negate a)
 
-instance (Dimensions r, Container c, Additive a) => Additive (Array c r a)
+-- instance (Dimensions r, Container c, Addition a) => Addition (Array c r a)
 
-instance (Dimensions r, Container c, AdditiveGroup a) =>
-         AdditiveGroup (Array c r a)
+-- instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
+--         AbelianGroup (Sum (Array c r a))
 
-instance (Dimensions r, Container c, MultiplicativeMagma a) =>
-         MultiplicativeMagma (Array c r a) where
-  times = liftR2 times
+instance (Dimensions r, Container c, Magma (Product a)) =>
+         Magma (Product (Array c r a)) where
+  (Product a) `magma` (Product b) = Product (liftR2 times a b)
 
-instance (Dimensions r, Container c, MultiplicativeUnital a) =>
-         MultiplicativeUnital (Array c r a) where
-  one = pureRep one
+instance (Dimensions r, Container c, Unital (Product a)) =>
+         Unital (Product (Array c r a)) where
+  unit = Product (pureRep one)
 
-instance (Dimensions r, Container c, MultiplicativeAssociative a) =>
-         MultiplicativeAssociative (Array c r a)
+instance (Dimensions r, Container c, Associative (Product a)) =>
+         Associative (Product (Array c r a))
 
-instance (Dimensions r, Container c, MultiplicativeCommutative a) =>
-         MultiplicativeCommutative (Array c r a)
+instance (Dimensions r, Container c, Commutative (Product a)) =>
+         Commutative (Product (Array c r a))
 
-instance (Dimensions r, Container c, MultiplicativeInvertible a) =>
-         MultiplicativeInvertible (Array c r a) where
-  recip = fmapRep recip
+instance (Dimensions r, Container c, Invertible (Product a)) =>
+         Invertible (Product (Array c r a)) where
+  inv (Product a) = Product (fmapRep recip a)
 
-instance (Dimensions r, Container c, Multiplicative a) =>
-         Multiplicative (Array c r a)
+instance (Dimensions r, Container c, Associative (Product a), Unital (Product a), Absorbing (Product a)) =>
+         Absorbing (Product (Array c r a)) where
+  absorb = Product (pureRep zero')
 
-instance (Dimensions r, Container c, MultiplicativeGroup a) =>
-         MultiplicativeGroup (Array c r a)
+-- instance (Dimensions r, Container c, Multiplication a) =>
+--         Multiplication (Array c r a)
 
-instance (Dimensions r, Container c, MultiplicativeMagma a, Additive a) =>
-         Distribution (Array c r a)
+-- instance (Dimensions r, Container c, AbelianGroup (Product a)) =>
+--          AbelianGroup (Product (Array c r a))
 
-instance (Dimensions r, Container c, Semiring a) => Semiring (Array c r a)
+instance (Dimensions r, Container c, Magma (Product a), Absorbing (Product a), Addition a, Associative (Product a), Unital (Product a)) =>
+         P.Distributive (Array c r a)
 
-instance (Dimensions r, Container c, Ring a) => Ring (Array c r a)
+-- instance (Dimensions r, Container c, Semiring a) => Semiring (Array c r a)
 
-instance (Dimensions r, Container c, CRing a) => CRing (Array c r a)
+-- instance (Dimensions r, Container c, Ring a) => Ring (Array c r a)
 
-instance (Dimensions r, Container c, Semifield a) => Semifield (Array c r a)
+-- instance (Dimensions r, Container c, CommutativeRing a) => CommutativeRing (Array c r a)
+
+instance (Dimensions r, Container c, IntegralDomain a) => IntegralDomain (Array c r a)
 
 instance (Dimensions r, Container c, Field a) => Field (Array c r a)
 
@@ -634,7 +638,8 @@ instance (Dimensions r, Container c, ExpField a) => ExpField (Array c r a) where
   log = fmapRep log
 
 instance (Foldable (Array c r), Dimensions r, Container c, UpperBoundedField a) =>
-         UpperBoundedField (Array c r a)
+         UpperBoundedField (Array c r a) where
+  isNaN = foldl' (||) False . fmapRep isNaN
 
 instance (Foldable (Array c r), Dimensions r, Container c, LowerBoundedField a) =>
          LowerBoundedField (Array c r a)
@@ -672,56 +677,65 @@ instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
       q = fmap fst x
       r = fmap snd x
 
-instance (Foldable (Array c r), CRing a, Semiring a, Dimensions r, Container c) =>
+instance (Foldable (Array c r), CommutativeRing a, Semiring a, Dimensions r, Container c) =>
          Hilbert (Array c r) a where
   a <.> b = sum $ liftR2 (*) a b
 
-instance (Dimensions r, Container c, Additive a) =>
+instance (Dimensions r, Container c, Addition a) =>
          AdditiveBasis (Array c r) a where
   (.+.) = liftR2 (+)
 
-instance (Dimensions r, Container c, AdditiveGroup a) =>
+-- FIXME: ???
+{-
+instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
          AdditiveGroupBasis (Array c r) a where
   (.-.) = liftR2 (-)
+-}
 
-instance (Dimensions r, Container c, Multiplicative a) =>
-         MultiplicativeBasis (Array c r) a where
+instance (Dimensions r, Container c, Multiplication a) =>
+         HadamardMultiplication (Array c r) a where
   (.*.) = liftR2 (*)
 
-instance (Dimensions r, Container c, MultiplicativeGroup a) =>
-         MultiplicativeGroupBasis (Array c r) a where
+instance (Dimensions r, Container c, Absorbing (Product a), AbelianGroup (Product a)) =>
+         HadamardDivision (Array c r) a where
   (./.) = liftR2 (/)
 
-instance (Container c, Additive a) =>
+instance (Container c, Addition a) =>
          AdditiveModule (Array c (r::[Nat])) a where
   (.+) r s = fmap (s +) r
   (+.) s = fmap (s +)
 
-instance (Container c, AdditiveGroup a) =>
+instance (Container c, AbelianGroup (Sum a)) =>
          AdditiveGroupModule (Array c (r::[Nat])) a where
   (.-) r s = fmap (\x -> x - s) r
   (-.) s = fmap (\x -> x - s)
 
-instance (Container c, Multiplicative a) =>
-         MultiplicativeModule (Array c (r :: [Nat])) a where
-  (.*) r s = fmap (s *) r
-  (*.) s = fmap (s *)
+-- FIXME: Could not deduce (Associative (Array c r a))
+{-
+instance (Container c, Multiplication a, P.Distributive a, Invertible (Sum a)) =>
+         Module (Array c (r :: [Nat])) a where
+  (.*) r s = fmap (`times` s) r
+  (*.) s = fmap (s `times`)
+-}
 
-instance (Container c, MultiplicativeGroup a) =>
+{-
+instance (Container c, Field a, AbelianGroup (Product a), Invertible (Sum a), P.Distributive a) =>
          MultiplicativeGroupModule (Array c (r::[Nat])) a where
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
 
-instance (Dimensions r, Container c) => Singleton (Array c r) where
-  singleton = pureRep
+-}
 
+{-
 instance ( Foldable (Array c r)
          , Dimensions r
          , Container c
-         , CRing a
-         , Multiplicative a
+         , CommutativeRing a
+         , Multiplication a
          ) =>
          TensorProduct (Array c r a) where
   (><) m n = tabulate (\i -> index m i *. n)
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
+
+-}

@@ -1,11 +1,8 @@
-resolver: nightly-2018-05-06
+resolver: nightly-2018-07-08
 
 packages:
 - .
 - ../numhask
 
 extra-deps: []
-
-# Override default flag values for local packages and extra-deps
-# flags: {}
 

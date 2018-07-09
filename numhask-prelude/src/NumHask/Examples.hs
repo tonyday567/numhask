@@ -1,10 +1,14 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 -- | NumHask usage examples
 module NumHask.Examples
@@ -33,6 +37,7 @@ import NumHask.Prelude
 --
 -- $setup
 -- >>> :set -XNoImplicitPrelude
+-- >>> :set -XFlexibleContexts
 -- >>> import NumHask.Prelude
 --
 -- $basic
@@ -44,17 +49,17 @@ import NumHask.Prelude
 -- 0
 -- >>> 1 * 1
 -- 1
--- >>> 1 / 1
+-- >>> 1.0 / 1.0
 -- 1.0
 --
 -- Note that the literal numbers in the divide above defaulted to Float rather than Int.
 --
 -- >>> 1 / (1::Int)
 -- ...
--- ... No instance for (MultiplicativeGroup Int)
+-- ... No instance for (Invertible (Product Int))
 -- ...
 --
--- >>> 1 / fromIntegral (1::Int)
+-- >>> 1.0 / fromIntegral (1::Int)
 -- 1.0
 --
 -- RebindableSyntax removes the Haskell98 link between literal numbers and base classes.  Literal numbers are pre-processed by ghc as `fromInteger 1` and `fromRational 1.0`.
@@ -96,12 +101,30 @@ import NumHask.Prelude
 --
 -- 'BoundedField'
 --
--- >>> one/zero
+-- >>> 1.0/0.0
 -- Infinity
--- >>> -one/zero
+-- >>> -1.0/0.0
 -- -Infinity
--- >>> zero/zero+one
+-- >>> 0.0/0.0 + 1.0
 -- NaN
+--
+-- should be Infinity
+-- >>> one/zero
+-- ...
+-- ... No instance for (Invertible (Product ()))
+-- ...
+--
+-- should be -Infinity
+-- >>> -one/zero
+-- ...
+-- ... No instance for (Absorbing (Product ()))
+-- ...
+--
+-- should be NaN
+-- >>> zero/zero+one
+-- ...
+-- ... No instance for (Commutative (Sum ())) ...
+-- ...
 --
 -- 'ExpField'
 --
@@ -125,17 +148,72 @@ import NumHask.Prelude
 -- (-1) :+ (-2)
 -- >>> (1 :+ (-2)) * ((-2) :+ 4)
 -- 6 :+ 8
--- >>> (1 :+ (-1)) / (2 :+ 2)
+-- >>> (1.0 :+ (-1.0)) / (2.0 :+ 2.0)
 -- 0.0 :+ (-0.5)
 
-newtype PositiveFloat = PositiveFloat { unPositive :: Float } deriving (Show, Eq, AdditiveMagma, AdditiveAssociative, AdditiveUnital, AdditiveCommutative, Additive, MultiplicativeMagma, MultiplicativeUnital, MultiplicativeAssociative, MultiplicativeCommutative, Multiplicative, MultiplicativeInvertible, MultiplicativeGroup, Distribution, Semiring, Ring, CRing, Semifield, UpperBoundedField)
+newtype Positive a = Positive { unPositive :: a } deriving (Show, Eq)
 
-instance AdditiveInvertible PositiveFloat where
-  negate _ = nan
+instance (Magma (Sum a)) => Magma (Sum (Positive a)) where
+  (Sum (Positive a)) `magma` (Sum (Positive b)) = Sum (Positive (a `plus` b))
 
-instance AdditiveGroup PositiveFloat
+instance (Unital (Sum a)) => Unital (Sum (Positive a)) where
+  unit = Sum (Positive zero)
 
-instance Bounded PositiveFloat where
-  minBound = zero
-  maxBound = infinity
+instance (Associative (Sum a)) => Associative (Sum (Positive a))
+
+instance (Commutative (Sum a)) => Commutative (Sum (Positive a))
+
+instance (Multiplication a) => Absorbing (Product (Positive a)) where
+  absorb = Product (Positive zero')
+
+instance (Distributive  a) => Distributive  (Positive a)
+
+instance (Magma (Product a)) => Magma (Product (Positive a)) where
+  (Product (Positive a)) `magma` (Product (Positive b)) =
+    Product (Positive (a `times` b))
+
+instance (Associative (Product a)) =>
+         Associative (Product (Positive a))
+
+instance (Unital (Product a)) => Unital (Product (Positive a)) where
+  unit = Product one
+
+instance (Commutative (Product a)) => Commutative (Product (Positive a))
+
+instance (Invertible (Product a)) => Invertible (Product (Positive a)) where
+  inv (Product (Positive a)) = Product (Positive (recip a))
+
+-- FIXME: needs Invertible (Sum (Positive a)), or UndecidableInstances
+instance (IntegralDomain a, Invertible (Sum (Positive a))) => IntegralDomain (Positive a)
+
+instance (UpperBoundedField a, Invertible (Sum (Positive a))) => UpperBoundedField (Positive a) where
+  infinity = Positive infinity
+  isNaN (Positive a) = isNaN a
+  
+
+instance (UpperBoundedField a, Invertible (Sum (Positive a))) => Bounded (Positive a) where
+   minBound = zero
+   maxBound = infinity
+
+instance (Multiplication a, ExpField a, Normed a a) =>
+         Normed a (Positive a) where
+  normL1 a = Positive (normL1 a)
+  normL2 a = Positive (normL2 a)
+  normLp (Positive p) a = Positive (normLp p a)
+
+instance (Multiplication a, ExpField a, Normed a a) =>
+         Normed (Positive a) (Positive a) where
+  normL1 (Positive a) = Positive (normL1 a)
+  normL2 (Positive a) = Positive (normL2 a)
+  normLp (Positive p) (Positive a) = Positive (normLp p a)
+
+instance (Multiplication a, ExpField a, Normed a a) => Metric a (Positive a) where
+  distanceL1 a b = Positive $ normL1 (a - b)
+  distanceL2 a b = Positive $ normL2 (a - b)
+  distanceLp (Positive p) a b = Positive $ normLp p (a - b)
+
+instance (Multiplication a, ExpField a, Normed a a) => Metric (Positive a) (Positive a) where
+  distanceL1 (Positive a) (Positive b) = Positive $ normL1 (a - b)
+  distanceL2 (Positive a) (Positive b) = Positive $ normL2 (a - b)
+  distanceLp (Positive p) (Positive a) (Positive b) = Positive $ normLp p (a - b)
 

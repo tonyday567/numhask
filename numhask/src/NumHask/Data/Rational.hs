@@ -5,6 +5,7 @@
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# OPTIONS_GHC -Wall #-}
+
 -- | Integral classes
 module NumHask.Data.Rational
   ( Ratio(..)
@@ -83,7 +84,7 @@ instance (AdditionConstraints a) => Unital (Sum (Ratio a)) where
 
 --FIXME are the laws correct? When is it a Commutative etc.?
 instance (AdditionConstraints a)
-  => Semigroup (Sum (Ratio a))
+  => Associative (Sum (Ratio a))
 
 instance (AdditionConstraints a)
   => Commutative (Sum (Ratio a))
@@ -98,7 +99,7 @@ instance (AdditionConstraints a) => Unital (Product (Ratio a)) where
   unit = Product (one :% one)
 
 instance (AdditionConstraints a) =>
-         Semigroup (Product (Ratio a))
+         Associative (Product (Ratio a))
 
 instance (AdditionConstraints a) =>
          Commutative (Product (Ratio a))
@@ -113,11 +114,11 @@ instance (AdditionConstraints a) =>
         Absorbing (Product (Ratio a)) where
   absorb = Product (zero :% one)
 
-instance (AdditionConstraints a, Commutative (Product a)) => Distributive  (Ratio a)
+instance (AdditionConstraints a) => Distributive  (Ratio a)
 
-instance (AdditionConstraints a, IntegralDomain a) => IntegralDomain (Ratio a)
+instance (AdditionConstraints a) => IntegralDomain (Ratio a)
 
-instance (AdditionConstraints a, Field a) => Field (Ratio a)
+instance (AdditionConstraints a) => Field (Ratio a)
 
 instance (AdditionConstraints a, ToInteger a, Field a, P.Eq b, Group (Sum  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
@@ -139,7 +140,7 @@ instance (AdditionConstraints a) => Normed (Ratio a) (Ratio a) where
   normL2 = abs
   normLp _ = abs
 
-instance (AdditionConstraints a, Commutative (Product a)) => Metric (Ratio a) (Ratio a) where
+instance (AdditionConstraints a) => Metric (Ratio a) (Ratio a) where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)

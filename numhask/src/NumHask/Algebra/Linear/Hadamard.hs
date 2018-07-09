@@ -11,12 +11,11 @@ module NumHask.Algebra.Linear.Hadamard
       HadamardMultiplication(..)
     , HadamardDivision(..)
     , Hadamard
-  --   AdditiveBasis(..)
-  -- , AdditiveGroupBasis(..)
-  -- , MultiplicativeBasis(..)
-  -- , MultiplicativeGroupBasis(..)
+    , AdditiveBasis(..)
+    , AdditiveGroupBasis(..)
   ) where
 
+import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 
@@ -46,21 +45,22 @@ instance (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a
 --FIXME the hadamard product has a relationship between laws
 
 
--- -- | element by element addition
--- --
--- -- > (a .+. b) .+. c == a .+. (b .+. c)
--- -- > zero .+. a = a
--- -- > a .+. zero = a
--- -- > a .+. b == b .+. a
--- class (Additive a) =>
---       AdditiveBasis m a where
---   infixl 7 .+.
---   (.+.) :: m a -> m a -> m a
+-- | element by element addition
+--
+-- > (a .+. b) .+. c == a .+. (b .+. c)
+-- > zero .+. a = a
+-- > a .+. zero = a
+-- > a .+. b == b .+. a
+class (Addition a) =>
+      AdditiveBasis m a where
+  infixl 7 .+.
+  (.+.) :: m a -> m a -> m a
 
--- -- | element by element subtraction
--- --
--- -- > a .-. a = singleton zero
--- class (AdditiveGroup a) =>
---       AdditiveGroupBasis m a where
---   infixl 6 .-.
---   (.-.) :: m a -> m a -> m a
+-- | element by element subtraction
+--
+-- > a .-. a = pure zero
+class (AbelianGroup a) =>
+      AdditiveGroupBasis m a where
+  infixl 6 .-.
+  (.-.) :: m a -> m a -> m a
+
