@@ -42,6 +42,7 @@ import           Prelude                 hiding ( Num(..)
                                                 , recip
                                                 , (**)
                                                 , toInteger
+                                                , Semigroup
                                                 )
 import qualified Data.Foldable                 as F
 
@@ -163,8 +164,9 @@ logFromLogField (LogField x) = x
 {-# RULES
 -- Out of log-domain and back in
 "log/fromLogField"       forall x. log (fromLogField x) = logFromLogField x
--- TODO: See https://ghc.haskell.org/trac/ghc/ticket/10555.  I would guess there's a divide in there somewhere.
--- "LogField/fromLogField"  forall x. LogField (fromLogField x) = x
+-- TODO: Rewrite-rule too complicated
+"LogField/fromLogField"  forall x. LogField (fromLogField x) = x
+
 -- Into log-domain and back out
 "fromLogField/LogField"  forall x. fromLogField (LogField x) = x
     #-}
@@ -197,7 +199,7 @@ instance (ExpField a, LowerBoundedField a, Ord a) => Magma (Sum (LogField a)) wh
 instance (LowerBoundedField a, ExpField a, Ord a) => Unital (Sum (LogField a)) where
     unit = Sum $ LogField negInfinity
 
-instance (LowerBoundedField a, ExpField a, Ord a) => Associative (Sum (LogField a))
+instance (LowerBoundedField a, ExpField a, Ord a) => Semigroup (Sum (LogField a))
 
 instance (LowerBoundedField a, ExpField a, Ord a) => Commutative (Sum (LogField a))
 
@@ -209,7 +211,7 @@ instance (Magma (Sum a), LowerBoundedField a, Eq a) => Magma (Product (LogField 
 instance (Unital (Sum a), LowerBoundedField a, Eq a) => Unital (Product (LogField a)) where
     unit = Product $ LogField zero
 
-instance (Associative (Sum a), LowerBoundedField a, Eq a) => Associative (Product (LogField a))
+instance (Semigroup (Sum a), LowerBoundedField a, Eq a) => Semigroup (Product (LogField a))
 
 instance (Commutative (Sum a), LowerBoundedField a, Eq a) => Commutative (Product (LogField a))
 

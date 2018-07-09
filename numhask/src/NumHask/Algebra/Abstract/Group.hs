@@ -11,16 +11,21 @@
 module NumHask.Algebra.Abstract.Group
       ( Magma(..)
       , Unital(..)
-      , Associative
+      , Semigroup
+      , (<>)
       , Commutative
       , Absorbing(..)
       , Invertible(..)
       , Idempotent
+      , Monoid
+      , mempty
       , Group
       , groupSwap
       , AbelianGroup
       )
       where
+
+import qualified Prelude                       as P
 
 -- * Magma structure
 -- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,magma) consisting of
@@ -54,17 +59,29 @@ class Magma a =>
       Unital a where
   unit :: a
 
--- | An Associative Magma
+-- | A semigroup is an associative Magma
 --
 -- > (a magma b) magma c = a magma (b magma c)
 class Magma a =>
-      Associative a
+      Semigroup a
+
+infixl 6 <>
+(<>) :: Semigroup a => a -> a -> a
+(<>) = magma
 
 -- | A Commutative Magma
 --
 -- > a magma b = b magma a
 class Magma a =>
       Commutative a
+
+-- | A Monoid is a Semigroup with an identity element
+--
+class (Unital a, Semigroup a) => Monoid a
+instance (Unital a, Semigroup a) => Monoid a
+
+mempty :: Monoid a => a
+mempty = unit
 
 -- | An Invertible Magma
 --
@@ -74,9 +91,9 @@ class Magma a =>
       Invertible a where
   inv :: a -> a
 
--- | A group is Associative, Unital and Invertible
-class (Associative a, Unital a, Invertible a) => Group a
-instance (Associative a, Unital a, Invertible a) => Group a
+-- | A group is a Monoid with an invertible
+class (Monoid a, Invertible a) => Group a
+instance (Monoid a, Invertible a) => Group a
 
 -- | A magma with an absorbing Element
 --
@@ -84,7 +101,6 @@ instance (Associative a, Unital a, Invertible a) => Group a
 class Magma a =>
     Absorbing a where
     absorb :: a
-
 -- | An Idempotent Magma
 --
 -- > a magma a = a

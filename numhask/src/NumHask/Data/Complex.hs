@@ -12,7 +12,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
 import NumHask.Analysis.Metric
 
-import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**))
+import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**), Semigroup)
 import qualified Prelude as P ( (&&), (>), (<=), (<), (==), otherwise, Ord(..) )
 
 -- -----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ instance (Magma (Sum a)) => Magma (Sum (Complex a)) where
 instance (Unital (Sum a)) => Unital (Sum (Complex a)) where
   unit = Sum (zero :+ zero)
 
-instance (Associative (Sum a)) => Associative (Sum (Complex a))
+instance (Semigroup (Sum a)) => Semigroup (Sum (Complex a))
 
 instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
 
@@ -74,8 +74,8 @@ instance (AbelianGroup (Sum a), Invertible (Product a)) => Invertible (Product (
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
 
-instance (AbelianGroup (Sum a), Associative (Product a)) =>
-         Associative (Product (Complex a))
+instance (AbelianGroup (Sum a), Semigroup (Product a)) =>
+         Semigroup (Product (Complex a))
 
 instance (Multiplication a, ExpField a, Normed a a) =>
          Normed (Complex a) a where
@@ -87,9 +87,6 @@ instance (Multiplication a, ExpField a, Normed a a) => Metric (Complex a) a wher
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
-
-instance (AbelianGroup (Sum a), Epsilon a) => Epsilon (Complex a) where
-  nearZero (a :+ b) = nearZero a && nearZero b
 
 instance (IntegralDomain a) => IntegralDomain (Complex a)
 
@@ -111,9 +108,6 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
-
-instance (Ring a) => InvolutiveRing (Complex a) where
-  adj (a :+ b) = a :+ negate b
 
 -- * Helpers from Data.Complex 
 

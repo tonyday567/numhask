@@ -52,10 +52,10 @@ import           GHC.Natural                    ( Natural(..) )
 newtype Sum a = Sum a
       deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
 
-class (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Addition a where
-      sum :: (P.Foldable f) => f a -> a
+class (Semigroup (Sum a), Commutative (Sum a)) => Addition a where
+      sum :: (P.Foldable f, Unital (Sum a)) => f a -> a
       sum = P.foldr (+) zero
-instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Addition a
+instance (Semigroup (Sum a), Commutative (Sum a)) => Addition a
 
 plus :: Magma (Sum a) => a -> a -> a
 plus = coerceFA magma
@@ -193,37 +193,37 @@ instance Unital (Sum Word64) where
       unit = coerce (0 :: Word64)
 
 -- semigroup
-instance Associative (Sum P.Double)
+instance Semigroup (Sum P.Double)
 
-instance Associative (Sum P.Float)
+instance Semigroup (Sum P.Float)
 
-instance Associative (Sum P.Int)
+instance Semigroup (Sum P.Int)
 
-instance Associative (Sum P.Integer)
+instance Semigroup (Sum P.Integer)
 
-instance Associative (Sum P.Bool)
+instance Semigroup (Sum P.Bool)
 
-instance Associative (Sum a) => Associative (Sum (Complex a))
+instance Semigroup (Sum a) => Semigroup (Sum (Complex a))
 
-instance Associative (Sum Natural)
+instance Semigroup (Sum Natural)
 
-instance Associative (Sum Int8)
+instance Semigroup (Sum Int8)
 
-instance Associative (Sum Int16)
+instance Semigroup (Sum Int16)
 
-instance Associative (Sum Int32)
+instance Semigroup (Sum Int32)
 
-instance Associative (Sum Int64)
+instance Semigroup (Sum Int64)
 
-instance Associative (Sum Word)
+instance Semigroup (Sum Word)
 
-instance Associative (Sum Word8)
+instance Semigroup (Sum Word8)
 
-instance Associative (Sum Word16)
+instance Semigroup (Sum Word16)
 
-instance Associative (Sum Word32)
+instance Semigroup (Sum Word32)
 
-instance Associative (Sum Word64)
+instance Semigroup (Sum Word64)
 
 ---commutative magma
 instance Commutative (Sum P.Double)

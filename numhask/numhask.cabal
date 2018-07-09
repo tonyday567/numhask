@@ -46,6 +46,7 @@ library
       NumHask.Algebra.Abstract.Field
       NumHask.Algebra.Abstract.Homomorphism
       NumHask.Algebra.Integral
+      NumHask.Algebra.Natural
       NumHask.Data.Rational
       NumHask.Analysis.Metric
       NumHask.Analysis.Banach
