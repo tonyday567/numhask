@@ -25,7 +25,6 @@ module NumHask.Algebra.Abstract.Group
       )
       where
 
-import qualified Prelude                       as P
 
 -- * Magma structure
 -- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,magma) consisting of

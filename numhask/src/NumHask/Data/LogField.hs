@@ -164,9 +164,8 @@ logFromLogField (LogField x) = x
 {-# RULES
 -- Out of log-domain and back in
 "log/fromLogField"       forall x. log (fromLogField x) = logFromLogField x
--- TODO: Rewrite-rule too complicated
-"LogField/fromLogField"  forall x. LogField (fromLogField x) = x
-
+-- TODO: See https://ghc.haskell.org/trac/ghc/ticket/10555.  I would guess there's a divide in there somewhere.
+-- "LogField/fromLogField"  forall x. LogField (fromLogField x) = x
 -- Into log-domain and back out
 "fromLogField/LogField"  forall x. fromLogField (LogField x) = x
     #-}
