@@ -6,7 +6,7 @@
 module NumHask.Algebra.Abstract.Homomorphism
       ( 
           Hom(..)
-      ,   End
+      ,   Endo
       ,   Iso(..)
       ,   Automorphism
       )
@@ -19,8 +19,8 @@ import NumHask.Algebra.Abstract.Group
 class (Magma a, Magma b) => Hom a b where
     hom :: a -> b
 
-class (Hom a a) => End a
-instance (Hom a a) => End a
+class (Hom a a) => Endo a
+instance (Hom a a) => Endo a
 
 -- | A Isomorphism between two magmas
 -- an Isomorphism is a bijective Homomorphism

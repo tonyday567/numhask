@@ -25,10 +25,6 @@ instance Arbitrary Rational where
 instance (Signed a, Arbitrary a, ExpField a) => Arbitrary (LogField a) where
   arbitrary = logField . abs <$> arbitrary
 
-instance (Arbitrary a) => Arbitrary (Complex a) where
-  arbitrary = (:+) <$> arbitrary <*> arbitrary
-
-
 main :: IO ()
 main = defaultMain tests
 
@@ -59,10 +55,10 @@ testsInt :: TestTree
 testsInt =
   testGroup
     "Int"
-    [ testGroup "Additive" $ testLawOf ([] :: [Int]) <$> additionLaws
-    , testGroup "Additive Group" $ testLawOf ([] :: [Int]) <$> additionGroupLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Int]) <$> additiveLaws
+    , testGroup "Additive Group" $ testLawOf ([] :: [Int]) <$> additiveGroupLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Int]) <$> multiplicationLaws
+      testLawOf ([] :: [Int]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Int]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Int]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Int]) <$> signedLaws
@@ -75,9 +71,8 @@ testsInteger :: TestTree
 testsInteger =
   testGroup
     "Integer"
-    -- FIXME: No instance for (Associative Integer)
-    [ -- testGroup "Integrals" $ testLawOf ([] :: [Integer]) <$> integralsLaws
-      testGroup "Metric" $ testLawOf2 ([] :: [(Integer, Integer)]) <$>
+    [ testGroup "Integrals" $ testLawOf ([] :: [Integer]) <$> integralsLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Integer, Integer)]) <$>
       metricIntegralLaws
     , testGroup "Normed" $ testLawOf2 ([] :: [(Integer, Integer)]) <$> normedLaws
     ]
@@ -86,8 +81,8 @@ testsInt8 :: TestTree
 testsInt8 =
   testGroup
     "Int8"
-    [ -- testGroup "Integrals" $ testLawOf ([] :: [Int8]) <$> integralsLaws
-      testGroup "Metric" $ testLawOf2 ([] :: [(Int8, Int8)]) <$>
+    [ testGroup "Integrals" $ testLawOf ([] :: [Int8]) <$> integralsLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Int8, Int8)]) <$>
       metricIntegralBoundedLaws
     , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int8, Int8)]) <$>
       normedBoundedLaws
@@ -97,8 +92,8 @@ testsInt16 :: TestTree
 testsInt16 =
   testGroup
     "Int16"
-    [ -- testGroup "Integrals" $ testLawOf ([] :: [Int16]) <$> integralsLaws
-      testGroup "Metric" $ testLawOf2 ([] :: [(Int16, Int16)]) <$>
+    [ testGroup "Integrals" $ testLawOf ([] :: [Int16]) <$> integralsLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Int16, Int16)]) <$>
       metricIntegralBoundedLaws
     , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int16, Int16)]) <$>
       normedBoundedLaws
@@ -108,8 +103,8 @@ testsInt32 :: TestTree
 testsInt32 =
   testGroup
     "Int32"
-    [ -- testGroup "Integrals" $ testLawOf ([] :: [Int32]) <$> integralsLaws
-      testGroup "Metric" $ testLawOf2 ([] :: [(Int32, Int32)]) <$>
+    [ testGroup "Integrals" $ testLawOf ([] :: [Int32]) <$> integralsLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Int32, Int32)]) <$>
       metricIntegralBoundedLaws
     , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int32, Int32)]) <$>
       normedBoundedLaws
@@ -119,8 +114,8 @@ testsInt64 :: TestTree
 testsInt64 =
   testGroup
     "Int64"
-    [ -- testGroup "Integrals" $ testLawOf ([] :: [Int64]) <$> integralsLaws
-      testGroup "Metric" $ testLawOf2 ([] :: [(Int64, Int64)]) <$>
+    [ testGroup "Integrals" $ testLawOf ([] :: [Int64]) <$> integralsLaws
+    , testGroup "Metric" $ testLawOf2 ([] :: [(Int64, Int64)]) <$>
       metricIntegralBoundedLaws
     , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int64, Int64)]) <$>
       normedBoundedLaws
@@ -130,9 +125,9 @@ testsWord :: TestTree
 testsWord =
   testGroup
     "Word"
-    [ testGroup "Additive" $ testLawOf ([] :: [Word]) <$> additionLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Word]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Word]) <$> multiplicationLaws
+      testLawOf ([] :: [Word]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Word]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Word]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Word]) <$> signedLaws
@@ -146,9 +141,9 @@ testsWord8 :: TestTree
 testsWord8 =
   testGroup
     "Word8"
-    [ testGroup "Additive" $ testLawOf ([] :: [Word8]) <$> additionLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Word8]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Word8]) <$> multiplicationLaws
+      testLawOf ([] :: [Word8]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Word8]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Word8]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Word8]) <$> signedLaws
@@ -162,9 +157,9 @@ testsWord16 :: TestTree
 testsWord16 =
   testGroup
     "Word16"
-    [ testGroup "Additive" $ testLawOf ([] :: [Word16]) <$> additionLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Word16]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Word16]) <$> multiplicationLaws
+      testLawOf ([] :: [Word16]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Word16]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Word16]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Word16]) <$> signedLaws
@@ -178,9 +173,9 @@ testsWord32 :: TestTree
 testsWord32 =
   testGroup
     "Word32"
-    [ testGroup "Additive" $ testLawOf ([] :: [Word32]) <$> additionLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Word32]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Word32]) <$> multiplicationLaws
+      testLawOf ([] :: [Word32]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Word32]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Word32]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Word32]) <$> signedLaws
@@ -194,9 +189,9 @@ testsWord64 :: TestTree
 testsWord64 =
   testGroup
     "Word64"
-    [ testGroup "Additive" $ testLawOf ([] :: [Word64]) <$> additionLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Word64]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Word64]) <$> multiplicationLaws
+      testLawOf ([] :: [Word64]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Word64]) <$> distributionLaws
     , testGroup "Integral" $ testLawOf ([] :: [Word64]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Word64]) <$> signedLaws
@@ -210,9 +205,9 @@ testsNatural :: TestTree
 testsNatural =
   testGroup
     "Natural"
-    [ testGroup "Additive" $ testLawOf ([] :: [Natural]) <$> additionLaws
+    [ testGroup "Additive" $ testLawOf ([] :: [Natural]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Natural]) <$> multiplicationLaws
+      testLawOf ([] :: [Natural]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Natural]) <$> distributionLaws
     , testGroup "Naturalegral" $ testLawOf ([] :: [Natural]) <$> integralLaws
     , testGroup "Signed" $ testLawOf ([] :: [Natural]) <$> signedLaws
@@ -224,13 +219,13 @@ testsFloat =
   testGroup
     "Float"
     [ testGroup "Additive - Associative Fail" $
-      testLawOf ([] :: [Float]) <$> additionLawsFail
+      testLawOf ([] :: [Float]) <$> additiveLawsFail
     , testGroup "Additive Group" $
-      testLawOf ([] :: [Float]) <$> additionGroupLaws
+      testLawOf ([] :: [Float]) <$> additiveGroupLaws
     , testGroup "Multiplicative - Associative Fail" $
-      testLawOf ([] :: [Float]) <$> multiplicationLawsFail
+      testLawOf ([] :: [Float]) <$> multiplicativeLawsFail
     , testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Float]) <$> multiplicationGroupLaws_
+      testLawOf ([] :: [Float]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution - Fail" $
       testLawOf ([] :: [Float]) <$> distributionLawsFail
     , testGroup "Signed" $ testLawOf ([] :: [Float]) <$> signedLaws
@@ -251,13 +246,13 @@ testsDouble =
   testGroup
     "Double"
     [ testGroup "Additive - Associative Fail" $
-      testLawOf ([] :: [Double]) <$> additionLawsFail
+      testLawOf ([] :: [Double]) <$> additiveLawsFail
     , testGroup "Additive Group" $
-      testLawOf ([] :: [Double]) <$> additionGroupLaws
+      testLawOf ([] :: [Double]) <$> additiveGroupLaws
     , testGroup "Multiplicative - Associative Fail" $
-      testLawOf ([] :: [Double]) <$> multiplicationLawsFail
+      testLawOf ([] :: [Double]) <$> multiplicativeLawsFail
     , testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Double]) <$> multiplicationGroupLaws_
+      testLawOf ([] :: [Double]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution - Fail" $
       testLawOf ([] :: [Double]) <$> distributionLawsFail
     , testGroup "Signed" $ testLawOf ([] :: [Double]) <$> signedLaws
@@ -278,9 +273,9 @@ testsBool =
   testGroup
     "Bool"
     [ testGroup "Idempotent" $ testLawOf ([] :: [Bool]) <$> idempotentLaws
-    , testGroup "Additive" $ testLawOf ([] :: [Bool]) <$> additionLaws
+    , testGroup "Additive" $ testLawOf ([] :: [Bool]) <$> additiveLaws
     , testGroup "Multiplicative" $
-      testLawOf ([] :: [Bool]) <$> multiplicationLaws
+      testLawOf ([] :: [Bool]) <$> multiplicativeLaws
     , testGroup "Distribution" $ testLawOf ([] :: [Bool]) <$> distributionLaws
     ]
 
@@ -289,13 +284,13 @@ testsComplexFloat =
   testGroup
     "Complex Float"
     [ testGroup "Additive - Associative Fail" $
-      testLawOf ([] :: [Complex Float]) <$> additionLawsFail
+      testLawOf ([] :: [Complex Float]) <$> additiveLawsFail
     , testGroup "Additive Group" $
-      testLawOf ([] :: [Complex Float]) <$> additionGroupLaws
+      testLawOf ([] :: [Complex Float]) <$> additiveGroupLaws
     , testGroup "Multiplicative - Associative Fail" $
-      testLawOf ([] :: [Complex Float]) <$> multiplicationLawsFail
+      testLawOf ([] :: [Complex Float]) <$> multiplicativeLawsFail
     , testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Complex Float]) <$> multiplicationGroupLaws_
+      testLawOf ([] :: [Complex Float]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution - Fail" $
       testLawOf ([] :: [Complex Float]) <$> distributionLawsFail
     -- , testGroup "Exponential Field" $
@@ -313,13 +308,13 @@ testsRational =
   testGroup
     "Rational"
     [ testGroup "Additive - Associative" $
-      testLawOf ([] :: [Rational]) <$> additionLaws
+      testLawOf ([] :: [Rational]) <$> additiveLaws
     , testGroup "Additive Group" $
-      testLawOf ([] :: [Rational]) <$> additionGroupLaws
+      testLawOf ([] :: [Rational]) <$> additiveGroupLaws
     , testGroup "Multiplicative - Associative" $
-      testLawOf ([] :: [Rational]) <$> multiplicationLaws
+      testLawOf ([] :: [Rational]) <$> multiplicativeLaws
     , testGroup "MultiplicativeGroup" $
-      testLawOf ([] :: [Rational]) <$> multiplicationGroupLaws_
+      testLawOf ([] :: [Rational]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution" $
       testLawOf ([] :: [Rational]) <$> distributionLaws
     , testGroup "Signed" $ testLawOf ([] :: [Rational]) <$> signedLaws
@@ -327,10 +322,13 @@ testsRational =
     , testGroup "Metric" $ testLawOf2 ([] :: [(Rational, Rational)]) <$> metricRationalLaws
     , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
 
-    -- FIXME: no (IntegralDomain Integer
-    -- , testGroup "Quotient Field" $ testLawOf2 ([] :: [(Rational, Integer)]) <$> quotientFieldLaws
-    -- , testGroup "Upper Bounded Field" $ testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
-    -- , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
+    -- fixme: rounding and infinities need work
+
+    , testGroup "Quotient Field" $ testLawOf2 ([] :: [(Rational, Integer)]) <$> quotientFieldLaws
+    , testGroup "Upper Bounded Field" $ testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
+    , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
+
+
     ]
 
     --  testGroup "Distribution" $ testLawOf ([] :: [Int]) <$> distributionLaws
@@ -343,12 +341,11 @@ testsLogFieldDouble =
   testGroup
     "LogField Double"
     [ testGroup "Additive - Associative Fail" $
-      testLawOf ([] :: [LogField Double]) <$> additionLawsFail
+      testLawOf ([] :: [LogField Double]) <$> additiveLawsFail
     , testGroup "Multiplicative - Associative Fail" $
-      testLawOf ([] :: [LogField Double]) <$> multiplicationLawsFail
-    -- FIXME: Overlapping instances for Group (Product (LogField Double))
-    -- , testGroup "MultiplicativeGroup" $
-    --   testLawOf ([] :: [LogField Double]) <$> multiplicationGroupLaws_
+      testLawOf ([] :: [LogField Double]) <$> multiplicativeLawsFail
+    , testGroup "MultiplicativeGroup" $
+      testLawOf ([] :: [LogField Double]) <$> multiplicativeGroupLaws_
     , testGroup "Distribution - Fail" $
       testLawOf ([] :: [LogField Double]) <$> distributionLawsFail
     ]
