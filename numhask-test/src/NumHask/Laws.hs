@@ -18,6 +18,7 @@ module NumHask.Laws
   , additionLawsFail
   , additionGroupLaws
   , multiplicationLaws
+  , multiplicationMonoidalLaws
   , multiplicationLawsFail
   , multiplicationGroupLaws
   , multiplicationGroupLaws_
@@ -172,6 +173,15 @@ multiplicationLaws =
   , ("left id: one * a = a", Unary (\a -> one * a == a))
   , ("right id: a * one = a", Unary (\a -> a * one == a))
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
+  ]
+
+multiplicationMonoidalLaws ::
+     (Eq a, Unital (Product a)) => [Law a]
+multiplicationMonoidalLaws =
+  [ ( "associative: (a * b) * c = a * (b * c)"
+    , Ternary (\a b c -> (a `times` b) `times` c == a `times` (b `times` c)))
+  , ("left id: one `times` a = a", Unary (\a -> one `times` a == a))
+  , ("right id: a `times` one = a", Unary (\a -> a `times` one == a))
   ]
 
 multiplicationLawsFail ::
@@ -369,7 +379,7 @@ quotientFieldLaws =
   [ ( "a - one < floor a <= a <= ceiling a < a + one"
     , Unary10
       (\a ->
-        ((a - one) < (fromInteger (floor a)))
+        ((a - one) < fromInteger (floor a))
           && (fromInteger (floor a) <= a)
           && (a <= fromInteger (ceiling a))
           && (fromInteger (ceiling a) < a + one)
@@ -378,8 +388,8 @@ quotientFieldLaws =
   , ( "round a == floor (a + one/(one+one))"
     , Unary10
       (\a -> case even ((floor $ a + one / (one + one)) :: Integer) of
-        True  -> ((round a :: Integer) == (floor $ a + (one / (one + one))))
-        False -> ((round a :: Integer) == (ceiling $ a - (one / (one + one))))
+        True  -> (round a :: Integer) == floor (a + (one / (one + one)))
+        False -> (round a :: Integer) == ceiling (a - (one / (one + one)))
       )
     )
   ] where

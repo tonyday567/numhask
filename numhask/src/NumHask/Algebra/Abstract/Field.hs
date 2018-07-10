@@ -22,7 +22,7 @@ import           NumHask.Algebra.Abstract.Group
 import           NumHask.Algebra.Abstract.Ring
 import           NumHask.Algebra.Abstract.Multiplicative
 import           NumHask.Algebra.Abstract.Additive
-import           NumHask.Algebra.Integral
+import           NumHask.Data.Integral
 import           Data.Bool                      ( bool )
 import qualified Prelude                       as P
 import           Data.Complex                   ( Complex(..) )

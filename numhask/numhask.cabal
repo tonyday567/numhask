@@ -33,25 +33,23 @@ library
       -Wincomplete-record-updates
       -Wincomplete-uni-patterns
       -Wredundant-constraints
-
   build-depends:
       base >=4.7 && <4.12
   exposed-modules:
-      NumHask.Algebra
-      NumHask.Algebra.Abstract.Group
+      NumHask.Algebra.Abstract
       NumHask.Algebra.Abstract.Additive
-      NumHask.Algebra.Abstract.Multiplicative
-      NumHask.Algebra.Linear.Hadamard
-      NumHask.Algebra.Abstract.Ring
       NumHask.Algebra.Abstract.Field
+      NumHask.Algebra.Abstract.Group
       NumHask.Algebra.Abstract.Homomorphism
-      NumHask.Algebra.Integral
-      NumHask.Data.Rational
-      NumHask.Analysis.Metric
-      NumHask.Analysis.Banach
       NumHask.Algebra.Abstract.Module
-      NumHask.Data
+      NumHask.Algebra.Abstract.Multiplicative
+      NumHask.Algebra.Abstract.Ring
+      NumHask.Algebra.Linear.Hadamard
+      NumHask.Analysis.Banach
+      NumHask.Analysis.Metric
       NumHask.Data.Complex   
+      NumHask.Data.Integral
       NumHask.Data.LogField       
+      NumHask.Data.Rational
   other-modules:
   default-language: Haskell2010

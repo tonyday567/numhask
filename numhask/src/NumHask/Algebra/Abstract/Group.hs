@@ -95,8 +95,8 @@ class Magma a =>
 groupSwap :: (Group a) => (a, a) -> (a, a)
 groupSwap (a, b) =
       let a'  = a `magma` b
-          b'  = a `magma` (inv b)
-          a'' = (inv b') `magma` a'
+          b'  = a `magma` inv b
+          a'' = inv b' `magma` a'
       in  (a'', b')
 
 -- | An Abelian Group is associative, unital, invertible and commutative

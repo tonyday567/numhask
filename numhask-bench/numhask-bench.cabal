@@ -34,7 +34,6 @@ executable numhask-bench
       -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , formatting
     , hmatrix
     , matrix
     , numhask
@@ -44,8 +43,6 @@ executable numhask-bench
     , perf >= 0.4.1.0
     , perf-analysis >= 0.0.1.1
     , protolude
-    , scientific
-    , tdigest
     , text
     , vector
   default-language: Haskell2010
