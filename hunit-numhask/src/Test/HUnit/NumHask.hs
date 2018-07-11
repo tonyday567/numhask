@@ -13,8 +13,8 @@ import Control.Monad.Catch (MonadThrow(..), throwM)
 
 import Test.HUnit
 
-import Prelude hiding (Num(..), fromRational, (/))
-import NumHask.Algebra
+import Prelude hiding (Num(..))
+import NumHask.Analysis.Metric
 
 -- | A notion of approximate equality that takes into account floating point precision
 -- >>> :set -XRebindableSyntax
@@ -29,6 +29,6 @@ shouldBeAbout actual expected =
     throwM $ NotAboutEqual ("expected: " ++ show expected ++ "\n but got: " ++ show actual)
 
 -- | Floating point exceptions
-data FPE = NotAboutEqual String -- ^ Failure of the @Epsilon@ approximate equality test ('aboutEqual')
+newtype FPE = NotAboutEqual String -- ^ Failure of the @Epsilon@ approximate equality test ('aboutEqual')
   deriving (Eq, Show, Typeable)
 instance Exception FPE

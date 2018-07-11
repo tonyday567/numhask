@@ -17,8 +17,7 @@ module NumHask.Analysis.Metric
 where
 
 import qualified Prelude                       as P
-import           Prelude                 hiding ( fromInteger
-                                                , Bounded(..)
+import           Prelude                 hiding ( Bounded(..)
                                                 , Integral(..)
                                                 , (*)
                                                 , (/)
@@ -167,22 +166,22 @@ class Normed a b where
 instance Normed Double Double where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Float Float where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Int Int where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Integer Integer where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance (Multiplication a, ExpField a, Normed a a) =>
          Normed (Complex a) a where
@@ -193,52 +192,52 @@ instance (Multiplication a, ExpField a, Normed a a) =>
 instance Normed Natural Natural where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Int8 Int8 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Int16 Int16 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Int32 Int32 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Int64 Int64 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Word Word where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Word8 Word8 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Word16 Word16 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Word32 Word32 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 instance Normed Word64 Word64 where
   normL1 = P.abs
   normL2 = P.abs
-  normLp _ a = P.abs a
+  normLp _ = P.abs
 
 -- | distance between numbers using L1, L2 or Lp-norms
 --

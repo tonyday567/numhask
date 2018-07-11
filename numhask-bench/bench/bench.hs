@@ -12,9 +12,9 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 import NumHask.Array
-import NumHask.Prelude hiding ((%))
+import NumHask.Prelude
 import Options.Generic
-import Perf hiding (zero)
+import Perf
 import Perf.Analysis
 import qualified Data.Matrix as Matrix
 import qualified Numeric.LinearAlgebra as H

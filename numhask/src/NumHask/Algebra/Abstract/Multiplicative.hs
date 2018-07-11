@@ -10,7 +10,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FunctionalDependencies #-}
+
 -- | The Group hirarchy
 module NumHask.Algebra.Abstract.Multiplicative
     ( one
@@ -291,7 +291,7 @@ instance Absorbing (Product P.Bool) where
     absorb = coerce P.False
 
 instance (Absorbing (Product a), Addition a, Invertible (Sum a)) => Absorbing (Product (Complex a)) where
-    absorb = Product P.$ (elem) :+ (elem)
+    absorb = Product P.$ elem :+ elem
         where
             elem = let (Product x) = absorb in x
 

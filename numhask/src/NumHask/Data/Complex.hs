@@ -1,24 +1,33 @@
-{-# LANGUAGE DeriveGeneric, DeriveDataTypeable, DeriveFunctor, GeneralizedNewtypeDeriving, DeriveFoldable, DeriveTraversable #-}
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, UndecidableInstances, MonoLocalBinds #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 module NumHask.Data.Complex where
 
-import GHC.Generics (Generic, Generic1)
 import Data.Data (Data)
-
-import NumHask.Algebra.Abstract.Group
+import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Field
 import NumHask.Analysis.Metric
-
-import Prelude hiding (Num(..), negate, sin, cos, sqrt, (/), atan, pi, exp, log, recip, (**))
-import qualified Prelude as P ( (&&), (>), (<=), (<), (==), otherwise, Ord(..) )
+import Prelude
+       hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip,
+               sin, sqrt)
+import qualified Prelude as P
+       (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
-
-infix  6  :+
+infix 6 :+
 
 -- | Complex numbers are an algebraic type.
 --
@@ -27,23 +36,31 @@ infix  6  :+
 -- has the phase of @z@, but unit magnitude.
 --
 -- The 'Foldable' and 'Traversable' instances traverse the real part first.
-data Complex a
-  = !a :+ !a    -- ^ forms a complex number from its real and imaginary
+data Complex a =
+  !a :+ !a -- ^ forms a complex number from its real and imaginary
                 -- rectangular components.
-        deriving (Eq, Show, Read, Data, Generic, Generic1
-                , Functor, Foldable, Traversable)
+  deriving ( Eq
+           , Show
+           , Read
+           , Data
+           , Generic
+           , Generic1
+           , Functor
+           , Foldable
+           , Traversable
+           )
 
 -- | Extracts the real part of a complex number.
 realPart :: Complex a -> a
-realPart (x :+ _) =  x
+realPart (x :+ _) = x
 
 -- | Extracts the imaginary part of a complex number.
 imagPart :: Complex a -> a
-imagPart (_ :+ y) =  y
-
+imagPart (_ :+ y) = y
 
 instance (Magma (Sum a)) => Magma (Sum (Complex a)) where
-  (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) = Sum $ (rx `plus` ry) :+ (ix `plus` iy)
+  (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) =
+    Sum $ (rx `plus` ry) :+ (ix `plus` iy)
 
 instance (Unital (Sum a)) => Unital (Sum (Complex a)) where
   unit = Sum (zero :+ zero)
@@ -55,21 +72,27 @@ instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
 instance (Invertible (Sum a)) => Invertible (Sum (Complex a)) where
   inv (Sum (rx :+ ix)) = Sum $ negate rx :+ negate ix
 
-instance (Multiplication a, AbelianGroup (Sum a)) => Absorbing (Product (Complex a)) where
+instance (Multiplication a, AbelianGroup (Sum a)) =>
+         Absorbing (Product (Complex a)) where
   absorb = Product $ zero' :+ zero'
 
-instance (Distributive  a, AbelianGroup (Sum a)) => Distributive  (Complex a)
+instance (Distributive a, AbelianGroup (Sum a)) =>
+         Distributive (Complex a)
 
-instance (AbelianGroup (Sum a), Unital (Product a)) => Unital (Product (Complex a)) where
+instance (AbelianGroup (Sum a), Unital (Product a)) =>
+         Unital (Product (Complex a)) where
   unit = Product $ one :+ zero
 
-instance (Magma (Product a), AbelianGroup (Sum a)) => Magma (Product (Complex a)) where
-  (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) = Product $
-    (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
+instance (Magma (Product a), AbelianGroup (Sum a)) =>
+         Magma (Product (Complex a)) where
+  (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
+    Product $ (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
 
-instance (Commutative (Product a), AbelianGroup (Sum a)) => Commutative (Product (Complex a))
+instance (Commutative (Product a), AbelianGroup (Sum a)) =>
+         Commutative (Product (Complex a))
 
-instance (AbelianGroup (Sum a), Invertible (Product a)) => Invertible (Product (Complex a)) where
+instance (AbelianGroup (Sum a), Invertible (Product a)) =>
+         Invertible (Product (Complex a)) where
   inv (Product (rx :+ ix)) = Product $ (rx `times` d) :+ (negate ix `times` d)
     where
       d = recip ((rx `times` rx) `plus` (ix `times` ix))
@@ -83,7 +106,8 @@ instance (Multiplication a, ExpField a, Normed a a) =>
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
-instance (Multiplication a, ExpField a, Normed a a) => Metric (Complex a) a where
+instance (Multiplication a, ExpField a, Normed a a) =>
+         Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
@@ -111,41 +135,44 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
-
 instance (Ring a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
 
--- * Helpers from Data.Complex 
-
+-- * Helpers from Data.Complex
 mkPolar :: TrigField a => a -> a -> Complex a
-mkPolar r theta  =  (r * cos theta) :+ (r * sin theta)
-
+mkPolar r theta = (r * cos theta) :+ (r * sin theta)
 
 -- | @'cis' t@ is a complex value with magnitude @1@
 -- and phase @t@ (modulo @2*'pi'@).
 {-# SPECIALISE cis :: Double -> Complex Double #-}
-cis              :: TrigField a => a -> Complex a
-cis theta        =  cos theta :+ sin theta
+
+cis :: TrigField a => a -> Complex a
+cis theta = cos theta :+ sin theta
 
 -- | The function 'polar' takes a complex number and
 -- returns a (magnitude, phase) pair in canonical form:
 -- the magnitude is nonnegative, and the phase in the range @(-'pi', 'pi']@;
 -- if the magnitude is zero, then so is the phase.
-{-# SPECIALISE polar :: Complex Double -> (Double,Double) #-}
-polar            :: (RealFloat a, ExpField a) => Complex a -> (a,a)
-polar z          =  (magnitude z, phase z)
+{-# SPECIALISE polar :: Complex Double -> (Double, Double) #-}
+
+polar :: (RealFloat a, ExpField a) => Complex a -> (a, a)
+polar z = (magnitude z, phase z)
 
 -- | The nonnegative magnitude of a complex number.
 {-# SPECIALISE magnitude :: Complex Double -> Double #-}
+
 magnitude :: (ExpField a, RealFloat a) => Complex a -> a
-magnitude (x :+ y) =  scaleFloat k (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
-                    where k  = max (exponent x) (exponent y)
-                          mk = - k
-                          sqr z = z * z
+magnitude (x :+ y) =
+  scaleFloat k (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
+  where
+    k = max (exponent x) (exponent y)
+    mk = -k
+    sqr z = z * z
 
 -- | The phase of a complex number, in the range @(-'pi', 'pi']@.
 -- If the magnitude is zero, then so is the phase.
 {-# SPECIALISE phase :: Complex Double -> Double #-}
+
 phase :: (RealFloat a) => Complex a -> a
-phase (0 :+ 0)   = 0            -- SLPJ July 97 from John Peterson
-phase (x :+ y)   = atan2 y x
+phase (0 :+ 0) = 0 -- SLPJ July 97 from John Peterson
+phase (x :+ y) = atan2 y x

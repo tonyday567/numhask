@@ -25,22 +25,14 @@ import           NumHask.Algebra.Abstract.Group
 import           NumHask.Algebra.Abstract.Multiplicative
 import           NumHask.Algebra.Abstract.Field
 import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Integral
+import           NumHask.Data.Integral
 import           NumHask.Data.Rational
 import           NumHask.Analysis.Metric
 
 import           Prelude                 hiding ( Num(..)
                                                 , negate
-                                                , sin
-                                                , cos
-                                                , sqrt
-                                                , (/)
-                                                , atan
-                                                , pi
                                                 , exp
                                                 , log
-                                                , recip
-                                                , (**)
                                                 , toInteger
                                                 )
 import qualified Data.Foldable                 as F

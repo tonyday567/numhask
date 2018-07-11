@@ -45,7 +45,7 @@ import           NumHask.Algebra.Abstract.Additive
 import           NumHask.Algebra.Abstract.Group
 import           NumHask.Algebra.Abstract.Multiplicative
 import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Integral
+import           NumHask.Data.Integral
 import           NumHask.Analysis.Metric
 import           NumHask.Algebra.Abstract.Field
 
@@ -53,14 +53,14 @@ data Ratio a = !a :% !a deriving (P.Show)
 
 instance (P.Eq a, Unital (Sum a)) => P.Eq (Ratio a) where
   a == b
-    | (isRNaN a P.|| isRNaN b) = P.False
+    | isRNaN a P.|| isRNaN b = P.False
     | P.otherwise = (x P.== x') P.&& (y P.== y')
       where
         (x:%y) = a
         (x':%y') = b
 
 isRNaN :: (P.Eq a, Unital (Sum a)) => Ratio a -> P.Bool
-isRNaN (x :% y) | (x P.== zero P.&& y P.== zero) = P.True
+isRNaN (x :% y) | x P.== zero P.&& y P.== zero = P.True
                 | P.otherwise                    = P.False
 
 
@@ -74,9 +74,9 @@ type AdditionConstraints a = (P.Ord a, Integral a, Signed a, Invertible (Sum a))
 
 instance (AdditionConstraints a) => Magma (Sum (Ratio a)) where
   (Sum (x :% y)) `magma` (Sum (x' :% y'))
-    | (y P.== zero P.&& y' P.== zero) = Sum (sign (x `plus` x') :% zero)
-    | (y P.== zero)                   = Sum (x :% y)
-    | (y' P.== zero)                  = Sum (x' :% y')
+    | y P.== zero P.&& y' P.== zero = Sum (sign (x `plus` x') :% zero)
+    | y P.== zero                   = Sum (x :% y)
+    | y' P.== zero                  = Sum (x' :% y')
     | P.otherwise = Sum (reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y'))
 
 instance (AdditionConstraints a) => Unital (Sum (Ratio a)) where

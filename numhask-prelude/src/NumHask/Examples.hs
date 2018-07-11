@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RebindableSyntax #-}

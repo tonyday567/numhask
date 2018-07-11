@@ -1,40 +1,25 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | The basic algebraic class structure of a number.
+-- | The abstract algebraic class structure of a number.
 --
--- > import NumHask.Algebra
--- > import Prelude hiding (Integral(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, log, logBase, negate, pi, product, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, fromRational)
---
-module NumHask.Algebra
+module NumHask.Algebra.Abstract
   ( -- * Mapping from Num
     --
     -- $numMap
     module NumHask.Algebra.Abstract.Group
-  , module NumHask.Algebra.Linear.Hadamard
-  , module NumHask.Algebra.Abstract.Field
-  , module NumHask.Algebra.Integral
-  , module NumHask.Analysis.Metric
-  , module NumHask.Analysis.Banach
-  , module NumHask.Algebra.Abstract.Module
-  , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Algebra.Abstract.Additive
-  , module NumHask.Data.Rational
+  , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Algebra.Abstract.Ring
-  , module NumHask.Data.Complex
+  , module NumHask.Algebra.Abstract.Field
+  , module NumHask.Algebra.Abstract.Module
   ) where
 
-import NumHask.Algebra.Linear.Hadamard
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Integral
 import NumHask.Algebra.Abstract.Group
-import NumHask.Analysis.Metric
-import NumHask.Analysis.Banach
-import NumHask.Algebra.Abstract.Module
-import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Data.Rational
+import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Data.Complex (Complex(..))
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Module
 
 -- $numMap
 --
@@ -80,5 +65,3 @@ import NumHask.Data.Complex (Complex(..))
 --
 -- `fromInteger` is given its own class `FromInteger`
 --
-
-

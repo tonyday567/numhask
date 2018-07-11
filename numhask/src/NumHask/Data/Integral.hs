@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MonoLocalBinds #-}
 -- | Integral classes
-module NumHask.Algebra.Integral
+module NumHask.Data.Integral
   ( Integral(..)
   , ToInteger(..)
   , FromInteger(..)
