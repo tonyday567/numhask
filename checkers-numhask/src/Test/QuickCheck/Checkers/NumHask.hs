@@ -3,7 +3,7 @@ module Test.QuickCheck.Checkers.NumHask where
 import Test.QuickCheck (Property, Gen, forAll, conjoin) 
 import Test.QuickCheck.Checkers
 
-import NumHask.Algebra
+import NumHask.Algebra.Abstract
 
 -- | Unital Magma
 unital :: (Show a, Eq a, Unital a) => Gen a -> Property

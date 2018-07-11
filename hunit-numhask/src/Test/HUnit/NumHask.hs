@@ -14,7 +14,7 @@ import Control.Monad.Catch (MonadThrow(..), throwM)
 import Test.HUnit
 
 import Prelude hiding (Num(..))
-import NumHask.Algebra
+import NumHask.Analysis.Metric
 
 -- | A notion of approximate equality that takes into account floating point precision
 -- >>> :set -XRebindableSyntax
