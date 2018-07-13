@@ -55,7 +55,6 @@ library
     NumHask.Algebra.Abstract.Additive
     NumHask.Algebra.Abstract.Field
     NumHask.Algebra.Abstract.Group
-    NumHask.Algebra.Abstract.Homomorphism
     NumHask.Algebra.Abstract.Module
     NumHask.Algebra.Abstract.Multiplicative
     NumHask.Algebra.Abstract.Ring
