@@ -8,6 +8,7 @@
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Data.Complex where
 
@@ -20,10 +21,8 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import Prelude
-       hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip,
-               sin, sqrt)
-import qualified Prelude as P
-       (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
+  hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt)
+import qualified Prelude as P (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
@@ -60,7 +59,7 @@ imagPart (_ :+ y) = y
 
 instance (Magma (Sum a)) => Magma (Sum (Complex a)) where
   (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) =
-    Sum $ (rx `plus` ry) :+ (ix `plus` iy)
+    Sum $ (rx + ry) :+ (ix + iy)
 
 instance (Unital (Sum a)) => Unital (Sum (Complex a)) where
   unit = Sum (zero :+ zero)
@@ -72,42 +71,42 @@ instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
 instance (Invertible (Sum a)) => Invertible (Sum (Complex a)) where
   inv (Sum (rx :+ ix)) = Sum $ negate rx :+ negate ix
 
-instance (Multiplication a, AbelianGroup (Sum a)) =>
-         Absorbing (Product (Complex a)) where
+instance (Multiplicative a, AbelianGroup (Sum a)) =>
+  Absorbing (Product (Complex a)) where
   absorb = Product $ zero' :+ zero'
 
 instance (Distributive a, AbelianGroup (Sum a)) =>
-         Distributive (Complex a)
+  Distributive (Complex a)
 
 instance (AbelianGroup (Sum a), Unital (Product a)) =>
-         Unital (Product (Complex a)) where
+  Unital (Product (Complex a)) where
   unit = Product $ one :+ zero
 
 instance (Magma (Product a), AbelianGroup (Sum a)) =>
-         Magma (Product (Complex a)) where
+  Magma (Product (Complex a)) where
   (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
-    Product $ (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
+    Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
 
 instance (Commutative (Product a), AbelianGroup (Sum a)) =>
-         Commutative (Product (Complex a))
+  Commutative (Product (Complex a))
 
 instance (AbelianGroup (Sum a), Invertible (Product a)) =>
-         Invertible (Product (Complex a)) where
-  inv (Product (rx :+ ix)) = Product $ (rx `times` d) :+ (negate ix `times` d)
+  Invertible (Product (Complex a)) where
+  inv (Product (rx :+ ix)) = Product $ (rx * d) :+ (negate ix * d)
     where
-      d = recip ((rx `times` rx) `plus` (ix `times` ix))
+      d = recip ((rx * rx) + (ix * ix))
 
 instance (AbelianGroup (Sum a), Associative (Product a)) =>
-         Associative (Product (Complex a))
-
-instance (Multiplication a, ExpField a, Normed a a) =>
-         Normed (Complex a) a where
+  Associative (Product (Complex a))
+         
+instance (Multiplicative a, ExpField a, Normed a a) =>
+  Normed (Complex a) a where
   normL1 (rx :+ ix) = normL1 rx + normL1 ix
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
-instance (Multiplication a, ExpField a, Normed a a) =>
-         Metric (Complex a) a where
+instance (Multiplicative a, ExpField a, Normed a a) =>
+  Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
@@ -162,12 +161,13 @@ polar z = (magnitude z, phase z)
 {-# SPECIALISE magnitude :: Complex Double -> Double #-}
 
 magnitude :: (ExpField a, RealFloat a) => Complex a -> a
-magnitude (x :+ y) =
-  scaleFloat k (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
-  where
-    k = max (exponent x) (exponent y)
-    mk = -k
-    sqr z = z * z
+magnitude (x :+ y) = scaleFloat
+  k
+  (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
+ where
+  k = max (exponent x) (exponent y)
+  mk = -k
+  sqr z = z * z
 
 -- | The phase of a complex number, in the range @(-'pi', 'pi']@.
 -- If the magnitude is zero, then so is the phase.

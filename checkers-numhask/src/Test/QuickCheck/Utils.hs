@@ -1,26 +1,11 @@
------------------------------------------------------------------------------
--- |
--- Module      :  Test.QuickCheck.Utils
--- Copyright   :  (c) Andy Gill 2001
--- License     :  BSD-style (see the file libraries/base/LICENSE)
---
--- Maintainer  :  libraries@haskell.org
--- Stability   :  experimental
--- Portability :  portable
---
--- These are some general purpose utilities for use with QuickCheck.
---
--- Copied from Checkers, which in turn copied it from QuickCheck 1.2.0.0.  
------------------------------------------------------------------------------
 module Test.QuickCheck.Utils where
 
 import Test.QuickCheck
 
-
-
 -- * Associative
-isAssociativeBy :: (Show a, Testable prop)
-                => (a -> a -> prop) -> Gen a -> (a -> a -> a) -> Property
+isAssociativeBy
+  :: (Show a, Testable prop)
+  => (a -> a -> prop) -> Gen a -> (a -> a -> a) -> Property
 isAssociativeBy (=~=) src (#) =
         forAll src $ \ a ->
         forAll src $ \ b ->
@@ -70,11 +55,10 @@ identity z op gen = conjoin [
                             ]
 
 hasIdentity :: (Show a, Eq a, Arbitrary a) => a -> (a -> a -> a) -> Property
-hasIdentity z op = identity z op arbitrary                    
-
+hasIdentity z op = identity z op arbitrary
 
 -- * Ordering
-isTotalOrder :: (Arbitrary a, Show a, Ord a) => a -> a -> Property
+isTotalOrder :: (Ord a) => a -> a -> Property
 isTotalOrder x y =
     classify (x > y)  "less than" $
     classify (x == y) "equals" $

@@ -1,6 +1,7 @@
-{-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MonoLocalBinds #-}
+{-# OPTIONS_GHC -Wall #-}
+
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral(..)
@@ -14,37 +15,21 @@ module NumHask.Data.Integral
   )
 where
 
-import           Data.Int                       ( Int8
-                                                , Int16
-                                                , Int32
-                                                , Int64
-                                                )
-import           Data.Word                      ( Word
-                                                , Word8
-                                                , Word16
-                                                , Word32
-                                                , Word64
-                                                )
-import           GHC.Natural                    ( Natural(..) )
-import           NumHask.Algebra.Abstract.Group
-import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Abstract.Multiplicative
-import           NumHask.Algebra.Abstract.Additive
-import qualified Prelude                       as P
-import           Prelude                        ( Double
-                                                , Float
-                                                , Int
-                                                , Integer
-                                                , (.)
-                                                , fst
-                                                , snd
-                                                )
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Ring
+import Prelude (Double, Float, Int, Integer, (.), fst, snd)
+import qualified Prelude as P
 
 -- | Integral laws
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
 class (Semiring a) =>
-      Integral a where
+  Integral a where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
   div a1 a2 = fst (divMod a1 a2)
@@ -210,24 +195,32 @@ odd = P.not . even
 
 -------------------------------------------------------
 -- | raise a number to a non-negative integral power
-(^) :: (P.Ord b, Group (Product a), Absorbing (Product a), Integral b) => a -> b -> a
-x0 ^ y0 | y0 P.< zero  = P.undefined
-        | -- P.errorWithoutStackTrace "Negative exponent"
-          y0 P.== zero = one
-        | P.otherwise  = f x0 y0
+(^)
+  :: (P.Ord b, Group (Product a), Integral b)
+  => a
+  -> b
+  -> a
+x0 ^ y0
+  | y0 P.< zero = P.undefined
+  | -- P.errorWithoutStackTrace "Negative exponent"
+    y0 P.== zero = one
+  | P.otherwise = f x0 y0
  where
   two = one + one
 
   -- f : x0 ^ y0 = x ^ y
-  f x y | even y      = f (x * x) (y `quot` two)
-        | y P.== one  = x
-        | P.otherwise = g (x * x) (y `quot` two) x
+  f x y
+    | even y = f (x * x) (y `quot` two)
+    | y P.== one = x
+    | P.otherwise = g (x * x) (y `quot` two) x
           -- See Note [Half of y - 1]
   -- g : x0 ^ y0 = (x ^ y) * z
-  g x y z | even y      = g (x * x) (y `quot` two) z
-          | y P.== one  = x * z
-          | P.otherwise = g (x * x) (y `quot` two) (x * z)
+  g x y z
+    | even y = g (x * x) (y `quot` two) z
+    | y P.== one = x * z
+    | P.otherwise = g (x * x) (y `quot` two) (x * z)
                 -- See Note [Half of y - 1]
 
-(^^) :: (Group (Product a), Invertible (Sum a), Integral a, P.Ord a) => a -> a -> a
+(^^)
+  :: (Group (Product a), Invertible (Sum a), Integral a, P.Ord a) => a -> a -> a
 (^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)

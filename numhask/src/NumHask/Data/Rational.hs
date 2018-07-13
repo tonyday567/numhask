@@ -1,9 +1,9 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
@@ -19,35 +19,20 @@ module NumHask.Data.Rational
   )
 where
 
--- import Data.Coerce
-import           Data.Int                       ( Int8
-                                                , Int16
-                                                , Int32
-                                                , Int64
-                                                )
-import           Data.Word                      ( Word
-                                                , Word8
-                                                , Word16
-                                                , Word32
-                                                , Word64
-                                                )
-import           GHC.Float
-import           GHC.Natural                    ( Natural(..) )
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Float
+import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Ring
+import NumHask.Analysis.Metric
+import NumHask.Data.Integral
+import Prelude (Double, Float, Int, Integer, (.))
 import qualified GHC.Real
-import qualified Prelude                       as P
-import           Prelude                        ( Double
-                                                , Float
-                                                , Int
-                                                , Integer
-                                                , (.)
-                                                )
-import           NumHask.Algebra.Abstract.Additive
-import           NumHask.Algebra.Abstract.Group
-import           NumHask.Algebra.Abstract.Multiplicative
-import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Data.Integral
-import           NumHask.Analysis.Metric
-import           NumHask.Algebra.Abstract.Field
+import qualified Prelude as P
 
 data Ratio a = !a :% !a deriving (P.Show)
 
@@ -60,13 +45,14 @@ instance (P.Eq a, Unital (Sum a)) => P.Eq (Ratio a) where
         (x':%y') = b
 
 isRNaN :: (P.Eq a, Unital (Sum a)) => Ratio a -> P.Bool
-isRNaN (x :% y) | x P.== zero P.&& y P.== zero = P.True
-                | P.otherwise                    = P.False
+isRNaN (x :% y)
+  | x P.== zero P.&& y P.== zero = P.True
+  | P.otherwise = P.False
 
 
 type Rational = Ratio Integer
 
-instance  (P.Ord a, Multiplication a, Integral a)  => P.Ord (Ratio a)  where
+instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
   (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
@@ -74,10 +60,10 @@ type AdditionConstraints a = (P.Ord a, Integral a, Signed a, Invertible (Sum a))
 
 instance (AdditionConstraints a) => Magma (Sum (Ratio a)) where
   (Sum (x :% y)) `magma` (Sum (x' :% y'))
-    | y P.== zero P.&& y' P.== zero = Sum (sign (x `plus` x') :% zero)
+    | y P.== zero P.&& y' P.== zero = Sum (sign (x + x') :% zero)
     | y P.== zero                   = Sum (x :% y)
     | y' P.== zero                  = Sum (x' :% y')
-    | P.otherwise = Sum (reduce ((x `times` y') `plus` (x' `times` y)) (y `times` y'))
+    | P.otherwise = Sum (reduce ((x * y') + (x' * y)) (y * y'))
 
 instance (AdditionConstraints a) => Unital (Sum (Ratio a)) where
   unit = Sum (zero :% one)
@@ -93,19 +79,19 @@ instance (AdditionConstraints a) => Invertible (Sum (Ratio a)) where
   inv (Sum (x :% y)) = Sum (negate x :% y)
 
 instance (AdditionConstraints a) => Magma (Product (Ratio a)) where
-  (Product (x:%y)) `magma` (Product (x':%y')) = Product (reduce (x `times` x') (y `times` y'))
+  (Product (x:%y)) `magma` (Product (x':%y')) = Product (reduce (x * x') (y * y'))
 
 instance (AdditionConstraints a) => Unital (Product (Ratio a)) where
   unit = Product (one :% one)
 
 instance (AdditionConstraints a) =>
-         Associative (Product (Ratio a))
+  Associative (Product (Ratio a))
 
 instance (AdditionConstraints a) =>
-         Commutative (Product (Ratio a))
+  Commutative (Product (Ratio a))
 
 instance (AdditionConstraints a) =>
-         Invertible (Product (Ratio a)) where
+  Invertible (Product (Ratio a)) where
   inv (Product (x :% y))
     | x P.< zero = Product (negate y :% negate x)
     | P.otherwise = Product (y :% x)
@@ -120,10 +106,12 @@ instance (AdditionConstraints a) => IntegralDomain (Ratio a)
 
 instance (AdditionConstraints a) => Field (Ratio a)
 
-instance (AdditionConstraints a, ToInteger a, Field a, P.Eq b, Group (Sum  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
+instance (AdditionConstraints a, ToInteger a, Field a, P.Eq b,
+          Group (Sum  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
 
-instance (AdditionConstraints a, Ring a, IntegralDomain a) => UpperBoundedField (Ratio a) where
+instance (AdditionConstraints a, Ring a, IntegralDomain a) =>
+  UpperBoundedField (Ratio a) where
   isNaN (a :% b) = (a P.== zero) P.&& (b P.== zero)
 
 instance (AdditionConstraints a, Field a) => LowerBoundedField (Ratio a)
@@ -233,13 +221,15 @@ instance ToRatio Word64 where
 -- their greatest common divisor.
 reduce
   :: (P.Ord a, Invertible (Sum a), Signed a, Integral a) => a -> a -> Ratio a
-reduce x y | x P.== zero P.&& y P.== zero = zero :% zero
-           | z P.== zero                  = one :% zero
-           | P.otherwise                  = (x `quot` z) % (y `quot` z)
+reduce x y
+  | x P.== zero P.&& y P.== zero = zero :% zero
+  | z P.== zero = one :% zero
+  | P.otherwise = (x `quot` z) % (y `quot` z)
  where
   z = gcd x y
-  n % d | d P.< zero  = negate n :% negate d
-        | P.otherwise = n :% d
+  n % d
+    | d P.< zero = negate n :% negate d
+    | P.otherwise = n :% d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
 -- every common factor of @x@ and @y@ is also a factor; for example
@@ -253,5 +243,6 @@ reduce x y | x P.== zero P.&& y P.== zero = zero :% zero
 gcd :: (P.Ord a, Signed a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
  where
-  gcd' a b | b P.== zero = a
-           | P.otherwise = gcd' b (a `rem` b)
+  gcd' a b
+    | b P.== zero = a
+    | P.otherwise = gcd' b (a `rem` b)

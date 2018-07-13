@@ -1,77 +1,57 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE ConstrainedClassMethods #-}
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE RoleAnnotations #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wall #-}
 
--- | The Group hirarchy
+-- | Additive
 module NumHask.Algebra.Abstract.Additive
-      ( zero
-      , Sum(..)
-      , coerceFA
-      , coerceFA'
-      , coerceTA
-      , coerceTA'
-      , Addition(..)
-      , (+)
-      , (-)
-      , negate
-      , plus
-      )
+  ( Sum(..)
+  , Additive
+  , (+)
+  , (-)
+  , zero
+  , negate
+  , sum
+  )
 where
 
-import qualified Prelude                       as P
-import qualified GHC.Generics                  as P
-import           NumHask.Algebra.Abstract.Group
 import Data.Coerce
-import           Data.Complex                   ( Complex(..) )
-import           Data.Int                       ( Int8
-                                                , Int16
-                                                , Int32
-                                                , Int64
-                                                )
-import           Data.Word                      ( Word
-                                                , Word8
-                                                , Word16
-                                                , Word32
-                                                , Word64
-                                                )
-import           GHC.Natural                    ( Natural(..) )
+import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Group
+import qualified GHC.Generics as P
+import qualified Prelude as P
 
 newtype Sum a = Sum a
-      deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
+  deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
+            P.Functor)
 
-class (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Addition a where
-      sum :: (P.Foldable f) => f a -> a
-      sum = P.foldr (+) zero
-instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Addition a
-
-plus :: Magma (Sum a) => a -> a -> a
-plus = coerceFA magma
+class (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Additive a
+instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Additive a
 
 infixl 6 +
-(+) :: Addition a => a -> a -> a
+(+) :: Magma (Sum a) => a -> a -> a
 (+) = coerceFA magma
 
 infixl 6 -
-(-) :: (Invertible (Sum a), Addition a) => a -> a -> a
+(-) :: (Invertible (Sum a)) => a -> a -> a
 (-) a b = a + negate b
 
 zero :: Unital (Sum a) => a
 zero = let (Sum a) = unit in a
 
-
 negate :: Invertible (Sum a) => a -> a
 negate = coerceFA' inv
+
+sum :: (P.Foldable f, Additive a) => f a -> a
+sum = P.foldr (+) zero
 
 --less flexible coerces for better inference in instances
 coerceFA :: (Sum a -> Sum a -> Sum a) -> a -> a -> a
@@ -86,111 +66,106 @@ coerceTA f (Sum a) (Sum b) = Sum P.$ f a b
 coerceTA' :: (a -> a) -> (Sum a -> Sum a)
 coerceTA' f (Sum a) = Sum P.$ f a
 
---instances
-
---magma
 instance Magma (Sum P.Double) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum P.Float) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum P.Int) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum P.Integer) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum P.Bool) where
-      magma = coerceTA (P.||)
+  magma = coerceTA (P.||)
 
 instance Magma (Sum a) => Magma (Sum (Complex a)) where
-      (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) = Sum res
-            where
-                  res = (rx `plus` ry) :+ (ix `plus` iy)
+  (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) = Sum res
+    where
+      res = (rx + ry) :+ (ix + iy)
 
 instance Magma (Sum Natural) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Int8) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Int16) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Int32) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Int64) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Word) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Word8) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Word16) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Word32) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
 instance Magma (Sum Word64) where
-      magma = coerceTA (P.+)
+  magma = coerceTA (P.+)
 
---Unital
 instance Unital (Sum P.Double) where
-      unit = coerce (0 :: P.Double)
+  unit = coerce (0 :: P.Double)
 
 instance Unital (Sum P.Float) where
-      unit = coerce (0 :: P.Float)
+  unit = coerce (0 :: P.Float)
 
 instance Unital (Sum P.Int) where
-      unit = coerce (0 :: P.Int)
+  unit = coerce (0 :: P.Int)
 
 instance Unital (Sum P.Integer) where
-      unit = coerce (0 :: P.Integer)
+  unit = coerce (0 :: P.Integer)
 
 instance Unital (Sum P.Bool) where
-      unit = coerce P.False
+  unit = coerce P.False
 
 instance Unital (Sum a) => Unital (Sum (Complex a)) where
-      unit = Sum P.$ elem :+ elem
-            where
-                  elem = let (Sum x) = unit in x
+  unit = Sum P.$ elem :+ elem
+    where
+      elem = let (Sum x) = unit in x
 
 instance Unital (Sum Natural) where
-      unit = coerce (0 :: Natural)
+  unit = coerce (0 :: Natural)
 
 instance Unital (Sum Int8) where
-      unit = coerce (0 :: Int8)
+  unit = coerce (0 :: Int8)
 
 instance Unital (Sum Int16) where
-      unit = coerce (0 :: Int16)
+  unit = coerce (0 :: Int16)
 
 instance Unital (Sum Int32) where
-      unit = coerce (0 :: Int32)
+  unit = coerce (0 :: Int32)
 
 instance Unital (Sum Int64) where
-      unit = coerce (0 :: Int64)
+  unit = coerce (0 :: Int64)
 
 instance Unital (Sum Word) where
-      unit = coerce (0 :: Word)
+  unit = coerce (0 :: Word)
 
 instance Unital (Sum Word8) where
-      unit = coerce (0 :: Word8)
+  unit = coerce (0 :: Word8)
 
 instance Unital (Sum Word16) where
-      unit = coerce (0 :: Word16)
+  unit = coerce (0 :: Word16)
 
 instance Unital (Sum Word32) where
-      unit = coerce (0 :: Word32)
+  unit = coerce (0 :: Word32)
 
 instance Unital (Sum Word64) where
-      unit = coerce (0 :: Word64)
+  unit = coerce (0 :: Word64)
 
--- semigroup
 instance Associative (Sum P.Double)
 
 instance Associative (Sum P.Float)
@@ -256,7 +231,6 @@ instance Commutative (Sum Word32)
 
 instance Commutative (Sum Word64)
 
---- invertible
 instance Invertible (Sum P.Double) where
   inv = coerceTA' P.negate
 
@@ -274,8 +248,8 @@ instance Invertible (Sum P.Bool) where
 
 instance Invertible (Sum a) => Invertible (Sum (Complex a)) where
   inv (Sum (rx :+ ix)) = Sum P.$ (doInv rx :+ doInv ix)
-      where
-            doInv = coerceFA' inv
+    where
+      doInv = coerceFA' inv
 
 instance Invertible (Sum Int8) where
   inv = coerceTA' P.negate
@@ -304,5 +278,4 @@ instance Invertible (Sum Word32) where
 instance Invertible (Sum Word64) where
   inv = coerceTA' P.negate
 
---- idempotent
 instance Idempotent (Sum P.Bool)

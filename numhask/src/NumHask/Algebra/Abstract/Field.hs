@@ -1,9 +1,8 @@
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -18,14 +17,14 @@ module NumHask.Algebra.Abstract.Field
   )
 where
 
-import           NumHask.Algebra.Abstract.Group
-import           NumHask.Algebra.Abstract.Ring
-import           NumHask.Algebra.Abstract.Multiplicative
-import           NumHask.Algebra.Abstract.Additive
-import           NumHask.Data.Integral
-import           Data.Bool                      ( bool )
-import qualified Prelude                       as P
-import           Data.Complex                   ( Complex(..) )
+import Data.Bool (bool)
+import Data.Complex (Complex(..))
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Ring
+import NumHask.Data.Integral
+import qualified Prelude as P
 
 -- | A Field is a Integral domain in which every non-zero element has a multiplicative inverse.
 --

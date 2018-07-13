@@ -1,7 +1,6 @@
 module LibSpec where
 
 import Test.Hspec
-
 import Test.HUnit.NumHask (shouldBeAbout)
 
 main :: IO ()

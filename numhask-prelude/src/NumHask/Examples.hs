@@ -2,10 +2,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -27,7 +27,8 @@ module NumHask.Examples
 
     -- ** Matrices
     -- $matrices
-  ) where
+  )
+where
 
 import NumHask.Prelude
 
@@ -116,13 +117,13 @@ import NumHask.Prelude
 -- should be -Infinity
 -- >>> -one/zero
 -- ...
--- ... No instance for (Absorbing (Product ()))
+-- ... No instance for (Invertible (Sum ())) ...
 -- ...
 --
 -- should be NaN
 -- >>> zero/zero+one
 -- ...
--- ... No instance for (Commutative (Sum ())) ...
+-- ... No instance for (Invertible (Product ()))
 -- ...
 --
 -- 'ExpField'
@@ -153,7 +154,7 @@ import NumHask.Prelude
 newtype Positive a = Positive { unPositive :: a } deriving (Show, Eq)
 
 instance (Magma (Sum a)) => Magma (Sum (Positive a)) where
-  (Sum (Positive a)) `magma` (Sum (Positive b)) = Sum (Positive (a `plus` b))
+  (Sum (Positive a)) `magma` (Sum (Positive b)) = Sum (Positive (a + b))
 
 instance (Unital (Sum a)) => Unital (Sum (Positive a)) where
   unit = Sum (Positive zero)
@@ -162,17 +163,17 @@ instance (Associative (Sum a)) => Associative (Sum (Positive a))
 
 instance (Commutative (Sum a)) => Commutative (Sum (Positive a))
 
-instance (Multiplication a) => Absorbing (Product (Positive a)) where
+instance (Multiplicative a) => Absorbing (Product (Positive a)) where
   absorb = Product (Positive zero')
 
 instance (Distributive  a) => Distributive  (Positive a)
 
 instance (Magma (Product a)) => Magma (Product (Positive a)) where
   (Product (Positive a)) `magma` (Product (Positive b)) =
-    Product (Positive (a `times` b))
+    Product (Positive (a * b))
 
 instance (Associative (Product a)) =>
-         Associative (Product (Positive a))
+  Associative (Product (Positive a))
 
 instance (Unital (Product a)) => Unital (Product (Positive a)) where
   unit = Product one
@@ -185,34 +186,33 @@ instance (Invertible (Product a)) => Invertible (Product (Positive a)) where
 -- FIXME: needs Invertible (Sum (Positive a)), or UndecidableInstances
 instance (IntegralDomain a, Invertible (Sum (Positive a))) => IntegralDomain (Positive a)
 
-instance (UpperBoundedField a, Invertible (Sum (Positive a))) => UpperBoundedField (Positive a) where
+instance (UpperBoundedField a, Invertible (Sum (Positive a))) =>
+  UpperBoundedField (Positive a) where
   infinity = Positive infinity
   isNaN (Positive a) = isNaN a
-  
 
 instance (UpperBoundedField a, Invertible (Sum (Positive a))) => Bounded (Positive a) where
-   minBound = zero
-   maxBound = infinity
+  minBound = zero
+  maxBound = infinity
 
-instance (Multiplication a, ExpField a, Normed a a) =>
-         Normed a (Positive a) where
+instance (Normed a a) =>
+  Normed a (Positive a) where
   normL1 a = Positive (normL1 a)
   normL2 a = Positive (normL2 a)
   normLp (Positive p) a = Positive (normLp p a)
 
-instance (Multiplication a, ExpField a, Normed a a) =>
-         Normed (Positive a) (Positive a) where
+instance (Normed a a) =>
+  Normed (Positive a) (Positive a) where
   normL1 (Positive a) = Positive (normL1 a)
   normL2 (Positive a) = Positive (normL2 a)
   normLp (Positive p) (Positive a) = Positive (normLp p a)
 
-instance (Multiplication a, ExpField a, Normed a a) => Metric a (Positive a) where
+instance (Invertible (Sum a), Normed a a) => Metric a (Positive a) where
   distanceL1 a b = Positive $ normL1 (a - b)
   distanceL2 a b = Positive $ normL2 (a - b)
   distanceLp (Positive p) a b = Positive $ normLp p (a - b)
 
-instance (Multiplication a, ExpField a, Normed a a) => Metric (Positive a) (Positive a) where
+instance (Invertible (Sum a), Normed a a) => Metric (Positive a) (Positive a) where
   distanceL1 (Positive a) (Positive b) = Positive $ normL1 (a - b)
   distanceL2 (Positive a) (Positive b) = Positive $ normL2 (a - b)
   distanceLp (Positive p) (Positive a) (Positive b) = Positive $ normLp p (a - b)
-
