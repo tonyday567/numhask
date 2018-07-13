@@ -11,13 +11,12 @@
 -- | Multiplicative
 module NumHask.Algebra.Abstract.Multiplicative
   ( Product(..)
-  , Multiplicative
+  , Multiplicative(..)
   , (*)
   , (/)
   , one
   , recip
   , zero'
-  , product
   )
 where
 
@@ -35,7 +34,11 @@ newtype Product a = Product a
   deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
             P.Functor)
 
-class (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplicative a where
+class (Absorbing (Product a), Associative (Product a), Unital (Product a))
+  => Multiplicative a where
+  product :: (P.Foldable f) => f a -> a
+  product = P.foldr (*) one
+
 instance (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplicative a
 
 infixl 7 *
@@ -54,9 +57,6 @@ recip = coerceFM' inv
 
 zero' :: Multiplicative a => a
 zero' = let (Product a) = absorb in a
-
-product :: (P.Foldable f, Multiplicative a) => f a -> a
-product = P.foldr (*) one
 
 --less flexible coerces for better inference in instances
 coerceFM :: (Product a -> Product a -> Product a) -> a -> a -> a

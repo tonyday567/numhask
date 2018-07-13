@@ -11,12 +11,11 @@
 -- | Additive
 module NumHask.Algebra.Abstract.Additive
   ( Sum(..)
-  , Additive
+  , Additive(..)
   , (+)
   , (-)
   , zero
   , negate
-  , sum
   )
 where
 
@@ -33,8 +32,13 @@ newtype Sum a = Sum a
   deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
             P.Functor)
 
-class (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Additive a
-instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a)) => Additive a
+class (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
+  => Additive a where
+  sum :: (P.Foldable f) => f a -> a
+  sum = P.foldr (+) zero
+
+instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
+  => Additive a
 
 infixl 6 +
 (+) :: Magma (Sum a) => a -> a -> a
@@ -49,9 +53,6 @@ zero = let (Sum a) = unit in a
 
 negate :: Invertible (Sum a) => a -> a
 negate = coerceFA' inv
-
-sum :: (P.Foldable f, Additive a) => f a -> a
-sum = P.foldr (+) zero
 
 --less flexible coerces for better inference in instances
 coerceFA :: (Sum a -> Sum a -> Sum a) -> a -> a -> a
