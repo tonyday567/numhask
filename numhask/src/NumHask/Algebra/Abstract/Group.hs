@@ -16,7 +16,6 @@ module NumHask.Algebra.Abstract.Group
   , Invertible(..)
   , Idempotent
   , Group
-  , groupSwap
   , AbelianGroup
   )
 where
@@ -89,15 +88,6 @@ class Magma a =>
 -- > a magma a = a
 class Magma a =>
   Idempotent a
-
--- | see http://chris-taylor.github.io/blog/2013/02/25/xor-trick/
-groupSwap :: (Group a) => (a, a) -> (a, a)
-groupSwap (a, b) =
-  let
-    a' = a `magma` b
-    b' = a `magma` inv b
-    a'' = inv b' `magma` a'
-  in (a'', b')
 
 -- | An Abelian Group is associative, unital, invertible and commutative
 class (Group a, Commutative a) => AbelianGroup a
