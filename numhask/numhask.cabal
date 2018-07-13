@@ -1,17 +1,29 @@
-name:           numhask
-version:        0.2.3.1
-synopsis:       numeric classes
-description:    A numeric class heirarchy.
-category:       mathematics
-homepage:       https://github.com/tonyday567/numhask#readme
-bug-reports:    https://github.com/tonyday567/numhask/issues
-author:         Tony Day
-maintainer:     tonyday567@gmail.com
-copyright:      Tony Day
-license:        BSD3
-license-file:   LICENSE
-build-type:     Simple
-cabal-version:  >= 1.18
+name: numhask
+version: 0.3
+synopsis:
+  numeric classes
+description:
+  A numeric class heirarchy.
+category:
+  mathematics
+homepage:
+  https://github.com/tonyday567/numhask#readme
+bug-reports:
+  https://github.com/tonyday567/numhask/issues
+author:
+  Tony Day
+maintainer:
+  tonyday567@gmail.com
+copyright:
+  Tony Day
+license:
+  BSD3
+license-file:
+  LICENSE
+build-type:
+  Simple
+cabal-version:
+  >= 1.18
 
 extra-source-files:
   stack.yaml
@@ -25,31 +37,34 @@ source-repository head
 
 library
   hs-source-dirs:
-      src
-  default-extensions: NegativeLiterals OverloadedStrings UnicodeSyntax
+    src
+  default-extensions:
+    NegativeLiterals
+    OverloadedStrings
+    UnicodeSyntax
   ghc-options:
-      -Wall
-      -Wcompat
-      -Wincomplete-record-updates
-      -Wincomplete-uni-patterns
-      -Wredundant-constraints
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
   build-depends:
-      base >=4.7 && <4.12
+    base >=4.7 && <4.12
   exposed-modules:
-      NumHask.Algebra.Abstract
-      NumHask.Algebra.Abstract.Additive
-      NumHask.Algebra.Abstract.Field
-      NumHask.Algebra.Abstract.Group
-      NumHask.Algebra.Abstract.Homomorphism
-      NumHask.Algebra.Abstract.Module
-      NumHask.Algebra.Abstract.Multiplicative
-      NumHask.Algebra.Abstract.Ring
-      NumHask.Algebra.Linear.Hadamard
-      NumHask.Analysis.Banach
-      NumHask.Analysis.Metric
-      NumHask.Data.Complex   
-      NumHask.Data.Integral
-      NumHask.Data.LogField       
-      NumHask.Data.Rational
+    NumHask.Algebra.Abstract
+    NumHask.Algebra.Abstract.Additive
+    NumHask.Algebra.Abstract.Field
+    NumHask.Algebra.Abstract.Group
+    NumHask.Algebra.Abstract.Homomorphism
+    NumHask.Algebra.Abstract.Module
+    NumHask.Algebra.Abstract.Multiplicative
+    NumHask.Algebra.Abstract.Ring
+    NumHask.Algebra.Linear.Hadamard
+    NumHask.Analysis.Banach
+    NumHask.Analysis.Metric
+    NumHask.Data.Complex   
+    NumHask.Data.Integral
+    NumHask.Data.LogField       
+    NumHask.Data.Rational
   other-modules:
   default-language: Haskell2010

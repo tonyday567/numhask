@@ -102,11 +102,3 @@ See [bench](numhask-bench/readme.md) for current performance results.
 cd numhask-bench
 stack build --exec "$(stack path --local-install-root)/bin/numhask-bench" --exec "$(stack path --local-bin)/pandoc -f markdown -i other/bench_.md -t markdown -o readme.md --filter pandoc-include --mathjax" --file-watch
 ~~~
-
-numhask-graph
----
-
-~~~
-cd numhask-graph
-stack build --exec "$(stack path --local-install-root)/bin/numhask-graph"
-~~~

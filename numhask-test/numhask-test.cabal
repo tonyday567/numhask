@@ -1,55 +1,79 @@
-name:           numhask-test
-version:        0.1.0.0
-synopsis:       Laws and tests for numhask
-description:    Laws and tests for numhask.
-category:       mathematics
-homepage:       https://github.com/tonyday567/numhask#readme
-bug-reports:    https://github.com/tonyday567/numhask/issues
-author:         Tony Day
-maintainer:     tonyday567@gmail.com
-copyright:      Tony Day
-license:        BSD3
-license-file:   LICENSE
-build-type:     Simple
-cabal-version:  >= 1.18
+name: numhask-test
+version: 0.3
+synopsis:
+  Laws and tests for numhask
+description:
+  Laws and tests for numhask.
+category:
+  mathematics
+homepage:
+  https://github.com/tonyday567/numhask#readme
+bug-reports:
+  https://github.com/tonyday567/numhask/issues
+author:
+  Tony Day
+maintainer:
+  tonyday567@gmail.com
+copyright:
+  Tony Day
+license:
+  BSD3
+license-file:
+  LICENSE
+build-type:
+  Simple
+cabal-version:
+  >= 1.18
 
 extra-source-files:
-    stack.yaml
+  stack.yaml
 
 source-repository head
-  type: git
-  location: https://github.com/tonyday567/numhask
+  type:
+    git
+  location:
+    https://github.com/tonyday567/numhask
 
 library
   hs-source-dirs:
-      src
-  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+    src
+  default-extensions:
+    NegativeLiterals
+    NoImplicitPrelude
+    OverloadedStrings
+    UnicodeSyntax
   ghc-options:
-      -Wall
-      -Wcompat
-      -Wincomplete-record-updates
-      -Wincomplete-uni-patterns
-      -Wredundant-constraints
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
   build-depends:
-      QuickCheck >=2.8 && <3
-    , base >=4.7 && <4.12
-    , numhask-prelude >=0.1.0.0 && <0.2
-    , tasty >= 1.0.1.1 && <1.2
-    , tasty-quickcheck >= 0.9.2 && <1.0
+      QuickCheck
+    , base
+    , numhask-prelude >= 0.3 && < 0.4
+    , tasty
+    , tasty-quickcheck
   exposed-modules:
-      NumHask.Laws
+    NumHask.Laws
   default-language: Haskell2010
 
 test-suite test
-  type: exitcode-stdio-1.0
-  main-is: test.hs
+  type:
+    exitcode-stdio-1.0
+  main-is:
+    test.hs
   hs-source-dirs:
-      test
-  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+    test
+  default-extensions:
+    NegativeLiterals
+    NoImplicitPrelude
+    OverloadedStrings
+    UnicodeSyntax
   build-depends:
-      base >=4.7 && <5
-    , QuickCheck >=2.8 && <3
+      base
+    , QuickCheck
     , numhask-test
-    , numhask-prelude >= 0.1.0.0 && < 0.2
+    , numhask-prelude
     , tasty
   default-language: Haskell2010

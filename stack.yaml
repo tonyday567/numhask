@@ -1,4 +1,4 @@
-resolver: nightly-2018-05-28
+resolver: nightly-2018-07-08
 
 packages:
   - numhask
@@ -6,7 +6,6 @@ packages:
   - numhask-array
   - numhask-test
   - numhask-bench
-  # - numhask-graph
 
 extra-deps:
   - dimensions-0.3.2.0
