@@ -1,0 +1,19 @@
+conf_forward:
+  options_ghc:
+  - -XLambdaCase
+  - -XMultiWayIf
+  - -XGADTs
+  - -XPatternGuards
+  - -XViewPatterns
+  - -XRecursiveDo
+  - -XTupleSections
+  - -XExplicitForAll
+  - -XImplicitParams
+  - -XQuasiQuotes
+  - -XTemplateHaskell
+  - -XBangPatterns
+conf_layout:
+  lconfig_indentAmount: 2
+  lconfig_cols: 80
+  lconfig_columnAlignMode: { tag: ColumnAlignModeDisabled }
+  lconfig_indentPolicy: IndentPolicyMultiple

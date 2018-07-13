@@ -1,54 +1,50 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ConstrainedClassMethods #-}
-{-# LANGUAGE RoleAnnotations #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wall #-}
 
--- | The Group hirarchy
+-- | Multiplicative
 module NumHask.Algebra.Abstract.Multiplicative
-    ( one
-    , recip
-    , Product(..)
-    , coerceFM
-    , coerceFM'
-    , coerceTM
-    , coerceTM'
-    , Multiplication(..)
-    , (*)
-    , zero'
-    , (/)
-    , times
-    )
+  ( Product(..)
+  , Multiplicative
+  , (*)
+  , (/)
+  , one
+  , recip
+  , zero'
+  , product
+  )
 where
 
-import           NumHask.Algebra.Abstract.Group
-import           NumHask.Algebra.Abstract.Additive
-import qualified Prelude                       as P
-import qualified GHC.Generics                  as P
-import           Data.Coerce
-import           Data.Complex                   ( Complex(..) )
-import           Data.Int                       ( Int8
-                                                , Int16
-                                                , Int32
-                                                , Int64
-                                                )
-import           Data.Word                      ( Word
-                                                , Word8
-                                                , Word16
-                                                , Word32
-                                                , Word64
-                                                )
-import           GHC.Natural                    ( Natural(..) )
+import Data.Coerce
+import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Group
+import qualified GHC.Generics as P
+import qualified Prelude as P
 
 newtype Product a = Product a
-    deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1, P.Functor)
+  deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
+            P.Functor)
+
+class (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplicative a where
+instance (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplicative a
+
+infixl 7 *
+(*) :: Magma (Product a) => a -> a -> a
+(*) = coerceFM magma
+
+infixl 7 /
+(/) :: (Invertible (Product a)) => a -> a -> a
+(/) a b = a * recip b
 
 one :: Unital (Product a) => a
 one = let (Product a) = unit in a
@@ -56,24 +52,11 @@ one = let (Product a) = unit in a
 recip :: Invertible (Product a) => a -> a
 recip = coerceFM' inv
 
-class (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplication a where
-    product :: (P.Foldable f) => f a -> a
-    product = P.foldr (*) one
-instance (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplication a
-
-times :: Magma (Product a) => a -> a -> a
-times = coerceFM magma
-
-infixl 6 *
-(*) :: Multiplication a => a -> a -> a
-(*) = coerceFM magma
-
-zero' :: Multiplication a => a
+zero' :: Multiplicative a => a
 zero' = let (Product a) = absorb in a
 
-infixl 6 /
-(/) :: (Invertible (Product a), Multiplication a) => a -> a -> a
-(/) a b = a * recip b
+product :: (P.Foldable f, Multiplicative a) => f a -> a
+product = P.foldr (*) one
 
 --less flexible coerces for better inference in instances
 coerceFM :: (Product a -> Product a -> Product a) -> a -> a -> a
@@ -88,109 +71,107 @@ coerceTM f (Product a) (Product b) = Product P.$ f a b
 coerceTM' :: (a -> a) -> (Product a -> Product a)
 coerceTM' f (Product a) = Product P.$ f a
 
--- magma
 instance Magma (Product P.Double) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product P.Float) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product P.Int) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product P.Integer) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product P.Bool) where
-    magma = coerceTM (P.&&)
+  magma = coerceTM (P.&&)
 
-instance (Magma (Product a), Addition a, Invertible (Sum a)) =>
-    Magma (Product (Complex a)) where
-    (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
-        Product P.$ (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
+instance (Magma (Product a), Additive a, Invertible (Sum a)) =>
+  Magma (Product (Complex a))
+    where
+      (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
+        Product P.$ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
 
 instance Magma (Product Natural) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Int8) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Int16) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Int32) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Int64) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Word) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Word8) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Word16) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Word32) where
-    magma = coerceTM (P.*)
+  magma = coerceTM (P.*)
 
 instance Magma (Product Word64) where
-    magma = coerceTM (P.*)
-
---- Unital
+  magma = coerceTM (P.*)
 
 instance Unital (Product P.Double) where
-    unit = coerce (1 :: P.Double)
+  unit = coerce (1 :: P.Double)
 
 instance Unital (Product P.Float) where
-    unit = coerce (1 :: P.Float)
+  unit = coerce (1 :: P.Float)
 
 instance Unital (Product P.Int) where
-    unit = coerce (1 :: P.Int)
+  unit = coerce (1 :: P.Int)
 
 instance Unital (Product P.Integer) where
-    unit = coerce (1 :: P.Integer)
+  unit = coerce (1 :: P.Integer)
 
 instance Unital (Product P.Bool) where
-    unit = coerce P.True
+  unit = coerce P.True
 
 instance (Unital (Product a), AbelianGroup (Sum a)) =>
-    Unital (Product (Complex a)) where
-    unit = Product (one :+ zero)
+  Unital (Product (Complex a))
+    where
+      unit = Product (one :+ zero)
 
 instance Unital (Product Natural) where
-    unit = coerce (1 :: Natural)
+  unit = coerce (1 :: Natural)
 
 instance Unital (Product Int8) where
-    unit = coerce (1 :: Int8)
+  unit = coerce (1 :: Int8)
 
 instance Unital (Product Int16) where
-    unit = coerce (1 :: Int16)
+  unit = coerce (1 :: Int16)
 
 instance Unital (Product Int32) where
-    unit = coerce (1 :: Int32)
+  unit = coerce (1 :: Int32)
 
 instance Unital (Product Int64) where
-    unit = coerce (1 :: Int64)
+  unit = coerce (1 :: Int64)
 
 instance Unital (Product Word) where
-    unit = coerce (1 :: Word)
+  unit = coerce (1 :: Word)
 
 instance Unital (Product Word8) where
-    unit = coerce (1 :: Word8)
+  unit = coerce (1 :: Word8)
 
 instance Unital (Product Word16) where
-    unit = coerce (1 :: Word16)
+  unit = coerce (1 :: Word16)
 
 instance Unital (Product Word32) where
-    unit = coerce (1 :: Word32)
+  unit = coerce (1 :: Word32)
 
 instance Unital (Product Word64) where
-    unit = coerce (1 :: Word64)
+  unit = coerce (1 :: Word64)
 
---- semigroup
 instance Associative (Product P.Double)
 
 instance Associative (Product P.Float)
@@ -202,7 +183,7 @@ instance Associative (Product P.Integer)
 instance Associative (Product P.Bool)
 
 instance (AbelianGroup (Sum a), Associative (Product a)) =>
-    Associative (Product (Complex a))
+  Associative (Product (Complex a))
 
 instance Associative (Product Natural)
 
@@ -224,7 +205,6 @@ instance Associative (Product Word32)
 
 instance Associative (Product Word64)
 
---- commutative
 instance Commutative (Product P.Double)
 
 instance Commutative (Product P.Float)
@@ -236,7 +216,7 @@ instance Commutative (Product P.Integer)
 instance Commutative (Product P.Bool)
 
 instance (AbelianGroup (Sum a), Commutative (Product a)) =>
-    Commutative (Product (Complex a))
+  Commutative (Product (Complex a))
 
 instance Commutative (Product Natural)
 
@@ -258,69 +238,67 @@ instance Commutative (Product Word32)
 
 instance Commutative (Product Word64)
 
----invertible
 instance Invertible (Product P.Double) where
-    inv = coerceTM' P.recip
+  inv = coerceTM' P.recip
 
 instance Invertible (Product P.Float) where
-    inv = coerceTM' P.recip
+  inv = coerceTM' P.recip
 
 instance (AbelianGroup (Sum a), Invertible (Product a)) =>
-    Invertible (Product (Complex a)) where
-    inv (Product (rx :+ ix)) = Product ((rx `times` d) :+ (negate ix `times` d))
-        where
-            d = recip ((rx `times` rx) + (ix `times` ix))
+  Invertible (Product (Complex a)) where
+  inv (Product (rx :+ ix)) = Product ((rx * d) :+ (negate ix * d))
+    where
+      d = recip ((rx * rx) + (ix * ix))
 
----idempotent
 instance Idempotent (Product P.Bool)
 
---absorbing
 instance Absorbing (Product P.Double) where
-    absorb = coerce (0 :: P.Double)
+  absorb = coerce (0 :: P.Double)
 
 instance Absorbing (Product P.Float) where
-    absorb = coerce (0 :: P.Float)
+  absorb = coerce (0 :: P.Float)
 
 instance Absorbing (Product P.Int) where
-    absorb = coerce (0 :: P.Int)
+  absorb = coerce (0 :: P.Int)
 
 instance Absorbing (Product P.Integer) where
-    absorb = coerce (0 :: P.Integer)
+  absorb = coerce (0 :: P.Integer)
 
 instance Absorbing (Product P.Bool) where
-    absorb = coerce P.False
+  absorb = coerce P.False
 
-instance (Absorbing (Product a), Addition a, Invertible (Sum a)) => Absorbing (Product (Complex a)) where
-    absorb = Product P.$ elem :+ elem
-        where
-            elem = let (Product x) = absorb in x
+instance (Absorbing (Product a), Additive a, Invertible (Sum a)) =>
+  Absorbing (Product (Complex a)) where
+  absorb = Product P.$ elem :+ elem
+    where
+      elem = let (Product x) = absorb in x
 
 instance Absorbing (Product Natural) where
-    absorb = coerce (0 :: Natural)
+  absorb = coerce (0 :: Natural)
 
 instance Absorbing (Product Int8) where
-    absorb = coerce (0 :: Int8)
+  absorb = coerce (0 :: Int8)
 
 instance Absorbing (Product Int16) where
-    absorb = coerce (0 :: Int16)
+  absorb = coerce (0 :: Int16)
 
 instance Absorbing (Product Int32) where
-    absorb = coerce (0 :: Int32)
+  absorb = coerce (0 :: Int32)
 
 instance Absorbing (Product Int64) where
-    absorb = coerce (0 :: Int64)
+  absorb = coerce (0 :: Int64)
 
 instance Absorbing (Product Word) where
-    absorb = coerce (0 :: Word)
+  absorb = coerce (0 :: Word)
 
 instance Absorbing (Product Word8) where
-    absorb = coerce (0 :: Word8)
+  absorb = coerce (0 :: Word8)
 
 instance Absorbing (Product Word16) where
-    absorb = coerce (0 :: Word16)
+  absorb = coerce (0 :: Word16)
 
 instance Absorbing (Product Word32) where
-    absorb = coerce (0 :: Word32)
+  absorb = coerce (0 :: Word32)
 
 instance Absorbing (Product Word64) where
-    absorb = coerce (0 :: Word64)
+  absorb = coerce (0 :: Word64)

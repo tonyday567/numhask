@@ -12,7 +12,8 @@ module NumHask.Algebra.Abstract
   , module NumHask.Algebra.Abstract.Ring
   , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Abstract.Module
-  ) where
+  )
+where
 
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Additive
@@ -36,8 +37,8 @@ import NumHask.Algebra.Abstract.Module
 -- >    (+), (-), (*)       :: a -> a -> a
 -- >    -- | Unary negation.
 -- >    negate              :: a -> a
--- 
--- `+` is a function of the `Additive` class, 
+--
+-- `+` is a function of the `Additive` class,
 -- `-` is a function of the `AdditiveGroup` class, and
 -- `*` is a function of the `Multiplicative` class.
 -- `negate` is specifically in the `AdditiveInvertible` class.  There are many useful constructions between negate and (-), involving cancellative properties.

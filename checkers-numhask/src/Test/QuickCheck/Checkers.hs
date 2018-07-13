@@ -1,17 +1,19 @@
 module Test.QuickCheck.Checkers where
 
 import Control.Applicative (liftA2)
-
-import Test.QuickCheck (Property, Arbitrary, Gen, Testable(..), property, forAll, (.&.), (==>), conjoin) 
+import Test.QuickCheck
+  ( Property
+  , Arbitrary
+  , Gen
+  , Testable(..)
+  , property
+  , forAll
+  , (.&.)
+  , (==>)
+  , conjoin
+  )
 import Test.QuickCheck.Utils
-
 import Control.Arrow (first)
-
-
-
-{----------------------------------------------------------
-    Misc
-----------------------------------------------------------}
 
 -- | Named test
 type Test = (String, Property)
@@ -21,25 +23,25 @@ type TestBatch = (String, [Test])
 
 -- | Flatten a test batch for inclusion in another
 unbatch :: TestBatch -> [Test]
-unbatch (batchName, props) = map (first ((batchName ++ ": ")++)) props
+unbatch (batchName, props) = map (first ((batchName ++ ": ") ++)) props
 
 
 
 
 -- | @f@ is its own inverse. See also 'inverse'.
-involution :: (Show a, Arbitrary a, EqProp a) =>
-              (a -> a) -> Property
+involution :: (Show a, Arbitrary a, EqProp a) => (a -> a) -> Property
 involution f = f `inverseL` f
 
 -- | @f@ is a left inverse of @g@.  See also 'inverse'.
-inverseL :: (EqProp b, Arbitrary b, Show b) =>
-            (a -> b) -> (b -> a) -> Property
+inverseL :: (EqProp b, Arbitrary b, Show b) => (a -> b) -> (b -> a) -> Property
 f `inverseL` g = f . g =-= id
 
 -- | @f@ is a left and right inverse of @g@.  See also 'inverseL'.
-inverse :: ( EqProp a, Arbitrary a, Show a
-           , EqProp b, Arbitrary b, Show b ) =>
-           (a -> b) -> (b -> a) -> Property
+inverse
+  :: (EqProp a, Arbitrary a, Show a, EqProp b, Arbitrary b, Show b)
+  => (a -> b)
+  -> (b -> a)
+  -> Property
 f `inverse` g = f `inverseL` g .&. g `inverseL` f
 
 
@@ -90,40 +92,32 @@ instance EqProp Double where (=-=) = eq
 ----------------------------------------------------------}
 
 -- | Reflexive property: @a `rel` a@
-reflexive :: (Arbitrary a, Show a) =>
-             (a -> a -> Bool) -> Property
-reflexive rel = property $ \ a -> a `rel` a
+reflexive :: (Arbitrary a, Show a) => (a -> a -> Bool) -> Property
+reflexive rel = property $ \a -> a `rel` a
 
 -- | Transitive property: @a `rel` b && b `rel` c ==> a `rel` c@.
 -- Generate @a@ randomly, but use @gen a@ to generate @b@ and @gen b@ to
 -- generate @c@.  @gen@ ought to satisfy @rel@ fairly often.
-transitive :: (Arbitrary a, Show a) =>
-              (a -> a -> Bool) -> (a -> Gen a) -> Property
-transitive rel gen =
-  property $ \ a ->
-    forAll (gen a) $ \ b ->
-      forAll (gen b) $ \ c ->
-        (a `rel` b) && (b `rel` c) ==> (a `rel` c)
+transitive
+  :: (Arbitrary a, Show a) => (a -> a -> Bool) -> (a -> Gen a) -> Property
+transitive rel gen = property $ \a -> forAll (gen a)
+  $ \b -> forAll (gen b) $ \c -> (a `rel` b) && (b `rel` c) ==> (a `rel` c)
 
 -- | Symmetric property: @a `rel` b ==> b `rel` a@.  Generate @a@
 -- randomly, but use @gen a@ to generate @b@.  @gen@ ought to satisfy
 -- @rel@ fairly often.
-symmetric :: (Arbitrary a, Show a) =>
-             (a -> a -> Bool) -> (a -> Gen a) -> Property
+symmetric
+  :: (Arbitrary a, Show a) => (a -> a -> Bool) -> (a -> Gen a) -> Property
 symmetric rel gen =
-  property $ \ a ->
-    forAll (gen a) $ \ b ->
-      (a `rel` b) ==> (b `rel` a)
+  property $ \a -> forAll (gen a) $ \b -> (a `rel` b) ==> (b `rel` a)
 
 -- | Symmetric property: @a `rel` b && b `rel` a ==> a == b@.  Generate
 -- @a@ randomly, but use @gen a@ to generate @b@.  @gen@ ought to satisfy
 -- both @rel@ directions fairly often but not always.
-antiSymmetric :: (Arbitrary a, Show a, Eq a) =>
-                 (a -> a -> Bool) -> (a -> Gen a) -> Property
+antiSymmetric
+  :: (Arbitrary a, Show a, Eq a) => (a -> a -> Bool) -> (a -> Gen a) -> Property
 antiSymmetric rel gen =
-  property $ \ a ->
-    forAll (gen a) $ \ b ->
-      (a `rel` b) && (b `rel` a) ==> a == b
+  property $ \a -> forAll (gen a) $ \b -> (a `rel` b) && (b `rel` a) ==> a == b
 
 
 
@@ -133,7 +127,4 @@ antiSymmetric rel gen =
 -- * Identity element
 -- * Binary associative operation
 monoid :: (Show a, Eq a, Arbitrary a) => (a -> a -> a) -> a -> Property
-monoid rel z = conjoin [
-    hasIdentity z rel
-  , isAssociative rel
-  ]
+monoid rel z = conjoin [hasIdentity z rel, isAssociative rel]

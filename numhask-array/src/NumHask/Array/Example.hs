@@ -6,7 +6,7 @@
 
 -- | Experimental api following https://pechersky.github.io/haskell-numpy-docs/quickstart.basics.html
 module NumHask.Array.Example
- (
+  (
     -- * The Basics
     -- $setup
 
@@ -36,8 +36,8 @@ module NumHask.Array.Example
 
     -- * Tricks and Tips
     -- $tricksTips
-    
-  ) where
+  )
+where
 
 import NumHask.Shape
 import NumHask.Prelude as P

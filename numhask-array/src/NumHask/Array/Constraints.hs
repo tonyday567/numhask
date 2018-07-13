@@ -81,5 +81,3 @@ type family TailModule i (s :: [Nat]) where
 type family HeadModule i (s :: [Nat]) where
   HeadModule _ '[] = '[]
   HeadModule d xs = (Fst (SplitAt d xs))
-
-

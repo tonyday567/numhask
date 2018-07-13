@@ -1,11 +1,9 @@
-{-# LANGUAGE ExplicitNamespaces #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra for Modules
@@ -18,15 +16,14 @@ module NumHask.Algebra.Abstract.Module
   , Module(..)
   ) where
 
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Ring
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural
-import Prelude
-       (Double, Float, Int, Integer)
+import Prelude (Double, Float, Int, Integer)
 
 -- | a module
 --   A Module over r a is a (Ring a), an abelian (Group r a) 
@@ -50,8 +47,8 @@ class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
 -- > (a + b) .+ c == (a .+ c) + b
 -- > a .+ zero == a
 -- > a .+ b == b +. a
-class (Addition a) =>
-      AdditiveModule r a where
+class (Additive a) =>
+  AdditiveModule r a where
   infixl 6 .+
   (.+) :: r a -> a -> r a
 
@@ -65,7 +62,7 @@ class (Addition a) =>
 -- > a .- zero == a
 -- > a .- b == negate b +. a
 class (Group (Sum a), AdditiveModule r a) =>
-      AdditiveGroupModule r a where
+  AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
 
@@ -77,7 +74,7 @@ class (Group (Sum a), AdditiveModule r a) =>
 -- > nearZero a || a ./ one == a
 -- > b == zero || a ./ b == recip b *. a
 class (Module r a, Field a) =>
-      MultiplicativeGroupModule r a where
+  MultiplicativeGroupModule r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
   infixl 7 /.

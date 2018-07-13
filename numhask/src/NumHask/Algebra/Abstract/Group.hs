@@ -1,26 +1,25 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ConstrainedClassMethods #-}
-{-# LANGUAGE RoleAnnotations #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MonoLocalBinds #-}
--- | The Group hirarchy
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wall #-}
+
+-- | The Group hierarchy
 module NumHask.Algebra.Abstract.Group
-      ( Magma(..)
-      , Unital(..)
-      , Associative
-      , Commutative
-      , Absorbing(..)
-      , Invertible(..)
-      , Idempotent
-      , Group
-      , groupSwap
-      , AbelianGroup
-      )
-      where
+  ( Magma(..)
+  , Unital(..)
+  , Associative
+  , Commutative
+  , Absorbing(..)
+  , Invertible(..)
+  , Idempotent
+  , Group
+  , groupSwap
+  , AbelianGroup
+  )
+where
 
 -- * Magma structure
 -- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,magma) consisting of
@@ -51,27 +50,27 @@ class Magma a where
 -- > a magma unit = a
 --
 class Magma a =>
-      Unital a where
+  Unital a where
   unit :: a
 
 -- | An Associative Magma
 --
 -- > (a magma b) magma c = a magma (b magma c)
 class Magma a =>
-      Associative a
+  Associative a
 
 -- | A Commutative Magma
 --
 -- > a magma b = b magma a
 class Magma a =>
-      Commutative a
+  Commutative a
 
 -- | An Invertible Magma
 --
 -- > ∀ a,b ∈ T: inv a `magma` (a `magma` b) = b = (b `magma` a) `magma` inv a
 --
 class Magma a =>
-      Invertible a where
+  Invertible a where
   inv :: a -> a
 
 -- | A group is Associative, Unital and Invertible
@@ -82,24 +81,24 @@ instance (Associative a, Unital a, Invertible a) => Group a
 --
 -- > a `times` absorb = absorb
 class Magma a =>
-    Absorbing a where
-    absorb :: a
+  Absorbing a where
+  absorb :: a
 
 -- | An Idempotent Magma
 --
 -- > a magma a = a
 class Magma a =>
-      Idempotent a
+  Idempotent a
 
 -- | see http://chris-taylor.github.io/blog/2013/02/25/xor-trick/
 groupSwap :: (Group a) => (a, a) -> (a, a)
 groupSwap (a, b) =
-      let a'  = a `magma` b
-          b'  = a `magma` inv b
-          a'' = inv b' `magma` a'
-      in  (a'', b')
+  let
+    a' = a `magma` b
+    b' = a `magma` inv b
+    a'' = inv b' `magma` a'
+  in (a'', b')
 
 -- | An Abelian Group is associative, unital, invertible and commutative
-class (Group a, Commutative a) =>
-      AbelianGroup a
+class (Group a, Commutative a) => AbelianGroup a
 instance (Group a, Commutative a) => AbelianGroup a

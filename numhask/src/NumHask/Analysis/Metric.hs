@@ -1,9 +1,8 @@
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE DefaultSignatures     #-}
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE UndecidableInstances     #-}
-{-# LANGUAGE MonoLocalBinds     #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
@@ -16,36 +15,28 @@ module NumHask.Analysis.Metric
   )
 where
 
-import qualified Prelude                       as P
-import           Prelude                 hiding ( Bounded(..)
-                                                , Integral(..)
-                                                , (*)
-                                                , (/)
-                                                , (+)
-                                                , (-)
-                                                , abs
-                                                , negate
-                                                , sqrt
-                                                , (**)
-                                                )
+import qualified Prelude as P
+import Prelude
+  hiding ( Bounded(..)
+  , Integral(..)
+  , (*)
+  , (/)
+  , (+)
+  , (-)
+  , abs
+  , negate
+  , sqrt
+  , (**)
+  )
 
-import           Data.Complex                   ( Complex(..) )
-import           Data.Int                       ( Int8
-                                                , Int16
-                                                , Int32
-                                                , Int64
-                                                )
-import           Data.Word                      ( Word
-                                                , Word8
-                                                , Word16
-                                                , Word32
-                                                , Word64
-                                                )
-import           GHC.Natural                    ( Natural(..) )
-import           NumHask.Algebra.Abstract.Additive
-import           NumHask.Algebra.Abstract.Field
-import           NumHask.Algebra.Abstract.Multiplicative
-import           NumHask.Algebra.Abstract.Group
+import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Multiplicative
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
 --
@@ -53,7 +44,7 @@ import           NumHask.Algebra.Abstract.Group
 --
 -- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
 class (Unital (Product a)) =>
-      Signed a where
+  Signed a where
   sign :: a -> a
   abs :: a -> a
 
@@ -183,8 +174,8 @@ instance Normed Integer Integer where
   normL2 = P.abs
   normLp _ = P.abs
 
-instance (Multiplication a, ExpField a, Normed a a) =>
-         Normed (Complex a) a where
+instance (Multiplicative a, ExpField a, Normed a a) =>
+  Normed (Complex a) a where
   normL1 (rx :+ ix) = normL1 rx + normL1 ix
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
@@ -271,8 +262,8 @@ instance Metric Integer Integer where
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (Multiplication a, ExpField a, Normed a a) =>
-         Metric (Complex a) a where
+instance (Multiplicative a, ExpField a, Normed a a) =>
+  Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
@@ -330,12 +321,12 @@ instance Metric Word64 Word64 where
 
 -- | FIXME: This should probably be split off into some sort of alternative Equality logic, but to what end?
 class (Eq a, Unital (Sum a)) =>
-      Epsilon a where
+  Epsilon a where
   nearZero :: a -> Bool
   nearZero a = a == zero
 
   aboutEqual :: a -> a -> Bool
-  default aboutEqual :: (Group (Sum a), Commutative (Sum a)) => a -> a -> Bool
+  default aboutEqual :: (Group (Sum a)) => a -> a -> Bool
   aboutEqual a b = nearZero $ a - b
 
   positive :: (Signed a) => a -> Bool
@@ -377,4 +368,3 @@ instance Epsilon Word16
 instance Epsilon Word32
 
 instance Epsilon Word64
-

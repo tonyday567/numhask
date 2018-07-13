@@ -1,47 +1,38 @@
-{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MonoLocalBinds #-}
--- | The Ring hirarchy
-module NumHask.Algebra.Abstract.Ring
-    (
-        Distributive
-    ,   Semiring
-    ,   Ring
-    ,   CommutativeRing
-    ,   IntegralDomain
-    , StarSemiring(..)
-    , KleeneAlgebra
-    , InvolutiveRing(..)
-    )
-    where
+{-# OPTIONS_GHC -Wall #-}
 
-import NumHask.Algebra.Abstract.Group
+-- | Ring
+module NumHask.Algebra.Abstract.Ring
+  ( Distributive
+  , Semiring
+  , Ring
+  , CommutativeRing
+  , IntegralDomain
+  , StarSemiring(..)
+  , KleeneAlgebra
+  , InvolutiveRing(..)
+  )
+where
+
+import Data.Complex (Complex(..))
+import Data.Int (Int8, Int16, Int32, Int64)
+import Data.Word (Word, Word8, Word16, Word32, Word64)
+import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
-import qualified Prelude                       as P
-import           Data.Complex                   ( Complex(..) )
-import           Data.Int                       ( Int8
-                                                , Int16
-                                                , Int32
-                                                , Int64
-                                                )
-import           Data.Word                      ( Word
-                                                , Word8
-                                                , Word16
-                                                , Word32
-                                                , Word64
-                                                )
-import           GHC.Natural                    ( Natural(..) )
+import qualified Prelude as P
 
 -- | Distributive  laws
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
-class (Addition a, Multiplication a) =>
-    Distributive a
+class (Additive a, Multiplicative a) =>
+  Distributive a
 
 instance Distributive P.Double
 
@@ -66,22 +57,24 @@ instance Distributive P.Bool
 
 -- | Semiring
 -- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
-class (Associative (Sum a), Unital (Sum a), Associative (Product a), Unital (Product a), Distributive a) =>
-    Semiring a where
-instance (Associative (Sum a), Unital (Sum a), Associative (Product a), Unital (Product a), Distributive a) =>
-    Semiring a
+class (Associative (Sum a), Unital (Sum a), Associative (Product a),
+       Unital (Product a), Distributive a) =>
+  Semiring a where
+instance (Associative (Sum a), Unital (Sum a), Associative (Product a),
+          Unital (Product a), Distributive a) =>
+  Semiring a
 
 -- | Ring
 class (Semiring a, AbelianGroup (Sum a)) =>
-    Ring a
+  Ring a
 instance (Semiring a, AbelianGroup (Sum a)) =>
-    Ring a
+  Ring a
 
 -- | Ring with a commutative Multiplication
 class (Ring a, Commutative (Product a)) =>
-    CommutativeRing a
+  CommutativeRing a
 instance (Ring a, Commutative (Product a)) =>
-    CommutativeRing a
+  CommutativeRing a
 
 -- | generalization of ring of integers
 --  rules:
@@ -89,7 +82,7 @@ instance (Ring a, Commutative (Product a)) =>
 --  if a ≠ 0, an equality ab = ac implies b = c.
 --  this essentially is a generalization of division and a fundamental step towards a Field
 class (CommutativeRing a, Invertible (Product a)) =>
-    IntegralDomain a
+  IntegralDomain a
 
 instance IntegralDomain P.Double
 
@@ -102,11 +95,11 @@ instance (IntegralDomain a) => IntegralDomain (Complex a)
 -- > star a = one + a `times` star a
 --
 class (Semiring a) => StarSemiring a where
-    star :: a -> a
-    star a = one + plus' a
+  star :: a -> a
+  star a = one + plus a
 
-    plus' :: a -> a
-    plus' a = a `times` star a
+  plus :: a -> a
+  plus a = a * star a
 
 -- | KleeneAlgebra
 --
@@ -155,5 +148,3 @@ instance InvolutiveRing Word16
 instance InvolutiveRing Word32
 
 instance InvolutiveRing Word64
-
-

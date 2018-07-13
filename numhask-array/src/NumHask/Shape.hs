@@ -9,7 +9,8 @@ module NumHask.Shape
     -- * Representable
     -- | Representable has most of what's needed to define numbers that have elements (aka scalars) and a fixed shape.
   , Representable(..)
-  ) where
+  )
+where
 
 import Data.Functor.Rep
 

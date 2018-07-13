@@ -28,7 +28,8 @@ import Data.List ((!!))
 import GHC.Exts (IsList(..))
 import GHC.Show (Show(..))
 import NumHask.Error (impossible)
-import NumHask.Array.Constraints (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
+import NumHask.Array.Constraints
+  (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
 import NumHask.Prelude as P
 import NumHask.Shape (HasShape(..))
 import Numeric.Dimensions as D
@@ -213,7 +214,8 @@ flatten1 (AnyArray (rep, v)) =
         x:r -> (x, product r)
     ss = take n [0 ..]
 
-instance (Show a, Show (Item (c a)), IsList (c a), Container c, Dimensions ds) => Show (Array c ds a) where
+instance (Show a, Show (Item (c a)), IsList (c a), Container c, Dimensions ds)
+  => Show (Array c ds a) where
   show = GHC.Show.show . anyArray
 
 type Vector c n = Array c '[ n]
@@ -570,47 +572,49 @@ squeeze ::
 squeeze (Array x) = Array x
 
 instance (Dimensions r, Container c, Magma (Sum a)) =>
-         Magma (Sum (Array c r a)) where
-  (Sum a) `magma` (Sum b) = Sum (liftR2 plus a b)
+  Magma (Sum (Array c r a)) where
+  (Sum a) `magma` (Sum b) = Sum (liftR2 (+) a b)
 
 instance (Dimensions r, Container c, Unital (Sum a)) =>
-         Unital (Sum (Array c r a)) where
+  Unital (Sum (Array c r a)) where
   unit = Sum (pureRep zero)
 
 instance (Dimensions r, Container c, Associative (Sum a)) =>
-         Associative (Sum (Array c r a))
+  Associative (Sum (Array c r a))
 
 instance (Dimensions r, Container c, Commutative (Sum a)) =>
-         Commutative (Sum (Array c r a))
+  Commutative (Sum (Array c r a))
 
 instance (Dimensions r, Container c, Invertible (Sum a)) =>
-         Invertible (Sum (Array c r a)) where
+  Invertible (Sum (Array c r a)) where
   inv (Sum a) = Sum (fmapRep negate a)
 
 instance (Dimensions r, Container c, Magma (Product a)) =>
-         Magma (Product (Array c r a)) where
-  (Product a) `magma` (Product b) = Product (liftR2 times a b)
+  Magma (Product (Array c r a)) where
+  (Product a) `magma` (Product b) = Product (liftR2 (*) a b)
 
 instance (Dimensions r, Container c, Unital (Product a)) =>
-         Unital (Product (Array c r a)) where
+  Unital (Product (Array c r a)) where
   unit = Product (pureRep one)
 
 instance (Dimensions r, Container c, Associative (Product a)) =>
-         Associative (Product (Array c r a))
+  Associative (Product (Array c r a))
 
 instance (Dimensions r, Container c, Commutative (Product a)) =>
-         Commutative (Product (Array c r a))
+  Commutative (Product (Array c r a))
 
 instance (Dimensions r, Container c, Invertible (Product a)) =>
-         Invertible (Product (Array c r a)) where
+  Invertible (Product (Array c r a)) where
   inv (Product a) = Product (fmapRep recip a)
 
-instance (Dimensions r, Container c, Associative (Product a), Unital (Product a), Absorbing (Product a)) =>
-         Absorbing (Product (Array c r a)) where
+instance (Dimensions r, Container c, Associative (Product a),
+          Unital (Product a), Absorbing (Product a)) =>
+  Absorbing (Product (Array c r a)) where
   absorb = Product (pureRep zero')
 
-instance (Dimensions r, Container c, Magma (Product a), Absorbing (Product a), Addition a, Associative (Product a), Unital (Product a)) =>
-         P.Distributive (Array c r a)
+instance (Dimensions r, Container c, Magma (Product a), Absorbing (Product a),
+          Additive a, Associative (Product a), Unital (Product a)) =>
+  P.Distributive (Array c r a)
 
 instance (Dimensions r, Container c, IntegralDomain a) => IntegralDomain (Array c r a)
 
@@ -661,55 +665,58 @@ instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
       r = fmap snd x
 
 instance (Foldable (Array c r), CommutativeRing a, Semiring a, Dimensions r, Container c) =>
-         Hilbert (Array c r) a where
+  Hilbert (Array c r) a where
   a <.> b = sum $ liftR2 (*) a b
 
-instance (Dimensions r, Container c, Addition a) =>
-         AdditiveBasis (Array c r) a where
+instance (Dimensions r, Container c, Additive a) =>
+  AdditiveBasis (Array c r) a where
   (.+.) = liftR2 (+)
 
 
 instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
-         AdditiveGroupBasis (Array c r) a where
+  AdditiveGroupBasis (Array c r) a where
   (.-.) = liftR2 (-)
 
-instance (Dimensions r, Container c, Multiplication a) =>
-         HadamardMultiplication (Array c r) a where
+instance (Dimensions r, Container c, Multiplicative a) =>
+  HadamardMultiplication (Array c r) a where
   (.*.) = liftR2 (*)
 
 instance (Dimensions r, Container c, Absorbing (Product a), AbelianGroup (Product a)) =>
-         HadamardDivision (Array c r) a where
+  HadamardDivision (Array c r) a where
   (./.) = liftR2 (/)
 
-instance (Container c, Addition a) =>
-         AdditiveModule (Array c (r::[Nat])) a where
+instance (Container c, Additive a) =>
+  AdditiveModule (Array c (r::[Nat])) a where
   (.+) r s = fmap (s +) r
   (+.) s = fmap (s +)
 
 instance (Container c, AbelianGroup (Sum a)) =>
-         AdditiveGroupModule (Array c (r::[Nat])) a where
+  AdditiveGroupModule (Array c (r::[Nat])) a where
   (.-) r s = fmap (\x -> x - s) r
   (-.) s = fmap (\x -> x - s)
 
 
-instance (Dimensions r, Container c, Multiplication a, P.Distributive a, Invertible (Sum a)) =>
-         Module (Array c (r :: [Nat])) a where
-  (.*) r s = fmap (`times` s) r
-  (*.) s = fmap (s `times`)
+instance (Dimensions r, Container c, Multiplicative a, P.Distributive a,
+          Invertible (Sum a)) =>
+  Module (Array c (r :: [Nat])) a where
+  (.*) r s = fmap (* s) r
+  (*.) s = fmap (s *)
 
-instance (Dimensions r, Container c, Field a, AbelianGroup (Product a), Invertible (Sum a), P.Distributive a) =>
-         MultiplicativeGroupModule (Array c (r::[Nat])) a where
+instance (Dimensions r, Container c, Field a, AbelianGroup (Product a),
+          Invertible (Sum a), P.Distributive a) =>
+  MultiplicativeGroupModule (Array c (r::[Nat])) a where
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
 
 
-instance ( Foldable (Array c r)
-         , Dimensions r
-         , Container c
-         , CommutativeRing a
-         , Multiplication a
-         ) =>
-         TensorProduct (Array c r a) where
+instance
+  ( Foldable (Array c r)
+  , Dimensions r
+  , Container c
+  , CommutativeRing a
+  , Multiplicative a
+  ) =>
+  TensorProduct (Array c r a) where
   (><) m n = tabulate (\i -> index m i *. n)
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
