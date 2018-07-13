@@ -1,68 +1,91 @@
-name:           numhask-array
-version:        0.2.1.0
-synopsis:       n-dimensional arrays
-description:    n-dimensional arrays founded on numhask.
-category:       project
-homepage:       https://github.com/tonyday567/numhask-array#readme
-bug-reports:    https://github.com/tonyday567/numhask-array/issues
-author:         Tony Day
-maintainer:     tonyday567@gmail.com
-copyright:      Tony Day
-license:        BSD3
-license-file:   LICENSE
-tested-with:    GHC==8.4.1
-build-type:     Simple
-cabal-version:  >= 1.18
+name: numhask-array
+version: 0.3
+synopsis:
+  n-dimensional arrays
+description:
+  n-dimensional arrays founded on numhask.
+category:
+  project
+homepage:
+  https://github.com/tonyday567/numhask-array#readme
+bug-reports:
+  https://github.com/tonyday567/numhask-array/issues
+author:
+  Tony Day
+maintainer:
+  tonyday567@gmail.com
+copyright:
+  Tony Day
+license:
+  BSD3
+license-file:
+  LICENSE
+tested-with:
+  GHC==8.4.1
+build-type:
+  Simple
+cabal-version:
+  >= 1.18
 
 extra-source-files:
-    stack.yaml
+  stack.yaml
 
 source-repository head
-  type: git
-  location: https://github.com/tonyday567/numhask-array
+  type:
+    git
+  location:
+    https://github.com/tonyday567/numhask-array
 
 library
   hs-source-dirs:
-      src
-  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+    src
+  default-extensions:
+    NegativeLiterals
+    NoImplicitPrelude
+    OverloadedStrings
+    UnicodeSyntax
   ghc-options:
-      -Wall
-      -Wcompat
-      -Wincomplete-record-updates
-      -Wincomplete-uni-patterns
-      -Wredundant-constraints
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
   build-depends:
-      QuickCheck >= 2.0 && < 2.12
+      base >=4.11 && <4.12
+    , QuickCheck >= 2.0 && < 2.12
     , adjunctions >=4.0 && <5
-    , base >=4.11 && <4.12
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
-    , numhask-prelude >=0.1.0.0 && <0.2
+    , numhask-prelude >=0.3 && <0.4
     , protolude >=0.1 && <0.3
     , singletons >=2.0 && <2.5
     , vector >=0.10 && <0.13
   exposed-modules:
-      NumHask.Array
-      NumHask.Array.Constraints
-      NumHask.Array.Example
-      NumHask.Shape
-  other-modules:
-      Paths_numhask_array
+    NumHask.Array
+    NumHask.Array.Constraints
+    NumHask.Array.Example
+    NumHask.Shape
   default-language: Haskell2010
 
 test-suite test
-  type: exitcode-stdio-1.0
-  main-is: test.hs
+  type:
+    exitcode-stdio-1.0
+  main-is:
+    test.hs
   hs-source-dirs:
-      test
-  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+    test
+  default-extensions:
+    NegativeLiterals
+    NoImplicitPrelude
+    OverloadedStrings
+    UnicodeSyntax
   build-depends:
-      base >=4.11 && <4.12
+      base
     , doctest
     , numhask-array
-    , numhask-prelude >=0.1.0.0 && <0.2
-    , numhask-test >=0.1.0.0 && <0.2
+    , numhask-prelude
+    , numhask-test
     , tasty
     , tasty-quickcheck
   default-language: Haskell2010
