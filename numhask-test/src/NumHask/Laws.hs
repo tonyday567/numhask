@@ -37,10 +37,8 @@ module NumHask.Laws
   , lowerBoundedFieldLaws
   , quotientFieldLaws
   , expFieldLaws
-  , additiveBasisLaws
-  , additiveGroupBasisLaws
-  , multiplicativeBasisLaws
-  , multiplicativeGroupBasisLaws
+  , hadamardMultiplicationLaws
+  , hadamardDivisionLaws
   , additiveModuleLaws
   , additiveGroupModuleLaws
   , multiplicativeModuleLaws
@@ -703,25 +701,9 @@ tensorProductLaws =
   --   , Ternary30 (\a b c -> (a><b) .* c == a *. (b><c)))
   ]
 
--- basis
-additiveBasisLaws :: (Epsilon (r a), AdditiveBasis r a) => [Law (r a)]
-additiveBasisLaws =
-  [ ( "associative: (a .+. b) .+. c ~= a .+. (b .+. c)"
-    , Ternary (\a b c -> (a .+. b) .+. c ~= a .+. (b .+. c))
-    )
-  , ("left id: zero .+. a = a", Unary (\a -> zero .+. a == a))
-  , ("right id: a .+. zero = a", Unary (\a -> a .+. zero == a))
-  , ("commutative: a .+. b == b .+. a", Binary (\a b -> a .+. b == b .+. a))
-  ]
-
-additiveGroupBasisLaws
-  :: (Eq (r a), AdditiveGroupBasis r a, Applicative r) => [Law (r a)]
-additiveGroupBasisLaws =
-  [("minus: a .-. a = pure zero", Unary (\a -> (a .-. a) == pure zero))]
-
-multiplicativeBasisLaws
+hadamardMultiplicationLaws
   :: (Eq (r a), HadamardMultiplication r a, Applicative r) => [Law (r a)]
-multiplicativeBasisLaws =
+hadamardMultiplicationLaws =
   [ ( "associative: (a .*. b) .*. c == a .*. (b .*. c)"
     , Ternary (\a b c -> (a .*. b) .*. c == a .*. (b .*. c))
     )
@@ -730,10 +712,10 @@ multiplicativeBasisLaws =
   , ("commutative: a .*. b == b .*. a", Binary (\a b -> a .*. b == b .*. a))
   ]
 
-multiplicativeGroupBasisLaws
+hadamardDivisionLaws
   :: (Epsilon a, Epsilon (r a), HadamardDivision r a, Applicative r)
   => [Law (r a)]
-multiplicativeGroupBasisLaws =
+hadamardDivisionLaws = 
   [ ( "basis divide: a ./. a ~= pure one"
     , Unary (\a -> a == pure zero || (a ./. a) ~= pure one)
     )

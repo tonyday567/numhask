@@ -50,10 +50,6 @@ testsVInt =
     --  testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> hilbertLaws
     -- , testGroup "Tensor product" $
     --   testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> tensorProductLaws
-    , testGroup "Additive Basis" $
-      testLawOf ([] :: [Vector [] 6 Int]) <$> additiveBasisLaws
-    -- , testGroup "Additive Group Basis" $
-    --   testLawOf ([] :: [Vector [] 6 Int]) <$> additiveGroupBasisLaws
     -- FIXME: no instance (Applicative (Array [] '[6]))
     -- , testGroup "Multiplicative Basis" $
     --  testLawOf ([] :: [Vector [] 6 Int]) <$> multiplicativeBasisLaws
@@ -79,10 +75,6 @@ testsMInt =
     --   testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> hilbertLaws
     -- , testGroup "Tensor product" $
     --   testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> tensorProductLaws
-    , testGroup "Additive Basis" $
-      testLawOf ([] :: [Matrix [] 4 3 Int]) <$> additiveBasisLaws
-    -- , testGroup "Additive Group Basis" $
-    --   testLawOf ([] :: [Matrix [] 4 3 Int]) <$> additiveGroupBasisLaws
     -- , testGroup "Multiplicative Basis" $
     --  testLawOf ([] :: [Matrix [] 4 3 Int]) <$> multiplicativeBasisLaws
     ]

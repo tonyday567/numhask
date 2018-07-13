@@ -668,15 +668,6 @@ instance (Foldable (Array c r), CommutativeRing a, Semiring a, Dimensions r, Con
   Hilbert (Array c r) a where
   a <.> b = sum $ liftR2 (*) a b
 
-instance (Dimensions r, Container c, Additive a) =>
-  AdditiveBasis (Array c r) a where
-  (.+.) = liftR2 (+)
-
-
-instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
-  AdditiveGroupBasis (Array c r) a where
-  (.-.) = liftR2 (-)
-
 instance (Dimensions r, Container c, Multiplicative a) =>
   HadamardMultiplication (Array c r) a where
   (.*.) = liftR2 (*)
