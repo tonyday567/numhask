@@ -383,16 +383,12 @@ metricIntegralBoundedLaws =
   , ( "Lp: associative"
     , Ternary21
       (\a b p ->
-        p
-          < one
-          || p
-          > (smallIntegralPower :: b)
-          || distanceLp p a b
-          ~= distanceLp p b a
+        (p < one)
+          || (p > (smallIntegralPower :: b))
+          || (distanceLp p a b ~= distanceLp p b a)
       )
     )
   ]
-
 
 metricRationalLaws
   :: forall a b
@@ -452,9 +448,7 @@ upperBoundedFieldLaws =
       (\a ->
         ((one :: a) / zero + infinity == infinity)
           && (infinity + a == infinity)
-          && (zero :: a)
-          / zero
-          /= nan
+          && ((zero :: a) / zero /= nan)
       )
     )
   ]
@@ -510,10 +504,8 @@ expFieldLaws =
       (\a ->
         not (a > (zero :: a))
           || (normL1 a > (10 :: b))
-          || (sqrt . (** (one + one)) $ a)
-          ~= a
-          && ((** (one + one)) . sqrt $ a)
-          ~= a
+          || ((sqrt . (** (one + one)) $ a) ~= a)
+          && (((** (one + one)) . sqrt $ a) ~= a)
       )
     )
   , ( "log . exp ~= id"
@@ -521,10 +513,8 @@ expFieldLaws =
       (\a ->
         not (a > (zero :: a))
           || (normL1 a > (10 :: b))
-          || (log . exp $ a)
-          ~= a
-          && (exp . log $ a)
-          ~= a
+          || ((log . exp $ a) ~= a)
+          && ((exp . log $ a) ~= a)
       )
     )
   , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
@@ -557,10 +547,8 @@ expFieldContainerLaws =
       (\a ->
         not (all veryPositive a)
           || any (> smallRational) a
-          || (sqrt . (** (one + one)) $ a)
-          ~= a
-          && ((** (one + one)) . sqrt $ a)
-          ~= a
+          || ((sqrt . (** (one + one)) $ a) ~= a)
+          && (((** (one + one)) . sqrt $ a) ~= a)
       )
     )
   , ( "log . exp ~= id"
@@ -568,10 +556,8 @@ expFieldContainerLaws =
       (\a ->
         not (all veryPositive a)
           || any (> smallRational) a
-          || (log . exp $ a)
-          ~= a
-          && (exp . log $ a)
-          ~= a
+          || ((log . exp $ a) ~= a)
+          && ((exp . log $ a) ~= a)
       )
     )
   , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
@@ -663,22 +649,18 @@ banachLaws =
   [ ( "L1: normalize a .* norm a ~= one"
     , Unary10
       (\a ->
-        a
-          == pure zero
+        (a == pure zero)
           || (any ((> smallRational) . abs) a
-             || (normalizeL1 a .* normL1 a)
-             ~= a
+             || ((normalizeL1 a .* normL1 a) ~= a)
              )
       )
     )
   , ( "L2: normalize a .* norm a ~= one"
     , Unary10
       (\a ->
-        a
-          == pure zero
+        (a == pure zero)
           || (any ((> smallRational) . abs) a
-             || (normalizeL2 a .* normL2 a)
-             ~= a
+             || ((normalizeL2 a .* normL2 a) ~= a)
              )
       )
     )
