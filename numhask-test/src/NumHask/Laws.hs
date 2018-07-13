@@ -18,13 +18,13 @@ module NumHask.Laws
   , additiveLaws_
   , additiveLawsFail
   , additiveGroupLaws
-  , multiplicationLaws
-  , multiplicationMonoidalLaws
-  , multiplicationLawsFail
-  , multiplicationGroupLaws
-  , multiplicationGroupLaws_
-  , distributionLaws
-  , distributionLawsFail
+  , multiplicativeLaws
+  , multiplicativeMonoidalLaws
+  , multiplicativeLawsFail
+  , multiplicativeGroupLaws
+  , multiplicativeGroupLaws_
+  , distributiveLaws
+  , distributiveLawsFail
   , integralLaws
   , rationalLaws
   , signedLaws
@@ -39,12 +39,12 @@ module NumHask.Laws
   , expFieldLaws
   , additiveBasisLaws
   , additiveGroupBasisLaws
-  , multiplicationBasisLaws
-  , multiplicationGroupBasisLaws
+  , multiplicativeBasisLaws
+  , multiplicativeGroupBasisLaws
   , additiveModuleLaws
   , additiveGroupModuleLaws
-  , multiplicationModuleLaws
-  , multiplicationGroupModuleLawsFail
+  , multiplicativeModuleLaws
+  , multiplicativeGroupModuleLawsFail
   , expFieldContainerLaws
   , tensorProductLaws
   , banachLaws
@@ -172,9 +172,9 @@ additiveGroupLaws =
     )
   ]
 
--- multiplication
-multiplicationLaws :: (Eq a, Multiplicative a) => [Law a]
-multiplicationLaws =
+-- multiplicative
+multiplicativeLaws :: (Eq a, Multiplicative a) => [Law a]
+multiplicativeLaws =
   [ ( "associative: (a * b) * c = a * (b * c)"
     , Ternary (\a b c -> (a * b) * c == a * (b * c))
     )
@@ -183,8 +183,8 @@ multiplicationLaws =
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
   ]
 
-multiplicationMonoidalLaws :: (Eq a, Unital (Product a)) => [Law a]
-multiplicationMonoidalLaws =
+multiplicativeMonoidalLaws :: (Eq a, Unital (Product a)) => [Law a]
+multiplicativeMonoidalLaws =
   [ ( "associative: (a * b) * c = a * (b * c)"
     , Ternary (\a b c -> (a * b) * c == a * (b * c))
     )
@@ -192,9 +192,9 @@ multiplicationMonoidalLaws =
   , ("right id: a * one = a", Unary (\a -> a * one == a))
   ]
 
-multiplicationLawsFail
+multiplicativeLawsFail
   :: (Eq a, Show a, Arbitrary a, Multiplicative a) => [Law a]
-multiplicationLawsFail =
+multiplicativeLawsFail =
   [ ( "associative: (a * b) * c = a * (b * c)"
     , Failiary $ expectFailure . (\a b c -> (a * b) * c == a * (b * c))
     )
@@ -203,10 +203,10 @@ multiplicationLawsFail =
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
   ]
 
-multiplicationGroupLaws
+multiplicativeGroupLaws
   :: (Eq a, Unital (Sum a), Absorbing (Product a), AbelianGroup (Product a))
   => [Law a]
-multiplicationGroupLaws =
+multiplicativeGroupLaws =
   [ ( "divide: a == zero || a / a == one"
     , Unary (\a -> a == zero || (a / a) == one)
     )
@@ -221,9 +221,9 @@ multiplicationGroupLaws =
     )
   ]
 
-multiplicationGroupLaws_
+multiplicativeGroupLaws_
   :: (Epsilon a, Absorbing (Product a), AbelianGroup (Product a)) => [Law a]
-multiplicationGroupLaws_ =
+multiplicativeGroupLaws_ =
   [ ( "divide: a == zero || a / a ~= one"
     , Unary (\a -> a == zero || (a / a) ~= one)
     )
@@ -238,9 +238,9 @@ multiplicationGroupLaws_ =
     )
   ]
 
--- distribution
-distributionLaws :: (Eq a, Distributive a) => [Law a]
-distributionLaws =
+-- distributive
+distributiveLaws :: (Eq a, Distributive a) => [Law a]
+distributiveLaws =
   [ ("left annihilation: a * zero == zero", Unary (\a -> a * zero == zero))
   , ("right annihilation: zero * a == zero", Unary (\a -> zero * a == zero))
   , ( "left distributivity: a * (b + c) == a * b + a * c"
@@ -251,9 +251,9 @@ distributionLaws =
     )
   ]
 
-distributionLawsFail
+distributiveLawsFail
   :: (Show a, Arbitrary a, Epsilon a, Distributive a) => [Law a]
-distributionLawsFail =
+distributiveLawsFail =
   [ ("left annihilation: a * zero == zero", Unary (\a -> a * zero == zero))
   , ("right annihilation: a * zero == zero", Unary (\a -> zero * a == zero))
   , ( "left distributivity: a * (b + c) = a * b + a * c"
@@ -620,31 +620,31 @@ additiveGroupModuleLaws =
     )
   ]
 
-multiplicationModuleLaws
+multiplicativeModuleLaws
   :: (Epsilon a, Epsilon (r a), Module r a) => [Law2 (r a) a]
-multiplicationModuleLaws =
-  [ ( "multiplication module unital: a .* one == a"
+multiplicativeModuleLaws =
+  [ ( "multiplicative module unital: a .* one == a"
     , Unary10 (\a -> a .* one == a)
     )
-  , ( "module right distribution: (a + b) .* c ~= (a .* c) + (b .* c)"
+  , ( "module right distributive: (a + b) .* c ~= (a .* c) + (b .* c)"
     , Ternary21 (\a b c -> (a + b) .* c ~= (a .* c) + (b .* c))
     )
-  , ( "module left distribution: c *. (a + b) ~= (c *. a) + (c *. b)"
+  , ( "module left distributive: c *. (a + b) ~= (c *. a) + (c *. b)"
     , Ternary21 (\a b c -> c *. (a + b) ~= (c *. a) + (c *. b))
     )
   , ("annihilation: a .* zero == zero", Unary10 (\a -> a .* zero == zero))
-  , ( "module multiplication equivalence: a .* b ~= b *. a"
+  , ( "module multiplicative equivalence: a .* b ~= b *. a"
     , Binary11 (\a b -> a .* b ~= b *. a)
     )
   ]
 
-multiplicationGroupModuleLawsFail
+multiplicativeGroupModuleLawsFail
   :: (Epsilon a, Epsilon (r a), MultiplicativeGroupModule r a) => [Law2 (r a) a]
-multiplicationGroupModuleLawsFail =
-  [ ( "multiplication group module unital: a ./ one == a"
+multiplicativeGroupModuleLawsFail =
+  [ ( "multiplicative group module unital: a ./ one == a"
     , Unary10 (\a -> nearZero a || a ./ one == a)
     )
-  , ( "module multiplication group equivalence: a ./ b ~= recip b *. a"
+  , ( "module multiplicative group equivalence: a ./ b ~= recip b *. a"
     , Binary11 (\a b -> b == zero || a ./ b ~= recip b *. a)
     )
   ]
@@ -700,7 +700,7 @@ hilbertLaws =
   , ( "bilinear a <.> (s *. b + c) == s * (a <.> b) + a <.> c"
     , Quad31 (\a b c s -> a <.> (s *. b + c) == s * (a <.> b) + a <.> c)
     )
-  , ( "scalar multiplication (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)"
+  , ( "scalar multiplicative (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)"
     , Quad22 (\a b s0 s1 -> (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b))
     )
   ]
@@ -709,10 +709,10 @@ tensorProductLaws
   :: (Eq (r (r a)), Additive (r (r a)), TensorProduct (r a), Epsilon (r a))
   => [Law2 (r a) a]
 tensorProductLaws =
-  [ ( "left distribution over additive a><b + c><b == (a+c) >< b"
+  [ ( "left distributive over additive a><b + c><b == (a+c) >< b"
     , Ternary30 (\a b c -> a >< b + c >< b == (a + c) >< b)
     )
-  , ( "right distribution over additive a><b + a><c == a >< (b+c)"
+  , ( "right distributive over additive a><b + a><c == a >< (b+c)"
     , Ternary30 (\a b c -> a >< b + a >< c == a >< (b + c))
     )
   -- , ( "left module tensor correspondance a *. (b><c) == (a><b) .* c"
@@ -737,9 +737,9 @@ additiveGroupBasisLaws
 additiveGroupBasisLaws =
   [("minus: a .-. a = pure zero", Unary (\a -> (a .-. a) == pure zero))]
 
-multiplicationBasisLaws
+multiplicativeBasisLaws
   :: (Eq (r a), HadamardMultiplication r a, Applicative r) => [Law (r a)]
-multiplicationBasisLaws =
+multiplicativeBasisLaws =
   [ ( "associative: (a .*. b) .*. c == a .*. (b .*. c)"
     , Ternary (\a b c -> (a .*. b) .*. c == a .*. (b .*. c))
     )
@@ -748,10 +748,10 @@ multiplicationBasisLaws =
   , ("commutative: a .*. b == b .*. a", Binary (\a b -> a .*. b == b .*. a))
   ]
 
-multiplicationGroupBasisLaws
+multiplicativeGroupBasisLaws
   :: (Epsilon a, Epsilon (r a), HadamardDivision r a, Applicative r)
   => [Law (r a)]
-multiplicationGroupBasisLaws =
+multiplicativeGroupBasisLaws =
   [ ( "basis divide: a ./. a ~= pure one"
     , Unary (\a -> a == pure zero || (a ./. a) ~= pure one)
     )
@@ -761,7 +761,7 @@ multiplicationGroupBasisLaws =
 semiringLaws :: (Epsilon a, Semiring a) => [Law a]
 semiringLaws =
   additiveLaws
-    <> distributionLaws
+    <> distributiveLaws
     <> [ ( "associative: (a * b) * c = a * (b * c)"
          , Ternary (\a b c -> (a * b) * c == a * (b * c))
          )
@@ -792,7 +792,7 @@ involutiveRingLaws =
   , ( "adjoint times law: adj (a * b) ==> adj b * adj a"
     , Binary (\a b -> adj (a * b) == adj b * adj a)
     )
-  , ( "adjoint multiplication unit law: adj one ==> one"
+  , ( "adjoint multiplicative unit law: adj one ==> one"
     , Nonary (adj (one :: a) == one)
     )
   , ( "adjoint own inverse law: adj (adj a) ==> a"
@@ -814,8 +814,8 @@ integralsLaws
 integralsLaws =
   additiveLaws
     <> additiveGroupLaws
-    <> multiplicationLaws
-    <> distributionLaws
+    <> multiplicativeLaws
+    <> distributiveLaws
     <> integralLaws
     <> signedLaws
 
