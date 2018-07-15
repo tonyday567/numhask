@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -17,6 +18,10 @@ module NumHask.Algebra.Abstract.Group
   , Idempotent
   , Group
   , AbelianGroup
+  , Hom(..)
+  , End
+  , Iso(..)
+  , Automorphism
   )
 where
 
@@ -92,3 +97,24 @@ class Magma a =>
 -- | An Abelian Group is associative, unital, invertible and commutative
 class (Group a, Commutative a) => AbelianGroup a
 instance (Group a, Commutative a) => AbelianGroup a
+
+-- | A Homomorphism between two magmas
+-- law: forall a b. hom(a `magma` b) = hom(a) `magma` hom(b)
+class (Magma a, Magma b) => Hom a b where
+  hom :: a -> b
+
+class (Hom a a) => End a
+instance (Hom a a) => End a
+
+-- | A Isomorphism between two magmas
+-- an Isomorphism is a bijective Homomorphism
+class (Hom a b, Hom b a) => Iso a b where
+  iso :: a -> b
+  iso = hom
+  invIso :: b -> a
+  invIso = hom
+
+class (Iso a a) => Automorphism a
+instance (Iso a a) => Automorphism a
+
+
