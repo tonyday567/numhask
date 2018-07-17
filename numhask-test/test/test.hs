@@ -367,9 +367,9 @@ testsRational = testGroup
   , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
 
     -- FIXME: no (IntegralDomain Integer
-    -- , testGroup "Quotient Field" $ testLawOf2 ([] :: [(Rational, Integer)]) <$> quotientFieldLaws
-    -- , testGroup "Upper Bounded Field" $ testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
-    -- , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
+  -- , testGroup "Quotient Field" $ testLawOf2 ([] :: [(Rational, Integer)]) <$> quotientFieldLaws
+  -- , testGroup "Upper Bounded Field" $ testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
+  -- , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
   ]
 
     --  testGroup "Distributive" $ testLawOf ([] :: [Int]) <$> distributiveLaws
@@ -386,9 +386,9 @@ testsLogFieldDouble = testGroup
   , testGroup "Multiplicative - Associative Fail"
   $ testLawOf ([] :: [LogField Double])
   <$> multiplicativeLawsFail
-    -- FIXME: Overlapping instances for Group (Product (LogField Double))
-    -- , testGroup "MultiplicativeGroup" $
-    --   testLawOf ([] :: [LogField Double]) <$> multiplicativeGroupLaws_
+  , testGroup "MultiplicativeGroup"
+  $ testLawOf ([] :: [LogField Double])
+  <$> multiplicativeGroupLaws_
   , testGroup "Distributive - Fail"
   $ testLawOf ([] :: [LogField Double])
   <$> distributiveLawsFail

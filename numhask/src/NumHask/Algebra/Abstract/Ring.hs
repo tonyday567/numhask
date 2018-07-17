@@ -56,7 +56,7 @@ instance Distributive Word64
 instance Distributive P.Bool
 
 -- | Semiring
--- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
+-- TODO: rule zero' = zero. Is this somehow expressible in haskell?
 class (Associative (Sum a), Unital (Sum a), Associative (Product a),
        Unital (Product a), Distributive a) =>
   Semiring a where

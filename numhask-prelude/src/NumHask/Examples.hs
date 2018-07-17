@@ -163,6 +163,9 @@ instance (Associative (Sum a)) => Associative (Sum (Positive a))
 
 instance (Commutative (Sum a)) => Commutative (Sum (Positive a))
 
+instance (Invertible (Sum a)) => Invertible (Sum (Positive a)) where
+  inv (Sum (Positive a)) = Sum (Positive (negate a))
+
 instance (Multiplicative a) => Absorbing (Product (Positive a)) where
   absorb = Product (Positive zero')
 
@@ -184,14 +187,14 @@ instance (Invertible (Product a)) => Invertible (Product (Positive a)) where
   inv (Product (Positive a)) = Product (Positive (recip a))
 
 -- FIXME: needs Invertible (Sum (Positive a)), or UndecidableInstances
-instance (IntegralDomain a, Invertible (Sum (Positive a))) => IntegralDomain (Positive a)
+instance (IntegralDomain a) => IntegralDomain (Positive a)
 
-instance (UpperBoundedField a, Invertible (Sum (Positive a))) =>
+instance (UpperBoundedField a) =>
   UpperBoundedField (Positive a) where
   infinity = Positive infinity
   isNaN (Positive a) = isNaN a
 
-instance (UpperBoundedField a, Invertible (Sum (Positive a))) => Bounded (Positive a) where
+instance (UpperBoundedField a) => Bounded (Positive a) where
   minBound = zero
   maxBound = infinity
 

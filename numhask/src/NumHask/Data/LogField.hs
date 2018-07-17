@@ -212,9 +212,6 @@ instance (Invertible (Sum a), LowerBoundedField a, Eq a) =>
   Invertible (Product (LogField a)) where
   inv (Product (LogField x)) = Product $ LogField $ negate x
 
-instance (Multiplicative (LogField a), Group (Sum a), LowerBoundedField a, Eq a) =>
-  Group (Product (LogField a))
-
 instance (Magma (Sum a), LowerBoundedField a, Eq a) =>
   Absorbing (Product (LogField a)) where
   absorb = Product $ LogField negInfinity
