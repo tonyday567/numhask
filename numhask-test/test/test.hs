@@ -365,11 +365,6 @@ testsRational = testGroup
   $ testLawOf2 ([] :: [(Rational, Rational)])
   <$> metricRationalLaws
   , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
-
-    -- FIXME: no (IntegralDomain Integer
-  -- , testGroup "Quotient Field" $ testLawOf2 ([] :: [(Rational, Integer)]) <$> quotientFieldLaws
-  -- , testGroup "Upper Bounded Field" $ testLawOf ([] :: [Rational]) <$> upperBoundedFieldLaws
-  -- , testGroup "Lower Bounded Field" $ testLawOf ([] :: [Rational]) <$> lowerBoundedFieldLaws
   ]
 
     --  testGroup "Distributive" $ testLawOf ([] :: [Int]) <$> distributiveLaws
