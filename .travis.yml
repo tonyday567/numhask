@@ -1,4 +1,5 @@
 # https://serokell.io/posts/2018-01-24-using-travis-CI-for-Haskell-projects.html
+# also see: https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix
 
 sudo: true
 
@@ -10,14 +11,10 @@ cache:
   - $HOME/.stack
   - $HOME/build/tonyday567/numhask/.stack-work
 
-# Ensure necessary system libraries are present
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:hvr/ghc' # PPA of Haskell packages
-    packages:
-      - libgmp-dev           # required by cabal
-      - cabal-install-2.0    # required by GHC 8.x
+ghc:
+  - head
+  - 8.6.1
+  - 8.4.3
 
 env:
   - PACKAGEDIR="numhask"
@@ -25,6 +22,21 @@ env:
   - PACKAGEDIR="numhask-array"
   - PACKAGEDIR="checkers-numhask"
   - PACKAGEDIR="hunit-numhask"
+
+matrix:
+  allow_failures:
+    - ghc: head
+    - ghc: ghc-8.6.1
+
+# Ensure necessary system libraries are present
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:hvr/ghc' # PPA of Haskell packages
+    packages:
+      - libgmp-dev           # required by cabal
+      - cabal-install-2.2    # required by GHC 8.*
+      - cabal-install-head    # required by GHC head
 
 before_install:
   - cd ${PACKAGEDIR}
