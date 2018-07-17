@@ -70,9 +70,8 @@ testsInt = testGroup
 testsInteger :: TestTree
 testsInteger = testGroup
   "Integer"
-    -- FIXME: No instance for (Associative Integer)
-  [ -- testGroup "Integrals" $ testLawOf ([] :: [Integer]) <$> integralsLaws
-    testGroup "Metric"
+  [ testGroup "Integrals" $ testLawOf ([] :: [Integer]) <$> integralsLaws
+  , testGroup "Metric"
   $ testLawOf2 ([] :: [(Integer, Integer)])
   <$> metricIntegralLaws
   , testGroup "Normed" $ testLawOf2 ([] :: [(Integer, Integer)]) <$> normedLaws
@@ -81,8 +80,8 @@ testsInteger = testGroup
 testsInt8 :: TestTree
 testsInt8 = testGroup
   "Int8"
-  [ -- testGroup "Integrals" $ testLawOf ([] :: [Int8]) <$> integralsLaws
-    testGroup "Metric"
+  [ testGroup "Integrals" $ testLawOf ([] :: [Int8]) <$> integralsLaws
+  , testGroup "Metric"
   $ testLawOf2 ([] :: [(Int8, Int8)])
   <$> metricIntegralBoundedLaws
   , testGroup "Normed or maxBound"
@@ -93,8 +92,8 @@ testsInt8 = testGroup
 testsInt16 :: TestTree
 testsInt16 = testGroup
   "Int16"
-  [ -- testGroup "Integrals" $ testLawOf ([] :: [Int16]) <$> integralsLaws
-    testGroup "Metric"
+  [ testGroup "Integrals" $ testLawOf ([] :: [Int16]) <$> integralsLaws
+  , testGroup "Metric"
   $ testLawOf2 ([] :: [(Int16, Int16)])
   <$> metricIntegralBoundedLaws
   , testGroup "Normed or maxBound"
@@ -105,8 +104,8 @@ testsInt16 = testGroup
 testsInt32 :: TestTree
 testsInt32 = testGroup
   "Int32"
-  [ -- testGroup "Integrals" $ testLawOf ([] :: [Int32]) <$> integralsLaws
-    testGroup "Metric"
+  [ testGroup "Integrals" $ testLawOf ([] :: [Int32]) <$> integralsLaws
+  ,  testGroup "Metric"
   $ testLawOf2 ([] :: [(Int32, Int32)])
   <$> metricIntegralBoundedLaws
   , testGroup "Normed or maxBound"
@@ -117,8 +116,8 @@ testsInt32 = testGroup
 testsInt64 :: TestTree
 testsInt64 = testGroup
   "Int64"
-  [ -- testGroup "Integrals" $ testLawOf ([] :: [Int64]) <$> integralsLaws
-    testGroup "Metric"
+  [ testGroup "Integrals" $ testLawOf ([] :: [Int64]) <$> integralsLaws
+  ,  testGroup "Metric"
   $ testLawOf2 ([] :: [(Int64, Int64)])
   <$> metricIntegralBoundedLaws
   , testGroup "Normed or maxBound"
@@ -328,6 +327,7 @@ testsComplexFloat = testGroup
   , testGroup "Distributive - Fail"
   $ testLawOf ([] :: [Complex Float])
   <$> distributiveLawsFail
+    -- there is no way to define Ord (Complex a). Is there a a way to test it?
     -- , testGroup "Exponential Field" $
     --   testLawOf2 ([] :: [(Complex Float, Float)]) <$> expFieldLaws
   , testGroup "Normed"
