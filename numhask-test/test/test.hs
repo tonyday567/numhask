@@ -365,12 +365,11 @@ testsRational = testGroup
   $ testLawOf2 ([] :: [(Rational, Rational)])
   <$> metricRationalLaws
   , testGroup "Rational" $ testLawOf ([] :: [Rational]) <$> rationalLaws
+  , testGroup "Distributive" $ testLawOf ([] :: [Int]) <$> distributiveLaws
+  , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$>
+    metricIntegralLaws
+  , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedBoundedLaws
   ]
-
-    --  testGroup "Distributive" $ testLawOf ([] :: [Int]) <$> distributiveLaws
-    -- , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$>
-    --   metricIntegralLaws
-    -- , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedBoundedLaws
 
 testsLogFieldDouble :: TestTree
 testsLogFieldDouble = testGroup
