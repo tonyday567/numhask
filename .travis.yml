@@ -1,5 +1,9 @@
 # https://serokell.io/posts/2018-01-24-using-travis-CI-for-Haskell-projects.html
-# also see: https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix
+# also see:
+# https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix
+# https://docs.haskellstack.org/en/stable/travis_ci/
+# https://github.com/commercialhaskell/stack/blob/master/.travis.yml
+# https://github.com/ekmett/intervals/blob/master/.travis.yml
 
 sudo: true
 
@@ -13,7 +17,7 @@ cache:
 
 ghc:
   - head
-  - 8.6.1
+  # - 8.6.1
   - 8.4.3
 
 env:
