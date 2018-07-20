@@ -7,7 +7,9 @@
 module NumHask.Algebra.Abstract.Homomorphism
   ( Hom(..)
   , End
-  , Iso(..)
+  , Iso
+  , iso
+  , invIso
   , Automorphism
   )
 where
@@ -19,16 +21,23 @@ import NumHask.Algebra.Abstract.Group
 class (Magma a, Magma b) => Hom a b where
   hom :: a -> b
 
+instance Hom b c => Hom (a -> b) (a -> c) where
+  hom f = hom . f
+
 class (Hom a a) => End a
 instance (Hom a a) => End a
 
 -- | A Isomorphism between two magmas
 -- an Isomorphism is a bijective Homomorphism
-class (Hom a b, Hom b a) => Iso a b where
-  iso :: a -> b
-  iso = hom
-  invIso :: b -> a
-  invIso = hom
+class (Hom a b, Hom b a) => Iso a b
+
+iso :: Iso a b => a -> b
+iso = hom
+
+invIso :: Iso a b => b -> a
+invIso = hom
+
+instance Iso b c => Iso (a -> b) (a -> c)
 
 class (Iso a a) => Automorphism a
 instance (Iso a a) => Automorphism a
