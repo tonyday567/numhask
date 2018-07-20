@@ -134,6 +134,10 @@ class (Field a, Integral b) => QuotientField a b where
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
+  truncate :: a -> b
+  default truncate :: (P.Ord a) => a -> b
+  truncate x = bool (ceiling x) (floor x) (x P.>= zero)
+
 instance QuotientField P.Float P.Integer where
   properFraction = P.properFraction
 

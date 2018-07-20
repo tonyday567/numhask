@@ -20,9 +20,8 @@ import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Ring
 import Prelude (Double, Float, Int, Integer)
 
 -- | a module
@@ -33,21 +32,21 @@ import Prelude (Double, Float, Int, Integer)
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
+class (Magma (Product a)) => Module r a where
   infixl 7 .*
   (.*) :: r a -> a -> r a
   infixl 7 *.
   (*.) :: a -> r a -> r a
 
 --FIXME: What is this? definitly not usual modules...
--- We can fizzle out a more complicated hirarchy, if needed
+-- We can fizzle out a more complicated hierarchy, if needed
 -- | Additive Module Laws
 --
 -- > (a + b) .+ c == a + (b .+ c)
 -- > (a + b) .+ c == (a .+ c) + b
 -- > a .+ zero == a
 -- > a .+ b == b +. a
-class (Additive a) =>
+class (Magma (Sum a)) =>
   AdditiveModule r a where
   infixl 6 .+
   (.+) :: r a -> a -> r a
@@ -61,7 +60,7 @@ class (Additive a) =>
 -- > (a + b) .- c == (a .- c) + b
 -- > a .- zero == a
 -- > a .- b == negate b +. a
-class (Group (Sum a), AdditiveModule r a) =>
+class (Invertible (Sum a)) =>
   AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
@@ -73,7 +72,7 @@ class (Group (Sum a), AdditiveModule r a) =>
 --
 -- > nearZero a || a ./ one == a
 -- > b == zero || a ./ b == recip b *. a
-class (Module r a, Field a) =>
+class (Invertible (Product a)) =>
   MultiplicativeGroupModule r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
