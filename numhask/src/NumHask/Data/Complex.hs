@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
@@ -21,7 +22,7 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import Prelude
-  hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt)
+  hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt, isNaN)
 import qualified Prelude as P (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
 
 -- -----------------------------------------------------------------------------
@@ -71,34 +72,48 @@ instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
 instance (Invertible (Sum a)) => Invertible (Sum (Complex a)) where
   inv (Sum (rx :+ ix)) = Sum $ negate rx :+ negate ix
 
-instance (Multiplicative a, AbelianGroup (Sum a)) =>
+instance (Invertible (Sum a), Multiplicative a) =>
   Absorbing (Product (Complex a)) where
   absorb = Product $ zero' :+ zero'
 
-instance (Distributive a, AbelianGroup (Sum a)) =>
+instance (Invertible (Sum a), Distributive a) =>
   Distributive (Complex a)
 
-instance (AbelianGroup (Sum a), Unital (Product a)) =>
+instance (Invertible (Sum a), Unital (Sum a), Unital (Product a)) =>
   Unital (Product (Complex a)) where
   unit = Product $ one :+ zero
 
-instance (Magma (Product a), AbelianGroup (Sum a)) =>
+instance
+  ( Invertible (Sum a)
+  , Magma (Product a)
+  ) =>
   Magma (Product (Complex a)) where
-  (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
-    Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
+  (Product (rx :+ ix)) `magma` (Product (ry :+ iy))
+{-
+    | (rx == infinity && ry == zero) ||
+      (rx == zero && ry == infinity) ||
+      (ix == infinity && iy == zero) ||
+      (ix == zero && iy == infinity) = Product (nan :+ nan)
+    | rx == infinity || ry == infinity || ix == infinity || iy == infinity
+      = Product (infinity :+ zero)
+-}
+    | otherwise =
+      Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
 
-instance (Commutative (Product a), AbelianGroup (Sum a)) =>
+instance (Invertible (Sum a), Magma (Product a)) =>
   Commutative (Product (Complex a))
 
-instance (AbelianGroup (Sum a), Invertible (Product a)) =>
+instance (Additive a, Invertible (Sum a), Invertible (Product a)) =>
   Invertible (Product (Complex a)) where
-  inv (Product (rx :+ ix)) = Product $ (rx * d) :+ (negate ix * d)
+  inv (Product (rx :+ ix))
+    -- | rx == zero && ix == zero = Product (infinity :+ zero)
+    | otherwise = Product $ (rx * d) :+ (negate ix * d)
     where
       d = recip ((rx * rx) + (ix * ix))
 
-instance (AbelianGroup (Sum a), Associative (Product a)) =>
+instance (Magma (Product a), Invertible (Sum a)) =>
   Associative (Product (Complex a))
-         
+
 instance (Multiplicative a, ExpField a, Normed a a) =>
   Normed (Complex a) a where
   normL1 (rx :+ ix) = normL1 rx + normL1 ix
@@ -111,16 +126,17 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (AbelianGroup (Sum a), Epsilon a) => Epsilon (Complex a) where
+instance (Ord a, Signed a, AbelianGroup (Sum a), Epsilon a)
+  => Epsilon (Complex a) where
+  epsilon = epsilon :+ epsilon
   nearZero (a :+ b) = nearZero a && nearZero b
 
 instance (IntegralDomain a) => IntegralDomain (Complex a)
 
 instance (Field a) => Field (Complex a)
 
--- | todo: bottom is here somewhere???
--- | is it possible to get rid of P.Ord?
-instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
+-- | FIXME: needs testing
+instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
   exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
     where
@@ -134,8 +150,13 @@ instance (P.Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
-instance (Ring a) => InvolutiveRing (Complex a) where
+instance (Distributive a, Invertible (Sum a)) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
+
+instance (UpperBoundedField a, IntegralDomain a) => UpperBoundedField (Complex a) where
+  isNaN (a :+ b) = isNaN a || isNaN b
+
+instance (LowerBoundedField a) => LowerBoundedField (Complex a)
 
 -- * Helpers from Data.Complex
 mkPolar :: TrigField a => a -> a -> Complex a

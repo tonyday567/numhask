@@ -21,11 +21,9 @@ module NumHask.Algebra.Abstract.Multiplicative
 where
 
 import Data.Coerce
-import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Group
 import qualified GHC.Generics as P
 import qualified Prelude as P
@@ -86,12 +84,6 @@ instance Magma (Product P.Integer) where
 instance Magma (Product P.Bool) where
   magma = coerceTM (P.&&)
 
-instance (Magma (Product a), Additive a, Invertible (Sum a)) =>
-  Magma (Product (Complex a))
-    where
-      (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
-        Product P.$ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
-
 instance Magma (Product Natural) where
   magma = coerceTM (P.*)
 
@@ -137,11 +129,6 @@ instance Unital (Product P.Integer) where
 instance Unital (Product P.Bool) where
   unit = coerce P.True
 
-instance (Unital (Product a), AbelianGroup (Sum a)) =>
-  Unital (Product (Complex a))
-    where
-      unit = Product (one :+ zero)
-
 instance Unital (Product Natural) where
   unit = coerce (1 :: Natural)
 
@@ -182,9 +169,6 @@ instance Associative (Product P.Integer)
 
 instance Associative (Product P.Bool)
 
-instance (AbelianGroup (Sum a), Associative (Product a)) =>
-  Associative (Product (Complex a))
-
 instance Associative (Product Natural)
 
 instance Associative (Product Int8)
@@ -215,9 +199,6 @@ instance Commutative (Product P.Integer)
 
 instance Commutative (Product P.Bool)
 
-instance (AbelianGroup (Sum a), Commutative (Product a)) =>
-  Commutative (Product (Complex a))
-
 instance Commutative (Product Natural)
 
 instance Commutative (Product Int8)
@@ -244,12 +225,6 @@ instance Invertible (Product P.Double) where
 instance Invertible (Product P.Float) where
   inv = coerceTM' P.recip
 
-instance (AbelianGroup (Sum a), Invertible (Product a)) =>
-  Invertible (Product (Complex a)) where
-  inv (Product (rx :+ ix)) = Product ((rx * d) :+ (negate ix * d))
-    where
-      d = recip ((rx * rx) + (ix * ix))
-
 instance Idempotent (Product P.Bool)
 
 instance Absorbing (Product P.Double) where
@@ -266,12 +241,6 @@ instance Absorbing (Product P.Integer) where
 
 instance Absorbing (Product P.Bool) where
   absorb = coerce P.False
-
-instance (Absorbing (Product a), Additive a, Invertible (Sum a)) =>
-  Absorbing (Product (Complex a)) where
-  absorb = Product P.$ elem :+ elem
-    where
-      elem = let (Product x) = absorb in x
 
 instance Absorbing (Product Natural) where
   absorb = coerce (0 :: Natural)

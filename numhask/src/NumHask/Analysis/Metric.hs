@@ -319,22 +319,19 @@ instance Metric Word64 Word64 where
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
   distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
--- | FIXME: This should probably be split off into some sort of alternative Equality logic, but to what end?
 class (Eq a, Unital (Sum a)) =>
   Epsilon a where
+
+  epsilon :: a
+  epsilon = zero
+
   nearZero :: a -> Bool
-  nearZero a = a == zero
+  default nearZero :: (Signed a, Ord a) => a -> Bool
+  nearZero a = abs a <= epsilon
 
   aboutEqual :: a -> a -> Bool
   default aboutEqual :: (Group (Sum a)) => a -> a -> Bool
   aboutEqual a b = nearZero $ a - b
-
-  positive :: (Signed a) => a -> Bool
-  positive a = a == abs a
-  veryPositive :: (Signed a) => a -> Bool
-  veryPositive a = P.not (nearZero a) && positive a
-  veryNegative :: (Signed a) => a -> Bool
-  veryNegative a = P.not (nearZero a P.|| positive a)
 
 infixl 4 ~=
 
@@ -342,10 +339,10 @@ infixl 4 ~=
 (~=) = aboutEqual
 
 instance Epsilon Double where
-  nearZero a = abs a <= (1e-12 :: Double)
+  epsilon = 1e-14
 
 instance Epsilon Float where
-  nearZero a = abs a <= (1e-6 :: Float)
+  epsilon = 1e-6
 
 instance Epsilon Int
 

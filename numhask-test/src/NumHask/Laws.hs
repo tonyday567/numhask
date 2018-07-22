@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE IncoherentInstances #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -12,18 +13,24 @@ module NumHask.Laws
   , Law
   , Law2
   , testLawOf
+  , testLawOf1
   , testLawOf2
   , idempotentLaws
   , additiveLaws
   , additiveLaws_
   , additiveLawsFail
+  , additiveIntervalLaws
   , additiveGroupLaws
   , multiplicativeLaws
+  , multiplicativeIntervalLaws
+  , multiplicativeComplexIntervalLaws
   , multiplicativeMonoidalLaws
   , multiplicativeLawsFail
   , multiplicativeGroupLaws
+  , multiplicativeGroupIntervalLaws
   , multiplicativeGroupLaws_
   , distributiveLaws
+  , distributiveIntervalLaws
   , distributiveLawsFail
   , integralLaws
   , rationalLaws
@@ -52,6 +59,10 @@ module NumHask.Laws
   , starSemiringLaws
   , involutiveRingLaws
   , integralsLaws
+  , integralsUnboundedLaws
+  , integralsBoundedLaws
+  , fieldIntervalLaws
+  , complexIntervalLaws
   )
 where
 
@@ -62,11 +73,14 @@ import Test.Tasty (TestName, TestTree)
 smallRational :: (FromRatio a) => a
 smallRational = 10.0
 
-smallRationalPower :: (FromRatio a) => a
-smallRationalPower = 6.0
-
 smallIntegralPower :: (FromInteger a) => a
 smallIntegralPower = 6
+
+r :: (Interval' a, Epsilon a, Invertible (Sum a), Magma (Product a))
+  => a -> Interval a
+r a = a +/- (a * epsilon)
+
+data Laws a b = Arity1 (Law a) | Arity2 (Law2 a b)
 
 -- | unification of law equations
 data LawArity a
@@ -94,13 +108,17 @@ data LawArity2 a b
 
 type Law2 a b = (TestName, LawArity2 a b)
 
-testLawOf :: (Arbitrary a, Show a) => [a] -> Law a -> TestTree
-testLawOf _ (name, Nonary f) = testProperty name f
-testLawOf _ (name, Unary f) = testProperty name f
-testLawOf _ (name, Binary f) = testProperty name f
-testLawOf _ (name, Ternary f) = testProperty name f
-testLawOf _ (name, Ornary f) = testProperty name f
-testLawOf _ (name, Failiary f) = testProperty name f
+testLawOf :: (Arbitrary a, Show a, Arbitrary b, Show b) => [a] -> [(a,b)] -> Laws a b -> TestTree
+testLawOf as _ (Arity1 law) = testLawOf1 as law
+testLawOf _ ab (Arity2 law) = testLawOf2 ab law
+
+testLawOf1 :: (Arbitrary a, Show a) => [a] -> Law a -> TestTree
+testLawOf1 _ (name, Nonary f) = testProperty name f
+testLawOf1 _ (name, Unary f) = testProperty name f
+testLawOf1 _ (name, Binary f) = testProperty name f
+testLawOf1 _ (name, Ternary f) = testProperty name f
+testLawOf1 _ (name, Ornary f) = testProperty name f
+testLawOf1 _ (name, Failiary f) = testProperty name f
 
 testLawOf2
   :: (Arbitrary a, Show a, Arbitrary b, Show b)
@@ -158,6 +176,23 @@ additiveLawsFail =
   , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
   ]
 
+-- | additive laws within an interval bound
+additiveIntervalLaws
+  :: (Interval' a, Epsilon a, Magma (Product a), Invertible (Sum a))
+  => [Law a]
+additiveIntervalLaws =
+  [ ( "associative: (a + b) + c = a + (b + c)"
+    , Ternary (\a b c ->   ((a + b) + c) `member` (r a + (r b + r c))
+                        && (a + (b + c)) `member` ((r a + r b) + r c))
+    )
+  , ( "left id: zero + a = a"
+    , Unary (\a -> (zero + a) `member` r a))
+  , ( "right id: a + zero = a"
+    , Unary (\a -> (a + zero) `member` r a))
+  , ( "commutative: a + b == b + a"
+    , Binary (\a b -> (a + b) `member` (r b + r a)))
+  ]
+
 additiveGroupLaws :: (Eq a, AbelianGroup (Sum a)) => [Law a]
 additiveGroupLaws =
   [ ("minus: a - a = zero", Unary (\a -> (a - a) == zero))
@@ -201,6 +236,41 @@ multiplicativeLawsFail =
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
   ]
 
+-- | multiplicative laws within an interval bound
+multiplicativeIntervalLaws
+  :: (Interval' a, Ord a, Epsilon a, Invertible (Sum a), Multiplicative a)
+  => [Law a]
+multiplicativeIntervalLaws =
+  [ ( "associative: (a * b) * c = a * (b * c)"
+    , Ternary (\a b c ->   ((a * b) * c) `member` (r a * (r b * r c))
+                        && (a * (b * c)) `member` ((r a * r b) * r c))
+    )
+  , ( "left id: zero * a = a"
+    , Unary (\a -> (one * a) `member` r a))
+  , ( "right id: a * zero = a"
+    , Unary (\a -> (a * one) `member` r a))
+  , ( "commutative: a * b == b * a"
+    , Binary (\a b -> (a * b) `member` (r b * r a)))
+  ]
+
+-- | multiplicative laws within an interval bound
+multiplicativeComplexIntervalLaws
+  :: (Interval' (Complex a), Ord a, Signed a, Epsilon a, Additive a, Invertible (Sum a), Multiplicative (Complex a))
+  => [Law (Complex a)] 
+multiplicativeComplexIntervalLaws =
+  [ ( "associative: (a * b) * c = a * (b * c)"
+    , Ternary (\a b c ->   ((a * b) * c) `member` (r a * (r b * r c))
+                        && (a * (b * c)) `member` ((r a * r b) * r c))
+    )
+  , ( "left id: zero * a = a"
+    , Unary (\a -> (one * a) `member` r a))
+  , ( "right id: a * zero = a"
+    , Unary (\a -> (a * one) `member` r a))
+  , ( "commutative: a * b == b * a"
+    , Binary (\a b -> (a * b) `member` (r b * r a)))
+  ]
+
+
 multiplicativeGroupLaws
   :: (Eq a, Unital (Sum a), Absorbing (Product a), AbelianGroup (Product a))
   => [Law a]
@@ -218,6 +288,55 @@ multiplicativeGroupLaws =
     , Unary (\a -> a == zero || a * recip a == one)
     )
   ]
+
+multiplicativeGroupIntervalLaws
+  :: ( Interval' a, Ord a, Epsilon a, Absorbing (Product a)
+    , AbelianGroup (Product a)
+    , BoundedField a)
+  => [Law a]
+multiplicativeGroupIntervalLaws =
+  [ ( "divide: a == zero || a / a == one"
+    , Unary (\a ->  zero `member` (r a)
+                  || one `member` (r a / r a))
+    )
+  , ( "recip divide: recip a == one / a"
+    , Unary (\a ->   a `member` (r zero)
+                  || (recip a) `member` ((r one) / (r a)))
+    )
+  , ( "recip left: a == zero || recip a * a == one"
+    , Unary (\a ->   a `member` (r zero)
+                  || (recip a * a) `member` (r one))
+    )
+  , ( "recip right: a == zero || a * recip a == one"
+    , Unary (\a ->   a `member` (r zero)
+                  || (a * recip a) `member` (r one))
+    )
+  ]
+
+multiplicativeGroupComplexIntervalLaws
+  :: ( Interval' a, Ord a, Signed a, Epsilon a
+    , AbelianGroup (Product a)
+    , BoundedField a)
+  => [Law (Complex a)]
+multiplicativeGroupComplexIntervalLaws =
+  [ ( "divide: a == zero || a / a == one"
+    , Unary (\a ->  zero `member` (r a)
+                  || one `member` (r a / r a))
+    )
+  , ( "recip divide: recip a == one / a"
+    , Unary (\a ->   a `member` (r zero)
+                  || (recip a) `member` ((r one) / (r a)))
+    )
+  , ( "recip left: a == zero || recip a * a == one"
+    , Unary (\a ->   a `member` (r zero)
+                  || (recip a * a) `member` (r one))
+    )
+  , ( "recip right: a == zero || a * recip a == one"
+    , Unary (\a ->   a `member` (r zero)
+                  || (a * recip a) `member` (r one))
+    )
+  ]
+
 
 multiplicativeGroupLaws_
   :: (Epsilon a, Absorbing (Product a), AbelianGroup (Product a)) => [Law a]
@@ -248,6 +367,35 @@ distributiveLaws =
     , Ternary (\a b c -> (a + b) * c == a * c + b * c)
     )
   ]
+
+distributiveIntervalLaws
+  :: ( Interval' a, Ord a, Epsilon a, Invertible (Sum a)
+    , Distributive a) => [Law a]
+distributiveIntervalLaws =
+  [ ("left annihilation: a * zero == zero", Unary (\a -> (a * zero) `member` r zero))
+  , ("right annihilation: zero * a == zero", Unary (\a -> (zero * a) `member` r zero))
+  , ( "left distributivity: a * (b + c) == a * b + a * c"
+    , Ternary (\a b c -> (a * (b + c)) `member` (r a * r b + r a * r c))
+    )
+  , ( "right distributivity: (a + b) * c == a * c + b * c"
+    , Ternary (\a b c -> ((a + b) * c) `member` (r a * r c + r b * r c))
+    )
+  ]
+
+distributiveIntervalComplexLaws
+  :: ( Interval' a, Ord a, Epsilon a, Signed a, Invertible (Sum a)
+    , Distributive a) => [Law (Complex a)]
+distributiveIntervalComplexLaws =
+  [ ("left annihilation: a * zero == zero", Unary (\a -> (a * zero) `member` r zero))
+  , ("right annihilation: zero * a == zero", Unary (\a -> (zero * a) `member` r zero))
+  , ( "left distributivity: a * (b + c) == a * b + a * c"
+    , Ternary (\a b c -> (a * (b + c)) `member` (r a * r b + r a * r c))
+    )
+  , ( "right distributivity: (a + b) * c == a * c + b * c"
+    , Ternary (\a b c -> ((a + b) * c) `member` (r a * r c + r b * r c))
+    )
+  ]
+
 
 distributiveLawsFail
   :: (Show a, Arbitrary a, Epsilon a, Distributive a) => [Law a]
@@ -348,15 +496,15 @@ metricIntegralLaws =
       (\a b c p ->
         (p < one)
           || not
-              (veryNegative
+              (zero >
                 (distanceLp p a c + distanceLp p b c - distanceLp p a b)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p b c - distanceLp p a c)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p a c - distanceLp p b c)
               )
       )
@@ -423,20 +571,21 @@ metricRationalLaws =
           || (normL1 b > (smallRational :: b))
           || (normL1 c > (smallRational :: b))
           || not
-              (veryNegative
+              (zero >
                 (distanceLp p a c + distanceLp p b c - distanceLp p a b)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p b c - distanceLp p a c)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p a c - distanceLp p b c)
               )
       )
     )
-  ]
+  ] where
+  smallRationalPower = 6.0
 
 -- bounded fields
 upperBoundedFieldLaws :: forall a . (Eq a, UpperBoundedField a) => [Law a]
@@ -450,7 +599,7 @@ upperBoundedFieldLaws =
       )
     )
   ]
-
+ 
 lowerBoundedFieldLaws :: forall a . (Eq a, LowerBoundedField a) => [Law a]
 lowerBoundedFieldLaws =
   [ ( "lower bounded field (negative infinity) laws"
@@ -533,7 +682,6 @@ expFieldContainerLaws
      , Foldable r
      , ExpField a
      , Epsilon a
-     , Signed a
      , FromRatio a
      , Epsilon (r a)
      , Ord a
@@ -543,7 +691,7 @@ expFieldContainerLaws =
   [ ( "sqrt . (**2) ~= id"
     , Unary
       (\a ->
-        not (all veryPositive a)
+        not (all (> zero) a)
           || any (> smallRational) a
           || ((sqrt . (** (one + one)) $ a) ~= a)
           && (((** (one + one)) . sqrt $ a) ~= a)
@@ -552,7 +700,7 @@ expFieldContainerLaws =
   , ( "log . exp ~= id"
     , Unary
       (\a ->
-        not (all veryPositive a)
+        not (all (> zero) a)
           || any (> smallRational) a
           || ((log . exp $ a) ~= a)
           && ((exp . log $ a) ~= a)
@@ -561,7 +709,7 @@ expFieldContainerLaws =
   , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
     , Binary
       (\a b ->
-        (not (all veryPositive b)
+        (not (all (> zero) b)
         || not (all nearZero a)
         || all (== one) a
         || (all (== zero) a && all nearZero (logBase a b))
@@ -588,7 +736,8 @@ additiveModuleLaws =
   ]
 
 additiveGroupModuleLaws
-  :: (Epsilon a, Epsilon (r a), AdditiveGroupModule r a) => [Law2 (r a) a]
+  :: (Epsilon a, Epsilon (r a), AdditiveModule r a, AdditiveGroupModule r a)
+  => [Law2 (r a) a]
 additiveGroupModuleLaws =
   [ ( "additive group module associative: (a + b) .- c ~= a + (b .- c)"
     , Ternary21 (\a b c -> (a + b) .- c ~= a + (b .- c))
@@ -605,7 +754,7 @@ additiveGroupModuleLaws =
   ]
 
 multiplicativeModuleLaws
-  :: (Epsilon a, Epsilon (r a), Module r a) => [Law2 (r a) a]
+  :: (Epsilon a, Unital (Product a), Epsilon (r a), Module r a) => [Law2 (r a) a]
 multiplicativeModuleLaws =
   [ ( "multiplicative module unital: a .* one == a"
     , Unary10 (\a -> a .* one == a)
@@ -623,7 +772,12 @@ multiplicativeModuleLaws =
   ]
 
 multiplicativeGroupModuleLawsFail
-  :: (Epsilon a, Epsilon (r a), MultiplicativeGroupModule r a) => [Law2 (r a) a]
+  :: ( Epsilon a
+    , Unital (Product a)
+    , Epsilon (r a)
+    , Module r a
+    , MultiplicativeGroupModule r a)
+  => [Law2 (r a) a]
 multiplicativeGroupModuleLawsFail =
   [ ( "multiplicative group module unital: a ./ one == a"
     , Unary10 (\a -> nearZero a || a ./ one == a)
@@ -637,6 +791,7 @@ banachLaws
   :: ( Foldable r
      , Epsilon (r a)
      , Banach r a
+     , Module r a
      , Signed a
      , FromRatio a
      , Ord a
@@ -671,7 +826,8 @@ banachLaws =
 -}
   ]
 
-hilbertLaws :: (Module r a, Epsilon a, Hilbert r a) => [Law2 (r a) a]
+hilbertLaws
+  :: (Magma (Sum (r a)), Module r a, Epsilon a, Hilbert r a) => [Law2 (r a) a]
 hilbertLaws =
   [ ("commutative a <.> b ~= b <.> a", Ternary21 (\a b _ -> a <.> b ~= b <.> a))
   , ( "distributive over additive a <.> (b + c) == a <.> b + a <.> c"
@@ -764,7 +920,6 @@ involutiveRingLaws =
     )
   ]
 
-
 -- integrals are the law groups that apply to Integral-like numbers
 integralsLaws
   :: ( Eq a
@@ -777,10 +932,88 @@ integralsLaws
   => [Law a]
 integralsLaws =
   additiveLaws
-    <> additiveGroupLaws
-    <> multiplicativeLaws
-    <> distributiveLaws
-    <> integralLaws
-    <> signedLaws
+  <> additiveGroupLaws
+  <> multiplicativeLaws
+  <> distributiveLaws
+  <> integralLaws
+  <> signedLaws
 
+integralsUnboundedLaws
+  :: ( Ord a
+    , Epsilon a
+    , Integral a
+    , Signed a
+    , ToInteger a
+    , FromInteger a
+    , AbelianGroup (Sum a)
+    , Normed a a
+    , Metric a a
+    )
+  => [Laws a a]
+integralsUnboundedLaws =
+  (Arity1 <$> integralsLaws) <>
+  (Arity2 <$> metricIntegralLaws) <>
+  (Arity2 <$> normedLaws)
+
+integralsBoundedLaws
+  :: ( Ord a
+    , Epsilon a
+    , Integral a
+    , Signed a
+    , ToInteger a
+    , FromInteger a
+    , AbelianGroup (Sum a)
+    , Normed a a
+    , Metric a a
+    , Bounded a
+    )
+  => [Laws a a]
+integralsBoundedLaws =
+  (Arity1 <$> integralsLaws) <>
+  (Arity2 <$> metricIntegralBoundedLaws) <>
+  (Arity2 <$> normedBoundedLaws)
+
+fieldIntervalLaws
+  :: ( Epsilon a
+    , Interval' a
+    , Ord a
+    , Field a
+    , BoundedField a
+    , Signed a
+    , Normed a a
+    , Metric a a
+    , FromRatio a
+    , FromInteger a
+    , ToRatio a
+    , ExpField a)
+  => [Laws a a]
+fieldIntervalLaws =
+  (Arity1 <$> additiveIntervalLaws) <>
+  (Arity1 <$> additiveGroupLaws) <>
+  (Arity1 <$> multiplicativeIntervalLaws) <>
+  (Arity1 <$> multiplicativeGroupIntervalLaws) <>
+  (Arity1 <$> distributiveIntervalLaws) <>
+  (Arity1 <$> signedLaws) <>
+  (Arity2 <$> normedLaws) <>
+  (Arity2 <$> metricRationalLaws) <>
+  (Arity1 <$> lowerBoundedFieldLaws) <>
+  (Arity1 <$> upperBoundedFieldLaws) <>
+  (Arity2 <$> expFieldLaws) <>
+  (Arity1 <$> rationalLaws)
+
+complexIntervalLaws
+  :: ( Epsilon a
+    , Ord a
+    , Interval' a
+    , Field a
+    , BoundedField a
+    , Signed a
+    )
+  => [Laws (Complex a) (Complex a)]
+complexIntervalLaws =
+  (Arity1 <$> additiveIntervalLaws) <>
+  (Arity1 <$> additiveGroupLaws) <>
+  (Arity1 <$> multiplicativeComplexIntervalLaws) <>
+  (Arity1 <$> multiplicativeGroupComplexIntervalLaws) <>
+  (Arity1 <$> distributiveIntervalComplexLaws)
 
