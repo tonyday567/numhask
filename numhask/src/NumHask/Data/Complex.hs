@@ -88,26 +88,15 @@ instance
   , Magma (Product a)
   ) =>
   Magma (Product (Complex a)) where
-  (Product (rx :+ ix)) `magma` (Product (ry :+ iy))
-{-
-    | (rx == infinity && ry == zero) ||
-      (rx == zero && ry == infinity) ||
-      (ix == infinity && iy == zero) ||
-      (ix == zero && iy == infinity) = Product (nan :+ nan)
-    | rx == infinity || ry == infinity || ix == infinity || iy == infinity
-      = Product (infinity :+ zero)
--}
-    | otherwise =
-      Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
+  (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
+    Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
 
 instance (Invertible (Sum a), Magma (Product a)) =>
   Commutative (Product (Complex a))
 
 instance (Additive a, Invertible (Sum a), Invertible (Product a)) =>
   Invertible (Product (Complex a)) where
-  inv (Product (rx :+ ix))
-    -- | rx == zero && ix == zero = Product (infinity :+ zero)
-    | otherwise = Product $ (rx * d) :+ (negate ix * d)
+  inv (Product (rx :+ ix)) = Product $ (rx * d) :+ (negate ix * d)
     where
       d = recip ((rx * rx) + (ix * ix))
 

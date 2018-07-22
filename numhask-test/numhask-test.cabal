@@ -56,6 +56,7 @@ library
     , tasty-quickcheck
   exposed-modules:
     NumHask.Laws
+    NumHask.Data.Interval
   default-language: Haskell2010
 
 test-suite test

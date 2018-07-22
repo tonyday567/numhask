@@ -29,52 +29,9 @@ module NumHask.Data.Interval
   )
 where
 
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Module
-import NumHask.Analysis.Metric
-import NumHask.Data.Integral
-import NumHask.Data.Complex
-
-import Data.Bool (bool)
-import Prelude
-  hiding ( Num(..)
-  , (**)
-  , (/)
-  , atan
-  , cos
-  , exp
-  , log
-  , negate
-  , pi
-  , recip
-  , sin
-  , sqrt
-  , isNaN
-  , floor
-  , ceiling
-  , fromIntegral
-  , Integral
-  , quotRem
-  , divMod
-  , properFraction
-  , mod
-  , truncate
-  , acos
-  , asin
-  , sinh
-  , cosh
-  , tanh
-  , acosh
-  , asinh
-  , atanh
-  , null
-  )
 import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
+import NumHask.Prelude
 
 data Interval a =
   I !a !a | S !a | Empty

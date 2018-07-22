@@ -67,6 +67,7 @@ module NumHask.Laws
 where
 
 import NumHask.Prelude
+import NumHask.Data.Interval
 import Test.Tasty.QuickCheck hiding ((><))
 import Test.Tasty (TestName, TestTree)
 

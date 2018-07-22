@@ -14,7 +14,6 @@ import NumHask.Prelude
 import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Gen
 import Test.Tasty (TestTree, defaultMain, testGroup)
--- import Data.String (String)
 
 instance Arbitrary Natural where
   arbitrary = fromInteger . abs <$> arbitrary
