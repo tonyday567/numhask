@@ -22,6 +22,7 @@ import GHC.Natural
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Ring
 import Prelude (Double, Float, Int, Integer)
 
 -- | a module
@@ -32,7 +33,7 @@ import Prelude (Double, Float, Int, Integer)
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Magma (Product a)) => Module r a where
+class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
   infixl 7 .*
   (.*) :: r a -> a -> r a
   infixl 7 *.
@@ -46,7 +47,7 @@ class (Magma (Product a)) => Module r a where
 -- > (a + b) .+ c == (a .+ c) + b
 -- > a .+ zero == a
 -- > a .+ b == b +. a
-class (Magma (Sum a)) =>
+class (Additive a) =>
   AdditiveModule r a where
   infixl 6 .+
   (.+) :: r a -> a -> r a
@@ -60,7 +61,7 @@ class (Magma (Sum a)) =>
 -- > (a + b) .- c == (a .- c) + b
 -- > a .- zero == a
 -- > a .- b == negate b +. a
-class (Invertible (Sum a)) =>
+class (AbelianGroup (Sum a)) =>
   AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
@@ -72,7 +73,7 @@ class (Invertible (Sum a)) =>
 --
 -- > nearZero a || a ./ one == a
 -- > b == zero || a ./ b == recip b *. a
-class (Invertible (Product a)) =>
+class (AbelianGroup (Product a)) =>
   MultiplicativeGroupModule r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
@@ -124,7 +125,7 @@ type instance r a >< b = TensorRep (r a) b
 -- > a><b + c><b == (a+c) >< b
 -- > a><b + a><c == a >< (b+c)
 --
--- todo: work out why these laws down't apply
+-- FIXME: work out why these laws don't apply
 -- > a *. (b><c) == (a><b) .* c
 -- > (a><b) .* c == a *. (b><c)
 class TensorProduct a where
