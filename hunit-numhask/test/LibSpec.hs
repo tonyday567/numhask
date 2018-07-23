@@ -12,4 +12,4 @@ spec =
     it "Tests Float values for approximate equality" $ 
       (1/3 :: Float) `shouldBeAbout` 0.333333
     it "Tests Double values for approximate equality" $ 
-      (1/3 :: Double) `shouldBeAbout` 0.333333333333
+      (1/3 :: Double) `shouldBeAbout` 0.3333333333333333
