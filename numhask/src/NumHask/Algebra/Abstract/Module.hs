@@ -39,6 +39,7 @@ class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
   infixl 7 *.
   (*.) :: a -> r a -> r a
 
+
 --FIXME: What is this? definitly not usual modules...
 -- We can fizzle out a more complicated hierarchy, if needed
 -- | Additive Module Laws

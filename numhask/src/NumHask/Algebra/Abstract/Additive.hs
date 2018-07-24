@@ -6,9 +6,11 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Additive
+-- | Additivec
 module NumHask.Algebra.Abstract.Additive
   ( Sum(..)
   , Additive(..)
@@ -117,6 +119,11 @@ instance Magma (Sum Word32) where
 instance Magma (Sum Word64) where
   magma = coerceTA (P.+)
 
+instance Magma (Sum b) => Magma (Sum (a -> b)) where
+  (Sum f) `magma` (Sum f') = Sum P.$ \a -> f a `cmagma` f' a 
+    where
+      cmagma = coerceFA magma
+
 instance Unital (Sum P.Double) where
   unit = coerce (0 :: P.Double)
 
@@ -167,6 +174,9 @@ instance Unital (Sum Word32) where
 instance Unital (Sum Word64) where
   unit = coerce (0 :: Word64)
 
+instance Unital (Sum b) => Unital (Sum (a -> b)) where
+  unit = Sum P.$ \_ -> coerce @(Sum b) @b unit
+
 instance Associative (Sum P.Double)
 
 instance Associative (Sum P.Float)
@@ -198,6 +208,8 @@ instance Associative (Sum Word16)
 instance Associative (Sum Word32)
 
 instance Associative (Sum Word64)
+
+instance Associative (Sum b) => Associative (Sum (a -> b))
 
 ---commutative magma
 instance Commutative (Sum P.Double)
@@ -231,6 +243,8 @@ instance Commutative (Sum Word16)
 instance Commutative (Sum Word32)
 
 instance Commutative (Sum Word64)
+
+instance Commutative (Sum b) => Commutative (Sum (a -> b))
 
 instance Invertible (Sum P.Double) where
   inv = coerceTA' P.negate
@@ -279,4 +293,9 @@ instance Invertible (Sum Word32) where
 instance Invertible (Sum Word64) where
   inv = coerceTA' P.negate
 
+instance Invertible (Sum b) => Invertible (Sum (a -> b)) where
+  inv (Sum f) = Sum P.$ \a -> coerceFA' inv (f a)
+
 instance Idempotent (Sum P.Bool)
+
+instance Idempotent (Sum b) => Idempotent (Sum (a -> b))
