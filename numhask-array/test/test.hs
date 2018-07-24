@@ -40,12 +40,8 @@ testsVInt =
       testLawOf1 ([] :: [Vector [] 6 Int]) <$> multiplicativeLaws
     , testGroup "Distributive" $
       testLawOf1 ([] :: [Vector [] 6 Int]) <$> distributiveLaws
-    , testGroup "Additive Module" $
-      testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> additiveModuleLaws
-    , testGroup "Additive Group Module" $
-      testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> additiveGroupModuleLaws
-    -- , testGroup "Multiplicative Module" $
-    --  testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> multiplicativeModuleLaws
+    -- , testGroup "Module" $
+    --  testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> moduleLaws
     -- , testGroup "Hilbert" $
     --  testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> hilbertLaws
     -- , testGroup "Tensor product" $
@@ -65,10 +61,6 @@ testsMInt =
     -- FIXME: reinstate monoidal laws
     -- , testGroup "Multiplicative (square only)" $
     --  testLawOf1 ([] :: [Matrix [] 3 3 Int]) <$> multiplicativeMonoidalLaws
-    , testGroup "Additive Module" $
-      testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> additiveModuleLaws
-    , testGroup "Additive Group Module" $
-      testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> additiveGroupModuleLaws
     -- , testGroup "Multiplicative Module" $
     --   testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> multiplicativeModuleLaws
     -- , testGroup "Hilbert" $

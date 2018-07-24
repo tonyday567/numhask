@@ -8,19 +8,15 @@
 
 -- | Algebra for Modules
 module NumHask.Algebra.Abstract.Module
-  ( AdditiveModule(..)
-  , AdditiveGroupModule(..)
-  , MultiplicativeGroupModule(..)
+  ( Module
   , type (><)
   , TensorProduct(..)
-  , Module(..)
   ) where
 
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Ring
 import Prelude (Double, Float, Int, Integer)
@@ -33,53 +29,7 @@ import Prelude (Double, Float, Int, Integer)
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
-  infixl 7 .*
-  (.*) :: r a -> a -> r a
-  infixl 7 *.
-  (*.) :: a -> r a -> r a
-
-
---FIXME: What is this? definitly not usual modules...
--- We can fizzle out a more complicated hierarchy, if needed
--- | Additive Module Laws
---
--- > (a + b) .+ c == a + (b .+ c)
--- > (a + b) .+ c == (a .+ c) + b
--- > a .+ zero == a
--- > a .+ b == b +. a
-class (Additive a) =>
-  AdditiveModule r a where
-  infixl 6 .+
-  (.+) :: r a -> a -> r a
-
-  infixl 6 +.
-  (+.) :: a -> r a -> r a
-
--- | Subtraction Module Laws
---
--- > (a + b) .- c == a + (b .- c)
--- > (a + b) .- c == (a .- c) + b
--- > a .- zero == a
--- > a .- b == negate b +. a
-class (AbelianGroup (Sum a)) =>
-  AdditiveGroupModule r a where
-  infixl 6 .-
-  (.-) :: r a -> a -> r a
-
-  infixl 6 -.
-  (-.) :: a -> r a -> r a
-
--- | Division Module Laws
---
--- > nearZero a || a ./ one == a
--- > b == zero || a ./ b == recip b *. a
-class (AbelianGroup (Product a)) =>
-  MultiplicativeGroupModule r a where
-  infixl 7 ./
-  (./) :: r a -> a -> r a
-  infixl 7 /.
-  (/.) :: a -> r a -> r a
+class (Ring a, AbelianGroup (Sum (r a))) => Module r a
 
 --FIXME: Why is the Tensorproduct here?
 -- | tensorial type

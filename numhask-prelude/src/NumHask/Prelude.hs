@@ -15,6 +15,7 @@ module NumHask.Prelude
   , fail
     -- * Algebraic Heirarchy
     -- $instances
+  , module NumHask.Algebra.Abstract.Action
   , module NumHask.Algebra.Abstract.Additive
   , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Abstract.Group
@@ -42,6 +43,7 @@ import Data.Semigroup ((<>), Semigroup)
 import Control.Monad (fail)
 import Data.String
 import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group

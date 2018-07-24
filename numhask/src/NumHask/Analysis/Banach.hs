@@ -14,15 +14,15 @@ module NumHask.Analysis.Banach
   )
 where
 
+import NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Module
 import NumHask.Analysis.Metric
 
 -- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
 --
 -- > a == singleton zero || normalizeL2 a *. normL2 a == a
-class (ExpField a, Normed (r a) a, MultiplicativeGroupModule r a) =>
+class (ExpField a, Normed (r a) a, MultiplicativeGroupAction r a) =>
   Banach r a where
   normalizeL1 :: r a -> r a
   normalizeL1 a = a ./ normL1 a
