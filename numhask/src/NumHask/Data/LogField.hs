@@ -36,7 +36,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num(..), exp, log, negate, toInteger)
+import Prelude hiding (Num(..), exp, log, negate, toInteger, isNaN)
 import qualified Data.Foldable as F
 
 -- LogField is adapted from LogFloat
@@ -192,6 +192,11 @@ instance (LowerBoundedField a, ExpField a, Ord a) =>
 instance (LowerBoundedField a, ExpField a, Ord a) =>
   Commutative (Sum (LogField a))
 
+instance (ExpField a, Ord a, BoundedField a) => Invertible (Sum (LogField a)) where
+  inv (Sum x)
+    | x == zero = Sum zero
+    | otherwise = Sum nan
+
 instance (Magma (Sum a), LowerBoundedField a, Eq a) =>
   Magma (Product (LogField a)) where
   (Product (LogField x)) `magma` (Product (LogField y))
@@ -219,12 +224,11 @@ instance (Magma (Sum a), LowerBoundedField a, Eq a) =>
 instance (LowerBoundedField a, ExpField a, Ord a) =>
   Distributive (LogField a)
 
--- FIXME:
--- unable to provide this instance because there is no Field (LogField a) instance
--- instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
---     exp (LogField x) = (LogField $ exp x)
---     log (LogField x) = (LogField $ log x)
---     (**) x (LogField y) = pow x $ exp y
+instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
+    exp (LogField x) = (LogField $ exp x)
+    log (LogField x) = (LogField $ log x)
+    (**) x (LogField y) = pow x $ exp y
+
 instance (FromInteger a, ExpField a) => FromInteger (LogField a) where
   fromInteger = logField . fromInteger
 
@@ -239,8 +243,24 @@ instance (ToRatio a, ExpField a) => ToRatio (LogField a) where
 
 instance (Epsilon a, ExpField a, LowerBoundedField a, Ord a) =>
   Epsilon (LogField a) where
+  epsilon = logField epsilon
   nearZero (LogField x) = nearZero $ exp x
   aboutEqual (LogField x) (LogField y) = aboutEqual (exp x) (exp y)
+
+instance (Ord a, ExpField a, BoundedField a) => Field (LogField a)
+
+instance (Ord a, ExpField a, BoundedField a) => LowerBoundedField (LogField a)
+
+instance (Ord a, ExpField a, BoundedField a) => IntegralDomain (LogField a) where
+
+instance (Ord a, ExpField a, BoundedField a) => UpperBoundedField (LogField a) where
+  isNaN (LogField a) = isNaN a
+
+instance (Ord a, BoundedField a, ExpField a) => Signed (LogField a) where
+  sign a
+    | a == negInfinity = zero
+    | otherwise = one
+  abs = id
 
 ----------------------------------------------------------------
 -- | /O(1)/. Compute powers in the log-domain; that is, the following

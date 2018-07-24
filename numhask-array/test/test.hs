@@ -83,10 +83,10 @@ testsVFloat :: TestTree
 testsVFloat =
   testGroup
     "Vector 6 Float"
-    [ testGroup "MultiplicativeGroup" $
-      testLawOf1 ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupLaws_
-    , testGroup "Signed" $ testLawOf1 ([] :: [Vector [] 6 Float]) <$> signedLaws
-    , testGroup "Normed" $
+    [ -- testGroup "MultiplicativeGroup" $
+      -- testLawOf1 ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupLaws
+      testGroup "Signed" $ testLawOf1 ([] :: [Vector [] 6 Float]) <$> signedLaws
+    , testGroup "Norm" $
       testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> normedLaws
     -- , testGroup "Metric" $
     --   testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> metricRationalLaws

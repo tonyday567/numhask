@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -10,10 +11,12 @@
 module Main where
 
 import NumHask.Laws
+import NumHask.Laws.Interval
 import NumHask.Prelude
 import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Gen
-import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty (TestTree, defaultMain, testGroup, localOption)
+import Test.Tasty.QuickCheck
 
 instance Arbitrary Natural where
   arbitrary = fromInteger . abs <$> arbitrary
@@ -33,14 +36,14 @@ main = defaultMain tests
  
 tests :: TestTree
 tests = testGroup
-  "NumHask"
+  "NumHask" 
   [ testGroup "Float" $
     testLawOf ([] :: [Float]) ([] :: [(Float, Float)]) <$> fieldIntervalLaws
   , testGroup "Double" $
     testLawOf ([] :: [Double]) ([] :: [(Double, Double)]) <$> fieldIntervalLaws
-  , testGroup "Complex Float" $
+  , testGroup "Complex Float" $ localOption (QuickCheckTests 1000) .
     testLawOf ([] :: [Complex Float]) ([] :: [(Complex Float, Complex Float)]) <$>
-    complexIntervalLaws
+    complexIntervalLaws (10.0 :+ 5.0) 10.0
   , testGroup "Integer" $
     testLawOf ([] :: [Integer]) ([] :: [(Integer, Integer)]) <$> integralsUnboundedLaws
   , testsNatural
@@ -66,17 +69,15 @@ tests = testGroup
     testLawOf ([] :: [Word64]) ([] :: [(Word64, Word64)]) <$> integralsBoundedLaws
   , testGroup "Word" $
     testLawOf ([] :: [Word]) ([] :: [(Word, Word)]) <$> integralsBoundedLaws
-  -- , testGroup "Complex Integer" $
-  --   testLawOf ([] :: [Complex Integer]) ([] :: [(Complex Integer, Complex Integer)])
-  --   <$> integralsUnboundedLaws
   , testGroup "Quotient Field Float" $
     testLawOf2 ([] :: [(Float, Integer)]) <$> quotientFieldLaws
   , testGroup "Quotient Field Double" $
     testLawOf2 ([] :: [(Double, Integer)]) <$> quotientFieldLaws
   , testsBool
-  -- , testsComplexFloat
   , testsRational
-  , testsLogFieldDouble
+  -- FIXME: awaiting a proper instance for (-)
+  -- , testGroup "LogField Double" $
+  --   testLawOf ([] :: [LogField Double]) ([] :: [(LogField Double, LogField Double)]) <$> logFieldLaws
   ]
 
 testsNatural :: TestTree
@@ -87,7 +88,7 @@ testsNatural = testGroup
   $ testLawOf1 ([] :: [Natural])
   <$> multiplicativeLaws
   , testGroup "Distributive" $ testLawOf1 ([] :: [Natural]) <$> distributiveLaws
-  , testGroup "Naturalegral" $ testLawOf1 ([] :: [Natural]) <$> integralLaws
+  , testGroup "Integral" $ testLawOf1 ([] :: [Natural]) <$> integralLaws
   , testGroup "Signed" $ testLawOf1 ([] :: [Natural]) <$> signedLaws
   , testGroup "Normed" $ testLawOf2 ([] :: [(Natural, Natural)]) <$> normedLaws
   ]
@@ -101,83 +102,39 @@ testsBool = testGroup
   , testGroup "Distributive" $ testLawOf1 ([] :: [Bool]) <$> distributiveLaws
   ]
 
-{-
-testsComplexFloat :: TestTree
-testsComplexFloat = testGroup
-  "Complex Float"
-  [ testGroup "Additive - Associative Fail"
-  $ testLawOf1 ([] :: [Complex Float])
-  <$> additiveLawsFail
-  , testGroup "Additive Group"
-  $ testLawOf1 ([] :: [Complex Float])
-  <$> additiveGroupLaws
-  , testGroup "Multiplicative - Associative Fail"
-  $ testLawOf1 ([] :: [Complex Float])
-  <$> multiplicativeLawsFail
-  , testGroup "MultiplicativeGroup"
-  $ testLawOf1 ([] :: [Complex Float])
-  <$> multiplicativeGroupLaws_
-  , testGroup "Distributive - Fail"
-  $ testLawOf1 ([] :: [Complex Float])
-  <$> distributiveLawsFail
-    -- there is no way to define Ord (Complex a). Is there a a way to test it?
-    -- , testGroup "Exponential Field" $
-    --   testLawOf2 ([] :: [(Complex Float, Float)]) <$> expFieldLaws
-  , testGroup "Normed"
-  $ testLawOf2 ([] :: [(Complex Float, Float)])
-  <$> normedLaws
-  -- , testGroup "Metric"
-  -- $ testLawOf2 ([] :: [(Complex Float, Float)])
-  -- <$> metricRationalLaws
-  , testGroup "Involutive Ring"
-  $ testLawOf1 ([] :: [Complex Float])
-  <$> involutiveRingLaws
-  ]
--}
-
 testsRational :: TestTree
 testsRational = testGroup
   "Rational"
-  [ testGroup "Additive - Associative"
+  [ testGroup "Additive"
   $ testLawOf1 ([] :: [Rational])
   <$> additiveLaws
   , testGroup "Additive Group"
   $ testLawOf1 ([] :: [Rational])
   <$> additiveGroupLaws
-  , testGroup "Multiplicative - Associative"
+  , testGroup "Multiplicative"
   $ testLawOf1 ([] :: [Rational])
   <$> multiplicativeLaws
   , testGroup "MultiplicativeGroup"
   $ testLawOf1 ([] :: [Rational])
-  <$> multiplicativeGroupLaws_
+  <$> multiplicativeGroupLaws
   , testGroup "Distributive" $ testLawOf1 ([] :: [Rational]) <$> distributiveLaws
   , testGroup "Signed" $ testLawOf1 ([] :: [Rational]) <$> signedLaws
   , testGroup "Normed"
   $ testLawOf2 ([] :: [(Rational, Rational)])
   <$> normedLaws
-  -- , testGroup "Metric"
-  -- $ testLawOf2 ([] :: [(Rational, Rational)])
-  -- <$> metricRationalLaws
+  , testGroup "Metric"
+  $ testLawOf2 ([] :: [(Rational, Rational)])
+  <$> metricLaws
   , testGroup "Rational" $ testLawOf1 ([] :: [Rational]) <$> rationalLaws
-  , testGroup "Distributive" $ testLawOf1 ([] :: [Int]) <$> distributiveLaws
-  -- , testGroup "Metric" $ testLawOf2 ([] :: [(Int, Int)]) <$>
-  --   metricIntegralLaws
-  , testGroup "Normed or maxBound" $ testLawOf2 ([] :: [(Int, Int)]) <$> normedBoundedLaws
   ]
 
-testsLogFieldDouble :: TestTree
-testsLogFieldDouble = testGroup
-  "LogField Double"
-  [ testGroup "Additive - Associative Fail"
-  $ testLawOf1 ([] :: [LogField Double])
-  <$> additiveLawsFail
-  , testGroup "Multiplicative - Associative Fail"
-  $ testLawOf1 ([] :: [LogField Double])
-  <$> multiplicativeLawsFail
-  , testGroup "MultiplicativeGroup"
-  $ testLawOf1 ([] :: [LogField Double])
-  <$> multiplicativeGroupLaws_
-  , testGroup "Distributive - Fail"
-  $ testLawOf1 ([] :: [LogField Double])
-  <$> distributiveLawsFail
-  ]
+logFieldLaws
+  :: (
+    )
+  => [Laws (LogField Double) (LogField Double)]
+logFieldLaws = 
+  (Arity1 <$> additiveIntervalLaws (logField 10.0)) <>
+  (Arity1 <$> multiplicativeIntervalLaws (logField 10.0)) <>
+  (Arity1 <$> multiplicativeGroupIntervalLaws (logField 10.0)) <>
+  (Arity1 <$> distributiveIntervalLaws (logField 10.0))
+
