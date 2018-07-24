@@ -15,6 +15,7 @@ module NumHask.Prelude
   , fail
     -- * Algebraic Heirarchy
     -- $instances
+  , module NumHask.Algebra.Abstract.Action
   , module NumHask.Algebra.Abstract.Additive
   , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Abstract.Group
@@ -22,6 +23,7 @@ module NumHask.Prelude
   , module NumHask.Algebra.Abstract.Module
   , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Algebra.Abstract.Ring
+  , module NumHask.Algebra.Abstract.TensorProduct
   , module NumHask.Algebra.Linear.Hadamard
   , module NumHask.Analysis.Banach
   , module NumHask.Analysis.Metric
@@ -42,6 +44,7 @@ import Data.Semigroup ((<>), Semigroup)
 import Control.Monad (fail)
 import Data.String
 import GHC.Natural (Natural(..))
+import NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group
@@ -49,6 +52,7 @@ import NumHask.Algebra.Abstract.Homomorphism
 import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.TensorProduct
 import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric

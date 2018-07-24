@@ -38,9 +38,7 @@ module NumHask.Laws
   , expFieldLaws
   , hadamardMultiplicationLaws
   , hadamardDivisionLaws
-  , additiveModuleLaws
-  , additiveGroupModuleLaws
-  , multiplicativeModuleLaws
+  , moduleLaws
   , expFieldContainerLaws
   , tensorProductLaws
   , banachLaws
@@ -549,43 +547,9 @@ expFieldContainerLaws =
     )
   ]
 
--- module
-additiveModuleLaws
-  :: (Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
-additiveModuleLaws =
-  [ ( "additive module associative: (a + b) .+ c == a + (b .+ c)"
-    , Ternary21 (\a b c -> (a + b) .+ c == a + (b .+ c))
-    )
-  , ( "additive module commutative: (a + b) .+ c == (a .+ c) + b"
-    , Ternary21 (\a b c -> (a + b) .+ c == (a .+ c) + b)
-    )
-  , ("additive module unital: a .+ zero == a", Unary10 (\a -> a .+ zero == a))
-  , ( "module additive equivalence: a .+ b == b +. a"
-    , Binary11 (\a b -> a .+ b == b +. a)
-    )
-  ]
-
-additiveGroupModuleLaws
-  :: (Epsilon a, Epsilon (r a), AdditiveModule r a, AdditiveGroupModule r a)
-  => [Law2 (r a) a]
-additiveGroupModuleLaws =
-  [ ( "additive group module associative: (a + b) .- c ~= a + (b .- c)"
-    , Ternary21 (\a b c -> (a + b) .- c == a + (b .- c))
-    )
-  , ( "additive group module commutative: (a + b) .- c ~= (a .- c) + b"
-    , Ternary21 (\a b c -> (a + b) .- c == (a .- c) + b)
-    )
-  , ( "additive group module unital: a .- zero == a"
-    , Unary10 (\a -> a .- zero == a)
-    )
-  , ( "module additive group equivalence: a .- b == negate b +. a"
-    , Binary11 (\a b -> a .- b == negate b +. a)
-    )
-  ]
-
-multiplicativeModuleLaws
-  :: (Epsilon a, Epsilon (r a), Module r a) => [Law2 (r a) a]
-multiplicativeModuleLaws =
+moduleLaws
+  :: (Epsilon a, Epsilon (r a), MultiplicativeAction r a, Module r a) => [Law2 (r a) a]
+moduleLaws =
   [ ( "multiplicative module unital: a .* one == a"
     , Unary10 (\a -> a .* one == a)
     )
@@ -606,6 +570,7 @@ banachLaws
      , Epsilon (r a)
      , Banach r a
      , Module r a
+     , MultiplicativeAction r a
      , Signed a
      , FromRatio a
      , Ord a
@@ -641,7 +606,13 @@ banachLaws =
   ]
 
 hilbertLaws
-  :: (Module r a, Epsilon a, Hilbert r a) => [Law2 (r a) a]
+  ::
+    ( Module r a
+    , MultiplicativeAction r a
+    , Epsilon a
+    , Hilbert r a
+    )
+  => [Law2 (r a) a]
 hilbertLaws =
   [ ("commutative a <.> b == b <.> a", Ternary21 (\a b _ -> a <.> b == b <.> a))
   , ( "distributive over additive a <.> (b + c) == a <.> b + a <.> c"

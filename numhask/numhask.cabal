@@ -52,6 +52,7 @@ library
     base >=4.7 && <4.12
   exposed-modules:
     NumHask.Algebra.Abstract
+    NumHask.Algebra.Abstract.Action
     NumHask.Algebra.Abstract.Additive
     NumHask.Algebra.Abstract.Field
     NumHask.Algebra.Abstract.Group
@@ -59,6 +60,7 @@ library
     NumHask.Algebra.Abstract.Module
     NumHask.Algebra.Abstract.Multiplicative
     NumHask.Algebra.Abstract.Ring
+    NumHask.Algebra.Abstract.TensorProduct
     NumHask.Algebra.Linear.Hadamard
     NumHask.Analysis.Banach
     NumHask.Analysis.Metric

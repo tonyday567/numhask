@@ -154,41 +154,40 @@ decreasing :: (Interval' b) => (a -> b) -> Interval a -> Interval b
 decreasing f (I a b) = (f b) ... (f a)
 decreasing _ _ = Empty
 
-instance (Interval' a, Additive a) => Magma (Sum (Interval a)) where
+instance (Interval' a, Magma (Sum a)) => Magma (Sum (Interval a)) where
   (Sum (I l u)) `magma` (Sum (I l' u')) =
     Sum $ (l + l') ... (u + u')
-  (Sum i) `magma` (Sum (S s)) = Sum $ i .+ s
-  (Sum (S s)) `magma` (Sum i) = Sum $ s +. i
+  (Sum i) `magma` (Sum (S s)) = Sum $ fmap (s+) i
+  (Sum (S s)) `magma` (Sum i) = Sum $ fmap (s+) i
   (Sum Empty) `magma` x = x
   x `magma` (Sum Empty) = x
 
-instance (Additive a, Interval' a, Unital (Sum a)) => Unital (Sum (Interval a)) where
+instance (Interval' a, Unital (Sum a)) => Unital (Sum (Interval a)) where
   unit = Sum (S zero)
 
-instance (Additive a, Interval' a, Associative (Sum a)) => Associative (Sum (Interval a))
+instance (Interval' a, Associative (Sum a)) => Associative (Sum (Interval a))
 
-instance (Additive a, Interval' a, Commutative (Sum a)) => Commutative (Sum (Interval a))
+instance (Interval' a, Commutative (Sum a)) => Commutative (Sum (Interval a))
 
-instance (Additive a, Interval' a, Invertible (Sum a)) => Invertible (Sum (Interval a)) where
+instance (Interval' a, Invertible (Sum a)) => Invertible (Sum (Interval a)) where
   inv (Sum (I l u)) = Sum $ negate u ... negate l
   inv (Sum (S s)) = Sum $ S $ negate s
   inv (Sum Empty) = Sum Empty
 
-instance {-# OVERLAPPABLE #-} (Ord a, Ring a, Interval' a, Magma (Product a)) =>
+instance {-# OVERLAPPABLE #-} (Ord a, Interval' a, Magma (Product a)) =>
   Magma (Product (Interval a)) where
   (Product (I l u)) `magma` (Product (I l' u')) =
     Product $ I l'' u'' where
     l'' = minimum [l * l', l * u', u * l', u * u']
     u'' = maximum [l * l', l * u', u * l', u * u']
-  (Product i) `magma` (Product (S s)) = Product $ i .* s
-  (Product (S s)) `magma` (Product i) = Product $ s *. i
+  (Product i) `magma` (Product (S s)) = Product $ fmap (s*) i
+  (Product (S s)) `magma` (Product i) = Product $ fmap (s*) i
   (Product Empty) `magma` x = x
   x `magma` (Product Empty) = x
 
 instance
   ( Ord a
   , Interval' a
-  , Ring a
   , Magma (Product a)
   , Invertible (Sum a)
   ) =>
@@ -204,16 +203,16 @@ instance
     ly'' = minimum [lly, luy, uly, uuy]
     ux'' = maximum [llx, lux, ulx, uux]
     uy'' = maximum [lly, luy, uly, uuy]
-  (Product i) `magma` (Product (S s)) = Product $ i .* s
-  (Product (S s)) `magma` (Product i) = Product $ s *. i
+  (Product i) `magma` (Product (S s)) = Product $ fmap (s*) i
+  (Product (S s)) `magma` (Product i) = Product $ fmap (s*) i
   (Product Empty) `magma` x = x
   x `magma` (Product Empty) = x
 
-instance (Ring a, Interval' a, Ord a, Unital (Product a)) =>
+instance (Interval' a, Ord a, Unital (Product a)) =>
   Unital (Product (Interval a)) where
   unit = Product $ one ... one
 
-instance (Interval' a, Ring a, Ord a, Commutative (Product a)) =>
+instance (Interval' a, Ord a, Commutative (Product a)) =>
   Commutative (Product (Interval a))
 
 instance {-# OVERLAPPABLE #-} (Interval' a, Ord a, BoundedField a, Invertible (Product a)) =>
@@ -247,14 +246,14 @@ instance (Interval' a, Ord a, BoundedField a, Invertible (Product a)) =>
   inv (Product (S s)) = Product (S (recip s))
   inv (Product Empty) = Product Empty
 
-instance (Interval' a, Ring a, Ord a, Associative (Product a)) =>
+instance (Interval' a, Ord a, Associative (Product a)) =>
   Associative (Product (Interval a))
 
-instance (Ring a, Interval' a, Ord a, Multiplicative a) =>
+instance (Interval' a, Ord a, Multiplicative a) =>
   Absorbing (Product (Interval a)) where
   absorb = Product $ zero' ... zero'
 
-instance (Ring a, Interval' a, Ord a, Distributive a) => Distributive (Interval a)
+instance (Interval' a, Ord a, Distributive a) => Distributive (Interval a)
 
 instance (BoundedField a, Interval' a, Ord a) => IntegralDomain (Interval a)
 
@@ -368,7 +367,7 @@ instance (Ring a, Interval' a, Ord a, Integral a) => Integral (Interval a) where
 instance (Interval' a, FromInteger a) => FromInteger (Interval a) where
   fromInteger a = fromInteger a ... fromInteger a
 
-instance (Ring a, Unital (Sum a), Invertible (Sum a), Interval' a, Ord a, Signed a) => Signed (Interval a) where
+instance (Unital (Sum a), Invertible (Sum a), Interval' a, Ord a, Signed a) => Signed (Interval a) where
   sign = increasing sign
   abs x@(I a b)
     | a >= zero = x
@@ -381,24 +380,4 @@ instance (UpperBoundedField a, Signed a, Interval' a, Ord a) => Metric (Interval
   distanceL1 a b = lower . abs $ (a - b)
   distanceL2 a b = lower . abs $ (a - b)
   distanceLp _ a b = lower . abs $ (a - b)
-
-instance (Additive a) =>
-  AdditiveModule Interval a where
-  (.+) r s = fmap (s +) r
-  (+.) s = fmap (s +)
-
-instance (AbelianGroup (Sum a)) =>
-  AdditiveGroupModule Interval a where
-  (.-) r s = fmap (s -) r
-  (-.) s = fmap (s -)
-
-instance (Interval' a, Ring a, Multiplicative a) =>
-  Module Interval a where
-  (.*) r s = fmap (s *) r
-  (*.) s = fmap (s *)
-
-instance (AbelianGroup (Product a)) =>
-  MultiplicativeGroupModule Interval a where
-  (./) r s = fmap (s /) r
-  (/.) s = fmap (s /)
 

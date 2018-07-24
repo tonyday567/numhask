@@ -676,26 +676,24 @@ instance (Dimensions r, Container c, Absorbing (Product a), AbelianGroup (Produc
   HadamardDivision (Array c r) a where
   (./.) = liftR2 (/)
 
-instance (Container c, Additive a) =>
-  AdditiveModule (Array c (r::[Nat])) a where
+instance (Dimensions r, Container c, Magma (Sum a)) =>
+  AdditiveAction (Array c (r::[Nat])) a where
   (.+) r s = fmap (s +) r
   (+.) s = fmap (s +)
 
-instance (Container c, AbelianGroup (Sum a)) =>
-  AdditiveGroupModule (Array c (r::[Nat])) a where
+instance (Dimensions r, Container c, AbelianGroup (Sum a)) =>
+  AdditiveGroupAction (Array c (r::[Nat])) a where
   (.-) r s = fmap (\x -> x - s) r
   (-.) s = fmap (\x -> x - s)
 
-
-instance (Dimensions r, Container c, Multiplicative a, P.Distributive a,
-          Invertible (Sum a)) =>
-  Module (Array c (r :: [Nat])) a where
+instance (Dimensions r, Container c, Magma (Product a)) =>
+  MultiplicativeAction (Array c (r :: [Nat])) a where
   (.*) r s = fmap (* s) r
   (*.) s = fmap (s *)
 
-instance (Dimensions r, Container c, Field a, AbelianGroup (Product a),
-          Invertible (Sum a), P.Distributive a) =>
-  MultiplicativeGroupModule (Array c (r::[Nat])) a where
+instance (Dimensions r, Container c, AbelianGroup (Product a),
+          Invertible (Sum a)) =>
+  MultiplicativeGroupAction (Array c (r::[Nat])) a where
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
 
