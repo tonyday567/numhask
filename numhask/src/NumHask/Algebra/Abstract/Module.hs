@@ -20,7 +20,7 @@ import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Ring
 import Prelude (Double, Float, Int, Integer)
@@ -41,7 +41,7 @@ class (Ring a, AbelianGroup (Sum (r a))) => Module r a where
 
 
 --FIXME: What is this? definitly not usual modules...
--- We can fizzle out a more complicated hirarchy, if needed
+-- We can fizzle out a more complicated hierarchy, if needed
 -- | Additive Module Laws
 --
 -- > (a + b) .+ c == a + (b .+ c)
@@ -62,7 +62,7 @@ class (Additive a) =>
 -- > (a + b) .- c == (a .- c) + b
 -- > a .- zero == a
 -- > a .- b == negate b +. a
-class (Group (Sum a), AdditiveModule r a) =>
+class (AbelianGroup (Sum a)) =>
   AdditiveGroupModule r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
@@ -74,7 +74,7 @@ class (Group (Sum a), AdditiveModule r a) =>
 --
 -- > nearZero a || a ./ one == a
 -- > b == zero || a ./ b == recip b *. a
-class (Module r a, Field a) =>
+class (AbelianGroup (Product a)) =>
   MultiplicativeGroupModule r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
@@ -126,7 +126,7 @@ type instance r a >< b = TensorRep (r a) b
 -- > a><b + c><b == (a+c) >< b
 -- > a><b + a><c == a >< (b+c)
 --
--- todo: work out why these laws down't apply
+-- FIXME: work out why these laws don't apply
 -- > a *. (b><c) == (a><b) .* c
 -- > (a><b) .* c == a *. (b><c)
 class TensorProduct a where

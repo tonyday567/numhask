@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE IncoherentInstances #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -11,25 +12,23 @@ module NumHask.Laws
   , LawArity2(..)
   , Law
   , Law2
+  , Laws(..)
   , testLawOf
+  , testLawOf1
   , testLawOf2
   , idempotentLaws
-  , additiveLaws
-  , additiveLaws_
-  , additiveLawsFail
+  , additiveLaws 
   , additiveGroupLaws
   , multiplicativeLaws
   , multiplicativeMonoidalLaws
-  , multiplicativeLawsFail
   , multiplicativeGroupLaws
-  , multiplicativeGroupLaws_
   , distributiveLaws
-  , distributiveLawsFail
   , integralLaws
   , rationalLaws
   , signedLaws
   , normedLaws
   , normedBoundedLaws
+  , metricLaws
   , metricIntegralLaws
   , metricIntegralBoundedLaws
   , metricRationalLaws
@@ -42,7 +41,6 @@ module NumHask.Laws
   , additiveModuleLaws
   , additiveGroupModuleLaws
   , multiplicativeModuleLaws
-  , multiplicativeGroupModuleLawsFail
   , expFieldContainerLaws
   , tensorProductLaws
   , banachLaws
@@ -52,6 +50,8 @@ module NumHask.Laws
   , starSemiringLaws
   , involutiveRingLaws
   , integralsLaws
+  , integralsUnboundedLaws
+  , integralsBoundedLaws
   )
 where
 
@@ -62,11 +62,10 @@ import Test.Tasty (TestName, TestTree)
 smallRational :: (FromRatio a) => a
 smallRational = 10.0
 
-smallRationalPower :: (FromRatio a) => a
-smallRationalPower = 6.0
-
 smallIntegralPower :: (FromInteger a) => a
 smallIntegralPower = 6
+
+data Laws a b = Arity1 (Law a) | Arity2 (Law2 a b)
 
 -- | unification of law equations
 data LawArity a
@@ -94,13 +93,17 @@ data LawArity2 a b
 
 type Law2 a b = (TestName, LawArity2 a b)
 
-testLawOf :: (Arbitrary a, Show a) => [a] -> Law a -> TestTree
-testLawOf _ (name, Nonary f) = testProperty name f
-testLawOf _ (name, Unary f) = testProperty name f
-testLawOf _ (name, Binary f) = testProperty name f
-testLawOf _ (name, Ternary f) = testProperty name f
-testLawOf _ (name, Ornary f) = testProperty name f
-testLawOf _ (name, Failiary f) = testProperty name f
+testLawOf :: (Arbitrary a, Show a, Arbitrary b, Show b) => [a] -> [(a,b)] -> Laws a b -> TestTree
+testLawOf as _ (Arity1 law) = testLawOf1 as law
+testLawOf _ ab (Arity2 law) = testLawOf2 ab law
+
+testLawOf1 :: (Arbitrary a, Show a) => [a] -> Law a -> TestTree
+testLawOf1 _ (name, Nonary f) = testProperty name f
+testLawOf1 _ (name, Unary f) = testProperty name f
+testLawOf1 _ (name, Binary f) = testProperty name f
+testLawOf1 _ (name, Ternary f) = testProperty name f
+testLawOf1 _ (name, Ornary f) = testProperty name f
+testLawOf1 _ (name, Failiary f) = testProperty name f
 
 testLawOf2
   :: (Arbitrary a, Show a, Arbitrary b, Show b)
@@ -130,28 +133,6 @@ additiveLaws :: (Eq a, Additive a) => [Law a]
 additiveLaws =
   [ ( "associative: (a + b) + c = a + (b + c)"
     , Ternary (\a b c -> (a + b) + c == a + (b + c))
-    )
-  , ("left id: zero + a = a", Unary (\a -> zero + a == a))
-  , ("right id: a + zero = a", Unary (\a -> a + zero == a))
-  , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
-  ]
-
--- | additive with approximate association equality
-additiveLaws_ :: (Epsilon a) => [Law a]
-additiveLaws_ =
-  [ ( "associative: (a + b) + c ≈ a + (b + c)"
-    , Ternary (\a b c -> (a + b) + c ~= a + (b + c))
-    )
-  , ("left id: zero + a = a", Unary (\a -> zero + a == a))
-  , ("right id: a + zero = a", Unary (\a -> a + zero == a))
-  , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
-  ]
-
--- | additive laws with a failure on association
-additiveLawsFail :: (Eq a, Additive a, Show a, Arbitrary a) => [Law a]
-additiveLawsFail =
-  [ ( "associative: (a + b) + c = a + (b + c)"
-    , Failiary $ expectFailure . (\a b c -> (a + b) + c == a + (b + c))
     )
   , ("left id: zero + a = a", Unary (\a -> zero + a == a))
   , ("right id: a + zero = a", Unary (\a -> a + zero == a))
@@ -190,17 +171,6 @@ multiplicativeMonoidalLaws =
   , ("right id: a * one = a", Unary (\a -> a * one == a))
   ]
 
-multiplicativeLawsFail
-  :: (Eq a, Show a, Arbitrary a, Multiplicative a) => [Law a]
-multiplicativeLawsFail =
-  [ ( "associative: (a * b) * c = a * (b * c)"
-    , Failiary $ expectFailure . (\a b c -> (a * b) * c == a * (b * c))
-    )
-  , ("left id: one * a = a", Unary (\a -> one * a == a))
-  , ("right id: a * one = a", Unary (\a -> a * one == a))
-  , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
-  ]
-
 multiplicativeGroupLaws
   :: (Eq a, Unital (Sum a), Absorbing (Product a), AbelianGroup (Product a))
   => [Law a]
@@ -219,23 +189,6 @@ multiplicativeGroupLaws =
     )
   ]
 
-multiplicativeGroupLaws_
-  :: (Epsilon a, Absorbing (Product a), AbelianGroup (Product a)) => [Law a]
-multiplicativeGroupLaws_ =
-  [ ( "divide: a == zero || a / a ~= one"
-    , Unary (\a -> a == zero || (a / a) ~= one)
-    )
-  , ( "recip divide: recip a == one / a"
-    , Unary (\a -> a == zero || recip a == one / a)
-    )
-  , ( "recip left: a == zero || recip a * a ~= one"
-    , Unary (\a -> a == zero || recip a * a ~= one)
-    )
-  , ( "recip right: a == zero || a * recip a ~= one"
-    , Unary (\a -> a == zero || a * recip a ~= one)
-    )
-  ]
-
 -- distributive
 distributiveLaws :: (Eq a, Distributive a) => [Law a]
 distributiveLaws =
@@ -246,19 +199,6 @@ distributiveLaws =
     )
   , ( "right distributivity: (a + b) * c == a * c + b * c"
     , Ternary (\a b c -> (a + b) * c == a * c + b * c)
-    )
-  ]
-
-distributiveLawsFail
-  :: (Show a, Arbitrary a, Epsilon a, Distributive a) => [Law a]
-distributiveLawsFail =
-  [ ("left annihilation: a * zero == zero", Unary (\a -> a * zero == zero))
-  , ("right annihilation: a * zero == zero", Unary (\a -> zero * a == zero))
-  , ( "left distributivity: a * (b + c) = a * b + a * c"
-    , Failiary $ expectFailure . (\a b c -> a * (b + c) == a * b + a * c)
-    )
-  , ( "right distributivity: (a + b) * c = a * c + b * c"
-    , Failiary $ expectFailure . (\a b c -> (a + b) * c == a * c + b * c)
     )
   ]
 
@@ -340,7 +280,7 @@ metricIntegralLaws =
           || p
           > (smallIntegralPower :: b)
           || distanceLp p a b
-          ~= distanceLp p b a
+          == distanceLp p b a
       )
     )
   , ( "Lp: triangle rule - sum of distances > distance"
@@ -348,20 +288,58 @@ metricIntegralLaws =
       (\a b c p ->
         (p < one)
           || not
-              (veryNegative
+              (zero >
                 (distanceLp p a c + distanceLp p b c - distanceLp p a b)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p b c - distanceLp p a c)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p a c - distanceLp p b c)
               )
       )
     )
   ]
+
+metricLaws
+  :: forall a b
+   . ( Ord b
+     , Signed b
+     , Epsilon b
+     , Metric a b
+     , AbelianGroup (Sum b)
+     )
+  => [Law2 a b]
+metricLaws =
+  [ ("Lp: positive", Ternary21 (\a b p -> p < one || distanceLp p a b >= zero))
+  , ( "Lp: zero if equal"
+    , Binary11 (\a p -> p < one || distanceLp p a a == zero)
+    )
+  , ( "Lp: associative"
+    , Ternary21
+      (\a b p ->
+        (p < one) || distanceLp p a b == distanceLp p b a
+      )
+    )
+  , ( "Lp: triangle rule - sum of distances > distance"
+    , Quad31
+      (\a b c p ->
+        (p < one) ||
+        not (zero >
+            (distanceLp p a c + distanceLp p b c - distanceLp p a b)
+          ) &&
+        not (zero >
+            (distanceLp p a b + distanceLp p b c - distanceLp p a c)
+          ) &&
+        not (zero >
+            (distanceLp p a b + distanceLp p a c - distanceLp p b c)
+          )
+      )
+    )
+  ]
+
 
 -- triangle rule doesn't apply to bounded Integrals
 metricIntegralBoundedLaws
@@ -383,7 +361,7 @@ metricIntegralBoundedLaws =
       (\a b p ->
         (p < one)
           || (p > (smallIntegralPower :: b))
-          || (distanceLp p a b ~= distanceLp p b a)
+          || (distanceLp p a b == distanceLp p b a)
       )
     )
   ]
@@ -412,7 +390,7 @@ metricRationalLaws =
           || p
           > (smallRationalPower :: b)
           || distanceLp p a b
-          ~= distanceLp p b a
+          == distanceLp p b a
       )
     )
   , ( "Lp: triangle rule - sum of distances > distance"
@@ -423,20 +401,21 @@ metricRationalLaws =
           || (normL1 b > (smallRational :: b))
           || (normL1 c > (smallRational :: b))
           || not
-              (veryNegative
+              (zero >
                 (distanceLp p a c + distanceLp p b c - distanceLp p a b)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p b c - distanceLp p a c)
               )
           && not
-              (veryNegative
+              (zero >
                 (distanceLp p a b + distanceLp p a c - distanceLp p b c)
               )
       )
     )
-  ]
+  ] where
+  smallRationalPower = 6.0
 
 -- bounded fields
 upperBoundedFieldLaws :: forall a . (Eq a, UpperBoundedField a) => [Law a]
@@ -497,13 +476,13 @@ expFieldLaws
      )
   => [Law2 a b]
 expFieldLaws =
-  [ ( "sqrt . (**(one+one)) ~= id"
+  [ ( "sqrt . (**(one+one)) == id"
     , Unary10
       (\a ->
         not (a > (zero :: a))
           || (normL1 a > (10 :: b))
-          || ((sqrt . (** (one + one)) $ a) ~= a)
-          && (((** (one + one)) . sqrt $ a) ~= a)
+          || ((sqrt . (** (one + one)) $ a) == a)
+          && (((** (one + one)) . sqrt $ a) == a)
       )
     )
   , ( "log . exp ~= id"
@@ -511,18 +490,18 @@ expFieldLaws =
       (\a ->
         not (a > (zero :: a))
           || (normL1 a > (10 :: b))
-          || ((log . exp $ a) ~= a)
-          && ((exp . log $ a) ~= a)
+          || ((log . exp $ a) == a)
+          && ((exp . log $ a) == a)
       )
     )
-  , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
+  , ( "for +ive b, a != 0,1: a ** logBase a b == b"
     , Binary20
       (\a b ->
         (not (normL1 b > (zero :: b))
         || not (nearZero (a - zero))
         || (a == one)
         || (a == zero && nearZero (logBase a b))
-        || (a ** logBase a b ~= b)
+        || (a ** logBase a b == b)
         )
       )
     )
@@ -533,39 +512,38 @@ expFieldContainerLaws
      , Foldable r
      , ExpField a
      , Epsilon a
-     , Signed a
      , FromRatio a
      , Epsilon (r a)
      , Ord a
      )
   => [Law (r a)]
 expFieldContainerLaws =
-  [ ( "sqrt . (**2) ~= id"
+  [ ( "sqrt . (**2) == id"
     , Unary
       (\a ->
-        not (all veryPositive a)
+        not (all (> zero) a)
           || any (> smallRational) a
-          || ((sqrt . (** (one + one)) $ a) ~= a)
-          && (((** (one + one)) . sqrt $ a) ~= a)
+          || ((sqrt . (** (one + one)) $ a) == a)
+          && (((** (one + one)) . sqrt $ a) == a)
       )
     )
-  , ( "log . exp ~= id"
+  , ( "log . exp == id"
     , Unary
       (\a ->
-        not (all veryPositive a)
+        not (all (> zero) a)
           || any (> smallRational) a
-          || ((log . exp $ a) ~= a)
-          && ((exp . log $ a) ~= a)
+          || ((log . exp $ a) == a)
+          && ((exp . log $ a) == a)
       )
     )
   , ( "for +ive b, a != 0,1: a ** logBase a b ~= b"
     , Binary
       (\a b ->
-        (not (all veryPositive b)
+        (not (all (> zero) b)
         || not (all nearZero a)
         || all (== one) a
         || (all (== zero) a && all nearZero (logBase a b))
-        || (a ** logBase a b ~= b)
+        || (a ** logBase a b == b)
         )
       )
     )
@@ -575,32 +553,33 @@ expFieldContainerLaws =
 additiveModuleLaws
   :: (Epsilon a, Epsilon (r a), AdditiveModule r a) => [Law2 (r a) a]
 additiveModuleLaws =
-  [ ( "additive module associative: (a + b) .+ c ~= a + (b .+ c)"
-    , Ternary21 (\a b c -> (a + b) .+ c ~= a + (b .+ c))
+  [ ( "additive module associative: (a + b) .+ c == a + (b .+ c)"
+    , Ternary21 (\a b c -> (a + b) .+ c == a + (b .+ c))
     )
-  , ( "additive module commutative: (a + b) .+ c ~= (a .+ c) + b"
-    , Ternary21 (\a b c -> (a + b) .+ c ~= (a .+ c) + b)
+  , ( "additive module commutative: (a + b) .+ c == (a .+ c) + b"
+    , Ternary21 (\a b c -> (a + b) .+ c == (a .+ c) + b)
     )
   , ("additive module unital: a .+ zero == a", Unary10 (\a -> a .+ zero == a))
-  , ( "module additive equivalence: a .+ b ~= b +. a"
-    , Binary11 (\a b -> a .+ b ~= b +. a)
+  , ( "module additive equivalence: a .+ b == b +. a"
+    , Binary11 (\a b -> a .+ b == b +. a)
     )
   ]
 
 additiveGroupModuleLaws
-  :: (Epsilon a, Epsilon (r a), AdditiveGroupModule r a) => [Law2 (r a) a]
+  :: (Epsilon a, Epsilon (r a), AdditiveModule r a, AdditiveGroupModule r a)
+  => [Law2 (r a) a]
 additiveGroupModuleLaws =
   [ ( "additive group module associative: (a + b) .- c ~= a + (b .- c)"
-    , Ternary21 (\a b c -> (a + b) .- c ~= a + (b .- c))
+    , Ternary21 (\a b c -> (a + b) .- c == a + (b .- c))
     )
   , ( "additive group module commutative: (a + b) .- c ~= (a .- c) + b"
-    , Ternary21 (\a b c -> (a + b) .- c ~= (a .- c) + b)
+    , Ternary21 (\a b c -> (a + b) .- c == (a .- c) + b)
     )
   , ( "additive group module unital: a .- zero == a"
     , Unary10 (\a -> a .- zero == a)
     )
-  , ( "module additive group equivalence: a .- b ~= negate b +. a"
-    , Binary11 (\a b -> a .- b ~= negate b +. a)
+  , ( "module additive group equivalence: a .- b == negate b +. a"
+    , Binary11 (\a b -> a .- b == negate b +. a)
     )
   ]
 
@@ -610,26 +589,15 @@ multiplicativeModuleLaws =
   [ ( "multiplicative module unital: a .* one == a"
     , Unary10 (\a -> a .* one == a)
     )
-  , ( "module right distributive: (a + b) .* c ~= (a .* c) + (b .* c)"
-    , Ternary21 (\a b c -> (a + b) .* c ~= (a .* c) + (b .* c))
+  , ( "module right distributive: (a + b) .* c == (a .* c) + (b .* c)"
+    , Ternary21 (\a b c -> (a + b) .* c == (a .* c) + (b .* c))
     )
-  , ( "module left distributive: c *. (a + b) ~= (c *. a) + (c *. b)"
-    , Ternary21 (\a b c -> c *. (a + b) ~= (c *. a) + (c *. b))
+  , ( "module left distributive: c *. (a + b) == (c *. a) + (c *. b)"
+    , Ternary21 (\a b c -> c *. (a + b) == (c *. a) + (c *. b))
     )
   , ("annihilation: a .* zero == zero", Unary10 (\a -> a .* zero == zero))
-  , ( "module multiplicative equivalence: a .* b ~= b *. a"
-    , Binary11 (\a b -> a .* b ~= b *. a)
-    )
-  ]
-
-multiplicativeGroupModuleLawsFail
-  :: (Epsilon a, Epsilon (r a), MultiplicativeGroupModule r a) => [Law2 (r a) a]
-multiplicativeGroupModuleLawsFail =
-  [ ( "multiplicative group module unital: a ./ one == a"
-    , Unary10 (\a -> nearZero a || a ./ one == a)
-    )
-  , ( "module multiplicative group equivalence: a ./ b ~= recip b *. a"
-    , Binary11 (\a b -> b == zero || a ./ b ~= recip b *. a)
+  , ( "module multiplicative equivalence: a .* b == b *. a"
+    , Binary11 (\a b -> a .* b == b *. a)
     )
   ]
 
@@ -637,6 +605,7 @@ banachLaws
   :: ( Foldable r
      , Epsilon (r a)
      , Banach r a
+     , Module r a
      , Signed a
      , FromRatio a
      , Ord a
@@ -644,38 +613,39 @@ banachLaws
      )
   => [Law2 (r a) a]
 banachLaws =
-  [ ( "L1: normalize a .* norm a ~= one"
+  [ ( "L1: normalize a .* norm a == one"
     , Unary10
       (\a ->
         (a == pure zero)
           || (any ((> smallRational) . abs) a
-             || ((normalizeL1 a .* normL1 a) ~= a)
+             || ((normalizeL1 a .* normL1 a) == a)
              )
       )
     )
-  , ( "L2: normalize a .* norm a ~= one"
+  , ( "L2: normalize a .* norm a == one"
     , Unary10
       (\a ->
         (a == pure zero)
           || (any ((> smallRational) . abs) a
-             || ((normalizeL2 a .* normL2 a) ~= a)
+             || ((normalizeL2 a .* normL2 a) == a)
              )
       )
     )
 {-
-    , ( "Lp: normalizeLp a p .* normLp a p ~= one"
+    , ( "Lp: normalizeLp a p .* normLp a p == one"
     , Binary11
         (\a p ->
            a == pure zero ||
-           (any ((> smallRational) . normL1) a || (normalizeLp p a .* normLp p a) ~= a)))
+           (any ((> smallRational) . normL1) a || (normalizeLp p a .* normLp p a) == a)))
 -}
   ]
 
-hilbertLaws :: (Module r a, Epsilon a, Hilbert r a) => [Law2 (r a) a]
+hilbertLaws
+  :: (Module r a, Epsilon a, Hilbert r a) => [Law2 (r a) a]
 hilbertLaws =
-  [ ("commutative a <.> b ~= b <.> a", Ternary21 (\a b _ -> a <.> b ~= b <.> a))
+  [ ("commutative a <.> b == b <.> a", Ternary21 (\a b _ -> a <.> b == b <.> a))
   , ( "distributive over additive a <.> (b + c) == a <.> b + a <.> c"
-    , Ternary30 (\a b c -> a <.> (b + c) ~= a <.> b + a <.> c)
+    , Ternary30 (\a b c -> a <.> (b + c) == a <.> b + a <.> c)
     )
   , ( "bilinear a <.> (s *. b + c) == s * (a <.> b) + a <.> c"
     , Quad31 (\a b c s -> a <.> (s *. b + c) == s * (a <.> b) + a <.> c)
@@ -716,8 +686,8 @@ hadamardDivisionLaws
   :: (Epsilon a, Epsilon (r a), HadamardDivision r a, Applicative r)
   => [Law (r a)]
 hadamardDivisionLaws = 
-  [ ( "basis divide: a ./. a ~= pure one"
-    , Unary (\a -> a == pure zero || (a ./. a) ~= pure one)
+  [ ( "basis divide: a ./. a == pure one"
+    , Unary (\a -> a == pure zero || (a ./. a) == pure one)
     )
   ]
 
@@ -764,8 +734,7 @@ involutiveRingLaws =
     )
   ]
 
-
--- integrals are the law groups that apply to Integral-like numbers
+-- integralsLaws are the common laws that apply to Integral-like numbers
 integralsLaws
   :: ( Eq a
      , Integral a
@@ -777,10 +746,43 @@ integralsLaws
   => [Law a]
 integralsLaws =
   additiveLaws
-    <> additiveGroupLaws
-    <> multiplicativeLaws
-    <> distributiveLaws
-    <> integralLaws
-    <> signedLaws
+  <> additiveGroupLaws
+  <> multiplicativeLaws
+  <> distributiveLaws
+  <> integralLaws
+  <> signedLaws
 
+integralsUnboundedLaws
+  :: ( Ord a
+    , Epsilon a
+    , Integral a
+    , Signed a
+    , ToInteger a
+    , FromInteger a
+    , AbelianGroup (Sum a)
+    , Normed a a
+    , Metric a a
+    )
+  => [Laws a a]
+integralsUnboundedLaws =
+  (Arity1 <$> integralsLaws) <>
+  (Arity2 <$> metricIntegralLaws) <>
+  (Arity2 <$> normedLaws)
 
+integralsBoundedLaws
+  :: ( Ord a
+    , Epsilon a
+    , Integral a
+    , Signed a
+    , ToInteger a
+    , FromInteger a
+    , AbelianGroup (Sum a)
+    , Normed a a
+    , Metric a a
+    , Bounded a
+    )
+  => [Laws a a]
+integralsBoundedLaws =
+  (Arity1 <$> integralsLaws) <>
+  (Arity2 <$> metricIntegralBoundedLaws) <>
+  (Arity2 <$> normedBoundedLaws)

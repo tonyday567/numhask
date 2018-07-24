@@ -18,7 +18,6 @@ module NumHask.Algebra.Abstract.Ring
   )
 where
 
-import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
@@ -37,8 +36,6 @@ class (Additive a, Multiplicative a) =>
 instance Distributive P.Double
 
 instance Distributive P.Float
-
-instance (Distributive a, AbelianGroup (Sum a)) => Distributive (Complex a)
 
 instance Distributive P.Int
 instance Distributive P.Integer
@@ -89,8 +86,6 @@ class (CommutativeRing a, Invertible (Product a)) =>
 instance IntegralDomain P.Double
 
 instance IntegralDomain P.Float
-
-instance (IntegralDomain a) => IntegralDomain (Complex a)
 
 instance IntegralDomain b => IntegralDomain (a -> b)
 
