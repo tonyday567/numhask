@@ -60,6 +60,7 @@ library
     NumHask.Algebra.Abstract.Module
     NumHask.Algebra.Abstract.Multiplicative
     NumHask.Algebra.Abstract.Ring
+    NumHask.Algebra.Abstract.TensorProduct
     NumHask.Algebra.Linear.Hadamard
     NumHask.Analysis.Banach
     NumHask.Analysis.Metric

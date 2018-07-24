@@ -23,6 +23,7 @@ module NumHask.Prelude
   , module NumHask.Algebra.Abstract.Module
   , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Algebra.Abstract.Ring
+  , module NumHask.Algebra.Abstract.TensorProduct
   , module NumHask.Algebra.Linear.Hadamard
   , module NumHask.Analysis.Banach
   , module NumHask.Analysis.Metric
@@ -51,6 +52,7 @@ import NumHask.Algebra.Abstract.Homomorphism
 import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.TensorProduct
 import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric

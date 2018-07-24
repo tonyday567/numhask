@@ -9,17 +9,11 @@
 -- | Algebra for Modules
 module NumHask.Algebra.Abstract.Module
   ( Module
-  , type (><)
-  , TensorProduct(..)
   ) where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Ring
-import Prelude (Double, Float, Int, Integer)
 
 -- | a module
 --   A Module over r a is a (Ring a), an abelian (Group r a) 
@@ -30,59 +24,3 @@ import Prelude (Double, Float, Int, Integer)
 -- > a .* zero == zero
 -- > a .* b == b *. a
 class (Ring a, AbelianGroup (Sum (r a))) => Module r a
-
---FIXME: Why is the Tensorproduct here?
--- | tensorial type
-type family (><) (a :: k1) (b :: k2) :: *
-
-type instance Int >< Int = Int
-
-type instance Integer >< Integer = Integer
-
-type instance Double >< Double = Double
-
-type instance Float >< Float = Float
-
-type instance Natural >< Natural = Natural
-
-type instance Int8 >< Int8 = Int8
-
-type instance Int16 >< Int16 = Int16
-
-type instance Int32 >< Int32 = Int32
-
-type instance Int64 >< Int64 = Int64
-
-type instance Word >< Word = Word
-
-type instance Word8 >< Word8 = Word8
-
-type instance Word16 >< Word16 = Word16
-
-type instance Word32 >< Word32 = Word32
-
-type instance Word64 >< Word64 = Word64
-
--- | representation synthesis
-type family TensorRep k1 k2 where
-  TensorRep (r a) (r a) = r (r a)
-  TensorRep (r a) (s a) = r (s a)
-  TensorRep (r a) a = r a
-
-type instance r a >< b = TensorRep (r a) b
-
--- | generalised outer product
---
--- > a><b + c><b == (a+c) >< b
--- > a><b + a><c == a >< (b+c)
---
--- FIXME: work out why these laws don't apply
--- > a *. (b><c) == (a><b) .* c
--- > (a><b) .* c == a *. (b><c)
-class TensorProduct a where
-  infix 8 ><
-  (><) :: a -> a -> (a >< a)
-  outer :: a -> a -> (a >< a)
-  outer = (><)
-  timesleft :: a -> (a >< a) -> a
-  timesright :: (a >< a) -> a -> a
