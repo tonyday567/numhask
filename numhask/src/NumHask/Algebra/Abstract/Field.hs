@@ -27,7 +27,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Data.Integral
 import qualified Prelude as P
 
-import Prelude ((.), ($), fst, snd)
+import Prelude ((.), fst, snd)
 
 -- | A Field is a Integral domain in which every non-zero element has a multiplicative inverse.
 --
@@ -120,12 +120,12 @@ class (Field a, Integral b) => QuotientField a b where
           P.GT -> m
 
   ceiling :: a -> b
-  default ceiling ::(P.Ord a) => a -> b
+  default ceiling :: (P.Ord a) => a -> b
   ceiling x = bool n (n+one) (r P.> zero)
     where (n,r) = properFraction x
 
   floor :: a -> b
-  default floor ::(P.Ord a, Invertible (Sum b)) => a -> b
+  default floor :: (P.Ord a, Invertible (Sum b)) => a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
@@ -149,6 +149,8 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
   ceiling f = ceiling . f
 
   floor f = floor . f
+
+  truncate f = truncate . f
 
 -- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
 --
