@@ -44,7 +44,7 @@ instance HadamardMultiplication m a => Associative (Product (Hadamard_ (m a)))
 -- | element by element division
 --
 -- > a ./. a == singleton one
-class (Group (Product a)) =>
+class (Divisive a) =>
   HadamardDivision m a where
   infixl 7 ./.
   (./.) :: m a -> m a -> m a
@@ -52,10 +52,9 @@ class (Group (Product a)) =>
 class (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a
 instance (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a
 
-instance (Unital (Product (m a)), Hadamard m a) => Invertible (Product (Hadamard_ (m a))) where
+instance (Multiplicative (m a), Hadamard m a) => Invertible (Product (Hadamard_ (m a))) where
   inv = coerce ((./.) @m @a (one @(m a)))
 
-instance (Distributive a, Additive (Hadamard_ (m a))
-        , Hadamard m a, Unital (Product (Hadamard_ (m a)))
-        , Absorbing (Product (Hadamard_ (m a))))
+instance (Additive (Hadamard_ (m a))
+        , Multiplicative (Hadamard_ (m a)))
         => Distributive  (Hadamard_ (m a))

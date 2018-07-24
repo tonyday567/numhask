@@ -5,12 +5,8 @@
 
 -- | Metric classes
 module NumHask.Analysis.Banach
-  ( Signed(..)
-  , Normed(..)
-  , Metric(..)
-  , Epsilon(..)
+  ( Banach(..)
   , Hilbert(..)
-  , Banach(..)
   )
 where
 
@@ -22,7 +18,7 @@ import NumHask.Analysis.Metric
 -- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
 --
 -- > a == singleton zero || normalizeL2 a *. normL2 a == a
-class (ExpField a, Normed (r a) a, MultiplicativeGroupAction r a) =>
+class (ExpField a, Normed (r a) a, DivisiveAction r a) =>
   Banach r a where
   normalizeL1 :: r a -> r a
   normalizeL1 a = a ./ normL1 a

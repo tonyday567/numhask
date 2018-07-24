@@ -108,15 +108,15 @@ testsRational = testGroup
   [ testGroup "Additive"
   $ testLawOf1 ([] :: [Rational])
   <$> additiveLaws
-  , testGroup "Additive Group"
+  , testGroup "Subtractive"
   $ testLawOf1 ([] :: [Rational])
-  <$> additiveGroupLaws
+  <$> subtractiveLaws
   , testGroup "Multiplicative"
   $ testLawOf1 ([] :: [Rational])
   <$> multiplicativeLaws
-  , testGroup "MultiplicativeGroup"
+  , testGroup "Divisive"
   $ testLawOf1 ([] :: [Rational])
-  <$> multiplicativeGroupLaws
+  <$> divisiveLaws
   , testGroup "Distributive" $ testLawOf1 ([] :: [Rational]) <$> distributiveLaws
   , testGroup "Signed" $ testLawOf1 ([] :: [Rational]) <$> signedLaws
   , testGroup "Normed"
@@ -135,6 +135,6 @@ logFieldLaws
 logFieldLaws = 
   (Arity1 <$> additiveIntervalLaws (logField 10.0)) <>
   (Arity1 <$> multiplicativeIntervalLaws (logField 10.0)) <>
-  (Arity1 <$> multiplicativeGroupIntervalLaws (logField 10.0)) <>
+  (Arity1 <$> divisiveIntervalLaws (logField 10.0)) <>
   (Arity1 <$> distributiveIntervalLaws (logField 10.0))
 

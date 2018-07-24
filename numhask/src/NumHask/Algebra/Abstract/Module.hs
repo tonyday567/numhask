@@ -11,9 +11,9 @@ module NumHask.Algebra.Abstract.Module
   ( Module
   ) where
 
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Action
 
 -- | a module
 --   A Module over r a is a (Ring a), an abelian (Group r a) 
@@ -23,4 +23,4 @@ import NumHask.Algebra.Abstract.Ring
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Ring a, AbelianGroup (Sum (r a))) => Module r a
+class (Ring a, Divisive (r a), MultiplicativeAction r a) => Module r a

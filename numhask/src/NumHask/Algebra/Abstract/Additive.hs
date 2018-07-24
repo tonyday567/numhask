@@ -10,19 +10,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Additivec
+-- | Additive
 module NumHask.Algebra.Abstract.Additive
   ( Sum(..)
   , Additive(..)
-  , (+)
-  , (-)
-  , zero
-  , negate
+  , Subtractive(..)
   )
 where
 
 import Data.Coerce
-import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
@@ -39,22 +35,26 @@ class (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
   sum :: (P.Foldable f) => f a -> a
   sum = P.foldr (+) zero
 
+  infixl 6 +
+  (+) :: a -> a -> a
+  (+) = coerceFA magma
+
+  zero :: a
+  zero = let (Sum a) = unit in a
+
 instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
   => Additive a
 
-infixl 6 +
-(+) :: Magma (Sum a) => a -> a -> a
-(+) = coerceFA magma
+class (AbelianGroup (Sum a))
+  => Subtractive a where
+  negate :: a -> a
+  negate = coerceFA' inv
 
-infixl 6 -
-(-) :: (Invertible (Sum a)) => a -> a -> a
-(-) a b = a + negate b
+  infixl 6 -
+  (-) :: a -> a -> a
+  (-) a b = a + negate b
 
-zero :: Unital (Sum a) => a
-zero = let (Sum a) = unit in a
-
-negate :: Invertible (Sum a) => a -> a
-negate = coerceFA' inv
+instance (AbelianGroup (Sum a)) => Subtractive a
 
 --less flexible coerces for better inference in instances
 coerceFA :: (Sum a -> Sum a -> Sum a) -> a -> a -> a
@@ -83,11 +83,6 @@ instance Magma (Sum P.Integer) where
 
 instance Magma (Sum P.Bool) where
   magma = coerceTA (P.||)
-
-instance Magma (Sum a) => Magma (Sum (Complex a)) where
-  (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) = Sum res
-    where
-      res = (rx + ry) :+ (ix + iy)
 
 instance Magma (Sum Natural) where
   magma = coerceTA (P.+)
@@ -139,11 +134,6 @@ instance Unital (Sum P.Integer) where
 instance Unital (Sum P.Bool) where
   unit = coerce P.False
 
-instance Unital (Sum a) => Unital (Sum (Complex a)) where
-  unit = Sum P.$ elem :+ elem
-    where
-      elem = let (Sum x) = unit in x
-
 instance Unital (Sum Natural) where
   unit = coerce (0 :: Natural)
 
@@ -187,8 +177,6 @@ instance Associative (Sum P.Integer)
 
 instance Associative (Sum P.Bool)
 
-instance Associative (Sum a) => Associative (Sum (Complex a))
-
 instance Associative (Sum Natural)
 
 instance Associative (Sum Int8)
@@ -221,8 +209,6 @@ instance Commutative (Sum P.Int)
 instance Commutative (Sum P.Integer)
 
 instance Commutative (Sum P.Bool)
-
-instance Commutative (Sum a) => Commutative (Sum (Complex a))
 
 instance Commutative (Sum Natural)
 
@@ -260,11 +246,6 @@ instance Invertible (Sum P.Integer) where
 
 instance Invertible (Sum P.Bool) where
   inv = coerceTA' P.not
-
-instance Invertible (Sum a) => Invertible (Sum (Complex a)) where
-  inv (Sum (rx :+ ix)) = Sum P.$ (doInv rx :+ doInv ix)
-    where
-      doInv = coerceFA' inv
 
 instance Invertible (Sum Int8) where
   inv = coerceTA' P.negate

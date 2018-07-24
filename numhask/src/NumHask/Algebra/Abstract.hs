@@ -39,9 +39,9 @@ import NumHask.Algebra.Abstract.Module
 -- >    negate              :: a -> a
 --
 -- `+` is a function of the `Additive` class,
--- `-` is a function of the `AdditiveGroup` class, and
+-- `-` is a function of the `Subtractive` class, and
 -- `*` is a function of the `Multiplicative` class.
--- `negate` is specifically in the `AdditiveInvertible` class.  There are many useful constructions between negate and (-), involving cancellative properties.
+-- `negate` is specifically in the `Subtractive` class.  There are many useful constructions between negate and (-), involving cancellative properties.
 --
 -- >    -- | Absolute value.
 -- >    abs                 :: a -> a

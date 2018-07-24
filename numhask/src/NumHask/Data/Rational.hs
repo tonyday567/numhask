@@ -36,7 +36,7 @@ import qualified Prelude as P
 
 data Ratio a = !a :% !a deriving (P.Show)
 
-instance (P.Eq a, Unital (Sum a)) => P.Eq (Ratio a) where
+instance (P.Eq a, Additive a) => P.Eq (Ratio a) where
   a == b
     | isRNaN a P.|| isRNaN b = P.False
     | P.otherwise = (x P.== x') P.&& (y P.== y')
@@ -44,7 +44,7 @@ instance (P.Eq a, Unital (Sum a)) => P.Eq (Ratio a) where
         (x:%y) = a
         (x':%y') = b
 
-isRNaN :: (P.Eq a, Unital (Sum a)) => Ratio a -> P.Bool
+isRNaN :: (P.Eq a, Additive a) => Ratio a -> P.Bool
 isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
@@ -135,7 +135,7 @@ instance (AdditionConstraints a) => Metric (Ratio a) (Ratio a) where
 
 instance (AdditionConstraints a, Commutative (Product a)) => Epsilon (Ratio a)
 
-instance (FromInteger a, Unital (Product a)) => FromInteger (Ratio a) where
+instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
   fromInteger x = fromInteger x :% one
 
 -- | toRatio is equivalent to `Real` in base.

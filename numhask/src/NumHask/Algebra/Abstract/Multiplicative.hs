@@ -14,11 +14,7 @@
 module NumHask.Algebra.Abstract.Multiplicative
   ( Product(..)
   , Multiplicative(..)
-  , (*)
-  , (/)
-  , one
-  , recip
-  , zero'
+  , Divisive(..)
   )
 where
 
@@ -39,24 +35,28 @@ class (Absorbing (Product a), Associative (Product a), Unital (Product a))
   product :: (P.Foldable f) => f a -> a
   product = P.foldr (*) one
 
+  infixl 7 *
+  (*) :: a -> a -> a
+  (*) = coerceFM magma
+
+  one :: a
+  one = let (Product a) = unit in a
+
+  zero' :: a
+  zero' = let (Product a) = absorb in a
+
 instance (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplicative a
 
-infixl 7 *
-(*) :: Magma (Product a) => a -> a -> a
-(*) = coerceFM magma
+class (Multiplicative a, AbelianGroup (Product a))
+  => Divisive a where
+  recip :: a -> a
+  recip = coerceFM' inv
 
-infixl 7 /
-(/) :: (Invertible (Product a)) => a -> a -> a
-(/) a b = a * recip b
+  infixl 7 /
+  (/) :: a -> a -> a
+  (/) a b = a * recip b
 
-one :: Unital (Product a) => a
-one = let (Product a) = unit in a
-
-recip :: Invertible (Product a) => a -> a
-recip = coerceFM' inv
-
-zero' :: Multiplicative a => a
-zero' = let (Product a) = absorb in a
+instance (Multiplicative a, AbelianGroup (Product a)) => Divisive a
 
 --less flexible coerces for better inference in instances
 coerceFM :: (Product a -> Product a -> Product a) -> a -> a -> a

@@ -10,8 +10,7 @@
 module NumHask.Laws.Interval
   ( additiveIntervalLaws
   , multiplicativeIntervalLaws
-  , multiplicativeComplexIntervalLaws
-  , multiplicativeGroupIntervalLaws
+  , divisiveIntervalLaws
   , distributiveIntervalLaws
   , fieldIntervalLaws
   , measureIntervalLaws
@@ -26,7 +25,12 @@ import NumHask.Data.Interval
 
 -- | additive laws within an interval bound
 additiveIntervalLaws
-  :: (Interval' a, Additive a, Epsilon a, Unital (Product a), Invertible (Sum a))
+  ::
+    ( Interval' a
+    , Epsilon a
+    , Multiplicative a
+    , Subtractive a
+    )
   => a -> [Law a]
 additiveIntervalLaws accuracy =
   [ ( "associative: (a + b) + c = a + (b + c)"
@@ -43,7 +47,11 @@ additiveIntervalLaws accuracy =
 
 -- | multiplicative laws within an interval bound
 multiplicativeIntervalLaws
-  :: (Interval' a, Ring a, Ord a, Epsilon a)
+  :: ( Interval' a
+    , Multiplicative a
+    , Subtractive a
+    , Ord a
+    , Epsilon a)
   => a -> [Law a]
 multiplicativeIntervalLaws accuracy =
   [ ( "associative: (a * b) * c = a * (b * c)"
@@ -58,15 +66,19 @@ multiplicativeIntervalLaws accuracy =
     , Binary (\a b -> (a * b) `member` (eps accuracy b * eps accuracy a)))
   ]
 
+{-
 -- | multiplicative laws within an interval bound
 multiplicativeComplexIntervalLaws
   :: (Interval' (Complex a), Interval' a, Ring a, Ord a, Signed a, Epsilon a
-    , Multiplicative (Complex a))
+    , Multiplicative (Complex a)
+    , Subtractive (Complex a))
   => Complex a -> [Law (Complex a)] 
 multiplicativeComplexIntervalLaws accuracy =
   [ ( "associative: (a * b) * c = a * (b * c)"
-    , Ternary (\a b c ->   ((a * b) * c) `member` (eps accuracy a * (eps accuracy b * eps accuracy c))
-                        && (a * (b * c)) `member` ((eps accuracy a * eps accuracy b) * eps accuracy c))
+    , Ternary (\a b c -> ((a * b) * c) `member`
+                (eps accuracy a * (eps accuracy b * eps accuracy c))
+                && (a * (b * c)) `member`
+                ((eps accuracy a * eps accuracy b) * eps accuracy c))
     )
   , ( "left id: zero * a = a"
     , Unary (\a -> (one * a) `member` eps accuracy a))
@@ -76,12 +88,15 @@ multiplicativeComplexIntervalLaws accuracy =
     , Binary (\a b -> (a * b) `member` (eps accuracy b * eps accuracy a)))
   ]
 
-multiplicativeGroupIntervalLaws
-  :: ( Interval' a, Ord a, Epsilon a, Absorbing (Product a)
-    , AbelianGroup (Product a)
+
+-}
+
+divisiveIntervalLaws
+  :: ( Interval' a, Ord a, Epsilon a
+    , Divisive a
     , BoundedField a)
   => a -> [Law a]
-multiplicativeGroupIntervalLaws accuracy =
+divisiveIntervalLaws accuracy =
   [ ( "divide: a == zero || a / a == one"
     , Unary (\a ->  zero `member` (eps accuracy a)
                   || one `member` (eps accuracy a / eps accuracy a))
@@ -100,12 +115,13 @@ multiplicativeGroupIntervalLaws accuracy =
     )
   ]
 
-multiplicativeGroupComplexIntervalLaws
+{-
+divisiveComplexIntervalLaws
   :: ( Interval' a, Ord a, Signed a, Epsilon a
-    , AbelianGroup (Product a)
+    , Divisive a
     , BoundedField a)
   => Complex a -> a -> [Law (Complex a)]
-multiplicativeGroupComplexIntervalLaws accComplex accReal=
+divisiveComplexIntervalLaws accComplex accReal=
   [ ( "divide: a == zero || a / a == one"
     , Unary (\a ->  zero `member` (eps (accReal:+zero) a)
                   || one `member` (eps (accReal:+zero) a / eps (accReal:+zero) a))
@@ -124,6 +140,8 @@ multiplicativeGroupComplexIntervalLaws accComplex accReal=
     )
   ]
 
+-}
+
 distributiveIntervalLaws
   :: ( Interval' a, Ord a, Epsilon a, Invertible (Sum a)
     , Distributive a) => a -> [Law a]
@@ -138,8 +156,9 @@ distributiveIntervalLaws accuracy =
     )
   ]
 
+{-
 distributiveIntervalComplexLaws
-  :: ( Interval' a, Ord a, Epsilon a, Signed a, Invertible (Sum a)
+  :: ( Interval' a, Ord a, Epsilon a, Signed a, Subtractive a
     , Distributive a) => Complex a -> [Law (Complex a)]
 distributiveIntervalComplexLaws accuracy =
   [ ("left annihilation: a * zero == zero", Unary (\a -> (a * zero) `member` eps accuracy zero))
@@ -152,6 +171,8 @@ distributiveIntervalComplexLaws accuracy =
     )
   ]
 
+-}
+
 fieldIntervalLaws
   :: ( Epsilon a
     , Interval' a
@@ -161,9 +182,9 @@ fieldIntervalLaws
   => [Laws a a]
 fieldIntervalLaws =
   (Arity1 <$> additiveIntervalLaws one) <>
-  (Arity1 <$> additiveGroupLaws) <>
+  (Arity1 <$> subtractiveLaws) <>
   (Arity1 <$> multiplicativeIntervalLaws one) <>
-  (Arity1 <$> multiplicativeGroupIntervalLaws one) <>
+  (Arity1 <$> divisiveIntervalLaws one) <>
   (Arity1 <$> distributiveIntervalLaws one)
 
 extraIntervalLaws
@@ -202,13 +223,12 @@ complexIntervalLaws
     , Ord a
     , Interval' a
     , Field a
-    , BoundedField a
     , Signed a
     )
   => Complex a -> a -> [Laws (Complex a) (Complex a)]
-complexIntervalLaws acc accReal =
+complexIntervalLaws acc _ =
   (Arity1 <$> additiveIntervalLaws acc) <>
-  (Arity1 <$> additiveGroupLaws) <>
-  (Arity1 <$> multiplicativeComplexIntervalLaws acc) <>
-  (Arity1 <$> multiplicativeGroupComplexIntervalLaws acc accReal) <>
-  (Arity1 <$> distributiveIntervalComplexLaws acc)
+  (Arity1 <$> subtractiveLaws)
+  -- (Arity1 <$> multiplicativeComplexIntervalLaws acc) <>
+  -- (Arity1 <$> divisiveComplexIntervalLaws acc accReal) <>
+  -- (Arity1 <$> distributiveIntervalComplexLaws acc)

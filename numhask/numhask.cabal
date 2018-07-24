@@ -66,7 +66,8 @@ library
     NumHask.Analysis.Metric
     NumHask.Data.Complex   
     NumHask.Data.Integral
-    NumHask.Data.LogField       
+    NumHask.Data.LogField
+    NumHask.Data.Positive
     NumHask.Data.Rational
   other-modules:
   default-language: Haskell2010

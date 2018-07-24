@@ -58,49 +58,49 @@ realPart (x :+ _) = x
 imagPart :: Complex a -> a
 imagPart (_ :+ y) = y
 
-instance (Magma (Sum a)) => Magma (Sum (Complex a)) where
+instance (Additive a) => Magma (Sum (Complex a)) where
   (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) =
     Sum $ (rx + ry) :+ (ix + iy)
 
-instance (Unital (Sum a)) => Unital (Sum (Complex a)) where
+instance (Additive a) => Unital (Sum (Complex a)) where
   unit = Sum (zero :+ zero)
 
-instance (Associative (Sum a)) => Associative (Sum (Complex a))
+instance (Additive a) => Associative (Sum (Complex a))
 
-instance (Commutative (Sum a)) => Commutative (Sum (Complex a))
+instance (Additive a) => Commutative (Sum (Complex a))
 
-instance (Invertible (Sum a)) => Invertible (Sum (Complex a)) where
+instance (Subtractive a) => Invertible (Sum (Complex a)) where
   inv (Sum (rx :+ ix)) = Sum $ negate rx :+ negate ix
 
-instance (Invertible (Sum a), Multiplicative a) =>
+instance (Subtractive a, Multiplicative a) =>
   Absorbing (Product (Complex a)) where
   absorb = Product $ zero' :+ zero'
 
 instance (Invertible (Sum a), Distributive a) =>
   Distributive (Complex a)
 
-instance (Invertible (Sum a), Unital (Sum a), Unital (Product a)) =>
+instance (Subtractive a, Multiplicative a) =>
   Unital (Product (Complex a)) where
   unit = Product $ one :+ zero
 
 instance
-  ( Invertible (Sum a)
-  , Magma (Product a)
+  ( Subtractive a
+  , Multiplicative a
   ) =>
   Magma (Product (Complex a)) where
   (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
     Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
 
-instance (Invertible (Sum a), Magma (Product a)) =>
+instance (Subtractive a, Multiplicative a) =>
   Commutative (Product (Complex a))
 
-instance (Additive a, Invertible (Sum a), Invertible (Product a)) =>
+instance (Subtractive a, Divisive a) =>
   Invertible (Product (Complex a)) where
   inv (Product (rx :+ ix)) = Product $ (rx * d) :+ (negate ix * d)
     where
       d = recip ((rx * rx) + (ix * ix))
 
-instance (Magma (Product a), Invertible (Sum a)) =>
+instance (Multiplicative a, Subtractive a) =>
   Associative (Product (Complex a))
 
 instance (Multiplicative a, ExpField a, Normed a a) =>

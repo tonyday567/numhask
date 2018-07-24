@@ -197,27 +197,27 @@ instance (ExpField a, Ord a, BoundedField a) => Invertible (Sum (LogField a)) wh
     | x == zero = Sum zero
     | otherwise = Sum nan
 
-instance (Magma (Sum a), LowerBoundedField a, Eq a) =>
+instance (LowerBoundedField a, Eq a) =>
   Magma (Product (LogField a)) where
   (Product (LogField x)) `magma` (Product (LogField y))
     | x == negInfinity || y == negInfinity = Product $ LogField negInfinity
     | otherwise = Product $ LogField (x + y)
 
-instance (Unital (Sum a), LowerBoundedField a, Eq a) =>
+instance (LowerBoundedField a, Eq a) =>
   Unital (Product (LogField a)) where
   unit = Product $ LogField zero
 
-instance (Associative (Sum a), LowerBoundedField a, Eq a) =>
+instance (LowerBoundedField a, Eq a) =>
   Associative (Product (LogField a))
 
-instance (Commutative (Sum a), LowerBoundedField a, Eq a) =>
+instance (LowerBoundedField a, Eq a) =>
   Commutative (Product (LogField a))
 
-instance (Invertible (Sum a), LowerBoundedField a, Eq a) =>
+instance (LowerBoundedField a, Eq a) =>
   Invertible (Product (LogField a)) where
   inv (Product (LogField x)) = Product $ LogField $ negate x
 
-instance (Magma (Sum a), LowerBoundedField a, Eq a) =>
+instance (LowerBoundedField a, Eq a) =>
   Absorbing (Product (LogField a)) where
   absorb = Product $ LogField negInfinity
 

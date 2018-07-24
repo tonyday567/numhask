@@ -31,6 +31,7 @@ module NumHask.Prelude
   , module NumHask.Data.Integral
   , module NumHask.Data.LogField       
   , module NumHask.Data.Rational
+  , module NumHask.Data.Positive
   , Natural(..)
   ) where
  
@@ -59,6 +60,7 @@ import NumHask.Analysis.Metric
 import NumHask.Data.Complex   
 import NumHask.Data.Integral
 import NumHask.Data.LogField       
+import NumHask.Data.Positive
 import NumHask.Data.Rational
 
 -- $backend

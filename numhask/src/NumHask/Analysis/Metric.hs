@@ -262,12 +262,6 @@ instance Metric Integer Integer where
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
-  Metric (Complex a) a where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
-  distanceLp p a b = normLp p (a - b)
-
 instance Metric Natural Natural where
   distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
@@ -319,7 +313,7 @@ instance Metric Word64 Word64 where
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
   distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
-class (Eq a, Unital (Sum a)) =>
+class (Eq a, Additive a) =>
   Epsilon a where
 
   epsilon :: a
