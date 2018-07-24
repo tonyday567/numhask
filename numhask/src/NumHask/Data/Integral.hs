@@ -93,6 +93,14 @@ instance Integral Word64 where
   divMod = P.divMod
   quotRem = P.quotRem
 
+instance Integral b => Integral (a -> b) where
+  div f f' = \a -> f a `div` f' a
+  mod f f' = \a -> f a `mod` f' a
+  divMod f f' = (\a -> fst (f a `divMod` f' a), \a -> snd (f a `divMod` f' a))
+  quot f f' = \a -> f a `mod` f' a
+  rem f f' = \a -> f a `mod` f' a
+  quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
+
 -- | toInteger is kept separate from Integral to help with compatability issues.
 class ToInteger a where
   toInteger :: a -> Integer
@@ -136,6 +144,9 @@ instance ToInteger Word64 where
 -- | fromInteger is the most problematic of the 'Num' class operators.  Particularly heinous, it is assumed that any number type can be constructed from an Integer, so that the broad classes of objects that are composed of multiple elements is avoided in haskell.
 class FromInteger a where
   fromInteger :: Integer -> a
+
+instance FromInteger b => FromInteger (a -> b) where
+  fromInteger i = \_ -> fromInteger i
 
 -- | coercion of 'Integral's
 --

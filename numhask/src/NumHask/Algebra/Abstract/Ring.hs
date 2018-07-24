@@ -55,6 +55,8 @@ instance Distributive Word64
 
 instance Distributive P.Bool
 
+instance Distributive b => Distributive (a -> b)
+
 -- | Semiring
 -- TODO: rule zero' = zero. Is this somehow expressible in haskell?
 class (Associative (Sum a), Unital (Sum a), Associative (Product a),
@@ -90,6 +92,8 @@ instance IntegralDomain P.Float
 
 instance (IntegralDomain a) => IntegralDomain (Complex a)
 
+instance IntegralDomain b => IntegralDomain (a -> b)
+
 -- | StarSemiring
 --
 -- > star a = one + a `times` star a
@@ -101,12 +105,16 @@ class (Semiring a) => StarSemiring a where
   plus :: a -> a
   plus a = a * star a
 
+instance StarSemiring b => StarSemiring (a -> b)
+
 -- | KleeneAlgebra
 --
 -- > a `times` x + x = a ==> star a `times` x + x = x
 -- > x `times` a + x = a ==> x `times` star a + x = x
 --
 class (StarSemiring a, Idempotent (Sum a)) => KleeneAlgebra a
+
+instance KleeneAlgebra b => KleeneAlgebra (a -> b)
 
 -- | Involutive Ring
 --
@@ -148,3 +156,5 @@ instance InvolutiveRing Word16
 instance InvolutiveRing Word32
 
 instance InvolutiveRing Word64
+
+instance InvolutiveRing b => InvolutiveRing (a -> b)

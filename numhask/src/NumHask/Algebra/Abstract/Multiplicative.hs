@@ -6,6 +6,8 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Multiplicative
@@ -122,6 +124,11 @@ instance Magma (Product Word32) where
 instance Magma (Product Word64) where
   magma = coerceTM (P.*)
 
+instance Magma (Product b) => Magma (Product (a -> b)) where
+  (Product f) `magma` (Product f') = Product P.$ \a -> f a `cmagma` f' a 
+    where
+      cmagma = coerceFM magma
+
 instance Unital (Product P.Double) where
   unit = coerce (1 :: P.Double)
 
@@ -172,6 +179,9 @@ instance Unital (Product Word32) where
 instance Unital (Product Word64) where
   unit = coerce (1 :: Word64)
 
+instance Unital (Product b) => Unital (Product (a -> b)) where
+  unit = Product P.$ \_ -> coerce @(Product b) @b unit
+
 instance Associative (Product P.Double)
 
 instance Associative (Product P.Float)
@@ -204,6 +214,8 @@ instance Associative (Product Word16)
 instance Associative (Product Word32)
 
 instance Associative (Product Word64)
+
+instance Associative (Product b) => Associative (Product (a -> b))
 
 instance Commutative (Product P.Double)
 
@@ -238,6 +250,8 @@ instance Commutative (Product Word32)
 
 instance Commutative (Product Word64)
 
+instance Commutative (Product b) => Commutative (Product (a -> b))
+
 instance Invertible (Product P.Double) where
   inv = coerceTM' P.recip
 
@@ -250,7 +264,12 @@ instance (AbelianGroup (Sum a), Invertible (Product a)) =>
     where
       d = recip ((rx * rx) + (ix * ix))
 
+instance Invertible (Product b) => Invertible (Product (a -> b)) where
+  inv (Product f) = Product P.$ \a -> coerceFM' inv (f a)
+
 instance Idempotent (Product P.Bool)
+
+instance Idempotent (Product b) => Idempotent (Product (a -> b))
 
 instance Absorbing (Product P.Double) where
   absorb = coerce (0 :: P.Double)
@@ -302,3 +321,6 @@ instance Absorbing (Product Word32) where
 
 instance Absorbing (Product Word64) where
   absorb = coerce (0 :: Word64)
+
+instance Absorbing (Product b) => Absorbing (Product (a -> b)) where
+  absorb = Product P.$ \_ -> coerce @(Product b) @b absorb
