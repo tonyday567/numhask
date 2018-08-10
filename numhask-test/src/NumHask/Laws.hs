@@ -18,10 +18,10 @@ module NumHask.Laws
   , testLawOf2
   , idempotentLaws
   , additiveLaws 
-  , additiveGroupLaws
+  , subtractiveLaws
   , multiplicativeLaws
   , multiplicativeMonoidalLaws
-  , multiplicativeGroupLaws
+  , divisiveLaws
   , distributiveLaws
   , integralLaws
   , rationalLaws
@@ -30,7 +30,7 @@ module NumHask.Laws
   , normedBoundedLaws
   , metricLaws
   , metricIntegralLaws
-  , metricIntegralBoundedLaws
+  -- , metricIntegralBoundedLaws
   , metricRationalLaws
   , upperBoundedFieldLaws
   , lowerBoundedFieldLaws
@@ -137,8 +137,8 @@ additiveLaws =
   , ("commutative: a + b == b + a", Binary (\a b -> a + b == b + a))
   ]
 
-additiveGroupLaws :: (Eq a, AbelianGroup (Sum a)) => [Law a]
-additiveGroupLaws =
+subtractiveLaws :: (Eq a, AbelianGroup (Sum a)) => [Law a]
+subtractiveLaws =
   [ ("minus: a - a = zero", Unary (\a -> (a - a) == zero))
   , ("negate minus: negate a == zero - a", Unary (\a -> negate a == zero - a))
   , ( "negate left cancel: negate a + a == zero"
@@ -160,7 +160,7 @@ multiplicativeLaws =
   , ("commutative: a * b == b * a", Binary (\a b -> a * b == b * a))
   ]
 
-multiplicativeMonoidalLaws :: (Eq a, Unital (Product a)) => [Law a]
+multiplicativeMonoidalLaws :: (Eq a, Multiplicative a) => [Law a]
 multiplicativeMonoidalLaws =
   [ ( "associative: (a * b) * c = a * (b * c)"
     , Ternary (\a b c -> (a * b) * c == a * (b * c))
@@ -169,10 +169,10 @@ multiplicativeMonoidalLaws =
   , ("right id: a * one = a", Unary (\a -> a * one == a))
   ]
 
-multiplicativeGroupLaws
-  :: (Eq a, Unital (Sum a), Absorbing (Product a), AbelianGroup (Product a))
+divisiveLaws
+  :: (Eq a, Additive a, Divisive a)
   => [Law a]
-multiplicativeGroupLaws =
+divisiveLaws =
   [ ( "divide: a == zero || a / a == one"
     , Unary (\a -> a == zero || (a / a) == one)
     )
@@ -214,12 +214,12 @@ rationalLaws :: (Eq a, FromRatio a, ToRatio a) => [Law a]
 rationalLaws = [("fromRational a = a", Unary (\a -> fromRational a == a))]
 
 -- metric
-signedLaws :: (Eq a, Signed a) => [Law a]
+signedLaws :: (Eq a, Multiplicative a, Signed a) => [Law a]
 signedLaws = [("sign a * abs a == a", Unary (\a -> sign a * abs a == a))]
 
 normedLaws
   :: forall a b
-   . (Ord b, Unital (Sum a), Unital (Sum b), Unital (Product b), Normed a b)
+   . (Ord b, Additive a, Additive b, Multiplicative b, Normed a b)
   => [Law2 a b]
 normedLaws =
   [ ( "positive"
@@ -236,9 +236,9 @@ normedBoundedLaws
    . ( Eq a
      , Bounded a
      , Ord b
-     , Unital (Sum a)
-     , Unital (Sum b)
-     , Unital (Product b)
+     , Additive a
+     , Additive b
+     , Multiplicative b
      , Normed a b
      )
   => [Law2 a b]
@@ -259,10 +259,10 @@ metricIntegralLaws
   :: forall a b
    . ( FromInteger b
      , Ord b
-     , Signed b
      , Epsilon b
      , Metric a b
-     , AbelianGroup (Sum b)
+     , Subtractive b
+     , Multiplicative b
      )
   => [Law2 a b]
 metricIntegralLaws =
@@ -304,10 +304,10 @@ metricIntegralLaws =
 metricLaws
   :: forall a b
    . ( Ord b
-     , Signed b
      , Epsilon b
      , Metric a b
-     , AbelianGroup (Sum b)
+     , Subtractive b
+     , Multiplicative b
      )
   => [Law2 a b]
 metricLaws =
@@ -339,10 +339,18 @@ metricLaws =
   ]
 
 
+{-
 -- triangle rule doesn't apply to bounded Integrals
 metricIntegralBoundedLaws
-  :: forall a b
-   . (FromInteger b, Bounded b, Ord b, Signed b, Epsilon b, Metric a b)
+  ::
+    ( FromInteger b
+    , Bounded b
+    , Ord b
+    , Signed b
+    , Epsilon b
+    , Metric a b
+    , Multiplicative b
+    )
   => [Law2 a b]
 metricIntegralBoundedLaws =
   [ ( "Lp: positive"
@@ -364,15 +372,17 @@ metricIntegralBoundedLaws =
     )
   ]
 
+-}
+
 metricRationalLaws
   :: forall a b
    . ( FromRatio b
      , Ord b
-     , Signed b
      , Epsilon b
      , Metric a b
      , Normed a b
-     , AbelianGroup (Sum b)
+     , Subtractive b
+     , Multiplicative b
      )
   => [Law2 a b]
 metricRationalLaws =
@@ -465,7 +475,7 @@ quotientFieldLaws =
 expFieldLaws
   :: forall a b
    . ( FromInteger b
-     , Unital (Sum b)
+     , Additive b
      , ExpField a
      , Normed a b
      , Epsilon a
@@ -548,7 +558,7 @@ expFieldContainerLaws =
   ]
 
 moduleLaws
-  :: (Epsilon a, Epsilon (r a), MultiplicativeAction r a, Module r a) => [Law2 (r a) a]
+  :: (Epsilon a, Epsilon (r a), MultiplicativeAction r a) => [Law2 (r a) a]
 moduleLaws =
   [ ( "multiplicative module unital: a .* one == a"
     , Unary10 (\a -> a .* one == a)
@@ -567,15 +577,14 @@ moduleLaws =
 
 banachLaws
   :: ( Foldable r
-     , Epsilon (r a)
-     , Banach r a
-     , Module r a
-     , MultiplicativeAction r a
-     , Signed a
-     , FromRatio a
-     , Ord a
-     , Applicative r
-     )
+    , Epsilon (r a)
+    , Banach r a
+    , Module r a
+    , Signed a
+    , FromRatio a
+    , Ord a
+    , Applicative r
+    )
   => [Law2 (r a) a]
 banachLaws =
   [ ( "L1: normalize a .* norm a == one"
@@ -604,11 +613,11 @@ banachLaws =
            (any ((> smallRational) . normL1) a || (normalizeLp p a .* normLp p a) == a)))
 -}
   ]
-
+ 
 hilbertLaws
   ::
     ( Module r a
-    , MultiplicativeAction r a
+    , Additive (r a)
     , Epsilon a
     , Hilbert r a
     )
@@ -676,7 +685,7 @@ semiringLaws =
 
 -- | ring
 ringLaws :: (Epsilon a, Ring a) => [Law a]
-ringLaws = semiringLaws <> additiveGroupLaws
+ringLaws = semiringLaws <> subtractiveLaws
 
 -- | starsemiring
 starSemiringLaws :: (Epsilon a, StarSemiring a) => [Law a]
@@ -689,7 +698,7 @@ starSemiringLaws =
 
 -- | involutive ring
 involutiveRingLaws
-  :: forall a . (Eq a, Unital (Product a), InvolutiveRing a) => [Law a]
+  :: forall a . (Eq a, InvolutiveRing a) => [Law a]
 involutiveRingLaws =
   [ ( "adjoint plus law: adj (a + b) ==> adj a + adj b"
     , Binary (\a b -> adj (a + b) == adj a + adj b)
@@ -717,7 +726,7 @@ integralsLaws
   => [Law a]
 integralsLaws =
   additiveLaws
-  <> additiveGroupLaws
+  <> subtractiveLaws
   <> multiplicativeLaws
   <> distributiveLaws
   <> integralLaws
@@ -749,11 +758,10 @@ integralsBoundedLaws
     , FromInteger a
     , AbelianGroup (Sum a)
     , Normed a a
-    , Metric a a
     , Bounded a
     )
   => [Laws a a]
 integralsBoundedLaws =
   (Arity1 <$> integralsLaws) <>
-  (Arity2 <$> metricIntegralBoundedLaws) <>
+  -- (Arity2 <$> metricIntegralBoundedLaws) <>
   (Arity2 <$> normedBoundedLaws)

@@ -9,22 +9,15 @@
 -- | Action
 module NumHask.Algebra.Abstract.Action
   ( AdditiveAction(..)
-  , AdditiveGroupAction(..)
-  , MultiplicativeGroupAction(..)
+  , SubtractiveAction(..)
   , MultiplicativeAction(..)
+  , DivisiveAction(..)
   ) where
 
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Group
 
-class (Magma (Product (r a))) => MultiplicativeAction r a where
-  infixl 7 .*
-  (.*) :: r a -> a -> r a
-  infixl 7 *.
-  (*.) :: a -> r a -> r a
-
-class (Magma (Sum (r a))) =>
+class (Additive a) =>
   AdditiveAction r a where
   infixl 6 .+
   (.+) :: r a -> a -> r a
@@ -32,16 +25,23 @@ class (Magma (Sum (r a))) =>
   infixl 6 +.
   (+.) :: a -> r a -> r a
 
-class (AbelianGroup (Sum a)) =>
-  AdditiveGroupAction r a where
+class (Subtractive a) =>
+  SubtractiveAction r a where
   infixl 6 .-
   (.-) :: r a -> a -> r a
 
   infixl 6 -.
   (-.) :: a -> r a -> r a
 
-class (AbelianGroup (Product a)) =>
-  MultiplicativeGroupAction r a where
+class (Multiplicative a) =>
+  MultiplicativeAction r a where
+  infixl 7 .*
+  (.*) :: r a -> a -> r a
+  infixl 7 *.
+  (*.) :: a -> r a -> r a
+
+class (Divisive a) =>
+  DivisiveAction r a where
   infixl 7 ./
   (./) :: r a -> a -> r a
   infixl 7 /.

@@ -35,7 +35,7 @@ testsVInt =
     "Vector [] 6 Int"
     [ testGroup "Additive" $ testLawOf1 ([] :: [Vector [] 6 Int]) <$> additiveLaws
     , testGroup "Additive Group" $
-      testLawOf1 ([] :: [Vector [] 6 Int]) <$> additiveGroupLaws
+      testLawOf1 ([] :: [Vector [] 6 Int]) <$> subtractiveLaws
     , testGroup "Multiplicative" $
       testLawOf1 ([] :: [Vector [] 6 Int]) <$> multiplicativeLaws
     , testGroup "Distributive" $
@@ -57,7 +57,7 @@ testsMInt =
     "Matrix [] 4 3 Int"
     [ testGroup "Additive" $ testLawOf1 ([] :: [Matrix [] 4 3 Int]) <$> additiveLaws
     , testGroup "Additive Group" $
-      testLawOf1 ([] :: [Matrix [] 4 3 Int]) <$> additiveGroupLaws
+      testLawOf1 ([] :: [Matrix [] 4 3 Int]) <$> subtractiveLaws
     -- FIXME: reinstate monoidal laws
     -- , testGroup "Multiplicative (square only)" $
     --  testLawOf1 ([] :: [Matrix [] 3 3 Int]) <$> multiplicativeMonoidalLaws
@@ -82,8 +82,8 @@ testsVFloat =
       testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> normedLaws
     -- , testGroup "Metric" $
     --   testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> metricRationalLaws
-    , testGroup "Exponential Field" $
-      testLawOf1 ([] :: [Vector [] 6 Float]) <$> expFieldContainerLaws
+    -- , testGroup "Exponential Field" $
+    --   testLawOf1 ([] :: [Vector [] 6 Float]) <$> expFieldContainerLaws
     -- , testGroup "Multiplicative Group Module" $
     --   localOption (QuickCheckTests 1000) .
     --   testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$>

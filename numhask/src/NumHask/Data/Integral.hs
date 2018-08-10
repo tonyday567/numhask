@@ -19,7 +19,6 @@ import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import Prelude (Double, Float, Int, Integer, (.), fst, snd)
@@ -207,7 +206,7 @@ odd = P.not . even
 -------------------------------------------------------
 -- | raise a number to a non-negative integral power
 (^)
-  :: (P.Ord b, Group (Product a), Integral b)
+  :: (P.Ord b, Multiplicative a, Integral b)
   => a
   -> b
   -> a
@@ -233,5 +232,5 @@ x0 ^ y0
                 -- See Note [Half of y - 1]
 
 (^^)
-  :: (Group (Product a), Invertible (Sum a), Integral a, P.Ord a) => a -> a -> a
+  :: (Divisive a, Subtractive a, Integral a, P.Ord a) => a -> a -> a
 (^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)

@@ -56,17 +56,15 @@ instance Distributive b => Distributive (a -> b)
 
 -- | Semiring
 -- TODO: rule zero' = zero. Is this somehow expressible in haskell?
-class (Associative (Sum a), Unital (Sum a), Associative (Product a),
-       Unital (Product a), Distributive a) =>
+class (Distributive a) =>
   Semiring a where
-instance (Associative (Sum a), Unital (Sum a), Associative (Product a),
-          Unital (Product a), Distributive a) =>
+instance (Distributive a) =>
   Semiring a
 
 -- | Ring
-class (Semiring a, AbelianGroup (Sum a)) =>
+class (Semiring a, Subtractive a) =>
   Ring a
-instance (Semiring a, AbelianGroup (Sum a)) =>
+instance (Semiring a, Subtractive a) =>
   Ring a
 
 -- | Ring with a commutative Multiplication
@@ -80,7 +78,7 @@ instance (Ring a, Commutative (Product a)) =>
 --  product of any two nonzero elements is nonzero, also
 --  if a ≠ 0, an equality ab = ac implies b = c.
 --  this essentially is a generalization of division and a fundamental step towards a Field
-class (CommutativeRing a, Invertible (Product a)) =>
+class (CommutativeRing a, Divisive a) =>
   IntegralDomain a
 
 instance IntegralDomain P.Double

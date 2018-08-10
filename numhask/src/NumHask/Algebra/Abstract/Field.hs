@@ -1,6 +1,7 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeApplications #-}
@@ -125,7 +126,7 @@ class (Field a, Integral b) => QuotientField a b where
     where (n,r) = properFraction x
 
   floor :: a -> b
-  default floor :: (P.Ord a, Invertible (Sum b)) => a -> b
+  default floor :: (P.Ord a, Subtractive b) => a -> b
   floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
@@ -179,6 +180,7 @@ instance UpperBoundedField P.Double where
 instance UpperBoundedField b => UpperBoundedField (a -> b) where
   infinity _ = infinity
   nan _ = nan
+  isNaN = P.undefined
 
 class (Field a) =>
       LowerBoundedField a where
