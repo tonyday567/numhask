@@ -174,7 +174,8 @@ instance (Interval' a, Subtractive a, Divisive a) => Invertible (Sum (Interval a
   inv (Sum (S s)) = Sum $ S $ negate s
   inv (Sum Empty) = Sum Empty
 
-instance {-# OVERLAPPABLE #-} (Ord a, Interval' a, Multiplicative a) =>
+
+instance (Ord a, Interval' a, Multiplicative a) =>
   Magma (Product (Interval a)) where
   (Product (I l u)) `magma` (Product (I l' u')) =
     Product $ I l'' u'' where
@@ -206,6 +207,13 @@ instance
   (Product (S s)) `magma` (Product i) = Product $ fmap (s*) i
   (Product Empty) `magma` x = x
   x `magma` (Product Empty) = x
+
+instance (Interval' a, Ord a, Subtractive a, Additive a, Multiplicative a) =>
+  Unital (Product (Interval (Complex a))) where
+  unit = Product $ one ... one
+
+instance (Interval' a, Ord a, Subtractive a, Additive a, Multiplicative a) =>
+  Commutative (Product (Interval (Complex a)))
 
 instance (Interval' a, Ord a, Additive a, Multiplicative a) =>
   Unital (Product (Interval a)) where
@@ -250,6 +258,13 @@ instance
       uy'' = maximum [lly, luy, uly, uuy]
   inv (Product (S s)) = Product (S (recip s))
   inv (Product Empty) = Product Empty
+
+instance (Interval' a, Ord a, Subtractive a, Additive a, Multiplicative a) =>
+  Associative (Product (Interval (Complex a)))
+
+instance (Interval' a, Ord a, Subtractive a, Additive a, Multiplicative a) =>
+  Absorbing (Product (Interval (Complex a))) where
+  absorb = Product $ zero' ... zero'
 
 instance (Interval' a, Ord a, Multiplicative a) =>
   Associative (Product (Interval a))
@@ -387,4 +402,5 @@ instance (UpperBoundedField a, Signed a, Subtractive a, Interval' a, Ord a)
   distanceL1 a b = lower . abs $ (a - b)
   distanceL2 a b = lower . abs $ (a - b)
   distanceLp _ a b = lower . abs $ (a - b)
+
 

@@ -75,6 +75,9 @@ tests = testGroup
     testLawOf2 ([] :: [(Double, Integer)]) <$> quotientFieldLaws
   , testsBool
   , testsRational
+  , testGroup "Complex Float" $
+    testLawOf ([] :: [Complex Float])  ([] :: [(Complex Float, Complex Float)]) <$>
+    complexIntervalLaws (10.0 :+ 10.0) 10.0
   -- FIXME: awaiting a proper instance for (-)
   -- , testGroup "LogField Double" $
   --   testLawOf ([] :: [LogField Double]) ([] :: [(LogField Double, LogField Double)]) <$> logFieldLaws
@@ -137,4 +140,3 @@ logFieldLaws =
   (Arity1 <$> multiplicativeIntervalLaws (logField 10.0)) <>
   (Arity1 <$> divisiveIntervalLaws (logField 10.0)) <>
   (Arity1 <$> distributiveIntervalLaws (logField 10.0))
-
