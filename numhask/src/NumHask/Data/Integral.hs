@@ -232,5 +232,5 @@ x0 ^ y0
                 -- See Note [Half of y - 1]
 
 (^^)
-  :: (Divisive a, Subtractive a, Integral a, P.Ord a) => a -> a -> a
+  :: (Divisive a, Subtractive b, Integral b, P.Ord b) => a -> b -> a
 (^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)
