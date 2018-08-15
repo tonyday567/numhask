@@ -56,5 +56,5 @@ instance (Multiplicative (m a), Hadamard m a) => Invertible (Product (Hadamard_ 
   inv = coerce ((./.) @m @a (one @(m a)))
 
 instance (Additive (Hadamard_ (m a))
-        , Multiplicative (Hadamard_ (m a)))
+        , Magma (Sum (Hadamard_ (m a))))
         => Distributive  (Hadamard_ (m a))

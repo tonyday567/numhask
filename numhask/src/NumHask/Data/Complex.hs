@@ -76,7 +76,7 @@ instance (Subtractive a, Multiplicative a) =>
   Absorbing (Product (Complex a)) where
   absorb = Product $ zero' :+ zero'
 
-instance (Invertible (Sum a), Distributive a) =>
+instance (Distributive a) =>
   Distributive (Complex a)
 
 instance (Subtractive a, Multiplicative a) =>
@@ -139,7 +139,7 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
-instance (Distributive a, Invertible (Sum a)) => InvolutiveRing (Complex a) where
+instance (Ring a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
 
 instance (UpperBoundedField a, IntegralDomain a) => UpperBoundedField (Complex a) where
