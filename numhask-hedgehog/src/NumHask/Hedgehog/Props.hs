@@ -96,6 +96,7 @@ boolProps
   ( Show a
   , Ord a
   , Distributive a
+  , Multiplicative a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -143,7 +144,6 @@ fieldProps
   , Ord a
   , Epsilon a
   , CanInterval a
-  , Distributive a
   , BoundedField a
   , FromRatio a
   , ToRatio a
@@ -179,7 +179,6 @@ complexFieldProps
   , Ord a
   , Epsilon a
   , CanInterval a
-  , Distributive a
   , BoundedField a
   , FromRatio a
   , Signed a
@@ -202,7 +201,6 @@ logFieldProps
   ( Show a
   , Epsilon a
   , CanInterval a
-  , Distributive a
   , BoundedField a
   , FromRatio a
   )
