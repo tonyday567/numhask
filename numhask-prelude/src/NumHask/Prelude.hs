@@ -13,6 +13,7 @@ module NumHask.Prelude
     -- RebindableSyntax takes fromString and fail away so we need to put it back in
   , fromString
   , fail
+  , ifThenElse
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Abstract.Action
@@ -71,3 +72,9 @@ import NumHask.Data.Rational
 --
 -- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool', 'Complex' and 'Natural'are supplied.
 --
+
+-- | rebindable syntax splats this, and I'm not sure where it exists in GHC land
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse True  x _ = x
+ifThenElse False _ y = y
+

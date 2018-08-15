@@ -1,4 +1,4 @@
-name: numhask-test
+name: numhask-hedgehog
 version: 0.3
 synopsis:
   Laws and tests for numhask
@@ -49,15 +49,16 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      QuickCheck
-    , base
+      base
+    , hedgehog
     , numhask-prelude >= 0.3 && < 0.4
-    , tasty
-    , tasty-quickcheck
   exposed-modules:
-    NumHask.Laws
-    NumHask.Laws.Interval
     NumHask.Data.Interval
+    NumHask.Hedgehog
+    NumHask.Hedgehog.Gen
+    NumHask.Hedgehog.Prop
+    NumHask.Hedgehog.Prop.Interval
+    NumHask.Hedgehog.Props
   default-language: Haskell2010
 
 test-suite test
@@ -74,9 +75,7 @@ test-suite test
     UnicodeSyntax
   build-depends:
       base
-    , QuickCheck
-    , numhask-test
-    , tasty-quickcheck
+    , hedgehog
     , numhask-prelude
-    , tasty
+    , numhask-hedgehog
   default-language: Haskell2010

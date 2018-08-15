@@ -35,9 +35,9 @@ import NumHask.Shape (HasShape(..))
 import Numeric.Dimensions as D
 import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
-import qualified Test.QuickCheck as QC
+import qualified NumHask.Data.Interval as I
 
--- $setup
+-- $setup 
 -- >>> :set -XDataKinds
 -- >>> :set -XOverloadedLists
 -- >>> :set -XTypeFamilies
@@ -222,6 +222,7 @@ type Vector c n = Array c '[ n]
 
 type Matrix c m n = Array c '[ m, n]
 
+{-
 instance
   ( IsList (c a)
   , Item (c a) ~ a
@@ -249,7 +250,7 @@ instance
     where
       n = fromInteger $ P.natVal (Proxy :: Proxy n)
       m = fromInteger $ P.natVal (Proxy :: Proxy m)
-
+-}
 
 -- ** Operations
 -- | outer product
@@ -642,6 +643,7 @@ instance (Functor (Array c r), Foldable (Array c r), Normed a a, ExpField a) =>
 
 instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) =>
          Epsilon (Array c r a) where
+  epsilon = tabulate (const epsilon)
   nearZero f = and (fmapRep nearZero f)
   aboutEqual a b = and (liftR2 aboutEqual a b)
 
@@ -695,7 +697,6 @@ instance (Dimensions r, Container c, Divisive a) =>
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
 
-
 instance
   ( Foldable (Array c r)
   , Dimensions r
@@ -707,3 +708,24 @@ instance
   (><) m n = tabulate (\i -> index m i *. n)
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
+
+instance forall a c r. (Eq (c a), Container c, Dimensions r, Ord a, Subtractive a, I.CanInterval a) => I.CanInterval (Array c r a) where
+
+  (...) a b
+    | a == b = I.S a
+    | otherwise = I.I a' b'
+    where
+      a' = liftR2 min a b
+      b' = liftR2 max a b
+
+  x =.= (I.I l u) = cfoldl' (&&) True $ _getContainer
+    (liftR2 (&&) (liftR2 (>=) x l) (liftR2 (<=) x u))
+  a =.= (I.S s) = a == s
+  _ =.= I.Empty = False
+
+  lowest xs = tabulate (\i -> I.lowest $ (\x -> index x i) <$> xs)
+
+  highest xs = tabulate (\i -> I.highest $ (\x -> index x i) <$> xs)
+
+singleton :: (Dimensions r, Container c) => a -> (Array c r a)
+singleton a = tabulate (const a)
