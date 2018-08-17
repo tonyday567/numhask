@@ -56,8 +56,8 @@ library
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
+    , numhask
     , numhask-prelude >=0.3 && <0.4
-    , numhask-hedgehog
     , protolude >=0.1 && <0.3
     , singletons >=2.0 && <2.5
     , vector >=0.10 && <0.13
@@ -84,6 +84,7 @@ test-suite test
       base
     , doctest
     , dimensions >=0.3.2.0 && <0.4
+    , numhask
     , numhask-array
     , numhask-prelude
     , numhask-hedgehog
