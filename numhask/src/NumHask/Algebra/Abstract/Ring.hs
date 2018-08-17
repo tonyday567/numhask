@@ -30,7 +30,7 @@ import qualified Prelude as P
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
-class (Additive a, Multiplicative a) =>
+class (Additive a, Magma (Sum a)) =>
   Distributive a
 
 instance Distributive P.Double
@@ -56,9 +56,9 @@ instance Distributive b => Distributive (a -> b)
 
 -- | Semiring
 -- TODO: rule zero' = zero. Is this somehow expressible in haskell?
-class (Distributive a) =>
+class (Distributive a, Multiplicative a) =>
   Semiring a where
-instance (Distributive a) =>
+instance (Distributive a, Multiplicative a) =>
   Semiring a
 
 -- | Ring

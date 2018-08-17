@@ -53,18 +53,13 @@ import NumHask.Prelude
 See [Examples](numhask-prelude/src/NumHask/Examples.hs) for basic examples, or [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier usage.
 
 
-numhask-test
+numhask-hedgehog
 ---
 
-[![Hackage](https://img.shields.io/hackage/v/numhask-test.svg)](https://hackage.haskell.org/package/numhask-test) [![lts](https://www.stackage.org/package/numhask-test/badge/lts)](http://stackage.org/lts/package/numhask-test) [![nightly](https://www.stackage.org/package/numhask-test/badge/nightly)](http://stackage.org/nightly/package/numhask-test)
+[![Hackage](https://img.shields.io/hackage/v/numhask-hedgehog.svg)](https://hackage.haskell.org/package/numhask-hedgehog) [![lts](https://www.stackage.org/package/numhask-test/badge/lts)](http://stackage.org/lts/package/numhask-hedgehog) [![nightly](https://www.stackage.org/package/numhask-hedgehog/badge/nightly)](http://stackage.org/nightly/package/numhask-hedgehog)
 
-``` {.sourceCode .literate .haskell}
-{-# LANGUAGE NoImplicitPrelude #-}
-import NumHask.Prelude
-import NumHask.Laws
-```
+Testing framework for numhask, based around hedgehog.
 
-Laws and a test harness for numhask. 'NumHask.Laws' is a representation of laws for each of the numhask classes.
 
 numhask-array
 ---

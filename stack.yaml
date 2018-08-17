@@ -4,7 +4,7 @@ packages:
   - numhask
   - numhask-prelude
   - numhask-array
-  - numhask-test
+  - numhask-hedgehog
   - numhask-bench
 
 extra-deps:

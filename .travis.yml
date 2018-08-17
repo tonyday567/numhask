@@ -24,8 +24,7 @@ env:
   - PACKAGEDIR="numhask"
   - PACKAGEDIR="numhask-prelude"
   - PACKAGEDIR="numhask-array"
-  - PACKAGEDIR="checkers-numhask"
-  - PACKAGEDIR="hunit-numhask"
+  - PACKAGEDIR="numhask-hedgehog"
 
 matrix:
   allow_failures:

@@ -17,8 +17,8 @@
 
 -- | Interval
 module NumHask.Data.Interval
-  ( Interval
-  , Interval'(..)
+  ( Interval(..)
+  , CanInterval(..)
   , eps
   , whole
   , emptyInterval
@@ -26,6 +26,8 @@ module NumHask.Data.Interval
   , width
   , lower
   , upper
+  , above
+  , below
   , increasing
   , decreasing
   )
@@ -33,7 +35,7 @@ where
 
 import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
-import NumHask.Prelude
+import NumHask.Prelude as P
 
 data Interval a =
   I !a !a | S !a | Empty
@@ -48,56 +50,62 @@ data Interval a =
            , Traversable
            )
 
-class Interval' a where
+class CanInterval a where
   infix 3 ...
   (...) :: a -> a -> Interval a
-  default (...) :: Ord a => a -> a -> Interval a
-  (...) a b
-    | a == b = S a
-    | a < b = I a b
-    | otherwise = I b a
+  (...) a b = interval (a :| [b])
 
   infixl 6 +/-
   (+/-) :: (Subtractive a) => a -> a -> Interval a
   a +/- b = a - b ... a + b
 
   -- | is a number contained within the interval
-  member :: a -> Interval a -> Bool
-  default member :: (Ord a) => a -> Interval a -> Bool
-  member a (I l u) = l <= a && u >= a
-  member a (S s) = a == s
-  member _ Empty = False
+  infix 5 =.=
+  (=.=) :: a -> Interval a -> Bool
+  default (=.=) :: (Ord a) => a -> Interval a -> Bool
+  (=.=) a (I l u) = l <= a && u >= a
+  (=.=) a (S s) = a == s
+  (=.=) _ Empty = False
 
-instance Interval' Float
-instance Interval' Double
-instance (Ord a, Interval' a) => Interval' (LogField a)
+  -- | this differs from minimum in that the algorithm can produce a number not in the list
+  lowest :: NonEmpty a -> a
+  default lowest :: (Ord a) => NonEmpty a -> a
+  lowest = minimum
 
-instance (Ord a, Subtractive a, Interval' a) => Interval' (Complex a) where
+  -- | this differs from maximum in that the algorithm can produce a number not in the list
+  highest :: NonEmpty a -> a
+  default highest :: (Ord a) => NonEmpty a -> a
+  highest = maximum
 
-  (...) a@(ax :+ ay) b@(bx :+ by)
-    | a == b = S a
-    | otherwise = I x' y'
-    where
-      x' = min ax bx :+ min ay by
-      y' = max ax bx :+ max ay by
+  interval :: NonEmpty a -> Interval a
+  interval (x :| []) = S x
+  interval xs = I (lowest xs) (highest xs)
 
-  member (a :+ b) (I (la :+ lb) (ua :+ ub)) =
-    member a (I la ua) &&
-    member b (I lb ub)
-  member a (S s) = a == s
-  member _ Empty = False
+instance CanInterval Float
+instance CanInterval Double
+instance (Ord a, CanInterval a) => CanInterval (LogField a)
 
-  a +/- b = a - b ... a + b
+instance (Ord a, Subtractive a, CanInterval a) => CanInterval (Complex a) where
 
--- | Create an interval around a number.
+  (a :+ b) =.= (I (la :+ lb) (ua :+ ub)) =
+    a =.= I la ua &&
+    b =.= I lb ub
+  a =.= (S s) = a == s
+  _ =.= Empty = False
+
+  lowest xs = minimum (realPart <$> xs) :+ minimum (imagPart <$> xs)
+
+  highest xs = maximum (realPart <$> xs) :+ maximum (imagPart <$> xs)
+
+-- | Create a small interval around a number.
 -- >>> eps one (0.0 :: Float)
 --
 --
-eps :: (Interval' a, Epsilon a, Subtractive a, Multiplicative a)
+eps :: (CanInterval a, Epsilon a, Subtractive a, Multiplicative a)
   => a -> a -> Interval a
 eps accuracy a = a +/- (accuracy * a * epsilon)
 
-whole :: (Interval' a, BoundedField a) => Interval a
+whole :: (CanInterval a, BoundedField a) => Interval a
 whole = infinity ... negInfinity
 
 -- | An empty interval
@@ -112,7 +120,7 @@ emptyInterval = Empty
 -- >>> singletonInterval 1
 -- 1 ... 1
 singletonInterval :: a -> Interval a
-singletonInterval s = S s
+singletonInterval = S
 
 -- | The infimum (lower bound) of an interval
 --
@@ -134,6 +142,26 @@ upper (I _ b) = Just b
 upper (S s) = Just s
 upper Empty = Nothing
 
+-- | A number is higher than an interval
+--
+-- >>> above (1.0 ... 20.0) 21.0
+-- True
+--
+above :: (Ord a) => Interval a -> a -> Bool
+above (I _ u) x = x > u
+above (S s) x = x > s
+above Empty _ = True
+
+-- | A number is lower than an interval
+--
+-- >>> below (1.0 ... 20.0) 0.0
+-- True
+--
+below :: (Ord a) => Interval a -> a -> Bool
+below (I l _) x = x < l
+below (S s) x = x < s
+below Empty _ = True
+
 -- | Calculate the width of an interval.
 --
 -- >>> width (1 ... 20)
@@ -145,16 +173,16 @@ width (S _) = Just zero
 width Empty = Nothing
 
 -- | lift a monotone increasing function over a given interval
-increasing :: (Interval' b) => (a -> b) -> Interval a -> Interval b
-increasing f (I a b) = (f a) ... (f b)
+increasing :: (CanInterval b) => (a -> b) -> Interval a -> Interval b
+increasing f (I a b) = f a ... f b
 increasing _ _ = Empty
 
 -- | lift a monotone increasing function over a given interval
-decreasing :: (Interval' b) => (a -> b) -> Interval a -> Interval b
-decreasing f (I a b) = (f b) ... (f a)
+decreasing :: (CanInterval b) => (a -> b) -> Interval a -> Interval b
+decreasing f (I a b) = f b ... f a
 decreasing _ _ = Empty
 
-instance (Interval' a, Additive a) => Magma (Sum (Interval a)) where
+instance (CanInterval a, Additive a) => Magma (Sum (Interval a)) where
   (Sum (I l u)) `magma` (Sum (I l' u')) =
     Sum $ (l + l') ... (u + u')
   (Sum i) `magma` (Sum (S s)) = Sum $ fmap (s+) i
@@ -162,116 +190,69 @@ instance (Interval' a, Additive a) => Magma (Sum (Interval a)) where
   (Sum Empty) `magma` x = x
   x `magma` (Sum Empty) = x
 
-instance (Interval' a, Additive a) => Unital (Sum (Interval a)) where
+instance (CanInterval a, Additive a) => Unital (Sum (Interval a)) where
   unit = Sum (S zero)
 
-instance (Interval' a, Additive a) => Associative (Sum (Interval a))
+instance (CanInterval a, Additive a) => Associative (Sum (Interval a))
 
-instance (Interval' a, Additive a) => Commutative (Sum (Interval a))
+instance (CanInterval a, Additive a) => Commutative (Sum (Interval a))
 
-instance (Interval' a, Subtractive a, Divisive a) => Invertible (Sum (Interval a)) where
+instance (CanInterval a, Subtractive a, Divisive a) => Invertible (Sum (Interval a)) where
   inv (Sum (I l u)) = Sum $ negate u ... negate l
   inv (Sum (S s)) = Sum $ S $ negate s
   inv (Sum Empty) = Sum Empty
 
-instance {-# OVERLAPPABLE #-} (Ord a, Interval' a, Multiplicative a) =>
+instance (CanInterval a, Multiplicative a) =>
   Magma (Product (Interval a)) where
   (Product (I l u)) `magma` (Product (I l' u')) =
-    Product $ I l'' u'' where
-    l'' = minimum [l * l', l * u', u * l', u * u']
-    u'' = maximum [l * l', l * u', u * l', u * u']
+    Product $ interval (l * l' :| [ l * u', u * l', u * u'])
   (Product i) `magma` (Product (S s)) = Product $ fmap (s*) i
   (Product (S s)) `magma` (Product i) = Product $ fmap (s*) i
   (Product Empty) `magma` x = x
   x `magma` (Product Empty) = x
 
-instance
-  ( Ord a
-  , Interval' a
-  , Multiplicative a
-  , Subtractive a) =>
-  Magma (Product (Interval (Complex a))) where
-  (Product (I (lx :+ ly) (ux :+ uy))) `magma`
-    (Product (I (lx' :+ ly') (ux' :+ uy'))) =
-    Product $ I (lx'' :+ ly'') (ux'' :+ uy'') where
-    (llx :+ lly) = (lx :+ ly) * (lx' :+ ly')
-    (lux :+ luy) = (lx :+ ly) * (ux' :+ uy')
-    (ulx :+ uly) = (ux :+ uy) * (lx' :+ ly')
-    (uux :+ uuy) = (ux :+ uy) * (ux' :+ uy')
-    lx'' = minimum [llx, lux, ulx, uux]
-    ly'' = minimum [lly, luy, uly, uuy]
-    ux'' = maximum [llx, lux, ulx, uux]
-    uy'' = maximum [lly, luy, uly, uuy]
-  (Product i) `magma` (Product (S s)) = Product $ fmap (s*) i
-  (Product (S s)) `magma` (Product i) = Product $ fmap (s*) i
-  (Product Empty) `magma` x = x
-  x `magma` (Product Empty) = x
-
-instance (Interval' a, Ord a, Additive a, Multiplicative a) =>
+instance (CanInterval a, Additive a, Multiplicative a) =>
   Unital (Product (Interval a)) where
   unit = Product $ one ... one
 
-instance (Interval' a, Ord a, Multiplicative a) =>
+instance (CanInterval a, Multiplicative a) =>
   Commutative (Product (Interval a))
 
-instance {-# OVERLAPPABLE #-} (Interval' a, Ord a, BoundedField a, Invertible (Product a)) =>
+instance (CanInterval a, Eq a, Epsilon a, BoundedField a, Invertible (Product a)) =>
   Invertible (Product (Interval a)) where
   inv (Product i@(I l u))
-    | l < zero && u == zero = Product (negInfinity ... recip l)
-    | l == zero && u > zero = Product (infinity ... recip l)
-    | zero `member` i = Product whole
+    | zero =.= i && not (epsilon =.= i) = Product (negInfinity ... recip l)
+    | zero =.= i && not (negate epsilon =.= i) = Product (infinity ... recip l)
+    | zero =.= i = Product whole
     | otherwise = Product (recip l ... recip u)
   inv (Product (S s)) = Product (S (recip s))
   inv (Product Empty) = Product Empty
 
-instance
-  ( Interval' a
-  , Ord a
-  , BoundedField a
-  , Multiplicative a
-  , Absorbing (Product a)
-  ) =>
-  Invertible (Product (Interval (Complex a))) where
-  inv (Product i@(I l@(la :+ lb) u@(ua :+ ub)))
-    | la < zero && ua == zero = Product (negInfinity ... recip l)
-    | lb < zero && ub == zero = Product (negInfinity ... recip l)
-    | la == zero && ua > zero = Product (recip u ... infinity)
-    | lb == zero && ub > zero = Product (recip u ... infinity)
-    | zero `member` i = Product whole
-    | otherwise = Product (I (lx'' :+ ly'') (ux'' :+ uy''))
-    where
-      (llx :+ lly) = recip (la :+ lb)
-      (lux :+ luy) = recip (la :+ ub)
-      (ulx :+ uly) = recip (ua :+ lb)
-      (uux :+ uuy) = recip (ua :+ ub)
-      lx'' = minimum [llx, lux, ulx, uux]
-      ly'' = minimum [lly, luy, uly, uuy]
-      ux'' = maximum [llx, lux, ulx, uux]
-      uy'' = maximum [lly, luy, uly, uuy]
-  inv (Product (S s)) = Product (S (recip s))
-  inv (Product Empty) = Product Empty
-
-instance (Interval' a, Ord a, Multiplicative a) =>
+instance (CanInterval a, Multiplicative a) =>
   Associative (Product (Interval a))
 
-instance (Interval' a, Ord a, Multiplicative a) =>
+instance (CanInterval a, Multiplicative a) =>
   Absorbing (Product (Interval a)) where
   absorb = Product $ zero' ... zero'
 
-instance (Interval' a, Ord a, Distributive a) => Distributive (Interval a)
+instance (CanInterval a, P.Distributive a) => P.Distributive (Interval a)
 
-instance (BoundedField a, Interval' a, Ord a) => IntegralDomain (Interval a)
+instance (BoundedField a, CanInterval a, Epsilon a) =>
+  IntegralDomain (Interval a)
 
-instance (BoundedField a, Interval' a, Ord a) => Field (Interval a)
+instance (BoundedField a, CanInterval a, Epsilon a) => Field (Interval a)
 
-instance (BoundedField a, Interval' a, Ord a) => UpperBoundedField (Interval a) where
+instance (BoundedField a, CanInterval a, Epsilon a) =>
+  UpperBoundedField (Interval a) where
   isNaN (I l u) = isNaN l || isNaN u
   isNaN (S s) = isNaN s
   isNaN Empty = True
 
-instance (BoundedField a, Interval' a, Ord a, LowerBoundedField a) => LowerBoundedField (Interval a)
+instance (BoundedField a, CanInterval a, Epsilon a, LowerBoundedField a)
+  => LowerBoundedField (Interval a)
 
-instance (BoundedField a, Interval' a, Ord a, ExpField a) => ExpField (Interval a) where
+instance (BoundedField a, CanInterval a, Epsilon a, ExpField a) =>
+  ExpField (Interval a) where
   exp = increasing exp
   log = increasing log
 
@@ -279,8 +260,10 @@ instance
   ( BoundedField a
   , QuotientField a Integer
   , FromInteger a
-  , Interval' a, Ord a
+  , CanInterval a
+  , Ord a
   , TrigField a
+  , Epsilon a
   ) => TrigField (Interval a) where
 
   pi = S pi
@@ -314,18 +297,18 @@ instance
   asin (I a b)
     | b < -1 || a > 1 = Empty
     | otherwise =
-      (bool (asin a) (- pi / 2) (a <= -1))
+      bool (asin a) (- pi / 2) (a <= -1)
       ...
-      (bool (asin b) (- pi / 2) (b >= 1))
+      bool (asin b) (- pi / 2) (b >= 1)
 
   acos Empty = Empty
   acos (S s) = S (acos s)
   acos (I a b)
     | b < -1 || a > 1 = Empty
     | otherwise =
-      (bool (acos b) zero (b >= 1))
+      bool (acos b) zero (b >= 1)
       ...
-      (bool (acos b) pi (a < -1))
+      bool (acos b) pi (a < -1)
 
   atan = increasing atan
   sinh = increasing sinh
@@ -335,7 +318,7 @@ instance
   cosh x@(I a b)
     | b < 0  = decreasing cosh x
     | a >= 0 = increasing cosh x
-    | otherwise  = zero ... (cosh $ bool b a (-a > b))
+    | otherwise  = zero ... cosh (bool b a (-a > b))
 
   tanh = increasing tanh
 
@@ -345,7 +328,7 @@ instance
   acosh (S s) = S (acosh s)
   acosh (I a b)
     | b < 1 = Empty
-    | otherwise = lo ... (acosh b)
+    | otherwise = lo ... acosh b
     where lo | a <= 1 = 0
              | otherwise = acosh a
 
@@ -354,11 +337,11 @@ instance
   atanh (I a b)
     | b < -1 || a > 1 = Empty
     | otherwise =
-      (bool (atanh a) negInfinity (a <= - 1))
+      bool (atanh a) negInfinity (a <= - 1)
       ...
-      (bool (atanh b) infinity (b >= 1))
+      bool (atanh b) infinity (b >= 1)
 
-instance (Ring a, Interval' a, Ord a, Integral a) => Integral (Interval a) where
+instance (Ring a, CanInterval a, Ord a, Integral a) => Integral (Interval a) where
   divMod (I l u) (I l' u') = (ld ... ud, lm ... um) where
     (ld, lm) = divMod l l'
     (ud, um) = divMod u u'
@@ -369,10 +352,10 @@ instance (Ring a, Interval' a, Ord a, Integral a) => Integral (Interval a) where
     (ud, um) = quotRem u u'
   quotRem _ _ = (Empty, Empty)
 
-instance (Interval' a, FromInteger a) => FromInteger (Interval a) where
+instance (CanInterval a, FromInteger a) => FromInteger (Interval a) where
   fromInteger a = fromInteger a ... fromInteger a
 
-instance (Interval' a, Ord a, Subtractive a, Divisive a, Signed a)
+instance (CanInterval a, Ord a, Subtractive a, Divisive a, Signed a)
   => Signed (Interval a) where
   sign = increasing sign
   abs x@(I a b)
@@ -382,9 +365,8 @@ instance (Interval' a, Ord a, Subtractive a, Divisive a, Signed a)
   abs Empty = Empty
   abs (S s) = S (abs s)
 
-instance (UpperBoundedField a, Signed a, Subtractive a, Interval' a, Ord a)
+instance (UpperBoundedField a, Signed a, Subtractive a, CanInterval a, Ord a)
   => Metric (Interval a) (Maybe a) where
   distanceL1 a b = lower . abs $ (a - b)
   distanceL2 a b = lower . abs $ (a - b)
   distanceLp _ a b = lower . abs $ (a - b)
-

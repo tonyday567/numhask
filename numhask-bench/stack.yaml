@@ -5,7 +5,7 @@ packages:
   - ../numhask
   - ../numhask-prelude
   - ../numhask-array
-  - ../numhask-test
+  - ../numhask-hedgehog
 
 extra-deps:
   - dimensions-0.3.2.0

@@ -1,107 +1,104 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 module Main where
 
-import NumHask.Prelude
-import NumHask.Laws
+import Data.Functor.Rep
+import GHC.Exts (IsList(..))
 import NumHask.Array
+import NumHask.Hedgehog
+import NumHask.Prelude as P
+import Numeric.Dimensions as D
+import Test.DocTest
+import qualified Hedgehog as H
+import qualified NumHask.Data.Interval as I
+import qualified NumHask.Hedgehog.Prop.Interval as I
+import qualified Prelude
 
--- import Test.DocTest
-import Test.Tasty
--- import Test.Tasty.QuickCheck
+genAIntegral :: forall a m r. (H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array [] r a)
+genAIntegral = fromList <$> replicateM n integral_
+  where
+    n = dimVal $ dim @r
+
+genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, ToRatio a, FromRatio a) => m (Array [] r a)
+genARational = fromList <$> replicateM n negUniform
+  where
+    n = dimVal $ dim @r
 
 main :: IO ()
 main = do
-  putStrLn ("Array DocTest turned off" :: Text)
-  -- doctest ["src/NumHask/Array.hs"]
-  putStrLn ("Example DocTest turned off" :: Text)
-  -- doctest ["src/NumHask/Array/Example.hs"]
-  defaultMain tests
+  putStrLn ("Array DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array.hs"]
+  putStrLn ("Example DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array/Example.hs"]
+  bVInt <- assertProps "Vector Int 6" (Prelude.fromInteger 100)
+    (genAIntegral :: H.Gen (Vector [] 6 Int)) integralProps'
+  bMInt <- assertProps "Matrix [] '[3,4] Int" (Prelude.fromInteger 100)
+    (genAIntegral :: H.Gen (Array [] '[3,4] Int)) integralProps'
+  -- bVFloat <- assertProps "Vector Float 6" (Prelude.fromInteger 100)
+  --  (genARational :: H.Gen (Vector [] 6 Float)) (fieldProps' acc)
+  bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
+    (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc)
+  unless (bVInt && bMInt && bMFloat)
+    exitFailure
+  where
+    acc = tabulate (const 1.0)
 
-tests :: TestTree
-tests =
-  testGroup
-    "NumHask"
-    [ testsVInt
-    , testsMInt
-    , testsVFloat
-    , testsMFloat
-    ]
+integralProps'
+  :: forall a.
+  ( Show a
+  , Eq a
+  , Distributive a
+  , Subtractive a
+  , Multiplicative a
+  , Signed a
+  )
+  => H.Gen a
+  -> [(H.PropertyName, H.Property)]
+integralProps' g = mconcat $
+  (\x -> x g) <$>
+  [ isAdditive
+  , isSubtractive
+  , isMultiplicative
+  , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("signed", NumHask.Hedgehog.isSigned x)]
+  ]
 
-testsVInt :: TestTree
-testsVInt =
-  testGroup
-    "Vector [] 6 Int"
-    [ testGroup "Additive" $ testLawOf1 ([] :: [Vector [] 6 Int]) <$> additiveLaws
-    , testGroup "Additive Group" $
-      testLawOf1 ([] :: [Vector [] 6 Int]) <$> subtractiveLaws
-    , testGroup "Multiplicative" $
-      testLawOf1 ([] :: [Vector [] 6 Int]) <$> multiplicativeLaws
-    , testGroup "Distributive" $
-      testLawOf1 ([] :: [Vector [] 6 Int]) <$> distributiveLaws
-    -- , testGroup "Module" $
-    --  testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> moduleLaws
-    -- , testGroup "Hilbert" $
-    --  testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> hilbertLaws
-    -- , testGroup "Tensor product" $
-    --   testLawOf2 ([] :: [(Vector [] 6 Int, Int)]) <$> tensorProductLaws
-    -- FIXME: no instance (Applicative (Array [] '[6]))
-    -- , testGroup "Multiplicative Basis" $
-    --  testLawOf1 ([] :: [Vector [] 6 Int]) <$> multiplicativeBasisLaws
-    ]
-
-testsMInt :: TestTree
-testsMInt =
-  testGroup
-    "Matrix [] 4 3 Int"
-    [ testGroup "Additive" $ testLawOf1 ([] :: [Matrix [] 4 3 Int]) <$> additiveLaws
-    , testGroup "Additive Group" $
-      testLawOf1 ([] :: [Matrix [] 4 3 Int]) <$> subtractiveLaws
-    -- FIXME: reinstate monoidal laws
-    -- , testGroup "Multiplicative (square only)" $
-    --  testLawOf1 ([] :: [Matrix [] 3 3 Int]) <$> multiplicativeMonoidalLaws
-    -- , testGroup "Multiplicative Module" $
-    --   testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> multiplicativeModuleLaws
-    -- , testGroup "Hilbert" $
-    --   testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> hilbertLaws
-    -- , testGroup "Tensor product" $
-    --   testLawOf2 ([] :: [(Matrix [] 4 3 Int, Int)]) <$> tensorProductLaws
-    -- , testGroup "Multiplicative Basis" $
-    --  testLawOf1 ([] :: [Matrix [] 4 3 Int]) <$> multiplicativeBasisLaws
-    ]
-
-testsVFloat :: TestTree
-testsVFloat =
-  testGroup
-    "Vector 6 Float"
-    [ -- testGroup "MultiplicativeGroup" $
-      -- testLawOf1 ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupLaws
-      testGroup "Signed" $ testLawOf1 ([] :: [Vector [] 6 Float]) <$> signedLaws
-    , testGroup "Norm" $
-      testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> normedLaws
-    -- , testGroup "Metric" $
-    --   testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$> metricRationalLaws
-    -- , testGroup "Exponential Field" $
-    --   testLawOf1 ([] :: [Vector [] 6 Float]) <$> expFieldContainerLaws
-    -- , testGroup "Multiplicative Group Module" $
-    --   localOption (QuickCheckTests 1000) .
-    --   testLawOf2 ([] :: [(Vector [] 6 Float, Float)]) <$>
-    --   multiplicativeGroupModuleLawsFail
-
-    -- FIXME: no instance (Applicative (Array [] '[6]))
-    -- , testGroup "Multiplicative Group Basis" $
-    --   testLawOf1 ([] :: [Vector [] 6 Float]) <$> multiplicativeGroupBasisLaws
-    ]
-
-testsMFloat :: TestTree
-testsMFloat =
-  testGroup
-    "Matrix [] 4 3 Float"
-    [ -- testGroup "Multiplicative Group Module" $
-      -- localOption (QuickCheckTests 1000) .
-      -- testLawOf2 ([] :: [(Matrix [] 4 3 Float, Float)]) <$>
-      -- multiplicativeGroupModuleLawsFail
-    -- , testGroup "Multiplicative Group Basis" $
-      -- testLawOf1 ([] :: [Matrix [] 4 3 Float]) <$> multiplicativeGroupBasisLaws
-    ]
+-- | field laws
+fieldProps'
+  :: forall a.
+  ( Show a
+  , Epsilon a
+  , I.CanInterval a
+  , BoundedField a
+  , Signed a
+  )
+  => a
+  -> H.Gen a
+  -> [(H.PropertyName, H.Property)]
+fieldProps' acc g = mconcat $
+  (\x -> x g) <$>
+  [ I.isAdditive acc
+  , \x -> [("subtractive", I.isSubtractive acc x)]
+  , I.isMultiplicative acc
+  , \x -> [("distributive", I.isDistributive one x)]
+  , \x -> [("divisive", I.isDivisive one x)]
+  , \x -> [("signed", I.isSigned one x)]
+  ]
