@@ -30,7 +30,9 @@ import qualified Prelude as P
 
 import Prelude ((.), fst, snd)
 
--- | A Field is a Integral domain in which every non-zero element has a multiplicative inverse.
+-- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is an
+--   Integral domain in which every non-zero element has a multiplicative
+--   inverse.
 --
 -- A summary of the rules inherited from super-classes of Field
 --
