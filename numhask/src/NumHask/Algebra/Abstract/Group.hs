@@ -47,7 +47,9 @@ instance Magma b => Magma (a -> b) where
   {-# INLINE magma #-}
   f `magma` g = \a -> f a `magma` g a
 
--- | A Unital Magma
+-- | A Unital Magma is a magma with an
+--   <https://en.wikipedia.org/wiki/Identity_element identity element> (the
+--   unit).
 --
 -- > unit magma a = a
 -- > a magma unit = a
@@ -68,7 +70,8 @@ class Magma a =>
 
 instance Associative b => Associative (a -> b)
 
--- | A Commutative Magma
+-- | A Commutative Magma is a Magma where the binary operation is
+-- <https://en.wikipedia.org/wiki/Commutative_property commutative>.
 --
 -- > a magma b = b magma a
 class Magma a =>
@@ -88,11 +91,13 @@ instance Invertible b => Invertible (a -> b) where
   {-# INLINE inv #-}
   inv f = \a -> inv (f a)
 
--- | A group is Associative, Unital and Invertible
+-- | A <https://en.wikipedia.org/wiki/Group_(mathematics) Group> is a
+--   Associative, Unital and Invertible Magma.
 class (Associative a, Unital a, Invertible a) => Group a
 instance (Associative a, Unital a, Invertible a) => Group a
 
--- | A magma with an absorbing Element
+-- | An Absorbing is a Magma with an
+--   <https://en.wikipedia.org/wiki/Absorbing_element Absorbing Element>
 --
 -- > a `times` absorb = absorb
 class Magma a =>
@@ -103,7 +108,8 @@ instance Absorbing b => Absorbing (a -> b) where
   {-# INLINE absorb #-}
   absorb = \_ -> absorb
 
--- | An Idempotent Magma
+-- | An Idempotent Magma is a magma where every element is
+--   <https://en.wikipedia.org/wiki/Idempotence Idempotent>.
 --
 -- > a magma a = a
 class Magma a =>
@@ -111,6 +117,8 @@ class Magma a =>
 
 instance Idempotent b => Idempotent (a -> b)
 
--- | An Abelian Group is associative, unital, invertible and commutative
+-- | An <https://en.wikipedia.org/wiki/Abelian_group Abelian Group> is an
+--   Associative, Unital, Invertible and Commutative Magma . In other words, it
+--   is a Commutative Group
 class (Group a, Commutative a) => AbelianGroup a
 instance (Group a, Commutative a) => AbelianGroup a

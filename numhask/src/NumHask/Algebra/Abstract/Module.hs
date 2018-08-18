@@ -15,9 +15,10 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Action
 
--- | a module
---   A Module over r a is a (Ring a), an abelian (Group r a) 
---   and an scalar-mult. (.*, *.) with the laws:
+-- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module> over r a is
+--   a (Ring a), an abelian (Group r a) and an scalar-mult. (.*, *.) with the
+--   laws:
+--
 -- > a .* one == a
 -- > (a + b) .* c == (a .* c) + (b .* c)
 -- > c *. (a + b) == (c *. a) + (c *. b)
