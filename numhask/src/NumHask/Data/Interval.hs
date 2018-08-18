@@ -35,7 +35,15 @@ where
 
 import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
-import NumHask.Prelude as P
+import qualified Prelude as P
+import Prelude (Maybe(..), Ord(..), Eq(..), Bool(..), Int, Integer, Float, Double, Traversable, Foldable, Functor, Read, Show, ($), (.), otherwise, (||), (&&), not, fmap, (<$>), maximum, minimum)
+import Data.Bool (bool)
+import Data.List.NonEmpty
+import NumHask.Algebra.Abstract
+import NumHask.Analysis.Metric
+import NumHask.Data.Integral
+import NumHask.Data.Complex
+import NumHask.Data.LogField
 
 data Interval a =
   I !a !a | S !a | Empty
@@ -235,7 +243,7 @@ instance (CanInterval a, Multiplicative a) =>
   Absorbing (Product (Interval a)) where
   absorb = Product $ zero' ... zero'
 
-instance (CanInterval a, P.Distributive a) => P.Distributive (Interval a)
+instance (CanInterval a, Distributive a) => Distributive (Interval a)
 
 instance (BoundedField a, CanInterval a, Epsilon a) =>
   IntegralDomain (Interval a)

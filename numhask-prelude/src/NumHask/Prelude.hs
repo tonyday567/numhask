@@ -30,6 +30,7 @@ module NumHask.Prelude
   , module NumHask.Analysis.Metric
   , module NumHask.Data.Complex   
   , module NumHask.Data.Integral
+  , module NumHask.Data.Interval
   , module NumHask.Data.LogField       
   , module NumHask.Data.Rational
   , module NumHask.Data.Positive
@@ -60,6 +61,7 @@ import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric
 import NumHask.Data.Complex   
 import NumHask.Data.Integral
+import NumHask.Data.Interval
 import NumHask.Data.LogField       
 import NumHask.Data.Positive
 import NumHask.Data.Rational
