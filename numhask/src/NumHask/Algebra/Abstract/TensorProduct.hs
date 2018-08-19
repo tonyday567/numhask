@@ -60,8 +60,6 @@ type instance r a >< b = TensorRep (r a) b
 --
 -- > a><b + c><b == (a+c) >< b
 -- > a><b + a><c == a >< (b+c)
---
--- FIXME: work out why these laws don't apply
 -- > a *. (b><c) == (a><b) .* c
 -- > (a><b) .* c == a *. (b><c)
 class TensorProduct a where

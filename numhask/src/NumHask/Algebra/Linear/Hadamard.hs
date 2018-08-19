@@ -24,7 +24,6 @@ import Data.Coerce
 
 newtype Hadamard_ a = Hadamard_ a
 
---FIXME the hadamard product has a relationship between laws
 -- | element by element multiplication
 --
 -- > (a .*. b) .*. c == a .*. (b .*. c)

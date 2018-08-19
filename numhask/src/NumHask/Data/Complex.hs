@@ -124,7 +124,6 @@ instance (IntegralDomain a) => IntegralDomain (Complex a)
 
 instance (Field a) => Field (Complex a)
 
--- | FIXME: needs testing
 instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
   exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
