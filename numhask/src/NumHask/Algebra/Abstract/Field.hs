@@ -26,7 +26,6 @@ import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Data.Integral
-import NumHask.Analysis.Metric
 import qualified Prelude as P
 
 import Prelude ((.), fst, snd)
@@ -109,10 +108,10 @@ class (Field a, Integral b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round ::(P.Eq b, Signed a, Invertible (Sum b)) => a -> b
+  default round ::(P.Ord a, P.Ord b, Invertible (Sum b)) => a -> b
   round x = case properFraction x of
     (n,r) -> let
-      m         = bool (n+one) (n-one) (sign r P.== negate one)
+      m         = bool (n+one) (n-one) (r P.< zero)
       half_down = abs' r - (one/(one+one))
       abs' a
         | a P.< zero = negate a
@@ -124,18 +123,18 @@ class (Field a, Integral b) => QuotientField a b where
           P.GT -> m
 
   ceiling :: a -> b
-  default ceiling :: (Signed a) => a -> b
-  ceiling x = bool n (n+one) (sign r P.== one)
+  default ceiling :: (P.Ord a) => a -> b
+  ceiling x = bool n (n+one) (r P.>= zero)
     where (n,r) = properFraction x
 
   floor :: a -> b
-  default floor :: (Signed a, Subtractive b) => a -> b
-  floor x = bool n (n-one) (sign r P.== negate one)
+  default floor :: (P.Ord a, Subtractive b) => a -> b
+  floor x = bool n (n-one) (r P.< zero)
     where (n,r) = properFraction x
 
   truncate :: a -> b
-  default truncate :: (Signed a) => a -> b
-  truncate x = bool (ceiling x) (floor x) (sign x P.== one)
+  default truncate :: (P.Ord a) => a -> b
+  truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
 instance QuotientField P.Float P.Integer where
   properFraction = P.properFraction

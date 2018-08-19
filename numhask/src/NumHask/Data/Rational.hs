@@ -21,6 +21,7 @@ where
 
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
+import Data.Bool (bool)
 import GHC.Float
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
@@ -56,13 +57,12 @@ instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
   (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
-
 -- | These common constraints over the Ratio instances are due to the gcd algorithm. Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
-type GCDConstraints a = (P.Eq a, Integral a, Signed a, Subtractive a)
+type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
 
 instance (GCDConstraints a) => Magma (Sum (Ratio a)) where
   (Sum (x :% y)) `magma` (Sum (x' :% y'))
-    | y P.== zero P.&& y' P.== zero = Sum (sign (x + x') :% zero)
+    | y P.== zero P.&& y' P.== zero = Sum (bool one (negate one) (x + x' P.< zero) :% zero)
     | y P.== zero                   = Sum (x :% y)
     | y' P.== zero                  = Sum (x' :% y')
     | P.otherwise = Sum (reduce ((x * y') + (x' * y)) (y * y'))
@@ -107,8 +107,7 @@ instance (GCDConstraints a) => IntegralDomain (Ratio a)
 
 instance (GCDConstraints a) => Field (Ratio a)
 
-instance (GCDConstraints a, ToInteger a, Field a, P.Eq b,
-          Group (Sum  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
+instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromInteger b) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
 
 instance (GCDConstraints a, Ring a, IntegralDomain a) =>
