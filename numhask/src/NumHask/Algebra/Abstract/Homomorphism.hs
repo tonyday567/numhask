@@ -15,6 +15,7 @@ module NumHask.Algebra.Abstract.Homomorphism
 where
 
 import NumHask.Algebra.Abstract.Group
+import Prelude
 
 -- | A Homomorphism between two magmas
 -- law: forall a b. hom(a `magma` b) = hom(a) `magma` hom(b)
