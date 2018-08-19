@@ -108,7 +108,7 @@ class (Field a, Integral b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round ::(P.Ord a, P.Eq b, Invertible (Sum b)) => a -> b
+  default round ::(P.Ord a, P.Ord b, Invertible (Sum b)) => a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)
@@ -124,7 +124,7 @@ class (Field a, Integral b) => QuotientField a b where
 
   ceiling :: a -> b
   default ceiling :: (P.Ord a) => a -> b
-  ceiling x = bool n (n+one) (r P.> zero)
+  ceiling x = bool n (n+one) (r P.>= zero)
     where (n,r) = properFraction x
 
   floor :: a -> b
@@ -134,7 +134,7 @@ class (Field a, Integral b) => QuotientField a b where
 
   truncate :: a -> b
   default truncate :: (P.Ord a) => a -> b
-  truncate x = bool (ceiling x) (floor x) (x P.>= zero)
+  truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
 instance QuotientField P.Float P.Integer where
   properFraction = P.properFraction

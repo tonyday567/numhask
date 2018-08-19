@@ -21,6 +21,7 @@ where
 
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
+import Data.Bool (bool)
 import GHC.Float
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
@@ -56,84 +57,83 @@ instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
   (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
-type AdditionConstraints a = (P.Ord a, Integral a, Signed a, Invertible (Sum a))
+-- | These common constraints over the Ratio instances are due to the gcd algorithm. Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
+type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
 
-instance (AdditionConstraints a) => Magma (Sum (Ratio a)) where
+instance (GCDConstraints a) => Magma (Sum (Ratio a)) where
   (Sum (x :% y)) `magma` (Sum (x' :% y'))
-    | y P.== zero P.&& y' P.== zero = Sum (sign (x + x') :% zero)
+    | y P.== zero P.&& y' P.== zero = Sum (bool one (negate one) (x + x' P.< zero) :% zero)
     | y P.== zero                   = Sum (x :% y)
     | y' P.== zero                  = Sum (x' :% y')
     | P.otherwise = Sum (reduce ((x * y') + (x' * y)) (y * y'))
 
-instance (AdditionConstraints a) => Unital (Sum (Ratio a)) where
+instance (GCDConstraints a) => Unital (Sum (Ratio a)) where
   unit = Sum (zero :% one)
 
---FIXME are the laws correct? When is it a Commutative etc.?
-instance (AdditionConstraints a)
+instance (GCDConstraints a)
   => Associative (Sum (Ratio a))
 
-instance (AdditionConstraints a)
+instance (GCDConstraints a)
   => Commutative (Sum (Ratio a))
 
-instance (AdditionConstraints a) => Invertible (Sum (Ratio a)) where
+instance (GCDConstraints a) => Invertible (Sum (Ratio a)) where
   inv (Sum (x :% y)) = Sum (negate x :% y)
 
-instance (AdditionConstraints a) => Magma (Product (Ratio a)) where
+instance (GCDConstraints a) => Magma (Product (Ratio a)) where
   (Product (x:%y)) `magma` (Product (x':%y')) = Product (reduce (x * x') (y * y'))
 
-instance (AdditionConstraints a) => Unital (Product (Ratio a)) where
+instance (GCDConstraints a) => Unital (Product (Ratio a)) where
   unit = Product (one :% one)
 
-instance (AdditionConstraints a) =>
+instance (GCDConstraints a) =>
   Associative (Product (Ratio a))
 
-instance (AdditionConstraints a) =>
+instance (GCDConstraints a) =>
   Commutative (Product (Ratio a))
 
-instance (AdditionConstraints a) =>
+instance (GCDConstraints a) =>
   Invertible (Product (Ratio a)) where
   inv (Product (x :% y))
-    | x P.< zero = Product (negate y :% negate x)
+    | sign x P.== negate one = Product (negate y :% negate x)
     | P.otherwise = Product (y :% x)
 
-instance (AdditionConstraints a) =>
+instance (GCDConstraints a) =>
         Absorbing (Product (Ratio a)) where
   absorb = Product (zero :% one)
 
-instance (AdditionConstraints a) => Distributive  (Ratio a)
+instance (GCDConstraints a) => Distributive  (Ratio a)
 
-instance (AdditionConstraints a) => IntegralDomain (Ratio a)
+instance (GCDConstraints a) => IntegralDomain (Ratio a)
 
-instance (AdditionConstraints a) => Field (Ratio a)
+instance (GCDConstraints a) => Field (Ratio a)
 
-instance (AdditionConstraints a, ToInteger a, Field a, P.Eq b,
-          Group (Sum  b), Integral b, FromInteger b) => QuotientField (Ratio a) b where
+instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromInteger b) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
 
-instance (AdditionConstraints a, Ring a, IntegralDomain a) =>
+instance (GCDConstraints a, Ring a, IntegralDomain a) =>
   UpperBoundedField (Ratio a) where
   isNaN (a :% b) = (a P.== zero) P.&& (b P.== zero)
 
-instance (AdditionConstraints a, Field a) => LowerBoundedField (Ratio a)
+instance (GCDConstraints a, Field a) => LowerBoundedField (Ratio a)
 
-instance (AdditionConstraints a) => Signed (Ratio a) where
+instance (GCDConstraints a) => Signed (Ratio a) where
   sign (n :% _)
     | n P.== zero = zero
     | n P.> zero = one
     | P.otherwise = negate one
   abs (n :% d) = abs n :% abs d
 
-instance (AdditionConstraints a) => Normed (Ratio a) (Ratio a) where
+instance (GCDConstraints a) => Normed (Ratio a) (Ratio a) where
   normL1 = abs
   normL2 = abs
   normLp _ = abs
 
-instance (AdditionConstraints a) => Metric (Ratio a) (Ratio a) where
+instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (AdditionConstraints a, Commutative (Product a)) => Epsilon (Ratio a)
+instance (GCDConstraints a, Commutative (Product a)) => Epsilon (Ratio a)
 
 instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
   fromInteger x = fromInteger x :% one
@@ -220,7 +220,7 @@ instance ToRatio Word64 where
 -- It normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
 reduce
-  :: (P.Ord a, Invertible (Sum a), Signed a, Integral a) => a -> a -> Ratio a
+  :: (P.Eq a, Subtractive a, Signed a, Integral a) => a -> a -> Ratio a
 reduce x y
   | x P.== zero P.&& y P.== zero = zero :% zero
   | z P.== zero = one :% zero
@@ -228,7 +228,7 @@ reduce x y
  where
   z = gcd x y
   n % d
-    | d P.< zero = negate n :% negate d
+    | sign d P.== negate one = negate n :% negate d
     | P.otherwise = n :% d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
@@ -240,7 +240,7 @@ reduce x y
 -- Note: Since for signed fixed-width integer types, @'abs' 'minBound' < 0@,
 -- the result may be negative if one of the arguments is @'minBound'@ (and
 -- necessarily is if the other is @0@ or @'minBound'@) for such types.
-gcd :: (P.Ord a, Signed a, Integral a) => a -> a -> a
+gcd :: (P.Eq a, Signed a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
  where
   gcd' a b
