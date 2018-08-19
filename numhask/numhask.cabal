@@ -49,7 +49,8 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-    base >=4.7 && <4.12
+      base >=4.7 && <4.12
+    , distributive
   exposed-modules:
     NumHask.Algebra.Abstract
     NumHask.Algebra.Abstract.Action
@@ -66,6 +67,7 @@ library
     NumHask.Analysis.Metric
     NumHask.Data.Complex   
     NumHask.Data.Integral
+    NumHask.Data.Interval
     NumHask.Data.LogField
     NumHask.Data.Positive
     NumHask.Data.Rational
