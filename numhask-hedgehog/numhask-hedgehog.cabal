@@ -25,9 +25,6 @@ build-type:
 cabal-version:
   >= 1.18
 
-extra-source-files:
-  stack.yaml
-
 source-repository head
   type:
     git

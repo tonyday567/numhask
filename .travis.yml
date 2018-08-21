@@ -21,10 +21,10 @@ ghc:
   - 8.4.3
 
 env:
-  - PACKAGEDIR="numhask"
-  - PACKAGEDIR="numhask-prelude"
-  - PACKAGEDIR="numhask-array"
-  - PACKAGEDIR="numhask-hedgehog"
+  #- PACKAGEDIR="numhask"
+  #- PACKAGEDIR="numhask-prelude"
+  #- PACKAGEDIR="numhask-array"
+  #- PACKAGEDIR="numhask-hedgehog"
 
 matrix:
   allow_failures:

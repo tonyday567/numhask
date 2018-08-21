@@ -25,9 +25,6 @@ build-type:
 cabal-version:
   >= 1.18
 
-extra-source-files:
-  stack.yaml
-
 extra-doc-files:
   other/*.svg
 
@@ -49,7 +46,7 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-    base >=4.7 && <4.12
+    base >=4.7 && <4.13
   exposed-modules:
     NumHask.Algebra.Abstract
     NumHask.Algebra.Abstract.Action

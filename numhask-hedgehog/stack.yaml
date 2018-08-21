@@ -1,8 +1,0 @@
-resolver: nightly-2018-07-08
-
-packages:
-  - .
-  - ../numhask
-  - ../numhask-prelude
-
-extra-deps: []
