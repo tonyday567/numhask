@@ -5,31 +5,15 @@
 # https://github.com/commercialhaskell/stack/blob/master/.travis.yml
 # https://github.com/ekmett/intervals/blob/master/.travis.yml
 
-sudo: true
+sudo: false
 
-language: haskell
+language: generic
 
 # Caching so the next build will be fast too.
 cache:
   directories:
   - $HOME/.stack
   - $HOME/build/tonyday567/numhask/.stack-work
-
-ghc:
-  - head
-  # - 8.6.1
-  - 8.4.3
-
-env:
-  #- PACKAGEDIR="numhask"
-  #- PACKAGEDIR="numhask-prelude"
-  #- PACKAGEDIR="numhask-array"
-  #- PACKAGEDIR="numhask-hedgehog"
-
-matrix:
-  allow_failures:
-    - ghc: head
-    - ghc: ghc-8.6.1
 
 # Ensure necessary system libraries are present
 addons:
@@ -42,16 +26,15 @@ addons:
       - cabal-install-head    # required by GHC head
 
 before_install:
-  - cd ${PACKAGEDIR}
+# Download and unpack the stack executable
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 install:
-  # Download and unpack the stack executable
-  - mkdir -p ~/.local/bin
-  - export PATH=$HOME/.local/bin:$PATH
-  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-  # Build dependencies
-  - stack --no-terminal --install-ghc test --only-dependencies
+# Build dependencies
+- stack --no-terminal --install-ghc test --only-dependencies
 
 script:
-  # Build the package, its tests, and its docs and run the tests
-  - stack --no-terminal test --haddock --no-haddock-deps
+# Build the package, its tests, and its docs and run the tests
+- stack --no-terminal test --haddock --no-haddock-deps
