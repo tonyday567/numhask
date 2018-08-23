@@ -182,58 +182,40 @@ decreasing :: (CanInterval b) => (a -> b) -> Interval a -> Interval b
 decreasing f (I a b) = f b ... f a
 decreasing _ _ = Empty
 
-instance (CanInterval a, Additive a) => Magma (Sum (Interval a)) where
-  (Sum (I l u)) `magma` (Sum (I l' u')) =
-    Sum $ (l + l') ... (u + u')
-  (Sum i) `magma` (Sum (S s)) = Sum $ fmap (s+) i
-  (Sum (S s)) `magma` (Sum i) = Sum $ fmap (s+) i
-  (Sum Empty) `magma` x = x
-  x `magma` (Sum Empty) = x
+instance (CanInterval a, Additive a) => Additive (Interval a) where
+  (I l u) + (I l' u') = (l + l') ... (u + u')
+  i + (S s) = fmap (s+) i
+  (S s) + i = fmap (s+) i
+  Empty + x = x
+  x + Empty = x
 
-instance (CanInterval a, Additive a) => Unital (Sum (Interval a)) where
-  unit = Sum (S zero)
+  zero = S zero
 
-instance (CanInterval a, Additive a) => Associative (Sum (Interval a))
-
-instance (CanInterval a, Additive a) => Commutative (Sum (Interval a))
-
-instance (CanInterval a, Subtractive a, Divisive a) => Invertible (Sum (Interval a)) where
-  inv (Sum (I l u)) = Sum $ negate u ... negate l
-  inv (Sum (S s)) = Sum $ S $ negate s
-  inv (Sum Empty) = Sum Empty
+instance (CanInterval a, Subtractive a, Divisive a) => Subtractive (Interval a) where
+  negate (I l u) = negate u ... negate l
+  negate (S s) = S $ negate s
+  negate Empty = Empty
 
 instance (CanInterval a, Multiplicative a) =>
-  Magma (Product (Interval a)) where
-  (Product (I l u)) `magma` (Product (I l' u')) =
-    Product $ interval (l * l' :| [ l * u', u * l', u * u'])
-  (Product i) `magma` (Product (S s)) = Product $ fmap (s*) i
-  (Product (S s)) `magma` (Product i) = Product $ fmap (s*) i
-  (Product Empty) `magma` x = x
-  x `magma` (Product Empty) = x
+  Multiplicative (Interval a) where
+  (I l u) * (I l' u') =
+    interval (l * l' :| [ l * u', u * l', u * u'])
+  i * (S s) = fmap (s*) i
+  (S s) * i = fmap (s*) i
+  Empty *  x = x
+  x * Empty = x
 
-instance (CanInterval a, Additive a, Multiplicative a) =>
-  Unital (Product (Interval a)) where
-  unit = Product $ one ... one
+  one = one ... one
 
-instance (CanInterval a, Multiplicative a) =>
-  Commutative (Product (Interval a))
-
-instance (CanInterval a, Eq a, Epsilon a, BoundedField a, Invertible (Product a)) =>
-  Invertible (Product (Interval a)) where
-  inv (Product i@(I l u))
-    | zero =.= i && not (epsilon =.= i) = Product (negInfinity ... recip l)
-    | zero =.= i && not (negate epsilon =.= i) = Product (infinity ... recip l)
-    | zero =.= i = Product whole
-    | otherwise = Product (recip l ... recip u)
-  inv (Product (S s)) = Product (S (recip s))
-  inv (Product Empty) = Product Empty
-
-instance (CanInterval a, Multiplicative a) =>
-  Associative (Product (Interval a))
-
-instance (CanInterval a, Multiplicative a) =>
-  Absorbing (Product (Interval a)) where
-  absorb = Product $ zero' ... zero'
+instance (CanInterval a, Eq a, Epsilon a, BoundedField a, Divisive a) =>
+  Divisive (Interval a) where
+  recip i@(I l u)
+    | zero =.= i && not (epsilon =.= i) = (negInfinity ... recip l)
+    | zero =.= i && not (negate epsilon =.= i) = (infinity ... recip l)
+    | zero =.= i = whole
+    | otherwise = (recip l ... recip u)
+  recip (S s) = (S (recip s))
+  recip Empty = Empty
 
 instance (CanInterval a, P.Distributive a) => P.Distributive (Interval a)
 

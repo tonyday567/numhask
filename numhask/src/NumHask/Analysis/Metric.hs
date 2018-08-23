@@ -1,7 +1,6 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -43,7 +42,7 @@ import NumHask.Algebra.Abstract.Multiplicative
 -- > abs a * sign a == a
 --
 -- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
-class (Unital (Product a)) =>
+class (Multiplicative a) =>
   Signed a where
   sign :: a -> a
   abs :: a -> a
@@ -76,6 +75,7 @@ instance Signed Integer where
     | otherwise = negate one
   abs = P.abs
 
+{-
 instance Signed Natural where
   sign a
     | a == zero = zero
@@ -139,6 +139,8 @@ instance Signed Word64 where
     | a == zero = zero
     | otherwise = one
   abs = P.abs
+
+-}
 
 -- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
 --
@@ -262,6 +264,7 @@ instance Metric Integer Integer where
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
+{-
 instance Metric Natural Natural where
   distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
@@ -312,6 +315,7 @@ instance Metric Word64 Word64 where
   distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
   distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
+-}
 
 class (Eq a, Additive a) =>
   Epsilon a where
@@ -324,7 +328,7 @@ class (Eq a, Additive a) =>
   nearZero a = abs a <= epsilon
 
   aboutEqual :: a -> a -> Bool
-  default aboutEqual :: (Group (Sum a)) => a -> a -> Bool
+  default aboutEqual :: (Subtractive a) => a -> a -> Bool
   aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=
@@ -342,6 +346,7 @@ instance Epsilon Int
 
 instance Epsilon Integer
 
+{-
 instance Epsilon Int8
 
 instance Epsilon Int16
@@ -359,3 +364,6 @@ instance Epsilon Word16
 instance Epsilon Word32
 
 instance Epsilon Word64
+
+-}
+

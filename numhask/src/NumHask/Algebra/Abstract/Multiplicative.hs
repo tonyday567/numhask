@@ -12,65 +12,60 @@
 
 -- | Multiplicative
 module NumHask.Algebra.Abstract.Multiplicative
-  ( Product(..)
-  , Multiplicative(..)
+  ( Multiplicative(..)
+  , product
   , Divisive(..)
   )
 where
 
 import Data.Coerce
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
+-- import Data.Int (Int8, Int16, Int32, Int64)
+-- import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Group
 import qualified GHC.Generics as P
 import qualified Prelude as P
 
-newtype Product a = Product a
-  deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
-            P.Functor)
-
-class (Absorbing (Product a), Associative (Product a), Unital (Product a))
-  => Multiplicative a where
-  product :: (P.Foldable f) => f a -> a
-  product = P.foldr (*) one
+class Multiplicative a where
 
   infixl 7 *
   (*) :: a -> a -> a
-  (*) = coerceFM magma
 
   one :: a
-  one = let (Product a) = unit in a
 
-  zero' :: a
-  zero' = let (Product a) = absorb in a
+product :: (Multiplicative a, P.Foldable f) => f a -> a
+product = P.foldr (*) one
 
-instance (Absorbing (Product a), Associative (Product a), Unital (Product a)) => Multiplicative a
-
-class (Multiplicative a, AbelianGroup (Product a))
-  => Divisive a where
+class (Multiplicative a) => Divisive a where
   recip :: a -> a
-  recip = coerceFM' inv
 
   infixl 7 /
   (/) :: a -> a -> a
   (/) a b = a * recip b
 
-instance (Multiplicative a, AbelianGroup (Product a)) => Divisive a
+instance Multiplicative P.Double where
+  (*) = (P.*)
+  one = 1.0
 
---less flexible coerces for better inference in instances
-coerceFM :: (Product a -> Product a -> Product a) -> a -> a -> a
-coerceFM f a b = let (Product res) = f (Product a) (Product b) in res
+instance Divisive P.Double where
+  recip = P.recip
 
-coerceFM' :: (Product a -> Product a) -> a -> a
-coerceFM' f a = let (Product res) = f (Product a) in res
+instance Multiplicative P.Float where
+  (*) = (P.*)
+  one = 1.0
 
-coerceTM :: (a -> a -> a) -> (Product a -> Product a -> Product a)
-coerceTM f (Product a) (Product b) = Product P.$ f a b
+instance Divisive P.Float where
+  recip = P.recip
 
-coerceTM' :: (a -> a) -> (Product a -> Product a)
-coerceTM' f (Product a) = Product P.$ f a
+instance Multiplicative P.Int where
+  (*) = (P.*)
+  one = 1
 
+instance Multiplicative P.Integer where
+  (*) = (P.*)
+  one = 1
+
+{-
 instance Magma (Product P.Double) where
   magma = coerceTM (P.*)
 
@@ -293,3 +288,5 @@ instance Absorbing (Product Word64) where
 
 instance Absorbing (Product b) => Absorbing (Product (a -> b)) where
   absorb = Product P.$ \_ -> coerce @(Product b) @b absorb
+
+-}

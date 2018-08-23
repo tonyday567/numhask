@@ -60,46 +60,28 @@ instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
 -- | These common constraints over the Ratio instances are due to the gcd algorithm. Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
 type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
 
-instance (GCDConstraints a) => Magma (Sum (Ratio a)) where
-  (Sum (x :% y)) `magma` (Sum (x' :% y'))
-    | y P.== zero P.&& y' P.== zero = Sum (bool one (negate one) (x + x' P.< zero) :% zero)
-    | y P.== zero                   = Sum (x :% y)
-    | y' P.== zero                  = Sum (x' :% y')
-    | P.otherwise = Sum (reduce ((x * y') + (x' * y)) (y * y'))
+instance (GCDConstraints a) => Additive (Ratio a) where
+  (x :% y) + (x' :% y')
+    | y P.== zero P.&& y' P.== zero = (bool one (negate one) (x + x' P.< zero) :% zero)
+    | y P.== zero                   = (x :% y)
+    | y' P.== zero                  = (x' :% y')
+    | P.otherwise = (reduce ((x * y') + (x' * y)) (y * y'))
 
-instance (GCDConstraints a) => Unital (Sum (Ratio a)) where
-  unit = Sum (zero :% one)
+  zero = zero :% one
 
-instance (GCDConstraints a)
-  => Associative (Sum (Ratio a))
+instance (GCDConstraints a) => Subtractive (Ratio a) where
+  negate (x :% y) = negate x :% y
 
-instance (GCDConstraints a)
-  => Commutative (Sum (Ratio a))
+instance (GCDConstraints a) => Multiplicative (Ratio a) where
+  (x:%y) * (x':%y') = reduce (x * x') (y * y')
 
-instance (GCDConstraints a) => Invertible (Sum (Ratio a)) where
-  inv (Sum (x :% y)) = Sum (negate x :% y)
-
-instance (GCDConstraints a) => Magma (Product (Ratio a)) where
-  (Product (x:%y)) `magma` (Product (x':%y')) = Product (reduce (x * x') (y * y'))
-
-instance (GCDConstraints a) => Unital (Product (Ratio a)) where
-  unit = Product (one :% one)
+  one = one :% one
 
 instance (GCDConstraints a) =>
-  Associative (Product (Ratio a))
-
-instance (GCDConstraints a) =>
-  Commutative (Product (Ratio a))
-
-instance (GCDConstraints a) =>
-  Invertible (Product (Ratio a)) where
-  inv (Product (x :% y))
-    | sign x P.== negate one = Product (negate y :% negate x)
-    | P.otherwise = Product (y :% x)
-
-instance (GCDConstraints a) =>
-        Absorbing (Product (Ratio a)) where
-  absorb = Product (zero :% one)
+  Divisive (Ratio a) where
+  recip (x :% y)
+    | sign x P.== negate one = negate y :% negate x
+    | P.otherwise = (y :% x)
 
 instance (GCDConstraints a) => Distributive  (Ratio a)
 
@@ -133,7 +115,7 @@ instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (GCDConstraints a, Commutative (Product a)) => Epsilon (Ratio a)
+instance (GCDConstraints a) => Epsilon (Ratio a)
 
 instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
   fromInteger x = fromInteger x :% one

@@ -30,7 +30,7 @@ import qualified Prelude as P
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
-class (Additive a, Magma (Sum a)) =>
+class (Additive a, Multiplicative a) =>
   Distributive a
 
 instance Distributive P.Double
@@ -39,6 +39,8 @@ instance Distributive P.Float
 
 instance Distributive P.Int
 instance Distributive P.Integer
+
+{-
 instance Distributive Natural
 instance Distributive Int8
 instance Distributive Int16
@@ -54,44 +56,47 @@ instance Distributive P.Bool
 
 instance Distributive b => Distributive (a -> b)
 
+
+-}
+
 -- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is a ring without,
 --   necessarily, negative elements.
 --
 -- TODO: rule zero' = zero. Is this somehow expressible in haskell?
-class (Distributive a, Multiplicative a) =>
+class (Distributive a) =>
   Semiring a where
-instance (Distributive a, Multiplicative a) =>
+instance (Distributive a) =>
   Semiring a
 
 -- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian
 --   group under addition and monoid under multiplication where multiplication
 --   distributes over addition. Alternatively, a ring is semiring where additive
 --   inverses exist
-class (Semiring a, Subtractive a) =>
+class (Distributive a, Subtractive a) =>
   Ring a
-instance (Semiring a, Subtractive a) =>
+instance (Distributive a, Subtractive a) =>
   Ring a
 
 -- | A <https://en.wikipedia.org/wiki/Commutative_ring Commutative Ring> is a
 --   ring with a Commutative Multiplication operation. Recall that Addition is
 --   Commutative in all Rings
-class (Ring a, Commutative (Product a)) =>
+class (Ring a) =>
   CommutativeRing a
-instance (Ring a, Commutative (Product a)) =>
+instance (Ring a) =>
   CommutativeRing a
 
 -- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain>
 --   generalizes a ring of integers by requiring the product of any two nonzero
 --   elements to be nonzero. This means that if a ≠ 0, an equality ab = ac
 --   implies b = c.
-class (CommutativeRing a, Divisive a) =>
+class (Distributive a, Divisive a) =>
   IntegralDomain a
 
 instance IntegralDomain P.Double
 
 instance IntegralDomain P.Float
 
-instance IntegralDomain b => IntegralDomain (a -> b)
+-- instance IntegralDomain b => IntegralDomain (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring>
 --   is a semiring with an additional unary operator star satisfying:
@@ -105,7 +110,7 @@ class (Semiring a) => StarSemiring a where
   plus :: a -> a
   plus a = a * star a
 
-instance StarSemiring b => StarSemiring (a -> b)
+-- instance StarSemiring b => StarSemiring (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is
 --   a Star Semiring with idempotent addition
@@ -113,9 +118,9 @@ instance StarSemiring b => StarSemiring (a -> b)
 -- > a `times` x + x = a ==> star a `times` x + x = x
 -- > x `times` a + x = a ==> x `times` star a + x = x
 --
-class (StarSemiring a, Idempotent (Sum a)) => KleeneAlgebra a
+class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 
-instance KleeneAlgebra b => KleeneAlgebra (a -> b)
+-- instance KleeneAlgebra b => KleeneAlgebra (a -> b)
 
 -- | Involutive Ring
 --
@@ -138,6 +143,7 @@ instance InvolutiveRing P.Integer
 
 instance InvolutiveRing P.Int
 
+{-
 instance InvolutiveRing Natural
 
 instance InvolutiveRing Int8
@@ -159,3 +165,5 @@ instance InvolutiveRing Word32
 instance InvolutiveRing Word64
 
 instance InvolutiveRing b => InvolutiveRing (a -> b)
+
+-}

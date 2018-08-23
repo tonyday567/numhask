@@ -78,7 +78,7 @@ newtype AnyArray c a = AnyArray ([Int], c a)
 -- | convert an array with type-level shape to value-level shape
 anyArray :: (Dimensions ds) => Array c ds a -> AnyArray c a
 anyArray arr@(Array c) = AnyArray (shape arr, c)
-
+ 
 -- | a sweet class of container with attributes necessary to supply the set of operations here
 class (Functor f) => Container f where
   generate :: Int -> (Int -> a) -> f a
@@ -573,44 +573,23 @@ squeeze ::
 squeeze (Array x) = Array x
 
 instance (Dimensions r, Container c, Additive a) =>
-  Magma (Sum (Array c r a)) where
-  (Sum a) `magma` (Sum b) = Sum (liftR2 (+) a b)
-
-instance (Dimensions r, Container c, Additive a) =>
-  Unital (Sum (Array c r a)) where
-  unit = Sum (pureRep zero)
-
-instance (Dimensions r, Container c, Additive a) =>
-  Associative (Sum (Array c r a))
-
-instance (Dimensions r, Container c, Additive a) =>
-  Commutative (Sum (Array c r a))
+  Additive (Array c r a) where
+  a + b = (liftR2 (+) a b)
+  zero = (pureRep zero)
 
 instance (Dimensions r, Container c, Subtractive a) =>
-  Invertible (Sum (Array c r a)) where
-  inv (Sum a) = Sum (fmapRep negate a)
+  Subtractive (Array c r a) where
+  negate a = (fmapRep negate a)
 
 instance (Dimensions r, Container c, Multiplicative a) =>
-  Magma (Product (Array c r a)) where
-  (Product a) `magma` (Product b) = Product (liftR2 (*) a b)
+  Multiplicative (Array c r a) where
+  a * b = (liftR2 (*) a b)
 
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Unital (Product (Array c r a)) where
-  unit = Product (pureRep one)
-
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Associative (Product (Array c r a))
-
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Commutative (Product (Array c r a))
+  one = (pureRep one)
 
 instance (Dimensions r, Container c, Divisive a) =>
-  Invertible (Product (Array c r a)) where
-  inv (Product a) = Product (fmapRep recip a)
-
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Absorbing (Product (Array c r a)) where
-  absorb = Product (pureRep zero')
+  Divisive (Array c r a) where
+  recip a = (fmapRep recip a)
 
 instance (Dimensions r, Container c, Multiplicative a, Additive a) =>
   P.Distributive (Array c r a)

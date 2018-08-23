@@ -12,72 +12,65 @@
 
 -- | Additive
 module NumHask.Algebra.Abstract.Additive
-  ( Sum(..)
-  , Additive(..)
+  ( Additive(..)
+  , sum
   , Subtractive(..)
   )
 where
 
-import Data.Coerce
+-- import Data.Coerce
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import NumHask.Algebra.Abstract.Group
-import qualified GHC.Generics as P
+-- import NumHask.Algebra.Abstract.Group
+-- import qualified GHC.Generics as P
 import qualified Prelude as P
 
-newtype Sum a = Sum a
-  deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
-            P.Functor)
-
-class (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
-  => Additive a where
-  sum :: (P.Foldable f) => f a -> a
-  sum = P.foldr (+) zero
-
+class Additive a where
   infixl 6 +
   (+) :: a -> a -> a
-  (+) = coerceFA magma
 
   zero :: a
-  zero = let (Sum a) = unit in a
 
-instance (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
-  => Additive a
+sum :: (Additive a, P.Foldable f) => f a -> a
+sum = P.foldr (+) zero
 
-class (AbelianGroup (Sum a))
-  => Subtractive a where
+class (Additive a) => Subtractive a where
   negate :: a -> a
-  negate = coerceFA' inv
 
   infixl 6 -
   (-) :: a -> a -> a
   (-) a b = a + negate b
 
-instance (AbelianGroup (Sum a)) => Subtractive a
+instance Additive P.Double where
+  (+) = (P.+)
+  zero = 0
 
---less flexible coerces for better inference in instances
-coerceFA :: (Sum a -> Sum a -> Sum a) -> a -> a -> a
-coerceFA f a b = let (Sum res) = f (Sum a) (Sum b) in res
+instance Subtractive P.Double where
+  negate = P.negate
 
-coerceFA' :: (Sum a -> Sum a) -> a -> a
-coerceFA' f a = let (Sum res) = f (Sum a) in res
+instance Additive P.Float where
+  (+) = (P.+)
+  zero = 0
 
-coerceTA :: (a -> a -> a) -> (Sum a -> Sum a -> Sum a)
-coerceTA f (Sum a) (Sum b) = Sum P.$ f a b
+instance Subtractive P.Float where
+  negate = P.negate
 
-coerceTA' :: (a -> a) -> (Sum a -> Sum a)
-coerceTA' f (Sum a) = Sum P.$ f a
+instance Additive P.Int where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum P.Double) where
-  magma = coerceTA (P.+)
+instance Subtractive P.Int where
+  negate = P.negate
 
-instance Magma (Sum P.Float) where
-  magma = coerceTA (P.+)
+instance Additive P.Integer where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum P.Int) where
-  magma = coerceTA (P.+)
+instance Subtractive P.Integer where
+  negate = P.negate
 
+{-
 instance Magma (Sum P.Integer) where
   magma = coerceTA (P.+)
 
@@ -280,3 +273,5 @@ instance Invertible (Sum b) => Invertible (Sum (a -> b)) where
 instance Idempotent (Sum P.Bool)
 
 instance Idempotent (Sum b) => Idempotent (Sum (a -> b))
+
+-}

@@ -174,52 +174,32 @@ expm1 x = exp x - one
  #-}
 
 instance (ExpField a, LowerBoundedField a, Ord a) =>
-  Magma (Sum (LogField a)) where
-  (Sum x@(LogField x')) `magma` (Sum y@(LogField y'))
-    | x == zero && y == zero = Sum zero
-    | x == zero = Sum y
-    | y == zero = Sum x
-    | x >= y = Sum $ LogField (x' + log1p (exp (y' - x')))
-    | otherwise = Sum $ LogField (y' + log1p (exp (x' - y')))
+  Additive (LogField a) where
+  x@(LogField x') + y@(LogField y')
+    | x == zero && y == zero = zero
+    | x == zero = y
+    | y == zero = x
+    | x >= y = LogField (x' + log1p (exp (y' - x')))
+    | otherwise = LogField (y' + log1p (exp (x' - y')))
 
-instance (LowerBoundedField a, ExpField a, Ord a) =>
-  Unital (Sum (LogField a)) where
-  unit = Sum $ LogField negInfinity
+  zero = LogField negInfinity
 
-instance (LowerBoundedField a, ExpField a, Ord a) =>
-  Associative (Sum (LogField a))
-
-instance (LowerBoundedField a, ExpField a, Ord a) =>
-  Commutative (Sum (LogField a))
-
-instance (ExpField a, Ord a, BoundedField a) => Invertible (Sum (LogField a)) where
-  inv (Sum x)
-    | x == zero = Sum zero
-    | otherwise = Sum nan
+instance (ExpField a, Ord a, BoundedField a) => Subtractive (LogField a) where
+  negate x
+    | x == zero = zero
+    | otherwise = nan
 
 instance (LowerBoundedField a, Eq a) =>
-  Magma (Product (LogField a)) where
-  (Product (LogField x)) `magma` (Product (LogField y))
-    | x == negInfinity || y == negInfinity = Product $ LogField negInfinity
-    | otherwise = Product $ LogField (x + y)
+  Multiplicative (LogField a) where
+  (LogField x) * (LogField y)
+    | x == negInfinity || y == negInfinity = LogField negInfinity
+    | otherwise = LogField (x + y)
+
+  one = LogField zero
 
 instance (LowerBoundedField a, Eq a) =>
-  Unital (Product (LogField a)) where
-  unit = Product $ LogField zero
-
-instance (LowerBoundedField a, Eq a) =>
-  Associative (Product (LogField a))
-
-instance (LowerBoundedField a, Eq a) =>
-  Commutative (Product (LogField a))
-
-instance (LowerBoundedField a, Eq a) =>
-  Invertible (Product (LogField a)) where
-  inv (Product (LogField x)) = Product $ LogField $ negate x
-
-instance (LowerBoundedField a, Eq a) =>
-  Absorbing (Product (LogField a)) where
-  absorb = Product $ LogField negInfinity
+  Divisive (LogField a) where
+  recip (LogField x) = LogField $ negate x
 
 instance (LowerBoundedField a, ExpField a, Ord a) =>
   Distributive (LogField a)

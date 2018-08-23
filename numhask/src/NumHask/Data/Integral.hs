@@ -52,6 +52,7 @@ instance Integral Integer where
   divMod = P.divMod
   quotRem = P.quotRem
 
+{-
 instance Integral Natural where
   divMod = P.divMod
   quotRem = P.quotRem
@@ -99,6 +100,9 @@ instance Integral b => Integral (a -> b) where
   quot f f' = \a -> f a `mod` f' a
   rem f f' = \a -> f a `mod` f' a
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
+
+-}
+
 
 -- | toInteger is kept separate from Integral to help with compatability issues.
 class ToInteger a where
