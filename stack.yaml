@@ -89,6 +89,10 @@ setup-info:
       8.6.0.20180810:
         url: https://downloads.haskell.org/~ghc/8.6.1-beta1/ghc-8.6.0.20180810-x86_64-deb8-linux.tar.xz
         sha256: 69e2e5c579e71c5fed1cf9be9760af4bce5f99865211c8eb6073722b8baffbd9
+    linux64:
+      8.6.0.20180810:
+        url: https://downloads.haskell.org/~ghc/8.6.1-beta1/ghc-8.6.0.20180810-x86_64-deb8-linux.tar.xz
+        sha256: 69e2e5c579e71c5fed1cf9be9760af4bce5f99865211c8eb6073722b8baffbd9
     linux64-tinfo:
       8.6.0.20180810:
         url: https://downloads.haskell.org/~ghc/8.6.1-beta1/ghc-8.6.0.20180810-x86_64-fedora27-linux.tar.xz
