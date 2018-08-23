@@ -167,7 +167,7 @@ below Empty _ = True
 -- >>> width (1 ... 20)
 -- 19
 --
-width :: (UpperBoundedField a) => Interval a -> Maybe a
+width :: (UpperBoundedField a, Subtractive a) => Interval a -> Maybe a
 width (I a b) = Just (b - a)
 width (S _) = Just zero
 width Empty = Nothing

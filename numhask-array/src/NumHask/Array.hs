@@ -626,7 +626,7 @@ instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) 
   nearZero f = and (fmapRep nearZero f)
   aboutEqual a b = and (liftR2 aboutEqual a b)
 
-instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Normed a a) =>
+instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Subtractive a, Normed a a) =>
          Metric (Array c r a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)

@@ -99,7 +99,7 @@ isMetricUnbounded acc src = ternary src $ \a b c ->
   eps acc zero
   `above` (distanceL1 a b + distanceL1 a c - distanceL1 b c)
 
-isExpField :: forall a. (Ord a, Show a, Epsilon a, CanInterval a, ExpField a, Normed a a) => a -> Gen a -> Property
+isExpField :: forall a. (Ord a, Show a, Epsilon a, Subtractive a, CanInterval a, ExpField a, Normed a a) => a -> Gen a -> Property
 isExpField acc src = binary src $ \a b ->
   (not (eps acc zero `above` a)
     || ((sqrt . (** (one + one)) $ a) =.= eps acc a)

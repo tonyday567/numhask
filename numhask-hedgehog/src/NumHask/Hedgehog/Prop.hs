@@ -159,7 +159,7 @@ isQuotientField src = unary src $ \a ->
 -- > sqrt . (**(one+one)) == id
 -- > log . exp == id
 -- > for +ive b, a != 0,1: a ** logBase a b == b
-isExpField :: forall a. (Ord a, Epsilon a, ExpField a, Show a, Normed a a) => Gen a -> Property
+isExpField :: forall a. (Ord a, Epsilon a, Subtractive a, ExpField a, Show a, Normed a a) => Gen a -> Property
 isExpField src = binary src $ \a b ->
   (not (a > (zero :: a))
     || ((sqrt . (** (one + one)) $ a) == a)

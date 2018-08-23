@@ -37,7 +37,7 @@ genAIntegral = fromList <$> replicateM n integral_
   where
     n = dimVal $ dim @r
 
-genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, ToRatio a, FromRatio a) => m (Array [] r a)
+genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a, FromRatio a) => m (Array [] r a)
 genARational = fromList <$> replicateM n negUniform
   where
     n = dimVal $ dim @r

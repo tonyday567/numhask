@@ -83,7 +83,7 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
+instance (Multiplicative a, Subtractive a, ExpField a, Normed a a) =>
   Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
@@ -94,11 +94,11 @@ instance (Ord a, Signed a, Subtractive a, Epsilon a)
   epsilon = epsilon :+ epsilon
   nearZero (a :+ b) = nearZero a && nearZero b
 
-instance (IntegralDomain a) => IntegralDomain (Complex a)
+instance (IntegralDomain a, Subtractive a) => IntegralDomain (Complex a)
 
-instance (Field a) => Field (Complex a)
+instance (Field a, Subtractive a) => Field (Complex a)
 
-instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
+instance (Ord a, TrigField a, ExpField a, Subtractive a) => ExpField (Complex a) where
   exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
     where
@@ -115,7 +115,7 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
 
-instance (UpperBoundedField a, IntegralDomain a) => UpperBoundedField (Complex a) where
+instance (UpperBoundedField a, IntegralDomain a, Subtractive a) => UpperBoundedField (Complex a) where
   isNaN (a :+ b) = isNaN a || isNaN b
 
 instance (LowerBoundedField a) => LowerBoundedField (Complex a)

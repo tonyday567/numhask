@@ -71,6 +71,7 @@ negUniform ::
   ( Field a
   , ToRatio a
   , FromRatio a
+  , Subtractive a
   , MonadGen m)
   => m a
 negUniform = rational (Range.constantFrom zero (negate one) one)
