@@ -8,6 +8,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Additive
@@ -29,6 +30,8 @@ import qualified Prelude as P
 newtype Sum a = Sum a
   deriving (P.Eq, P.Ord, P.Read, P.Show, P.Bounded, P.Generic, P.Generic1,
             P.Functor)
+
+type role Sum representational
 
 class (Associative (Sum a), Commutative (Sum a), Unital (Sum a))
   => Additive a where
