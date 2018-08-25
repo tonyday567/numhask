@@ -1,7 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MonoLocalBinds #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Prop.Interval where
 
@@ -64,7 +62,7 @@ isMultiplicative acc src =
   , ("commutative +", isCommutativeTimes acc src)
   ]
 
-isDivisive :: (Show a, Epsilon a, CanInterval a, Divisive a, BoundedField a) => a -> Gen a -> Property
+isDivisive :: (Show a, Epsilon a, CanInterval a, UpperBoundedField a, LowerBoundedField a) => a -> Gen a -> Property
 isDivisive acc src = unary src $ \a ->
   (a / a) =.= eps acc one &&
   (recip a =.= (eps acc one / eps acc a)) &&
@@ -78,7 +76,7 @@ isDistributive acc src = ternary src $ \a b c ->
   (a * (b + c)) =.= ((eps acc a * eps acc b) + (eps acc a * eps acc c)) &&
   ((a + b) * c) =.= ((eps acc a * eps acc c) + (eps acc b * eps acc c))
 
-isSigned :: (Show a, Epsilon a, CanInterval a, Subtractive a, Multiplicative a, Signed a) => a -> Gen a -> Property
+isSigned :: (Show a, Epsilon a, CanInterval a, Subtractive a, Signed a) => a -> Gen a -> Property
 isSigned acc src = unary src $ \a ->
   (sign a * abs a) =.= eps acc a
 
@@ -99,7 +97,7 @@ isMetricUnbounded acc src = ternary src $ \a b c ->
   eps acc zero
   `above` (distanceL1 a b + distanceL1 a c - distanceL1 b c)
 
-isExpField :: forall a. (Ord a, Show a, Epsilon a, Subtractive a, CanInterval a, ExpField a, Normed a a) => a -> Gen a -> Property
+isExpField :: forall a. (Ord a, Show a, Epsilon a, CanInterval a, ExpField a, Subtractive a, Normed a a) => a -> Gen a -> Property
 isExpField acc src = binary src $ \a b ->
   (not (eps acc zero `above` a)
     || ((sqrt . (** (one + one)) $ a) =.= eps acc a)

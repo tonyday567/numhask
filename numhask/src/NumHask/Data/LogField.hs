@@ -3,11 +3,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -30,7 +25,6 @@ import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
@@ -184,7 +178,8 @@ instance (ExpField a, LowerBoundedField a, Ord a) =>
 
   zero = LogField negInfinity
 
-instance (ExpField a, Ord a, BoundedField a) => Subtractive (LogField a) where
+instance (ExpField a, Ord a, LowerBoundedField a, UpperBoundedField a) =>
+  Subtractive (LogField a) where
   negate x
     | x == zero = zero
     | otherwise = nan
@@ -205,8 +200,8 @@ instance (LowerBoundedField a, ExpField a, Ord a) =>
   Distributive (LogField a)
 
 instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
-    exp (LogField x) = (LogField $ exp x)
-    log (LogField x) = (LogField $ log x)
+    exp (LogField x) = LogField $ exp x
+    log (LogField x) = LogField $ log x
     (**) x (LogField y) = pow x $ exp y
 
 instance (FromInteger a, ExpField a) => FromInteger (LogField a) where
@@ -227,16 +222,20 @@ instance (Epsilon a, ExpField a, LowerBoundedField a, Ord a) =>
   nearZero (LogField x) = nearZero $ exp x
   aboutEqual (LogField x) (LogField y) = aboutEqual (exp x) (exp y)
 
-instance (Ord a, ExpField a, BoundedField a) => Field (LogField a)
+instance (Ord a, ExpField a, LowerBoundedField a) => Field (LogField a)
 
-instance (Ord a, ExpField a, BoundedField a) => LowerBoundedField (LogField a)
+instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
+  LowerBoundedField (LogField a)
 
-instance (Ord a, ExpField a, BoundedField a) => IntegralDomain (LogField a) where
+instance (Ord a, ExpField a, LowerBoundedField a) =>
+  IntegralDomain (LogField a) where
 
-instance (Ord a, ExpField a, BoundedField a) => UpperBoundedField (LogField a) where
+instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
+  UpperBoundedField (LogField a) where
   isNaN (LogField a) = isNaN a
 
-instance (Ord a, BoundedField a, ExpField a) => Signed (LogField a) where
+instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
+  Signed (LogField a) where
   sign a
     | a == negInfinity = zero
     | otherwise = one

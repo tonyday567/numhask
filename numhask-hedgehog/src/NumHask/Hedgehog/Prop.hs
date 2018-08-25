@@ -1,8 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Prop where
 
@@ -97,7 +96,7 @@ isRational :: (Eq a, Show a, FromRatio a, ToRatio a) => Gen a -> Property
 isRational src = unary src $ \a ->
   fromRational a == a
 
-isSigned :: (Eq a, Show a, Multiplicative a, Signed a) => Gen a -> Property
+isSigned :: (Eq a, Show a, Signed a) => Gen a -> Property
 isSigned src = unary src $ \a ->
   sign a * abs a == a
 
@@ -159,7 +158,7 @@ isQuotientField src = unary src $ \a ->
 -- > sqrt . (**(one+one)) == id
 -- > log . exp == id
 -- > for +ive b, a != 0,1: a ** logBase a b == b
-isExpField :: forall a. (Ord a, Epsilon a, Subtractive a, ExpField a, Show a, Normed a a) => Gen a -> Property
+isExpField :: forall a. (Ord a, Epsilon a, ExpField a, Subtractive a, Show a, Normed a a) => Gen a -> Property
 isExpField src = binary src $ \a b ->
   (not (a > (zero :: a))
     || ((sqrt . (** (one + one)) $ a) == a)
@@ -173,7 +172,7 @@ isExpField src = binary src $ \a b ->
     || (a == zero && nearZero (logBase a b))
     || (a ** logBase a b == b))
 
-isSemiring :: (Eq a, Show a, Semiring a) => Gen a -> [(PropertyName, Property)]
+isSemiring :: (Eq a, Show a, Distributive a) => Gen a -> [(PropertyName, Property)]
 isSemiring src =
   [ ("zero", isUnital zero (+) src)
   , ("associative +", isAssociative (+) src)
@@ -182,7 +181,7 @@ isSemiring src =
   , ("one", isUnital one (*) src)
   , ("associative *", isAssociative (*) src)  ]
 
-isRing :: (Eq a, Show a, Ring a) => Gen a -> [(PropertyName, Property)]
+isRing :: (Eq a, Show a, Distributive a, Subtractive a) => Gen a -> [(PropertyName, Property)]
 isRing src =
   isSemiring src <> isSubtractive src
 

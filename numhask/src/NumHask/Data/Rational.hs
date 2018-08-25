@@ -1,9 +1,6 @@
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
@@ -26,7 +23,6 @@ import GHC.Float
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
@@ -62,10 +58,10 @@ type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
 
 instance (GCDConstraints a) => Additive (Ratio a) where
   (x :% y) + (x' :% y')
-    | y P.== zero P.&& y' P.== zero = (bool one (negate one) (x + x' P.< zero) :% zero)
-    | y P.== zero                   = (x :% y)
-    | y' P.== zero                  = (x' :% y')
-    | P.otherwise = (reduce ((x * y') + (x' * y)) (y * y'))
+    | y P.== zero P.&& y' P.== zero = bool one (negate one) (x + x' P.< zero) :% zero
+    | y P.== zero = x :% y
+    | y' P.== zero = x' :% y'
+    | P.otherwise = reduce ((x * y') + (x' * y)) (y * y')
 
   zero = zero :% one
 
@@ -81,7 +77,7 @@ instance (GCDConstraints a) =>
   Divisive (Ratio a) where
   recip (x :% y)
     | sign x P.== negate one = negate y :% negate x
-    | P.otherwise = (y :% x)
+    | P.otherwise = y :% x
 
 instance (GCDConstraints a) => Distributive  (Ratio a)
 
@@ -92,7 +88,7 @@ instance (GCDConstraints a) => Field (Ratio a)
 instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromInteger b) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
 
-instance (GCDConstraints a, Ring a, IntegralDomain a) =>
+instance (GCDConstraints a, Distributive a, IntegralDomain a) =>
   UpperBoundedField (Ratio a) where
   isNaN (a :% b) = (a P.== zero) P.&& (b P.== zero)
 

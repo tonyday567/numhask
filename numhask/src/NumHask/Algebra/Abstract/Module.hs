@@ -1,9 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra for Modules
@@ -24,4 +19,4 @@ import NumHask.Algebra.Abstract.Action
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Ring a, Divisive (r a), MultiplicativeAction r a) => Module r a
+class (Distributive a, Divisive (r a), MultiplicativeAction r a) => Module r a

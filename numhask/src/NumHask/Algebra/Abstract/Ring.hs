@@ -1,7 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -34,13 +31,9 @@ class (Additive a, Multiplicative a) =>
   Distributive a
 
 instance Distributive P.Double
-
 instance Distributive P.Float
-
 instance Distributive P.Int
 instance Distributive P.Integer
-
-{-
 instance Distributive Natural
 instance Distributive Int8
 instance Distributive Int16
@@ -51,13 +44,8 @@ instance Distributive Word8
 instance Distributive Word16
 instance Distributive Word32
 instance Distributive Word64
-
 instance Distributive P.Bool
-
 instance Distributive b => Distributive (a -> b)
-
-
--}
 
 -- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is a ring without,
 --   necessarily, negative elements.
@@ -80,9 +68,9 @@ instance (Distributive a, Subtractive a) =>
 -- | A <https://en.wikipedia.org/wiki/Commutative_ring Commutative Ring> is a
 --   ring with a Commutative Multiplication operation. Recall that Addition is
 --   Commutative in all Rings
-class (Ring a) =>
+class (Distributive a, Subtractive a) =>
   CommutativeRing a
-instance (Ring a) =>
+instance (Distributive a, Subtractive a) =>
   CommutativeRing a
 
 -- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain>
@@ -96,21 +84,21 @@ instance IntegralDomain P.Double
 
 instance IntegralDomain P.Float
 
--- instance IntegralDomain b => IntegralDomain (a -> b)
+instance IntegralDomain b => IntegralDomain (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring>
 --   is a semiring with an additional unary operator star satisfying:
 --
 -- > star a = one + a `times` star a
 --
-class (Semiring a) => StarSemiring a where
+class (Distributive a) => StarSemiring a where
   star :: a -> a
   star a = one + plus a
 
   plus :: a -> a
   plus a = a * star a
 
--- instance StarSemiring b => StarSemiring (a -> b)
+instance StarSemiring b => StarSemiring (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is
 --   a Star Semiring with idempotent addition
@@ -120,7 +108,7 @@ class (Semiring a) => StarSemiring a where
 --
 class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 
--- instance KleeneAlgebra b => KleeneAlgebra (a -> b)
+instance KleeneAlgebra b => KleeneAlgebra (a -> b)
 
 -- | Involutive Ring
 --
@@ -131,39 +119,22 @@ class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 --
 -- Note: elements for which @adj a == a@ are called "self-adjoint".
 --
-class Semiring a => InvolutiveRing a where
+class (Distributive a) => InvolutiveRing a where
   adj :: a -> a
   adj x = x
 
 instance InvolutiveRing P.Double
-
 instance InvolutiveRing P.Float
-
 instance InvolutiveRing P.Integer
-
 instance InvolutiveRing P.Int
-
-{-
 instance InvolutiveRing Natural
-
 instance InvolutiveRing Int8
-
 instance InvolutiveRing Int16
-
 instance InvolutiveRing Int32
-
 instance InvolutiveRing Int64
-
 instance InvolutiveRing Word
-
 instance InvolutiveRing Word8
-
 instance InvolutiveRing Word16
-
 instance InvolutiveRing Word32
-
 instance InvolutiveRing Word64
-
 instance InvolutiveRing b => InvolutiveRing (a -> b)
-
--}

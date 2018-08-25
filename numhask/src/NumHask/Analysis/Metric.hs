@@ -1,5 +1,4 @@
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -34,7 +33,6 @@ import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
@@ -75,7 +73,6 @@ instance Signed Integer where
     | otherwise = negate one
   abs = P.abs
 
-{-
 instance Signed Natural where
   sign a
     | a == zero = zero
@@ -139,8 +136,6 @@ instance Signed Word64 where
     | a == zero = zero
     | otherwise = one
   abs = P.abs
-
--}
 
 -- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
 --
@@ -264,7 +259,6 @@ instance Metric Integer Integer where
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-{-
 instance Metric Natural Natural where
   distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
@@ -315,7 +309,6 @@ instance Metric Word64 Word64 where
   distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
   distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
--}
 
 class (Eq a, Additive a) =>
   Epsilon a where
@@ -346,7 +339,6 @@ instance Epsilon Int
 
 instance Epsilon Integer
 
-{-
 instance Epsilon Int8
 
 instance Epsilon Int16
@@ -365,5 +357,4 @@ instance Epsilon Word32
 
 instance Epsilon Word64
 
--}
 

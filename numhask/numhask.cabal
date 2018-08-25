@@ -70,5 +70,6 @@ library
     NumHask.Data.Positive
     NumHask.Data.Rational
     NumHask.Data.Wrapped
+    NumHask.Exception
   other-modules:
   default-language: Haskell2010

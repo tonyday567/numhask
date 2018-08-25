@@ -1,11 +1,7 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLists #-}
-{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 

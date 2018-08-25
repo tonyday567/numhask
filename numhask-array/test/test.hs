@@ -87,7 +87,8 @@ fieldProps'
   ( Show a
   , Epsilon a
   , I.CanInterval a
-  , BoundedField a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , Signed a
   )
   => a

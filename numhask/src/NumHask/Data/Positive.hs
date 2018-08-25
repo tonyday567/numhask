@@ -1,11 +1,7 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLists #-}
-{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -17,10 +13,9 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
+import NumHask.Exception
 import qualified Prelude as P
-import GHC.Exts (fromString)
 import Control.Exception
-import Data.Typeable (Typeable)
 
 newtype Positive a = Positive { unPositive :: a }
   deriving
@@ -50,17 +45,17 @@ positive a
 
 positive_ :: (P.Ord a, Additive a) => a -> Positive a
 positive_ a
-  | a P.< zero = throw (NumHaskError "positive number less than zero")
+  | a P.< zero = throw (NumHaskException "positive number less than zero")
   | P.otherwise = Positive a
 
 instance (P.Ord a, Subtractive a) => Subtractive (Positive a) where
   negate (Positive a)
     | a P.== zero = Positive zero
-    | P.otherwise = throw (NumHaskError "negating a positive number")
+    | P.otherwise = throw (NumHaskException "negating a positive number")
 
   (Positive a) - (Positive b)
     | a P.>= b = Positive (a - b)
-    | P.otherwise = throw (NumHaskError "subtracting a larger positive")
+    | P.otherwise = throw (NumHaskException "subtracting a larger positive")
 
 instance (P.Ord a, QuotientField a P.Integer) =>
   QuotientField (Positive a) (Positive P.Integer) where
@@ -86,13 +81,3 @@ instance (Subtractive a, Normed a a) => Metric a (Positive a) where
   distanceL1 a b = Positive P.$ normL1 (a - b)
   distanceL2 a b = Positive P.$ normL2 (a - b)
   distanceLp (Positive p) a b = Positive P.$ normLp p (a - b)
-
-
-
-
--- transfer to a new module
-newtype NumHaskError = NumHaskError { errorMessage :: P.String }
-  deriving (P.Show, Typeable)
-
-instance Exception NumHaskError
-

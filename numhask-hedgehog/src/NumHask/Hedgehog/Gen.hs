@@ -1,8 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE RebindableSyntax #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Gen where
 

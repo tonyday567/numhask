@@ -1,6 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeApplications #-}
@@ -15,10 +13,7 @@ module NumHask.Algebra.Linear.Hadamard
   )
 where
 
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Ring
 import Data.Coerce
 
 -- | element by element multiplication

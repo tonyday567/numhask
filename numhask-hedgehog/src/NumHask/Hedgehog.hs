@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wall #-}
+
 module NumHask.Hedgehog
   ( module NumHask.Data.Interval
   , module NumHask.Hedgehog.Gen

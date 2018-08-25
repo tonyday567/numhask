@@ -1,11 +1,5 @@
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -15,20 +9,16 @@ module NumHask.Algebra.Abstract.Field
   , QuotientField(..)
   , UpperBoundedField(..)
   , LowerBoundedField(..)
-  , BoundedField
   , TrigField(..)
   )
 where
 
 import Data.Bool (bool)
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Data.Integral
 import qualified Prelude as P
-
-import Prelude ((.), fst, snd)
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is an
 --   Integral domain in which every non-zero element has a multiplicative
@@ -214,10 +204,6 @@ instance LowerBoundedField b => LowerBoundedField (a -> b) where
 -- > one / (zero :: Complex Float) == nan
 -- instance (UpperBoundedField a) =>
 --   UpperBoundedField (Complex a)
-
-class (UpperBoundedField a, LowerBoundedField a) => BoundedField a
-
-instance (UpperBoundedField a, LowerBoundedField a) => BoundedField a
 
 -- | Trigonometric Field
 class (Field a) =>

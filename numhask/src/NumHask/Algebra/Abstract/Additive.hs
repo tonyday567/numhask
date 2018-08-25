@@ -1,13 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Additive
@@ -18,13 +8,12 @@ module NumHask.Algebra.Abstract.Additive
   )
 where
 
--- import Data.Coerce
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
--- import NumHask.Algebra.Abstract.Group
--- import qualified GHC.Generics as P
+import Prelude (Int, Integer, Float, Double, Bool)
 import qualified Prelude as P
+
 
 class Additive a where
   infixl 6 +
@@ -42,236 +31,115 @@ class (Additive a) => Subtractive a where
   (-) :: a -> a -> a
   (-) a b = a + negate b
 
-instance Additive P.Double where
+instance Additive Double where
   (+) = (P.+)
   zero = 0
 
-instance Subtractive P.Double where
+instance Subtractive Double where
   negate = P.negate
 
-instance Additive P.Float where
+instance Additive Float where
   (+) = (P.+)
   zero = 0
 
-instance Subtractive P.Float where
+instance Subtractive Float where
   negate = P.negate
 
-instance Additive P.Int where
+instance Additive Int where
   (+) = (P.+)
   zero = 0
 
-instance Subtractive P.Int where
+instance Subtractive Int where
   negate = P.negate
 
-instance Additive P.Integer where
+instance Additive Integer where
   (+) = (P.+)
   zero = 0
 
-instance Subtractive P.Integer where
+instance Subtractive Integer where
   negate = P.negate
 
-{-
-instance Magma (Sum P.Integer) where
-  magma = coerceTA (P.+)
+instance Additive Bool where
+  (+) = (P.||)
+  zero = P.False
 
-instance Magma (Sum P.Bool) where
-  magma = coerceTA (P.||)
+instance Subtractive Bool where
+  negate = P.not
 
-instance Magma (Sum Natural) where
-  magma = coerceTA (P.+)
+instance Additive Natural where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum Int8) where
-  magma = coerceTA (P.+)
+instance Subtractive Natural where
+  negate = P.negate
 
-instance Magma (Sum Int16) where
-  magma = coerceTA (P.+)
+instance Additive Int8 where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum Int32) where
-  magma = coerceTA (P.+)
+instance Subtractive Int8 where
+  negate = P.negate
 
-instance Magma (Sum Int64) where
-  magma = coerceTA (P.+)
+instance Additive Int16 where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum Word) where
-  magma = coerceTA (P.+)
+instance Subtractive Int16 where
+  negate = P.negate
 
-instance Magma (Sum Word8) where
-  magma = coerceTA (P.+)
+instance Additive Int32 where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum Word16) where
-  magma = coerceTA (P.+)
+instance Subtractive Int32 where
+  negate = P.negate
 
-instance Magma (Sum Word32) where
-  magma = coerceTA (P.+)
+instance Additive Int64 where
+  (+) = (P.+)
+  zero = 0
 
-instance Magma (Sum Word64) where
-  magma = coerceTA (P.+)
+instance Subtractive Int64 where
+  negate = P.negate
 
-instance Magma (Sum b) => Magma (Sum (a -> b)) where
-  (Sum f) `magma` (Sum f') = Sum P.$ \a -> f a `cmagma` f' a 
-    where
-      cmagma = coerceFA magma
+instance Additive Word where
+  (+) = (P.+)
+  zero = 0
 
-instance Unital (Sum P.Double) where
-  unit = coerce (0 :: P.Double)
+instance Subtractive Word where
+  negate = P.negate
 
-instance Unital (Sum P.Float) where
-  unit = coerce (0 :: P.Float)
+instance Additive Word8 where
+  (+) = (P.+)
+  zero = 0
 
-instance Unital (Sum P.Int) where
-  unit = coerce (0 :: P.Int)
+instance Subtractive Word8 where
+  negate = P.negate
 
-instance Unital (Sum P.Integer) where
-  unit = coerce (0 :: P.Integer)
+instance Additive Word16 where
+  (+) = (P.+)
+  zero = 0
 
-instance Unital (Sum P.Bool) where
-  unit = coerce P.False
+instance Subtractive Word16 where
+  negate = P.negate
 
-instance Unital (Sum Natural) where
-  unit = coerce (0 :: Natural)
+instance Additive Word32 where
+  (+) = (P.+)
+  zero = 0
 
-instance Unital (Sum Int8) where
-  unit = coerce (0 :: Int8)
+instance Subtractive Word32 where
+  negate = P.negate
 
-instance Unital (Sum Int16) where
-  unit = coerce (0 :: Int16)
+instance Additive Word64 where
+  (+) = (P.+)
+  zero = 0
 
-instance Unital (Sum Int32) where
-  unit = coerce (0 :: Int32)
+instance Subtractive Word64 where
+  negate = P.negate
 
-instance Unital (Sum Int64) where
-  unit = coerce (0 :: Int64)
 
-instance Unital (Sum Word) where
-  unit = coerce (0 :: Word)
+instance Additive b => Additive (a -> b) where
+  f + f' = \a -> f a + f' a 
+  zero _ = zero
 
-instance Unital (Sum Word8) where
-  unit = coerce (0 :: Word8)
-
-instance Unital (Sum Word16) where
-  unit = coerce (0 :: Word16)
-
-instance Unital (Sum Word32) where
-  unit = coerce (0 :: Word32)
-
-instance Unital (Sum Word64) where
-  unit = coerce (0 :: Word64)
-
-instance Unital (Sum b) => Unital (Sum (a -> b)) where
-  unit = Sum P.$ \_ -> coerce @(Sum b) @b unit
-
-instance Associative (Sum P.Double)
-
-instance Associative (Sum P.Float)
-
-instance Associative (Sum P.Int)
-
-instance Associative (Sum P.Integer)
-
-instance Associative (Sum P.Bool)
-
-instance Associative (Sum Natural)
-
-instance Associative (Sum Int8)
-
-instance Associative (Sum Int16)
-
-instance Associative (Sum Int32)
-
-instance Associative (Sum Int64)
-
-instance Associative (Sum Word)
-
-instance Associative (Sum Word8)
-
-instance Associative (Sum Word16)
-
-instance Associative (Sum Word32)
-
-instance Associative (Sum Word64)
-
-instance Associative (Sum b) => Associative (Sum (a -> b))
-
----commutative magma
-instance Commutative (Sum P.Double)
-
-instance Commutative (Sum P.Float)
-
-instance Commutative (Sum P.Int)
-
-instance Commutative (Sum P.Integer)
-
-instance Commutative (Sum P.Bool)
-
-instance Commutative (Sum Natural)
-
-instance Commutative (Sum Int8)
-
-instance Commutative (Sum Int16)
-
-instance Commutative (Sum Int32)
-
-instance Commutative (Sum Int64)
-
-instance Commutative (Sum Word)
-
-instance Commutative (Sum Word8)
-
-instance Commutative (Sum Word16)
-
-instance Commutative (Sum Word32)
-
-instance Commutative (Sum Word64)
-
-instance Commutative (Sum b) => Commutative (Sum (a -> b))
-
-instance Invertible (Sum P.Double) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum P.Float) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum P.Int) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum P.Integer) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum P.Bool) where
-  inv = coerceTA' P.not
-
-instance Invertible (Sum Int8) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Int16) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Int32) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Int64) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Word) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Word8) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Word16) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Word32) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum Word64) where
-  inv = coerceTA' P.negate
-
-instance Invertible (Sum b) => Invertible (Sum (a -> b)) where
-  inv (Sum f) = Sum P.$ \a -> coerceFA' inv (f a)
-
-instance Idempotent (Sum P.Bool)
-
-instance Idempotent (Sum b) => Idempotent (Sum (a -> b))
-
--}
+instance Subtractive b => Subtractive (a -> b) where
+  negate f = negate P.. f

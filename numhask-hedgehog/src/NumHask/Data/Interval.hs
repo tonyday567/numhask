@@ -1,4 +1,3 @@
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable #-}
@@ -6,14 +5,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE IncoherentInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Interval
 module NumHask.Data.Interval
@@ -105,7 +100,7 @@ eps :: (CanInterval a, Epsilon a, Subtractive a, Multiplicative a)
   => a -> a -> Interval a
 eps accuracy a = a +/- (accuracy * a * epsilon)
 
-whole :: (CanInterval a, BoundedField a) => Interval a
+whole :: (CanInterval a, LowerBoundedField a, UpperBoundedField a) => Interval a
 whole = infinity ... negInfinity
 
 -- | An empty interval
@@ -207,39 +202,39 @@ instance (CanInterval a, Multiplicative a) =>
 
   one = one ... one
 
-instance (CanInterval a, Eq a, Epsilon a, BoundedField a, Divisive a) =>
+instance (CanInterval a, Eq a, Epsilon a, LowerBoundedField a, UpperBoundedField a, Divisive a) =>
   Divisive (Interval a) where
   recip i@(I l u)
-    | zero =.= i && not (epsilon =.= i) = (negInfinity ... recip l)
-    | zero =.= i && not (negate epsilon =.= i) = (infinity ... recip l)
+    | zero =.= i && not (epsilon =.= i) = negInfinity ... recip l
+    | zero =.= i && not (negate epsilon =.= i) = infinity ... recip l
     | zero =.= i = whole
-    | otherwise = (recip l ... recip u)
-  recip (S s) = (S (recip s))
+    | otherwise = recip l ... recip u
+  recip (S s) = S (recip s)
   recip Empty = Empty
 
 instance (CanInterval a, P.Distributive a) => P.Distributive (Interval a)
 
-instance (BoundedField a, CanInterval a, Epsilon a) =>
+instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) =>
   IntegralDomain (Interval a)
 
-instance (BoundedField a, CanInterval a, Epsilon a) => Field (Interval a)
+instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) => Field (Interval a)
 
-instance (BoundedField a, CanInterval a, Epsilon a) =>
+instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) =>
   UpperBoundedField (Interval a) where
   isNaN (I l u) = isNaN l || isNaN u
   isNaN (S s) = isNaN s
   isNaN Empty = True
 
-instance (BoundedField a, CanInterval a, Epsilon a, LowerBoundedField a)
+instance (UpperBoundedField a, CanInterval a, Epsilon a, LowerBoundedField a)
   => LowerBoundedField (Interval a)
 
-instance (BoundedField a, CanInterval a, Epsilon a, ExpField a) =>
+instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a, ExpField a) =>
   ExpField (Interval a) where
   exp = increasing exp
   log = increasing log
 
 instance
-  ( BoundedField a
+  ( LowerBoundedField a, UpperBoundedField a
   , QuotientField a Integer
   , FromInteger a
   , CanInterval a
@@ -323,7 +318,8 @@ instance
       ...
       bool (atanh b) infinity (b >= 1)
 
-instance (Ring a, CanInterval a, Ord a, Integral a) => Integral (Interval a) where
+instance (Distributive a, Subtractive a, CanInterval a, Ord a, Integral a) =>
+  Integral (Interval a) where
   divMod (I l u) (I l' u') = (ld ... ud, lm ... um) where
     (ld, lm) = divMod l l'
     (ud, um) = divMod u u'

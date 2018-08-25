@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
@@ -27,7 +25,7 @@ import qualified Prelude as P
 -- | Integral laws
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
-class (Semiring a) =>
+class (Distributive a) =>
   Integral a where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
@@ -52,7 +50,6 @@ instance Integral Integer where
   divMod = P.divMod
   quotRem = P.quotRem
 
-{-
 instance Integral Natural where
   divMod = P.divMod
   quotRem = P.quotRem
@@ -94,15 +91,12 @@ instance Integral Word64 where
   quotRem = P.quotRem
 
 instance Integral b => Integral (a -> b) where
-  div f f' = \a -> f a `div` f' a
-  mod f f' = \a -> f a `mod` f' a
+  div f f' a = f a `div` f' a
+  mod f f' a = f a `mod` f' a
   divMod f f' = (\a -> fst (f a `divMod` f' a), \a -> snd (f a `divMod` f' a))
-  quot f f' = \a -> f a `mod` f' a
-  rem f f' = \a -> f a `mod` f' a
+  quot f f' a = f a `mod` f' a
+  rem f f' a = f a `mod` f' a
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
-
--}
-
 
 -- | toInteger is kept separate from Integral to help with compatability issues.
 class ToInteger a where
@@ -149,7 +143,7 @@ class FromInteger a where
   fromInteger :: Integer -> a
 
 instance FromInteger b => FromInteger (a -> b) where
-  fromInteger i = \_ -> fromInteger i
+  fromInteger i _ = fromInteger i
 
 -- | coercion of 'Integral's
 --

@@ -1,8 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -19,6 +15,8 @@ module NumHask.Algebra.Abstract.Group
   , AbelianGroup
   )
 where
+
+import Prelude
 
 -- * Magma structure
 -- | A <https://en.wikipedia.org/wiki/Magma_(algebra) Magma> is a tuple (T,magma) consisting of
@@ -60,7 +58,7 @@ class Magma a =>
 
 instance Unital b => Unital (a -> b) where
   {-# INLINE unit #-}
-  unit = \_ -> unit
+  unit _ = unit
 
 -- | An Associative Magma
 --
@@ -89,7 +87,7 @@ class Magma a =>
 
 instance Invertible b => Invertible (a -> b) where
   {-# INLINE inv #-}
-  inv f = \a -> inv (f a)
+  inv f = inv . f
 
 -- | A <https://en.wikipedia.org/wiki/Group_(mathematics) Group> is a
 --   Associative, Unital and Invertible Magma.
@@ -106,7 +104,7 @@ class Magma a =>
 
 instance Absorbing b => Absorbing (a -> b) where
   {-# INLINE absorb #-}
-  absorb = \_ -> absorb
+  absorb _ = absorb
 
 -- | An Idempotent Magma is a magma where every element is
 --   <https://en.wikipedia.org/wiki/Idempotence Idempotent>.
@@ -120,5 +118,5 @@ instance Idempotent b => Idempotent (a -> b)
 -- | An <https://en.wikipedia.org/wiki/Abelian_group Abelian Group> is an
 --   Associative, Unital, Invertible and Commutative Magma . In other words, it
 --   is a Commutative Group
-class (Group a, Commutative a) => AbelianGroup a
-instance (Group a, Commutative a) => AbelianGroup a
+class (Associative a, Unital a, Invertible a, Commutative a) => AbelianGroup a
+instance (Associative a, Unital a, Invertible a, Commutative a) => AbelianGroup a

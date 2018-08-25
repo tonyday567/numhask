@@ -1,8 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Props where
 
@@ -96,7 +95,6 @@ boolProps
   ( Show a
   , Ord a
   , Distributive a
-  , Multiplicative a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -144,7 +142,8 @@ fieldProps
   , Ord a
   , Epsilon a
   , CanInterval a
-  , BoundedField a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , FromRatio a
   , ToRatio a
   , FromInteger a
@@ -179,7 +178,8 @@ complexFieldProps
   , Ord a
   , Epsilon a
   , CanInterval a
-  , BoundedField a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , FromRatio a
   , Signed a
   )
@@ -201,7 +201,8 @@ logFieldProps
   ( Show a
   , Epsilon a
   , CanInterval a
-  , BoundedField a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , FromRatio a
   )
   => Gen a
