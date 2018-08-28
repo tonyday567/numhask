@@ -34,6 +34,7 @@ module NumHask.Prelude
   , module NumHask.Data.Rational
   , module NumHask.Data.Positive
   , Natural(..)
+  , module NumHask.Exception
   ) where
  
 #if MIN_VERSION_base(4,11,0)
@@ -63,6 +64,7 @@ import NumHask.Data.Integral
 import NumHask.Data.LogField       
 import NumHask.Data.Positive
 import NumHask.Data.Rational
+import NumHask.Exception
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.
