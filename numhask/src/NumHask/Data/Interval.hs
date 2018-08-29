@@ -30,7 +30,14 @@ where
 
 import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
-import NumHask.Prelude as P
+import NumHask.Algebra.Abstract
+import NumHask.Data.Complex
+import NumHask.Data.LogField
+import NumHask.Data.Integral
+import NumHask.Analysis.Metric
+import qualified Prelude as P
+import Prelude (Eq(..), Ord(..), Show, Read, Maybe(..), Integer, Bool(..), Double, Float, Int, Foldable, Functor, Traversable, (.), ($), max, otherwise, (||), (&&), not, fmap, (<$>))
+import Data.Bool (bool)
 
 data Interval a =
   I !a !a | S !a | Empty
@@ -48,7 +55,7 @@ data Interval a =
 class CanInterval a where
   infix 3 ...
   (...) :: a -> a -> Interval a
-  (...) a b = interval (a :| [b])
+  (...) a b = interval [a,b]
 
   infixl 6 +/-
   (+/-) :: (Subtractive a) => a -> a -> Interval a
@@ -63,17 +70,18 @@ class CanInterval a where
   (=.=) _ Empty = False
 
   -- | this differs from minimum in that the algorithm can produce a number not in the list
-  lowest :: NonEmpty a -> a
-  default lowest :: (Ord a) => NonEmpty a -> a
-  lowest = minimum
+  lowest :: [a] -> a
+  default lowest :: (Ord a) => [a] -> a
+  lowest = P.minimum
 
   -- | this differs from maximum in that the algorithm can produce a number not in the list
-  highest :: NonEmpty a -> a
-  default highest :: (Ord a) => NonEmpty a -> a
-  highest = maximum
+  highest :: [a] -> a
+  default highest :: (Ord a) => [a] -> a
+  highest = P.maximum
 
-  interval :: NonEmpty a -> Interval a
-  interval (x :| []) = S x
+  interval :: [a] -> Interval a
+  interval [] = Empty
+  interval [x] = S x
   interval xs = I (lowest xs) (highest xs)
 
 instance CanInterval Float
@@ -88,9 +96,9 @@ instance (Ord a, Subtractive a, CanInterval a) => CanInterval (Complex a) where
   a =.= (S s) = a == s
   _ =.= Empty = False
 
-  lowest xs = minimum (realPart <$> xs) :+ minimum (imagPart <$> xs)
+  lowest xs = P.minimum (realPart <$> xs) :+ P.minimum (imagPart <$> xs)
 
-  highest xs = maximum (realPart <$> xs) :+ maximum (imagPart <$> xs)
+  highest xs = P.maximum (realPart <$> xs) :+ P.maximum (imagPart <$> xs)
 
 -- | Create a small interval around a number.
 -- >>> eps one (0.0 :: Float)
@@ -194,7 +202,7 @@ instance (CanInterval a, Subtractive a, Divisive a) => Subtractive (Interval a) 
 instance (CanInterval a, Multiplicative a) =>
   Multiplicative (Interval a) where
   (I l u) * (I l' u') =
-    interval (l * l' :| [ l * u', u * l', u * u'])
+    interval [l * l', l * u', u * l', u * u']
   i * (S s) = fmap (s*) i
   (S s) * i = fmap (s*) i
   Empty *  x = x
@@ -212,7 +220,7 @@ instance (CanInterval a, Eq a, Epsilon a, LowerBoundedField a, UpperBoundedField
   recip (S s) = S (recip s)
   recip Empty = Empty
 
-instance (CanInterval a, P.Distributive a) => P.Distributive (Interval a)
+instance (CanInterval a, Distributive a) => Distributive (Interval a)
 
 instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) =>
   IntegralDomain (Interval a)

@@ -28,7 +28,6 @@ import NumHask.Prelude as P
 import Numeric.Dimensions as D
 import Test.DocTest
 import qualified Hedgehog as H
-import qualified NumHask.Data.Interval as I
 import qualified NumHask.Hedgehog.Prop.Interval as I
 import qualified Prelude
 
@@ -86,7 +85,7 @@ fieldProps'
   :: forall a.
   ( Show a
   , Epsilon a
-  , I.CanInterval a
+  , CanInterval a
   , LowerBoundedField a
   , UpperBoundedField a
   , Signed a

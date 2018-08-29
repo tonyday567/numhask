@@ -66,6 +66,7 @@ library
     NumHask.Analysis.Metric
     NumHask.Data.Complex   
     NumHask.Data.Integral
+    NumHask.Data.Interval
     NumHask.Data.LogField
     NumHask.Data.Positive
     NumHask.Data.Rational

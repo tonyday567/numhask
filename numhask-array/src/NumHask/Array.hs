@@ -28,7 +28,6 @@ import NumHask.Shape (HasShape(..))
 import Numeric.Dimensions as D
 import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
-import qualified NumHask.Data.Interval as I
 
 -- $setup 
 -- >>> :set -XDataKinds
@@ -681,23 +680,23 @@ instance
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
 
-instance forall a c r. (Eq (c a), Container c, Dimensions r, Ord a, Subtractive a, I.CanInterval a) => I.CanInterval (Array c r a) where
+instance forall a c r. (Eq (c a), Container c, Dimensions r, Ord a, Subtractive a, P.CanInterval a) => P.CanInterval (Array c r a) where
 
   (...) a b
-    | a == b = I.S a
-    | otherwise = I.I a' b'
+    | a == b = P.S a
+    | otherwise = P.I a' b'
     where
       a' = liftR2 min a b
       b' = liftR2 max a b
 
-  x =.= (I.I l u) = cfoldl' (&&) True $ _getContainer
+  x =.= (P.I l u) = cfoldl' (&&) True $ _getContainer
     (liftR2 (&&) (liftR2 (>=) x l) (liftR2 (<=) x u))
-  a =.= (I.S s) = a == s
-  _ =.= I.Empty = False
+  a =.= (P.S s) = a == s
+  _ =.= P.Empty = False
 
-  lowest xs = tabulate (\i -> I.lowest $ (\x -> index x i) <$> xs)
+  lowest xs = tabulate (\i -> P.lowest $ (\x -> index x i) <$> xs)
 
-  highest xs = tabulate (\i -> I.highest $ (\x -> index x i) <$> xs)
+  highest xs = tabulate (\i -> P.highest $ (\x -> index x i) <$> xs)
 
 singleton :: (Dimensions r, Container c) => a -> (Array c r a)
 singleton a = tabulate (const a)
