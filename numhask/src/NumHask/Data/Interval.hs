@@ -1,46 +1,37 @@
-{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Interval
+-- | A continuous number Interval
 module NumHask.Data.Interval
   ( Interval(..)
-  , CanInterval(..)
-  , eps
-  , whole
-  , emptyInterval
-  , singletonInterval
-  , width
-  , lower
-  , upper
-  , above
-  , below
-  , increasing
-  , decreasing
+  , binOp
   )
 where
 
 import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract
-import NumHask.Data.Complex
-import NumHask.Data.LogField
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Data.Integral
 import NumHask.Analysis.Metric
-import qualified Prelude as P
-import Prelude (Eq(..), Ord(..), Show, Read, Maybe(..), Integer, Bool(..), Double, Float, Int, Foldable, Functor, Traversable, (.), ($), max, otherwise, (||), (&&), not, fmap, (<$>))
+import NumHask.Analysis.Space as S
+import NumHask.Exception
+import Prelude (Eq(..), Ord(..), Show, Read, Integer, Bool(..), Foldable, Functor, Traversable, (.), ($), max, otherwise, (||), (&&), not, fmap)
+import GHC.Exts (fromString)
 import Data.Bool (bool)
 
 data Interval a =
-  I !a !a | S !a | Empty
+  Interval !a !a | SingletonInterval !a | EmptyInterval
   deriving ( Eq
            , Show
            , Read
@@ -52,210 +43,108 @@ data Interval a =
            , Traversable
            )
 
-class CanInterval a where
-  infix 3 ...
-  (...) :: a -> a -> Interval a
-  (...) a b = interval [a,b]
+instance (Eq a, Lattice a, Subtractive a) => Space (Interval a) where
+  type Element (Interval a) = a
 
-  infixl 6 +/-
-  (+/-) :: (Subtractive a) => a -> a -> Interval a
-  a +/- b = a - b ... a + b
+  lower (Interval l _) = l
+  lower (SingletonInterval s) = s
+  lower EmptyInterval = throw (NumHaskException "lower used on empty space")
 
-  -- | is a number contained within the interval
-  infix 5 =.=
-  (=.=) :: a -> Interval a -> Bool
-  default (=.=) :: (Ord a) => a -> Interval a -> Bool
-  (=.=) a (I l u) = l <= a && u >= a
-  (=.=) a (S s) = a == s
-  (=.=) _ Empty = False
+  upper (Interval _ u) = u
+  upper (SingletonInterval s) = s
+  upper EmptyInterval = throw (NumHaskException "upper used on empty space")
 
-  -- | this differs from minimum in that the algorithm can produce a number not in the list
-  lowest :: [a] -> a
-  default lowest :: (Ord a) => [a] -> a
-  lowest = P.minimum
+  singleton = SingletonInterval
+  nul = EmptyInterval
+  isNul = (nul ==)
 
-  -- | this differs from maximum in that the algorithm can produce a number not in the list
-  highest :: [a] -> a
-  default highest :: (Ord a) => [a] -> a
-  highest = P.maximum
+  union EmptyInterval b = b
+  union a EmptyInterval = a
+  union a b = Interval l u where
+    l = lower a \/ lower b
+    u = upper b /\ upper a
 
-  interval :: [a] -> Interval a
-  interval [] = Empty
-  interval [x] = S x
-  interval xs = I (lowest xs) (highest xs)
+  intersection EmptyInterval _ = EmptyInterval
+  intersection _ EmptyInterval = EmptyInterval
+  intersection a b =
+    case disjoint a b of
+      True -> EmptyInterval
+      False -> Interval l u where
+        l = lower a /\ lower b
+        u = upper a \/ upper b
 
-instance CanInterval Float
-instance CanInterval Double
-instance (Ord a, CanInterval a) => CanInterval (LogField a)
+instance (Additive a, Space (Interval a)) => Additive (Interval a) where
+  (Interval l u) + (Interval l' u') = (l + l') ... (u + u')
+  i + (SingletonInterval s) = fmap (s+) i
+  (SingletonInterval s) + i = fmap (s+) i
+  EmptyInterval + x = x
+  x + EmptyInterval = x
 
-instance (Ord a, Subtractive a, CanInterval a) => CanInterval (Complex a) where
+  zero = SingletonInterval zero
 
-  (a :+ b) =.= (I (la :+ lb) (ua :+ ub)) =
-    a =.= I la ua &&
-    b =.= I lb ub
-  a =.= (S s) = a == s
-  _ =.= Empty = False
+instance (Subtractive a, Divisive a, Space (Interval a)) => Subtractive (Interval a) where
+  negate (Interval l u) = negate u ... negate l
+  negate (SingletonInterval s) = SingletonInterval $ negate s
+  negate EmptyInterval = EmptyInterval
 
-  lowest xs = P.minimum (realPart <$> xs) :+ P.minimum (imagPart <$> xs)
-
-  highest xs = P.maximum (realPart <$> xs) :+ P.maximum (imagPart <$> xs)
-
--- | Create a small interval around a number.
--- >>> eps one (0.0 :: Float)
---
---
-eps :: (CanInterval a, Epsilon a, Subtractive a, Multiplicative a)
-  => a -> a -> Interval a
-eps accuracy a = a +/- (accuracy * a * epsilon)
-
-whole :: (CanInterval a, LowerBoundedField a, UpperBoundedField a) => Interval a
-whole = infinity ... negInfinity
-
--- | An empty interval
---
--- >>> empty
--- Empty
-emptyInterval :: Interval a
-emptyInterval = Empty
-
--- | A singleton point
---
--- >>> singletonInterval 1
--- 1 ... 1
-singletonInterval :: a -> Interval a
-singletonInterval = S
-
--- | The infimum (lower bound) of an interval
---
--- >>> lower (1.0 ... 20.0)
--- 1.0
---
-lower :: Interval a -> Maybe a
-lower (I a _) = Just a
-lower (S s) = Just s
-lower Empty = Nothing
-
--- | The supremum (upper bound) of an interval
---
--- >>> upper (1.0 ... 20.0)
--- 20.0
---
-upper :: Interval a -> Maybe a
-upper (I _ b) = Just b
-upper (S s) = Just s
-upper Empty = Nothing
-
--- | A number is higher than an interval
---
--- >>> above (1.0 ... 20.0) 21.0
--- True
---
-above :: (Ord a) => Interval a -> a -> Bool
-above (I _ u) x = x > u
-above (S s) x = x > s
-above Empty _ = True
-
--- | A number is lower than an interval
---
--- >>> below (1.0 ... 20.0) 0.0
--- True
---
-below :: (Ord a) => Interval a -> a -> Bool
-below (I l _) x = x < l
-below (S s) x = x < s
-below Empty _ = True
-
--- | Calculate the width of an interval.
---
--- >>> width (1 ... 20)
--- 19
---
-width :: (UpperBoundedField a, Subtractive a) => Interval a -> Maybe a
-width (I a b) = Just (b - a)
-width (S _) = Just zero
-width Empty = Nothing
-
--- | lift a monotone increasing function over a given interval
-increasing :: (CanInterval b) => (a -> b) -> Interval a -> Interval b
-increasing f (I a b) = f a ... f b
-increasing _ _ = Empty
-
--- | lift a monotone increasing function over a given interval
-decreasing :: (CanInterval b) => (a -> b) -> Interval a -> Interval b
-decreasing f (I a b) = f b ... f a
-decreasing _ _ = Empty
-
-instance (CanInterval a, Additive a) => Additive (Interval a) where
-  (I l u) + (I l' u') = (l + l') ... (u + u')
-  i + (S s) = fmap (s+) i
-  (S s) + i = fmap (s+) i
-  Empty + x = x
-  x + Empty = x
-
-  zero = S zero
-
-instance (CanInterval a, Subtractive a, Divisive a) => Subtractive (Interval a) where
-  negate (I l u) = negate u ... negate l
-  negate (S s) = S $ negate s
-  negate Empty = Empty
-
-instance (CanInterval a, Multiplicative a) =>
+instance (Multiplicative a, Space (Interval a)) =>
   Multiplicative (Interval a) where
-  (I l u) * (I l' u') =
-    interval [l * l', l * u', u * l', u * u']
-  i * (S s) = fmap (s*) i
-  (S s) * i = fmap (s*) i
-  Empty *  x = x
-  x * Empty = x
+  (Interval l u) * (Interval l' u') =
+    space [l * l', l * u', u * l', u * u']
+  i * (SingletonInterval s) = fmap (s*) i
+  (SingletonInterval s) * i = fmap (s*) i
+  EmptyInterval *  x = x
+  x * EmptyInterval = x
 
   one = one ... one
 
-instance (CanInterval a, Eq a, Epsilon a, LowerBoundedField a, UpperBoundedField a, Divisive a) =>
+instance (Eq a, Epsilon a, LowerBoundedField a, UpperBoundedField a, Divisive a, Space (Interval a)) =>
   Divisive (Interval a) where
-  recip i@(I l u)
-    | zero =.= i && not (epsilon =.= i) = negInfinity ... recip l
-    | zero =.= i && not (negate epsilon =.= i) = infinity ... recip l
-    | zero =.= i = whole
+  recip i@(Interval l u)
+    | zero |.| i && not (epsilon |.| i) = negInfinity ... recip l
+    | zero |.| i && not (negate epsilon |.| i) = infinity ... recip l
+    | zero |.| i = whole
     | otherwise = recip l ... recip u
-  recip (S s) = S (recip s)
-  recip Empty = Empty
+  recip (SingletonInterval s) = SingletonInterval (recip s)
+  recip EmptyInterval = EmptyInterval
 
-instance (CanInterval a, Distributive a) => Distributive (Interval a)
+instance (Distributive a, Space (Interval a)) => Distributive (Interval a)
 
-instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) =>
+instance (LowerBoundedField a, UpperBoundedField a, Epsilon a, Space (Interval a)) =>
   IntegralDomain (Interval a)
 
-instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) => Field (Interval a)
+instance (LowerBoundedField a, UpperBoundedField a, Epsilon a, Space (Interval a)) => Field (Interval a)
 
-instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a) =>
+instance (LowerBoundedField a, UpperBoundedField a, Epsilon a, Space (Interval a)) =>
   UpperBoundedField (Interval a) where
-  isNaN (I l u) = isNaN l || isNaN u
-  isNaN (S s) = isNaN s
-  isNaN Empty = True
+  isNaN (Interval l u) = isNaN l || isNaN u
+  isNaN (SingletonInterval s) = isNaN s
+  isNaN EmptyInterval = True
 
-instance (UpperBoundedField a, CanInterval a, Epsilon a, LowerBoundedField a)
+instance (UpperBoundedField a, Epsilon a, LowerBoundedField a, Space (Interval a))
   => LowerBoundedField (Interval a)
 
-instance (LowerBoundedField a, UpperBoundedField a, CanInterval a, Epsilon a, ExpField a) =>
+instance (LowerBoundedField a, UpperBoundedField a, Epsilon a, ExpField a, Space (Interval a)) =>
   ExpField (Interval a) where
-  exp = increasing exp
-  log = increasing log
+  exp = monotone exp
+  log = monotone log
 
 instance
-  ( LowerBoundedField a, UpperBoundedField a
+  ( Lattice a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , QuotientField a Integer
   , FromInteger a
-  , CanInterval a
   , Ord a
   , TrigField a
   , Epsilon a
   ) => TrigField (Interval a) where
 
-  pi = S pi
+  pi = SingletonInterval pi
 
-  cos Empty = Empty
-  cos (S s) = S (cos s)
-  cos (I l u) = cos' t
+  cos EmptyInterval = EmptyInterval
+  cos (SingletonInterval s) = SingletonInterval (cos s)
+  cos (Interval l u) = cos' t
     where
       tl = mod' l (pi * 2)
       tu = mod' u (pi * 2)
@@ -263,96 +152,117 @@ instance
       mod' a b = a - q * b
         where
           q = fromIntegral (truncate (a / b) :: Integer)
-      cos' (I lower' upper')
+      cos' (Interval lower' upper')
         | (upper' - lower') >= pi = (-1) ... 1
         | lower' >= pi = - cos (t - pi)
-        | upper' <= pi = decreasing cos t
+        | upper' <= pi = monotone cos t
         | upper' <= 2 * pi = (-1) ... cos ((pi * 2 - upper') `min` lower')
         | otherwise = (-1) ... 1
-      cos' (S s)
-        | s >= pi = S $ - cos (s - pi)
-        | s <= pi = decreasing cos (S s)
+      cos' (SingletonInterval s)
+        | s >= pi = SingletonInterval $ - cos (s - pi)
+        | s <= pi = monotone cos (SingletonInterval s)
         | s <= 2 * pi = (-1) ... cos ((pi * 2 - s) `min` s)
         | otherwise = (-1) ... 1
-      cos' Empty = Empty
+      cos' EmptyInterval = EmptyInterval
   sin x = cos (x - pi / 2)
 
-  asin Empty = Empty
-  asin (S s) = S (asin s)
-  asin (I a b)
-    | b < -1 || a > 1 = Empty
+  asin EmptyInterval = EmptyInterval
+  asin (SingletonInterval s) = SingletonInterval (asin s)
+  asin (Interval a b)
+    | b < -1 || a > 1 = EmptyInterval
     | otherwise =
       bool (asin a) (- pi / 2) (a <= -1)
       ...
       bool (asin b) (- pi / 2) (b >= 1)
 
-  acos Empty = Empty
-  acos (S s) = S (acos s)
-  acos (I a b)
-    | b < -1 || a > 1 = Empty
+  acos EmptyInterval = EmptyInterval
+  acos (SingletonInterval s) = SingletonInterval (acos s)
+  acos (Interval a b)
+    | b < -1 || a > 1 = EmptyInterval
     | otherwise =
       bool (acos b) zero (b >= 1)
       ...
       bool (acos b) pi (a < -1)
 
-  atan = increasing atan
-  sinh = increasing sinh
+  atan = monotone atan
+  sinh = monotone sinh
 
-  cosh Empty = Empty
-  cosh (S s) = S (cosh s)
-  cosh x@(I a b)
-    | b < 0  = decreasing cosh x
-    | a >= 0 = increasing cosh x
+  cosh EmptyInterval = EmptyInterval
+  cosh (SingletonInterval s) = SingletonInterval (cosh s)
+  cosh x@(Interval a b)
+    | b < 0  = monotone cosh x
+    | a >= 0 = monotone cosh x
     | otherwise  = zero ... cosh (bool b a (-a > b))
 
-  tanh = increasing tanh
+  tanh = monotone tanh
 
-  asinh = increasing asinh
+  asinh = monotone asinh
 
-  acosh Empty = Empty
-  acosh (S s) = S (acosh s)
-  acosh (I a b)
-    | b < 1 = Empty
+  acosh EmptyInterval = EmptyInterval
+  acosh (SingletonInterval s) = SingletonInterval (acosh s)
+  acosh (Interval a b)
+    | b < 1 = EmptyInterval
     | otherwise = lo ... acosh b
     where lo | a <= 1 = 0
              | otherwise = acosh a
 
-  atanh Empty = Empty
-  atanh (S s) = S (atanh s)
-  atanh (I a b)
-    | b < -1 || a > 1 = Empty
+  atanh EmptyInterval = EmptyInterval
+  atanh (SingletonInterval s) = SingletonInterval (atanh s)
+  atanh (Interval a b)
+    | b < -1 || a > 1 = EmptyInterval
     | otherwise =
       bool (atanh a) negInfinity (a <= - 1)
       ...
       bool (atanh b) infinity (b >= 1)
 
-instance (Distributive a, Subtractive a, CanInterval a, Ord a, Integral a) =>
+instance (Lattice a, Distributive a, Subtractive a, Ord a, Integral a) =>
   Integral (Interval a) where
-  divMod (I l u) (I l' u') = (ld ... ud, lm ... um) where
+  divMod (Interval l u) (Interval l' u') = (ld ... ud, lm ... um) where
     (ld, lm) = divMod l l'
     (ud, um) = divMod u u'
-  divMod _ _ = (Empty, Empty)
+  divMod _ _ = (EmptyInterval, EmptyInterval)
 
-  quotRem (I l u) (I l' u') = (ld ... ud, lm ... um) where
+  quotRem (Interval l u) (Interval l' u') = (ld ... ud, lm ... um) where
     (ld, lm) = quotRem l l'
     (ud, um) = quotRem u u'
-  quotRem _ _ = (Empty, Empty)
+  quotRem _ _ = (EmptyInterval, EmptyInterval)
 
-instance (CanInterval a, FromInteger a) => FromInteger (Interval a) where
+instance (FromInteger a, Space (Interval a)) => FromInteger (Interval a) where
   fromInteger a = fromInteger a ... fromInteger a
 
-instance (CanInterval a, Ord a, Subtractive a, Divisive a, Signed a)
+instance (Ord a, Lattice a, Subtractive a, Divisive a, Signed a)
   => Signed (Interval a) where
-  sign = increasing sign
-  abs x@(I a b)
+  sign = monotone sign
+  abs x@(Interval a b)
     | a >= zero = x
     | b <= zero = negate x
     | otherwise = zero ... max (- a) b
-  abs Empty = Empty
-  abs (S s) = S (abs s)
+  abs EmptyInterval = EmptyInterval
+  abs (SingletonInterval s) = SingletonInterval (abs s)
 
-instance (UpperBoundedField a, Signed a, Subtractive a, CanInterval a, Ord a)
-  => Metric (Interval a) (Maybe a) where
+instance (Lattice a, UpperBoundedField a, Signed a, Subtractive a, Ord a)
+  => Metric (Interval a) a where
   distanceL1 a b = lower . abs $ (a - b)
   distanceL2 a b = lower . abs $ (a - b)
   distanceLp _ a b = lower . abs $ (a - b)
+
+binOp :: (Space (Interval a)) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a)
+binOp f (Interval al au) (Interval bl bu) = f al bl ... f au bu
+binOp f (Interval l u) (SingletonInterval s) = f l s ... f u s
+binOp f (SingletonInterval s) (Interval l u) = f l s ... f u s
+binOp f (SingletonInterval s) (SingletonInterval s') = SingletonInterval (f s s')
+binOp _ EmptyInterval i = i
+binOp _ i EmptyInterval = i
+
+instance (Eq a, Subtractive a, JoinSemiLattice a, MeetSemiLattice a) => JoinSemiLattice (Interval a) where
+  (\/) = binOp (\/)
+
+instance (Eq a, Subtractive a, JoinSemiLattice a, MeetSemiLattice a) => MeetSemiLattice (Interval a) where
+  (/\) = binOp (/\)
+
+instance (Ord a, Space (Interval a), Signed a, Divisive a, Epsilon a) => Epsilon (Interval a) where
+  epsilon = zero +/- epsilon
+
+  nearZero EmptyInterval = False
+  nearZero (SingletonInterval s) = nearZero s
+  nearZero (Interval l u) = nearZero l && nearZero u

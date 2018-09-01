@@ -4,8 +4,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE IncoherentInstances #-}
 
 module NumHask.Data.Complex where
 
@@ -13,6 +15,7 @@ import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
@@ -117,6 +120,14 @@ instance (UpperBoundedField a, IntegralDomain a, Subtractive a) => UpperBoundedF
   isNaN (a :+ b) = isNaN a || isNaN b
 
 instance (LowerBoundedField a) => LowerBoundedField (Complex a)
+
+instance (JoinSemiLattice a) => JoinSemiLattice (Complex a) where
+  (\/) (ar :+ ai) (br :+ bi) = (ar \/ br) :+ (ai \/ bi)
+
+instance (MeetSemiLattice a) => MeetSemiLattice (Complex a) where
+  (/\) (ar :+ ai) (br :+ bi) = (ar /\ br) :+ (ai /\ bi)
+
+-- instance (Lattice a) => Lattice (Complex a)
 
 -- * Helpers from Data.Complex
 mkPolar :: TrigField a => a -> a -> Complex a

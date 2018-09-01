@@ -1,113 +1,144 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module NumHask.Hedgehog.Prop.Interval where
 
-import NumHask.Prelude
+import NumHask.Prelude hiding ((%), (.*.))
 import Hedgehog as H
-import NumHask.Data.Interval
-import NumHask.Hedgehog.Prop
+import NumHask.Hedgehog.Prop (unary, binary, ternary)
 
 -- * individual tests
-isIdempotentPlus :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isIdempotentPlus acc src = unary src $ \a ->
-  a =.= (eps acc a + eps acc a)
+isIdempotent :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isIdempotent (##) acc src = unary src $ \a ->
+  a |.| (eps acc a ## eps acc a :: Interval a)
 
-isIdempotentTimes :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isIdempotentTimes acc src = unary src $ \a ->
-  a =.= (eps acc a * eps acc a)
+isCommutative :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isCommutative (#) (##) acc src = binary src $ \a b ->
+  (a # b) |.| eps acc b ## eps acc a
 
-isCommutativePlus :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isCommutativePlus acc src = binary src $ \a b ->
-  (a + b) =.= (eps acc b + eps acc a)
+isUnital :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => a -> (a -> a -> a) -> a -> Gen a -> Property
+isUnital u (#) acc src = unary src $ \a ->
+  (u # a) |.| (eps acc a :: Interval a) &&
+  (a # u) |.| (eps acc a :: Interval a)
 
-isCommutativeTimes :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isCommutativeTimes acc src = binary src $ \a b ->
-  (a * b) =.= (eps acc b * eps acc a)
+isAssociative :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isAssociative (#) (##) acc src = ternary src $ \a b c ->
+  ((a # b) # c) |.| (eps acc a ## (eps acc b ## eps acc c))
 
-isUnitalPlus :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isUnitalPlus acc src = unary src $ \a ->
-  (zero + a) =.= eps acc a && (a + zero) =.= eps acc a
-
-isUnitalTimes :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isUnitalTimes acc src = unary src $ \a ->
-  (one * a) =.= eps acc a && (a * one) =.= eps acc a
-
-isAssociativePlus :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isAssociativePlus acc src = ternary src $ \a b c ->
-  ((a + b) + c) =.= (eps acc a + (eps acc b + eps acc c))
-
-isAssociativeTimes :: (Epsilon a, CanInterval a, Multiplicative a, Subtractive a, Show a) => a -> Gen a -> Property
-isAssociativeTimes acc src = ternary src $ \a b c ->
-  ((a * b) * c) =.= (eps acc a * (eps acc b * eps acc c))
-
-isAdditive :: (Show a, Epsilon a, CanInterval a, Subtractive a, Multiplicative a) => a -> Gen a -> [(PropertyName, Property)]
+isAdditive :: forall a.(Show a, Epsilon a, Space (Interval a), Multiplicative a) => a -> Gen a -> [(PropertyName, Property)]
 isAdditive acc src =
-  [ ("zero", isUnitalPlus acc src)
-  , ("associative +", isAssociativePlus acc src)
-  , ("commutative +", isCommutativePlus acc src)
+  [ ("zero", isUnital zero (+) acc src)
+  , ("associative +", isAssociative (+) (+) acc src)
+  , ("commutative +", isCommutative (+) (+) acc src)
   ]
 
-isSubtractive :: (Show a, Epsilon a, CanInterval a, Subtractive a, Divisive a) => a -> Gen a -> Property
+isSubtractive :: forall a.(Show a, Epsilon a, Space (Interval a), Divisive a) => a -> Gen a -> Property
 isSubtractive acc src = unary src $ \a -> 
-  (a - a) =.= eps acc zero &&
-  (negate a =.= (eps acc zero - eps acc a)) &&
-  (negate a + a) =.= eps acc zero &&
-  (a + negate a) =.= eps acc zero
+  (a - a) |.| (eps acc zero :: Interval a) &&
+  (negate a |.| (eps acc zero - (eps acc a :: Interval a))) &&
+  (negate a + a) |.| (eps acc zero :: Interval a) &&
+  (a + negate a) |.| (eps acc zero :: Interval a)
 
-isMultiplicative :: (Show a, Epsilon a, CanInterval a, Subtractive a, Multiplicative a) => a -> Gen a -> [(PropertyName, Property)]
+isMultiplicative :: forall a.(Show a, Epsilon a, Space (Interval a), Multiplicative a) => a -> Gen a -> [(PropertyName, Property)]
 isMultiplicative acc src =
-  [ ("zero", isUnitalTimes acc src)
-  , ("associative +", isAssociativeTimes acc src)
-  , ("commutative +", isCommutativeTimes acc src)
+  [ ("one", isUnital one (*) acc src)
+  , ("associative *", isAssociative (*) (*) acc src)
+  , ("commutative *", isCommutative (*) (*) acc src)
   ]
 
-isDivisive :: (Show a, Epsilon a, CanInterval a, UpperBoundedField a, LowerBoundedField a) => a -> Gen a -> Property
+isDivisive :: forall a.(Show a, Epsilon a, Space (Interval a), UpperBoundedField a, LowerBoundedField a) => a -> Gen a -> Property
 isDivisive acc src = unary src $ \a ->
-  (a / a) =.= eps acc one &&
-  (recip a =.= (eps acc one / eps acc a)) &&
-  (recip a * a) =.= eps acc one &&
-  (a * recip a) =.= eps acc one
+  (a / a) |.| (eps acc one :: Interval a) &&
+  (recip a |.| (eps acc one / (eps acc a :: Interval a))) &&
+  (recip a * a) |.| (eps acc one :: Interval a) &&
+  (a * recip a) |.| (eps acc one :: Interval a)
 
-isDistributive :: (Show a, Epsilon a, CanInterval a, Subtractive a, Multiplicative a) => a -> Gen a -> Property
-isDistributive acc src = ternary src $ \a b c ->
-  (a * zero) =.= zero &&
-  (zero * a) =.= zero &&
-  (a * (b + c)) =.= ((eps acc a * eps acc b) + (eps acc a * eps acc c)) &&
-  ((a + b) * c) =.= ((eps acc a * eps acc c) + (eps acc b * eps acc c))
+isDistributiveTimesPlus :: forall a. (Show a, Epsilon a, Space (Interval a), Multiplicative a) => a -> Gen a -> Property
+isDistributiveTimesPlus acc src = ternary src $ \a b c ->
+  (a * (b + c)) |.| ((a .*. b) + (a .*. c)) &&
+  ((a + b) * c) |.| ((a .*. c) + (b .*. c))
+  where
+    (.*.) x y = eps acc x * eps acc y :: Interval a
 
-isSigned :: (Show a, Epsilon a, CanInterval a, Subtractive a, Signed a) => a -> Gen a -> Property
+isDistributiveJoinMeet :: forall a. (Show a, Epsilon a, Space (Interval a), Multiplicative a) => a -> Gen a -> Property
+isDistributiveJoinMeet acc src = ternary src $ \a b c ->
+  (a \/ (b /\ c)) |.| ((a .\/. b) /\ (a .\/. c)) &&
+  ((a /\ b) \/ c) |.| ((a .\/. c) /\ (b .\/. c))
+  where
+    (.\/.) x y = eps acc x \/ eps acc y :: Interval a
+
+isAbsorbative :: forall a.(Show a, Epsilon a, Space (Interval a), Multiplicative a) => (a -> a -> a) -> a -> Gen a -> Property
+isAbsorbative (#) acc src = unary src $ \a ->
+  (a # zero) |.| (eps acc zero :: Interval a) &&
+  (zero # a) |.| (eps acc zero :: Interval a)
+
+isAbsorbative' :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (a -> a -> a) -> (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isAbsorbative' (#) (%) (##) (%%) acc src = binary src $ \a b ->
+  (a # (a % b)) |.| (eps acc a %% (eps acc a ## eps acc b)) &&
+  a |.| (eps acc a %% (eps acc a ## eps acc b :: Interval a))
+
+isSigned :: forall a.(Show a, Epsilon a, Space (Interval a), Signed a) => a -> Gen a -> Property
 isSigned acc src = unary src $ \a ->
-  (sign a * abs a) =.= eps acc a
+  (sign a * abs a) |.| (eps acc a :: Interval a)
 
-isNormedUnbounded :: forall a. (Ord a, Show a, Epsilon a, CanInterval a, Subtractive a, Multiplicative a, Normed a a) => a -> Gen a -> Property
+isNormedUnbounded :: forall a. (Ord a, Show a, Epsilon a, Space (Interval a), Multiplicative a, Normed a a) => a -> Gen a -> Property
 isNormedUnbounded acc src = unary src $ \a ->
-  normL1 a >= (zero :: a) &&
-  normL1 (zero :: a) =.= eps acc zero
+  (normL1 a >= (zero :: a)) &&
+  (normL1 (zero :: a) :: a) |.| (eps acc zero :: Interval a)
 
-isMetricUnbounded :: forall a. (Ord a, Show a, Epsilon a, CanInterval a, Subtractive a, Multiplicative a, Metric a a) => a -> Gen a -> Property
+isMetricUnbounded :: forall a. (Show a, Epsilon a, Space (Interval a), Multiplicative a, Metric a a) => a -> Gen a -> Property
 isMetricUnbounded acc src = ternary src $ \a b c ->
-  eps acc zero `above` distanceL1 a b ||
-  distanceL1 a b =.= eps acc zero &&
-  distanceL1 a a =.= eps acc zero &&
-  (eps acc zero
-    `above` (distanceL1 a c + distanceL1 b c - distanceL1 a b)) &&
-  eps acc zero
-  `above` (distanceL1 a b + distanceL1 b c - distanceL1 a c) &&
-  eps acc zero
-  `above` (distanceL1 a b + distanceL1 a c - distanceL1 b c)
+  singleton (distanceL1 a b) |>| (eps acc zero :: Interval a) ||
+  distanceL1 a b |.| (eps acc zero  :: Interval a) &&
+  distanceL1 a a |.| (eps acc zero :: Interval a) &&
+  ((eps acc zero :: Interval a)
+    |<| singleton (distanceL1 a c + distanceL1 b c - distanceL1 a b)) &&
+  (eps acc zero :: Interval a)
+  |<| singleton (distanceL1 a b + distanceL1 b c - distanceL1 a c) &&
+  (eps acc zero :: Interval a)
+  |<| singleton (distanceL1 a b + distanceL1 a c - distanceL1 b c)
 
-isExpField :: forall a. (Ord a, Show a, Epsilon a, CanInterval a, ExpField a, Subtractive a, Normed a a) => a -> Gen a -> Property
+isExpField :: forall a. (Show a, Epsilon a, Space (Interval a), ExpField a, Normed a a) => a -> Gen a -> Property
 isExpField acc src = binary src $ \a b ->
-  (not (eps acc zero `above` a)
-    || ((sqrt . (** (one + one)) $ a) =.= eps acc a)
-    && (((** (one + one)) . sqrt $ a) =.= eps acc a)) &&
-  (not (eps acc zero `above` a)
-    || ((log . exp $ a) =.= eps acc a)
-    && ((exp . log $ a) =.= eps acc a)) &&
-  (not (eps acc zero `above` normL1 b)
+  (not ((eps acc zero :: Interval a) |<| singleton a)
+    || ((sqrt . (** (one + one)) $ a) |.| (eps acc a :: Interval a))
+    && (((** (one + one)) . sqrt $ a) |.| (eps acc a :: Interval a))) &&
+  (not ((eps acc zero :: Interval a) |<| singleton a)
+    || ((log . exp $ a) |.| (eps acc a :: Interval a))
+    && ((exp . log $ a) |.| (eps acc a :: Interval a))) &&
+  (not ((eps acc zero :: Interval a) |<| singleton (normL1 b))
     || not (nearZero (a - zero))
-    || (a =.= eps acc one)
-    || (a =.= eps acc zero &&
+    || (a |.| (eps acc one :: Interval a))
+    || (a |.| (eps acc zero :: Interval a) &&
         nearZero (logBase a b))
-    || (a ** logBase a b =.= eps acc b))
+    || (a ** logBase a b |.| (eps acc b :: Interval a)))
+
+isCommutativeSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) => (s -> s -> s) -> Element s -> Gen s -> Property
+isCommutativeSpace (#) acc src = binary src $ \a b ->
+  (widenEps acc b # widenEps acc a) `contains` (a # b)
+
+isAssociativeSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) => (s -> s -> s) -> Element s -> Gen s -> Property
+isAssociativeSpace (#) acc src = ternary src $ \a b c ->
+  ((widenEps acc a # widenEps acc b) # widenEps acc c) `contains`
+  (a # (b # c))
+
+isUnitalSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) => s -> (s -> s -> s) -> Element s -> Gen s -> Property
+isUnitalSpace u (#) acc src = unary src $ \a ->
+  (widenEps acc u # widenEps acc a) `contains` a &&
+  (widenEps acc a # widenEps acc u) `contains` a
+
+isDistributiveUI :: forall s. (Space s, Show s, Epsilon (Element s), Multiplicative (Element s)) => Element s -> Gen s -> Property
+isDistributiveUI acc src = ternary src $ \a b c ->
+  (widenEps acc a `intersection` (widenEps acc b `union` widenEps acc c)) `contains`
+  ((a `intersection` b) `union` (a `intersection` c)) &&
+
+  ((widenEps acc a `union` widenEps acc b) `intersection` widenEps acc c) `contains`
+  ((a `intersection` c) `union` (b `intersection` c))
+
+isContainedUnion :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) => Element s -> Gen s -> Property
+isContainedUnion acc src = binary src $ \a b ->
+  (widenEps acc a `union` widenEps acc b) `contains` a &&
+  (widenEps acc a `union` widenEps acc b) `contains` b

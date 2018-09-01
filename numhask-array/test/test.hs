@@ -85,7 +85,8 @@ fieldProps'
   :: forall a.
   ( Show a
   , Epsilon a
-  , CanInterval a
+  , Lattice a
+  , Space (Interval a)
   , LowerBoundedField a
   , UpperBoundedField a
   , Signed a
@@ -98,7 +99,7 @@ fieldProps' acc g = mconcat $
   [ I.isAdditive acc
   , \x -> [("subtractive", I.isSubtractive acc x)]
   , I.isMultiplicative acc
-  , \x -> [("distributive", I.isDistributive one x)]
+  , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
   , \x -> [("divisive", I.isDivisive one x)]
   , \x -> [("signed", I.isSigned one x)]
   ]

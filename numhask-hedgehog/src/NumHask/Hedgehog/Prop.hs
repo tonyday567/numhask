@@ -205,3 +205,14 @@ assertProps
 assertProps t n g ps =
   H.checkParallel $
   H.Group t $ (\(pn,pp) -> (pn, H.withTests n pp)) <$> ps g
+
+assertPropsSeq
+  :: H.GroupName
+  -> H.TestLimit
+  -> H.Gen a
+  -> (H.Gen a -> [(H.PropertyName, H.Property)])
+  -> IO Bool
+assertPropsSeq t n g ps =
+  H.checkSequential $
+  H.Group t $ (\(pn,pp) -> (pn, H.withTests n pp)) <$> ps g
+

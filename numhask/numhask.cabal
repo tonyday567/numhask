@@ -57,6 +57,7 @@ library
     NumHask.Algebra.Abstract.Field
     NumHask.Algebra.Abstract.Group
     NumHask.Algebra.Abstract.Homomorphism
+    NumHask.Algebra.Abstract.Lattice
     NumHask.Algebra.Abstract.Module
     NumHask.Algebra.Abstract.Multiplicative
     NumHask.Algebra.Abstract.Ring
@@ -64,7 +65,8 @@ library
     NumHask.Algebra.Linear.Hadamard
     NumHask.Analysis.Banach
     NumHask.Analysis.Metric
-    NumHask.Data.Complex   
+    NumHask.Analysis.Space
+    NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.Interval
     NumHask.Data.LogField

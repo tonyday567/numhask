@@ -21,6 +21,7 @@ module NumHask.Prelude
   , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Abstract.Group
   , module NumHask.Algebra.Abstract.Homomorphism
+  , module NumHask.Algebra.Abstract.Lattice
   , module NumHask.Algebra.Abstract.Module
   , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Algebra.Abstract.Ring
@@ -28,6 +29,7 @@ module NumHask.Prelude
   , module NumHask.Algebra.Linear.Hadamard
   , module NumHask.Analysis.Banach
   , module NumHask.Analysis.Metric
+  , module NumHask.Analysis.Space
   , module NumHask.Data.Complex   
   , module NumHask.Data.Integral
   , module NumHask.Data.Interval
@@ -53,6 +55,7 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Homomorphism
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
@@ -60,6 +63,7 @@ import NumHask.Algebra.Abstract.TensorProduct
 import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric
+import NumHask.Analysis.Space
 import NumHask.Data.Complex   
 import NumHask.Data.Integral
 import NumHask.Data.Interval

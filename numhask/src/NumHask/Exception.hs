@@ -2,7 +2,8 @@
 
 module NumHask.Exception
   ( NumHaskException(..)
-  )where
+  , throw
+  ) where
 
 import qualified Prelude as P
 import Control.Exception

@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE IncoherentInstances #-}
 
 module NumHask.Hedgehog.Gen where
 
@@ -78,4 +79,11 @@ genComplex g = do
   r <- g
   i <- g
   pure (r :+ i)
+
+-- | a space random variate
+genIntervalFloat :: (Monad m) => m Float -> m (Interval Float)
+genIntervalFloat g = do
+  a <- g
+  b <- g
+  pure (a ... b)
 

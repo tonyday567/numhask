@@ -1,12 +1,13 @@
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module NumHask.Hedgehog.Props where
 
 import Hedgehog as H
-import NumHask.Data.Interval
 import NumHask.Hedgehog.Prop
 import NumHask.Prelude hiding (isSigned)
 import qualified NumHask.Hedgehog.Prop.Interval as I
@@ -140,8 +141,8 @@ fieldProps
   :: forall a.
   ( Show a
   , Ord a
+  , Lattice a
   , Epsilon a
-  , CanInterval a
   , LowerBoundedField a
   , UpperBoundedField a
   , FromRatio a
@@ -160,7 +161,8 @@ fieldProps g = mconcat $
   [ I.isAdditive 1.0
   , \x -> [("subtractive", I.isSubtractive 1.0 x)]
   , I.isMultiplicative 1.0
-  , \x -> [("distributive", I.isDistributive 1.0 x)]
+  , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
+  , \x -> [("absorbtive", I.isAbsorbative (*) one x)]
   , \x -> [("divisive", I.isDivisive 1.0 x)]
   , \x -> [("rational", isRational x)]
   , \x -> [("signed", I.isSigned 1.0 x)]
@@ -176,8 +178,8 @@ complexFieldProps
   :: forall a.
   ( Show a
   , Ord a
+  , Lattice (Complex a)
   , Epsilon a
-  , CanInterval a
   , LowerBoundedField a
   , UpperBoundedField a
   , FromRatio a
@@ -191,7 +193,8 @@ complexFieldProps acc g = mconcat $
   [ I.isAdditive acc
   , \x -> [("subtractive", I.isSubtractive acc x)]
   , I.isMultiplicative acc
-  , \x -> [("distributive", I.isDistributive acc x)]
+  , \x -> [("distributive", I.isDistributiveTimesPlus acc x)]
+  , \x -> [("absorbative", I.isAbsorbative (*) acc x)]
   , \x -> [("divisive", I.isDivisive (100.0 :+ 50.0) x)]
   ]
 
@@ -200,10 +203,10 @@ logFieldProps
   :: forall a.
   ( Show a
   , Epsilon a
-  , CanInterval a
   , LowerBoundedField a
   , UpperBoundedField a
   , FromRatio a
+  , Lattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -211,6 +214,57 @@ logFieldProps g = mconcat $
   (\x -> x g) <$>
   [ I.isAdditive 1.0
   , I.isMultiplicative 1.0
-  , \x -> [("distributive", I.isDistributive 1.0 x)]
-  , \x -> [("divisive", I.isDivisive 1.0 x)]
+  , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
+  , \x -> [("absorbative", I.isAbsorbative (*) one x)]
+  , \x -> [("divisive", I.isDivisive one x)]
   ]
+
+
+-- | field laws
+latticeProps
+  :: forall a.
+  ( Show a
+  , Epsilon a
+  , Multiplicative a
+  , Subtractive a
+  , Lattice a)
+  => Gen a
+  -> [(PropertyName, Property)]
+latticeProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("join idem", I.isIdempotent (\/) one x)]
+  , \x -> [("meet idem", I.isIdempotent (/\) one x)]
+  , \x -> [("join comm", I.isCommutative (\/) (\/) one x)]
+  , \x -> [("meet comm", I.isCommutative (/\) (/\) one x)]
+  , \x -> [("join assoc", I.isAssociative (\/) (\/) one x)]
+  , \x -> [("meet assoc", I.isAssociative (/\) (/\) one x)]
+  , \x -> [("lattice distributive", I.isDistributiveJoinMeet one x)]
+  , \x -> [("lattice absorb", I.isAbsorbative' (\/) (/\) (\/) (/\) one x)]
+  ]
+
+-- | space laws
+spaceProps
+  :: forall s.
+  ( Show s
+  , Space s
+  , Epsilon (Element s)
+  , LowerBoundedField (Element s)
+  , UpperBoundedField (Element s)
+  , Multiplicative (Element s)
+  )
+  => Gen s
+  -> [(PropertyName, Property)]
+spaceProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("commutative union", I.isCommutativeSpace union one x)]
+  , \x -> [("commutative intersection", I.isCommutativeSpace intersection one x)]
+  , \x -> [("associative union", I.isAssociativeSpace union one x)]
+  , \x -> [("associative intersection", I.isAssociativeSpace intersection one x)]
+  , \x -> [("unital union", I.isUnitalSpace nul union one x)]
+  , \x -> [("unital intersection", I.isUnitalSpace whole intersection one x)]
+  , \x -> [("distributive", I.isDistributiveUI one x)]
+  , \x -> [("containment", I.isContainedUnion one x)]
+  ]
+
+
+
