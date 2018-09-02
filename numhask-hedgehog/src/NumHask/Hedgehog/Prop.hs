@@ -100,43 +100,43 @@ isSigned :: (Eq a, Show a, Signed a) => Gen a -> Property
 isSigned src = unary src $ \a ->
   sign a * abs a == a
 
-isNormed :: forall a b. (Ord b, Additive a, Additive b, Show a, Normed a b) => [b] -> Gen a -> Property
+isNormed :: forall a b. (Eq b, JoinSemiLattice b, Additive a, Additive b, Show a, Normed a b) => [b] -> Gen a -> Property
 isNormed _ src = unary src $ \a ->
-  normL1 a >= (zero :: b) &&
+  (normL1 a `joinLeq` (zero :: b)) &&
   normL1 (zero :: a) == (zero :: b)
 
-isNormedBounded :: forall a. (Ord a, Bounded a, Additive a, Show a, Normed a a) => Gen a -> Property
+isNormedBounded :: forall a. (Eq a, JoinSemiLattice a, Bounded a, Additive a, Show a, Normed a a) => Gen a -> Property
 isNormedBounded src = unary src $ \a ->
   a == minBound ||
-  normL1 a >= (zero :: a) &&
+  normL1 a `joinLeq` (zero :: a) &&
   normL1 (zero :: a) == (zero :: a)
 
-isNormedUnbounded :: forall a. (Ord a, Additive a, Show a, Normed a a) => Gen a -> Property
+isNormedUnbounded :: forall a. (Eq a, JoinSemiLattice a, Additive a, Show a, Normed a a) => Gen a -> Property
 isNormedUnbounded src = unary src $ \a ->
-  normL1 a >= (zero :: a) &&
+  (normL1 a `joinLeq` (zero :: a)) &&
   normL1 (zero :: a) == (zero :: a)
 
-isMetricBounded :: forall a. (Ord a, Bounded a, Additive a, Show a, Metric a a) => Gen a -> Property
+isMetricBounded :: forall a. (Eq a, JoinSemiLattice a, Bounded a, Additive a, Show a, Metric a a) => Gen a -> Property
 isMetricBounded src = binary src $ \a b -> 
-  distanceL1 a b >= (zero :: a) &&
+  distanceL1 a b `joinLeq` (zero :: a) &&
   distanceL1 a a == (zero :: a) ||
   distanceL1 a b == (minBound :: a)
 
-isMetricUnbounded :: forall a. (Ord a, Additive a, Show a, Metric a a) => Gen a -> Property
+isMetricUnbounded :: forall a. (Eq a, JoinSemiLattice a, Additive a, Show a, Metric a a) => Gen a -> Property
 isMetricUnbounded src = ternary src $ \a b c ->
-  distanceL1 a b >= (zero :: a) &&
+  distanceL1 a b `joinLeq` (zero :: a) &&
   distanceL1 a a == (zero :: a) &&
-  (distanceL1 a c + distanceL1 b c >= (distanceL1 a b :: a)) &&
-  (distanceL1 a b + distanceL1 b c >= (distanceL1 a c :: a)) &&
-  (distanceL1 a b + distanceL1 a c >= (distanceL1 b c :: a))
+  ((distanceL1 a c + distanceL1 b c) `joinLeq` (distanceL1 a b :: a)) &&
+  ((distanceL1 a b + distanceL1 b c) `joinLeq` (distanceL1 a c :: a)) &&
+  ((distanceL1 a b + distanceL1 a c) `joinLeq` (distanceL1 b c :: a))
 
-isUpperBoundedField :: forall a. (Ord a, UpperBoundedField a, Show a) => Gen a -> Property
+isUpperBoundedField :: forall a. (Eq a, UpperBoundedField a, Show a) => Gen a -> Property
 isUpperBoundedField src = unary src $ \a ->
   ((one :: a) / zero + infinity == infinity) &&
   (infinity + a == infinity) &&
   ((zero :: a) / zero /= nan)
 
-isLowerBoundedField :: forall a. (Ord a, LowerBoundedField a, Show a) => Gen a -> Property
+isLowerBoundedField :: forall a. (Eq a, LowerBoundedField a, Show a) => Gen a -> Property
 isLowerBoundedField src = unary src $ \a ->
   (negate (one :: a) / zero == negInfinity) &&
   ((negInfinity :: a) + negInfinity == negInfinity) &&
@@ -145,15 +145,18 @@ isLowerBoundedField src = unary src $ \a ->
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + one/(one+one))
 --
-isQuotientField :: forall a. (Ord a, FromInteger a, QuotientField a Integer, Show a) => Gen a -> Property
-isQuotientField src = unary src $ \a ->
-  ((a - one) < fromInteger (floor a))
-  && (fromInteger (floor a) <= a)
-  && (a <= fromInteger (ceiling a))
-  && (fromInteger (ceiling a) < a + one) &&
+isQuotientIntegerField :: forall a. (Eq a, JoinSemiLattice a, FromInteger a, QuotientField a Integer, Show a) => Gen a -> Property
+isQuotientIntegerField src = unary src $ \a ->
+  ((a - one) ~< fromInteger (floor a))
+  && (fromInteger (floor a) ~<= a)
+  && (a ~<= fromInteger (ceiling a))
+  && (fromInteger (ceiling a) ~< a + one) &&
   (case even ((floor $ a + one / (one + one)) :: Integer) of
       True -> (round a :: Integer) == floor (a + (one / (one + one)))
       False -> (round a :: Integer) == ceiling (a - (one / (one + one))))
+  where
+    (~<) a b = joinLeq b a && not (a == b)
+    (~<=) = flip joinLeq
 
 -- > sqrt . (**(one+one)) == id
 -- > log . exp == id

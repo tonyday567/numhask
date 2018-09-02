@@ -11,11 +11,11 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Exception
 import qualified Prelude as P
-import Control.Exception
 
 newtype Positive a = Positive { unPositive :: a }
   deriving
@@ -32,6 +32,8 @@ newtype Positive a = Positive { unPositive :: a }
     , TrigField
     , Integral
     , Signed
+    , JoinSemiLattice
+    , MeetSemiLattice
     , Epsilon
     )
 

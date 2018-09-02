@@ -27,6 +27,7 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
@@ -196,7 +197,7 @@ instance (LowerBoundedField a, Eq a) =>
   Divisive (LogField a) where
   recip (LogField x) = LogField $ negate x
 
-instance (LowerBoundedField a, ExpField a, Ord a) =>
+instance (Ord a, LowerBoundedField a, ExpField a) =>
   Distributive (LogField a)
 
 instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
@@ -216,7 +217,13 @@ instance (FromRatio a, ExpField a) => FromRatio (LogField a) where
 instance (ToRatio a, ExpField a) => ToRatio (LogField a) where
   toRatio = toRatio . fromLogField
 
-instance (Epsilon a, ExpField a, LowerBoundedField a, Ord a) =>
+instance (Ord a) => JoinSemiLattice (LogField a) where
+  (\/) = min
+
+instance (Ord a) => MeetSemiLattice (LogField a) where
+  (/\) = max
+
+instance (Epsilon a, ExpField a, LowerBoundedField a, UpperBoundedField a, Ord a) =>
   Epsilon (LogField a) where
   epsilon = logField epsilon
   nearZero (LogField x) = nearZero $ exp x
@@ -240,6 +247,8 @@ instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
     | a == negInfinity = zero
     | otherwise = one
   abs = id
+
+
 
 ----------------------------------------------------------------
 -- | /O(1)/. Compute powers in the log-domain; that is, the following

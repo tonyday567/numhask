@@ -68,6 +68,7 @@ library
     NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.LogField
+    NumHask.Data.Pair
     NumHask.Data.Positive
     NumHask.Data.Rational
     NumHask.Data.Wrapped

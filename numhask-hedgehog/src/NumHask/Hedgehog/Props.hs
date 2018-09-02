@@ -15,8 +15,8 @@ import qualified NumHask.Hedgehog.Prop.Interval as I
 -- * properties/law groupings
 integralProps
   :: forall a.
-  ( Show a
-  , Ord a
+  ( Eq a
+  , Show a
   , Distributive a
   , Subtractive a
   , Integral a
@@ -26,6 +26,7 @@ integralProps
   , Bounded a
   , Normed a a
   , Metric a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -43,8 +44,8 @@ integralProps g = mconcat $
 
 integralUnboundedProps
   :: forall a.
-  ( Show a
-  , Ord a
+  ( Eq a
+  , Show a
   , Distributive a
   , Subtractive a
   , Integral a
@@ -53,6 +54,7 @@ integralUnboundedProps
   , Signed a
   , Normed a a
   , Metric a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -70,14 +72,15 @@ integralUnboundedProps g = mconcat $
 
 naturalProps
   :: forall a.
-  ( Show a
-  , Ord a
+  ( Eq a
+  , Show a
   , Distributive a
   , Integral a
   , FromInteger a
   , ToInteger a
   , Signed a
   , Normed a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -120,6 +123,7 @@ rationalProps
   , Signed a
   , Normed a a
   , Metric a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -140,15 +144,11 @@ rationalProps g = mconcat $
 fieldProps
   :: forall a.
   ( Show a
-  , Ord a
   , Lattice a
   , Epsilon a
   , LowerBoundedField a
   , UpperBoundedField a
   , FromRatio a
-  , ToRatio a
-  , FromInteger a
-  , QuotientField a Integer
   , ExpField a
   , Signed a
   , Normed a a
@@ -164,14 +164,29 @@ fieldProps g = mconcat $
   , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
   , \x -> [("absorbtive", I.isAbsorbative (*) one x)]
   , \x -> [("divisive", I.isDivisive 1.0 x)]
-  , \x -> [("rational", isRational x)]
   , \x -> [("signed", I.isSigned 1.0 x)]
   , \x -> [("normed", I.isNormedUnbounded 1.0 x)]
   , \x -> [("metric", I.isMetricUnbounded 1.0 x)]
   , \x -> [("upper bounded field", isUpperBoundedField x)]
   , \x -> [("lower bounded field", isLowerBoundedField x)]
-  , \x -> [("quotient field", isQuotientField x)]
+  -- , \x -> [("quotient field", isQuotientField x)]
   , \x -> [("expField", I.isExpField 100.0 x)]
+  ]
+
+-- | quotient field laws
+quotientFieldProps
+  :: forall a.
+  ( Show a
+  , Lattice a
+  , Epsilon a
+  , FromInteger a
+  , QuotientField a Integer
+  )
+  => Gen a
+  -> [(PropertyName, Property)]
+quotientFieldProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("quotient field", isQuotientIntegerField x)]
   ]
 
 complexFieldProps
@@ -219,14 +234,12 @@ logFieldProps g = mconcat $
   , \x -> [("divisive", I.isDivisive one x)]
   ]
 
-
 -- | field laws
 latticeProps
   :: forall a.
   ( Show a
   , Epsilon a
   , Multiplicative a
-  , Subtractive a
   , Lattice a)
   => Gen a
   -> [(PropertyName, Property)]
@@ -250,7 +263,6 @@ spaceProps
   , Epsilon (Element s)
   , LowerBoundedField (Element s)
   , UpperBoundedField (Element s)
-  , Multiplicative (Element s)
   )
   => Gen s
   -> [(PropertyName, Property)]

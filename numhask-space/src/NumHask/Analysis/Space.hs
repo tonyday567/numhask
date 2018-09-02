@@ -17,7 +17,6 @@ where
 
 import Data.Bool
 import NumHask.Algebra.Abstract
-import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import Prelude (Foldable, Eq(..), Bool(..), Show)
 import qualified Prelude as P

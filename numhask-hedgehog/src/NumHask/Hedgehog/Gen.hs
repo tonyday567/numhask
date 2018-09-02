@@ -87,3 +87,9 @@ genIntervalFloat g = do
   b <- g
   pure (a ... b)
 
+-- | a space random variate
+genPair :: (Monad m) => m a -> m (Pair a)
+genPair g = do
+  a <- g
+  b <- g
+  pure (Pair a b)

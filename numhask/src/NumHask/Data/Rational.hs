@@ -25,6 +25,7 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import Prelude (Double, Float, Int, Integer, (.))
@@ -111,7 +112,7 @@ instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (GCDConstraints a) => Epsilon (Ratio a)
+instance (GCDConstraints a, MeetSemiLattice a) => Epsilon (Ratio a)
 
 instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
   fromInteger x = fromInteger x :% one
@@ -123,7 +124,7 @@ class ToRatio a where
 instance (ToInteger a) => ToRatio (Ratio a) where
   toRatio (n :% d) = toInteger n :% toInteger d
 
--- | `Fractional` in base splits into fromRatio and MultiplicativeGroup
+-- | `Fractional` in base splits into fromRatio and Field
 class FromRatio a where
   fromRatio :: Ratio Integer -> a
 
@@ -190,6 +191,13 @@ instance ToRatio Word32 where
 
 instance ToRatio Word64 where
   toRatio = fromBaseRational . P.toRational
+
+instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
+  (\/) = P.min
+
+instance (GCDConstraints a) => MeetSemiLattice (Ratio a) where
+  (/\) = P.max
+
 
 -- * $integral_functions
 -- integral functionality is largely based on GHC.Real

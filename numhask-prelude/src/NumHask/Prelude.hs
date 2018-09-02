@@ -35,6 +35,7 @@ module NumHask.Prelude
   , module NumHask.Data.Interval
   , module NumHask.Data.LogField       
   , module NumHask.Data.Rational
+  , module NumHask.Data.Pair
   , module NumHask.Data.Positive
   , Natural(..)
   , module NumHask.Exception
@@ -64,10 +65,11 @@ import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric
 import NumHask.Analysis.Space
-import NumHask.Data.Complex   
+import NumHask.Data.Complex
 import NumHask.Data.Integral
 import NumHask.Data.Interval
-import NumHask.Data.LogField       
+import NumHask.Data.LogField
+import NumHask.Data.Pair
 import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception

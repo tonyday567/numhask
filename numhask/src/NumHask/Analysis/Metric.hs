@@ -1,4 +1,3 @@
-{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -21,7 +20,6 @@ import Prelude
   , (/)
   , (+)
   , (-)
-  , abs
   , negate
   , sqrt
   , (**)
@@ -34,6 +32,7 @@ import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Abstract.Lattice
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
 --
@@ -310,18 +309,16 @@ instance Metric Word64 Word64 where
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
   distanceLp p a b = P.fromInteger (normLp (P.toInteger p) (P.toInteger a - P.toInteger b))
 
-class (Eq a, Additive a) =>
+class (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
   Epsilon a where
 
   epsilon :: a
   epsilon = zero
 
   nearZero :: a -> Bool
-  default nearZero :: (Signed a, Ord a) => a -> Bool
-  nearZero a = abs a <= epsilon
+  nearZero a = a `meetLeq` epsilon && negate a `meetLeq` epsilon
 
   aboutEqual :: a -> a -> Bool
-  default aboutEqual :: (Subtractive a) => a -> a -> Bool
   aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=

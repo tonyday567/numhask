@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
@@ -14,21 +15,25 @@
 -- | A continuous number Interval
 module NumHask.Data.Interval
   ( Interval(..)
-  , binOp
+  , gridSensible
   )
 where
 
+import Data.Bool (bool)
 import Data.Data (Data)
+import Data.Functor.Apply (Apply(..))
+import Data.Functor.Classes
+import Data.Semigroup.Foldable (Foldable1(..))
+import Data.Semigroup.Traversable (Traversable1(..))
+import GHC.Exts
 import GHC.Generics (Generic, Generic1)
-import NumHask.Algebra.Abstract
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Data.Integral
+import NumHask.Algebra.Abstract as A
 import NumHask.Analysis.Metric
 import NumHask.Analysis.Space as S
+import NumHask.Data.Integral
+import NumHask.Data.Rational
 import NumHask.Exception
-import Prelude (Eq(..), Ord(..), Show, Read, Integer, Bool(..), Foldable, Functor, Traversable, Applicative, pure, (<*>), (.), ($), max, otherwise, (||), (&&), not, fmap)
-import GHC.Exts (fromString)
-import Data.Bool (bool)
+import Prelude (Eq(..), Ord(..), Show, Read, Integer, Bool(..), Foldable, Functor, Traversable(..), Applicative, pure, (<*>), (.), ($), max, otherwise, (||), (&&), not, fmap, (++), (<$>), undefined, Semigroup(..), Monoid(..), zipWith, drop)
 
 data Interval a =
   Interval !a !a | SingletonInterval !a | EmptyInterval
@@ -41,16 +46,44 @@ data Interval a =
            , Functor
            , Foldable
            , Traversable
+           , Foldable1
            )
+
+instance Eq1 Interval where
+    liftEq _ EmptyInterval EmptyInterval = True
+    liftEq _ EmptyInterval _ = False
+    liftEq _ _ EmptyInterval = False
+    liftEq f (SingletonInterval s) (SingletonInterval s') = f s s'
+    liftEq f (SingletonInterval s) (Interval a b) = f s a && f s b
+    liftEq f (Interval a b) (SingletonInterval s) = f a s && f b s
+    liftEq f (Interval a b) (Interval a' b') = f a a' && f b b'
+
+instance Show1 Interval where
+  liftShowsPrec _ _ _ EmptyInterval = (++) "Interval empty "
+  liftShowsPrec sp _ d (SingletonInterval s) = showsUnaryWith sp "Interval" d s
+  liftShowsPrec sp _ d (Interval a b) = showsBinaryWith sp sp "Interval" d a b
+
+instance Apply Interval where
+  EmptyInterval <.> _ = EmptyInterval
+  _ <.> EmptyInterval = EmptyInterval
+  SingletonInterval fs <.> x = fmap fs x
+  (Interval fa fb) <.> (SingletonInterval s) = Interval (fa s) (fb s)
+  (Interval fa fb) <.> (Interval a b) = Interval (fa a) (fb b)
 
 instance Applicative Interval where
     pure = SingletonInterval
+    (<*>) = (<.>)
 
-    EmptyInterval <*> _ = EmptyInterval
-    _ <*> EmptyInterval = EmptyInterval
-    (SingletonInterval fs) <*> x = fmap fs x
-    (Interval fa fb) <*> (SingletonInterval s) = Interval (fa s) (fb s)
-    (Interval fa fb) <*> (Interval a b) = Interval (fa a) (fb b)
+instance Traversable1 Interval where
+  traverse1 _ EmptyInterval = EmptyInterval `seq` undefined
+  traverse1 f (SingletonInterval s) = SingletonInterval <$> f s
+  traverse1 f (Interval a b) = Interval <$> f a <.> f b
+
+instance (Eq a, Lattice a, Subtractive a) => Semigroup (Interval a) where
+  (<>) = union
+
+instance (Eq a, Lattice a, Subtractive a) => Monoid (Interval a) where
+  mempty = EmptyInterval
 
 instance (Eq a, Lattice a, Subtractive a) => Space (Interval a) where
   type Element (Interval a) = a
@@ -81,6 +114,23 @@ instance (Eq a, Lattice a, Subtractive a) => Space (Interval a) where
       False -> Interval l u where
         l = lower a /\ lower b
         u = upper a \/ upper b
+
+instance (Eq a, FromInteger a, Lattice a, Subtractive a, Field a) => FieldSpace (Interval a) where
+    type Grid (Interval a) = Int
+
+    grid o s n = (+ bool zero (step/(one+one)) (o==MidPos)) <$> posns
+      where
+        posns = (lower s +) . (step *) . fromIntegral <$> [i0..i1]
+        step = (/) (width s) (fromIntegral n)
+        (i0,i1) = case o of
+                    OuterPos -> (zero,n)
+                    InnerPos -> (one,n - one)
+                    LowerPos -> (zero,n - one)
+                    UpperPos -> (one,n)
+                    MidPos -> (zero,n - one)
+    gridSpace r n = zipWith Interval ps (drop 1 ps)
+      where
+        ps = grid OuterPos r n
 
 instance (Additive a, Space (Interval a)) => Additive (Interval a) where
   (Interval l u) + (Interval l' u') = (l + l') ... (u + u')
@@ -117,7 +167,7 @@ instance (Eq a, Epsilon a, LowerBoundedField a, UpperBoundedField a, Divisive a,
   recip (SingletonInterval s) = SingletonInterval (recip s)
   recip EmptyInterval = EmptyInterval
 
-instance (Distributive a, Space (Interval a)) => Distributive (Interval a)
+instance (A.Distributive a, Space (Interval a)) => A.Distributive (Interval a)
 
 instance (LowerBoundedField a, UpperBoundedField a, Epsilon a, Space (Interval a)) =>
   IntegralDomain (Interval a)
@@ -224,7 +274,7 @@ instance
       ...
       bool (atanh b) infinity (b >= 1)
 
-instance (Lattice a, Distributive a, Subtractive a, Ord a, Integral a) =>
+instance (Lattice a, A.Distributive a, Subtractive a, Ord a, Integral a) =>
   Integral (Interval a) where
   divMod (Interval l u) (Interval l' u') = (ld ... ud, lm ... um) where
     (ld, lm) = divMod l l'
@@ -275,3 +325,35 @@ instance (Ord a, Space (Interval a), Signed a, Divisive a, Epsilon a) => Epsilon
   nearZero EmptyInterval = False
   nearZero (SingletonInterval s) = nearZero s
   nearZero (Interval l u) = nearZero l && nearZero u
+
+stepSensible :: (Ord a, FromRatio a, FromInteger a, ExpField a, QuotientField a Integer) => Pos -> a -> Integer -> a
+stepSensible tp span n =
+    step + bool zero (step/two) (tp==MidPos)
+  where
+    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral n)) :: Integer)
+    err = fromIntegral n / span * step'
+    step
+      | err <= 0.15 = 10.0 * step'
+      | err <= 0.35 = 5.0 * step'
+      | err <= 0.75 = 2.0 * step'
+      | otherwise = step'
+
+gridSensible :: (Ord a, FromInteger a, FromRatio a, QuotientField a Integer, ExpField a) =>
+    Pos -> Interval a -> Integer -> [a]
+gridSensible _ EmptyInterval _ = []
+gridSensible _ (SingletonInterval s) _ = [s]
+gridSensible tp (Interval l u) n =
+    (+ bool zero (step/two) (tp==MidPos)) <$> posns
+  where
+    posns = (first' +) . (step *) . fromIntegral <$> [i0..i1]
+    span = u - l
+    step = stepSensible tp span n
+    first' = step * fromIntegral (ceiling (l/step) :: Integer)
+    last' =  step * fromIntegral (floor   (u/step) :: Integer)
+    n' = round ((last' - first')/step)
+    (i0,i1) = case tp of
+                OuterPos -> (0::Integer,n')
+                InnerPos -> (1,n' - 1)
+                LowerPos -> (0,n' - 1)
+                UpperPos -> (1,n')
+                MidPos -> (0,n' - 1)

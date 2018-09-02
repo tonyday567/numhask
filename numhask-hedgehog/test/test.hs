@@ -34,9 +34,13 @@ tests n = do
     (negUniform :: H.Gen Rational) rationalProps
   bFloat <- assertProps "Float" n
     (negUniform :: H.Gen Float) fieldProps
+  bQuotientFloat <- assertProps "Float - Quotient" n
+    (negUniform :: H.Gen Float) quotientFieldProps
   bComplexFloat <- assertProps "Complex Float" n
     (genComplex (negUniform :: H.Gen Float))
     (complexFieldProps (5.0 :+ 5.0))
+  bPairFloat <- assertProps "Pair Float" n
+    (genPair (negUniform :: H.Gen Float)) fieldProps
   bLatticeFloat <- assertProps "Float Lattice" n
     (negUniform :: H.Gen Float) latticeProps
   bLatticeComplex <- assertProps "Complex Lattice" n
@@ -46,6 +50,7 @@ tests n = do
 
   return $ bInt && bInt8 && bWord8 && bInteger && bNatural && bBool &&
     bRational && bFloat && bComplexFloat && bLatticeFloat && bLatticeComplex && bSpaceFloat
+    && bPairFloat && bQuotientFloat
 
 main :: IO ()
 main = do

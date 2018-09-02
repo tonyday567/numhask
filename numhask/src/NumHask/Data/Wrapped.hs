@@ -11,6 +11,7 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
@@ -32,6 +33,8 @@ newtype Wrapped a = Wrapped { unWrapped :: a }
     , TrigField
     , Integral
     , Signed
+    , JoinSemiLattice
+    , MeetSemiLattice
     , Epsilon
     , UpperBoundedField
     , LowerBoundedField

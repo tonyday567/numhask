@@ -12,6 +12,9 @@ module NumHask.Algebra.Abstract
   , module NumHask.Algebra.Abstract.Ring
   , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Abstract.Module
+  , module NumHask.Algebra.Abstract.Action
+  , module NumHask.Algebra.Abstract.Lattice
+  , module NumHask.Algebra.Abstract.Homomorphism
   )
 where
 
@@ -21,6 +24,9 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Module
+import NumHask.Algebra.Abstract.Action
+import NumHask.Algebra.Abstract.Lattice
+import NumHask.Algebra.Abstract.Homomorphism
 
 -- $numMap
 --

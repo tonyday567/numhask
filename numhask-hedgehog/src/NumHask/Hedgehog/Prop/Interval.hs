@@ -10,6 +10,7 @@ import NumHask.Prelude hiding ((%), (.*.))
 import Hedgehog as H
 import NumHask.Hedgehog.Prop (unary, binary, ternary)
 
+
 -- * individual tests
 isIdempotent :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
 isIdempotent (##) acc src = unary src $ \a ->
@@ -84,9 +85,9 @@ isSigned :: forall a.(Show a, Epsilon a, Space (Interval a), Signed a) => a -> G
 isSigned acc src = unary src $ \a ->
   (sign a * abs a) |.| (eps acc a :: Interval a)
 
-isNormedUnbounded :: forall a. (Ord a, Show a, Epsilon a, Space (Interval a), Multiplicative a, Normed a a) => a -> Gen a -> Property
+isNormedUnbounded :: forall a. (Show a, Epsilon a, Space (Interval a), Multiplicative a, Normed a a) => a -> Gen a -> Property
 isNormedUnbounded acc src = unary src $ \a ->
-  (normL1 a >= (zero :: a)) &&
+  (normL1 a `joinLeq` (zero :: a)) &&
   (normL1 (zero :: a) :: a) |.| (eps acc zero :: Interval a)
 
 isMetricUnbounded :: forall a. (Show a, Epsilon a, Space (Interval a), Multiplicative a, Metric a a) => a -> Gen a -> Property
