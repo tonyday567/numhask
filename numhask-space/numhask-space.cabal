@@ -1,9 +1,9 @@
-name: numhask-prelude
-version: 0.3
+name: numhask-space
+version: 0.1
 synopsis:
-  A numeric prelude
+  numerical spaces
 description:
-  A numeric prelude, combining protolude and numhask.
+  Spaces as higher-kinded numbers.
 category:
   mathematics
 homepage:
@@ -26,7 +26,7 @@ cabal-version:
   >= 1.18
 
 extra-source-files:
-    stack.yaml
+  stack.yaml
 
 source-repository head
   type: git
@@ -37,7 +37,6 @@ library
     src
   default-extensions:
     NegativeLiterals
-    NoImplicitPrelude
     OverloadedStrings
     UnicodeSyntax
   ghc-options:
@@ -48,28 +47,9 @@ library
     -Wredundant-constraints
   build-depends:
       base >=4.7 && <4.12
-    , numhask >=0.3 && <0.4
-    , numhask-space
-    , protolude >=0.1 && <0.3
+    , numhask
   exposed-modules:
-    NumHask.Prelude
-    NumHask.Error
-    NumHask.Examples
-  default-language: Haskell2010
-
-test-suite test
-  type:
-    exitcode-stdio-1.0
-  main-is:
-    test.hs
-  hs-source-dirs:
-    test
-  default-extensions:
-    NegativeLiterals
-    NoImplicitPrelude
-    OverloadedStrings
-    UnicodeSyntax
-  build-depends:
-      doctest
-    , numhask-prelude
+    NumHask.Analysis.Space
+    NumHask.Data.Interval
+  other-modules:
   default-language: Haskell2010

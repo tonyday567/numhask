@@ -65,10 +65,8 @@ library
     NumHask.Algebra.Linear.Hadamard
     NumHask.Analysis.Banach
     NumHask.Analysis.Metric
-    NumHask.Analysis.Space
     NumHask.Data.Complex
     NumHask.Data.Integral
-    NumHask.Data.Interval
     NumHask.Data.LogField
     NumHask.Data.Positive
     NumHask.Data.Rational

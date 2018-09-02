@@ -10,6 +10,7 @@ module NumHask.Algebra.Abstract.Field
   , UpperBoundedField(..)
   , LowerBoundedField(..)
   , TrigField(..)
+  , half
   )
 where
 
@@ -264,3 +265,6 @@ instance TrigField b => TrigField (a -> b) where
   acosh f = acosh . f
   atanh f = atanh . f
 -}
+
+half :: (Field a) => a
+half = one / two

@@ -12,6 +12,7 @@ module NumHask.Algebra.Abstract.Ring
   , StarSemiring(..)
   , KleeneAlgebra
   , InvolutiveRing(..)
+  , two
   )
 where
 
@@ -138,3 +139,6 @@ instance InvolutiveRing Word16
 instance InvolutiveRing Word32
 instance InvolutiveRing Word64
 instance InvolutiveRing b => InvolutiveRing (a -> b)
+
+two :: (Multiplicative a, Additive a) => a
+two = one + one
