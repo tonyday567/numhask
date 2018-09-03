@@ -54,6 +54,8 @@
 - ignore: {name: Use logBase, within: NumHask.Algebra.Field}
 - ignore: {name: Use -}
 - ignore: {name: Eta reduce, within: NumHask.Algebra.Metric}
+- ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop}
+- ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop}
 
 # Define some custom infix operators
 # - fixity: infixr 3 ~^#^~

@@ -36,7 +36,9 @@ integralProps g = mconcat $
   , isSubtractive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
+  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedBounded x)]
   , \x -> [("metric", isMetricBounded x)]
@@ -64,7 +66,9 @@ integralUnboundedProps g = mconcat $
   , isSubtractive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
+  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   , \x -> [("metric", isMetricUnbounded x)]
@@ -89,7 +93,9 @@ naturalProps g = mconcat $
   [ isAdditive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
+  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   ]
@@ -109,6 +115,8 @@ boolProps g = mconcat $
   , \x -> [("idempotent +", isIdempotent (+) x)]
   , \x -> [("idempotent *", isIdempotent (*) x)]
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative unit", isAbsorbativeUnit zero (*) x)]
+  , \x -> [("absorbative", isAbsorbative (+) (*) x)]
   ]
 
 rationalProps
@@ -133,6 +141,7 @@ rationalProps g = mconcat $
   , isSubtractive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative unit", isAbsorbativeUnit zero (*) x)]
   , isDivisive
   , \x -> [("rational", isRational x)]
   , \x -> [("signed", isSigned x)]
@@ -162,14 +171,13 @@ fieldProps g = mconcat $
   , \x -> [("subtractive", I.isSubtractive 1.0 x)]
   , I.isMultiplicative 1.0
   , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
-  , \x -> [("absorbtive", I.isAbsorbative (*) one x)]
+  , \x -> [("absorbative", I.isZeroAbsorbative (*) one x)]
   , \x -> [("divisive", I.isDivisive 1.0 x)]
   , \x -> [("signed", I.isSigned 1.0 x)]
   , \x -> [("normed", I.isNormedUnbounded 1.0 x)]
   , \x -> [("metric", I.isMetricUnbounded 1.0 x)]
   , \x -> [("upper bounded field", isUpperBoundedField x)]
   , \x -> [("lower bounded field", isLowerBoundedField x)]
-  -- , \x -> [("quotient field", isQuotientField x)]
   , \x -> [("expField", I.isExpField 100.0 x)]
   ]
 
@@ -209,7 +217,7 @@ complexFieldProps acc g = mconcat $
   , \x -> [("subtractive", I.isSubtractive acc x)]
   , I.isMultiplicative acc
   , \x -> [("distributive", I.isDistributiveTimesPlus acc x)]
-  , \x -> [("absorbative", I.isAbsorbative (*) acc x)]
+  , \x -> [("absorbative", I.isZeroAbsorbative (*) acc x)]
   , \x -> [("divisive", I.isDivisive (100.0 :+ 50.0) x)]
   ]
 
@@ -230,7 +238,7 @@ logFieldProps g = mconcat $
   [ I.isAdditive 1.0
   , I.isMultiplicative 1.0
   , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
-  , \x -> [("absorbative", I.isAbsorbative (*) one x)]
+  , \x -> [("absorbative", I.isZeroAbsorbative (*) one x)]
   , \x -> [("divisive", I.isDivisive one x)]
   ]
 
@@ -252,7 +260,7 @@ latticeProps g = mconcat $
   , \x -> [("join assoc", I.isAssociative (\/) (\/) one x)]
   , \x -> [("meet assoc", I.isAssociative (/\) (/\) one x)]
   , \x -> [("lattice distributive", I.isDistributiveJoinMeet one x)]
-  , \x -> [("lattice absorb", I.isAbsorbative' (\/) (/\) (\/) (/\) one x)]
+  , \x -> [("lattice absorb", I.isAbsorbative (\/) (/\) (\/) (/\) one x)]
   ]
 
 -- | space laws
@@ -279,4 +287,42 @@ spaceProps g = mconcat $
   ]
 
 
+-- * Interval algebra
+intervalAlgebraProps
+  :: forall a.
+  ( Eq a
+  , Show a
+  , Additive a
+  -- , Distributive a
+  -- , Subtractive a
+  -- , Multiplicative a
+  -- , UpperBoundedField a
+  -- , LowerBoundedField a
+  -- , Integral a
+  -- , Signed a
+  -- , Bounded a
+  -- , Normed a a
+  -- , Metric a a
+  -- , JoinSemiLattice a
+  )
+  => Gen a
+  -> [(PropertyName, Property)]
+intervalAlgebraProps g = mconcat $
+  (\x -> x g) <$>
+  [ isAdditive
+  -- intervals satisfy 'zero |.| a - a' not 'zero = a - a'
+  -- , isSubtractive
+  -- , isMultiplicative
+  -- , isDivisive
+  -- , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  -- , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
+  -- , \x -> [("upper bounded field", isUpperBoundedField x)]
+  -- , \x -> [("lower bounded field", isLowerBoundedField x)]
+  -- , \x -> [("exponential field", isExpField x)]
+  -- , \x -> [("trigonometric field", isTrigField x)]
+  -- , \x -> [("integral", isIntegral x)]
+  -- , \x -> [("signed", isSigned x)]
+  -- , \x -> [("normed", isNormedBounded x)]
+  -- , \x -> [("metric", isMetricBounded x)]
+  ]
 

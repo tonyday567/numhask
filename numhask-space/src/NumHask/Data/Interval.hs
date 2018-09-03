@@ -37,8 +37,7 @@ import Prelude (Eq(..), Ord(..), Show, Read, Integer, Bool(..), Foldable, Functo
 
 data Interval a =
   Interval !a !a | SingletonInterval !a | EmptyInterval
-  deriving ( Eq
-           , Show
+  deriving ( Show
            , Read
            , Data
            , Generic
@@ -48,6 +47,15 @@ data Interval a =
            , Traversable
            , Foldable1
            )
+
+instance (Eq a) => Eq (Interval a) where
+  EmptyInterval == EmptyInterval = True
+  EmptyInterval == _ = False
+  _ == EmptyInterval = False
+  SingletonInterval s == SingletonInterval s' = s == s'
+  SingletonInterval s == Interval a b = s == a && s == b
+  Interval a b == SingletonInterval s = s == a && s == b
+  Interval a b == Interval a' b' = a == a' && b == b'
 
 instance Eq1 Interval where
     liftEq _ EmptyInterval EmptyInterval = True
@@ -133,15 +141,15 @@ instance (Eq a, FromInteger a, Lattice a, Subtractive a, Field a) => FieldSpace 
         ps = grid OuterPos r n
 
 instance (Additive a, Space (Interval a)) => Additive (Interval a) where
+  EmptyInterval + x = x
+  x + EmptyInterval = x
   (Interval l u) + (Interval l' u') = (l + l') ... (u + u')
   i + (SingletonInterval s) = fmap (s+) i
   (SingletonInterval s) + i = fmap (s+) i
-  EmptyInterval + x = x
-  x + EmptyInterval = x
 
   zero = SingletonInterval zero
 
-instance (Subtractive a, Divisive a, Space (Interval a)) => Subtractive (Interval a) where
+instance (Subtractive a, Space (Interval a)) => Subtractive (Interval a) where
   negate (Interval l u) = negate u ... negate l
   negate (SingletonInterval s) = SingletonInterval $ negate s
   negate EmptyInterval = EmptyInterval

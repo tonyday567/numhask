@@ -83,11 +83,11 @@ instance (Eq a, Lattice a, Subtractive a) => Space (Interval a) where
         u = upper a \/ upper b
 
 instance (Additive a, Space (Interval a)) => Additive (Interval a) where
-  (Interval l u) + (Interval l' u') = (l + l') ... (u + u')
+  EmptyInterval + _ = EmptyInterval
+  _ + EmptyInterval = EmptyInterval
   i + (SingletonInterval s) = fmap (s+) i
   (SingletonInterval s) + i = fmap (s+) i
-  EmptyInterval + x = x
-  x + EmptyInterval = x
+  (Interval l u) + (Interval l' u') = (l + l') ... (u + u')
 
   zero = SingletonInterval zero
 
@@ -98,12 +98,12 @@ instance (Subtractive a, Divisive a, Space (Interval a)) => Subtractive (Interva
 
 instance (Multiplicative a, Space (Interval a)) =>
   Multiplicative (Interval a) where
-  (Interval l u) * (Interval l' u') =
-    space [l * l', l * u', u * l', u * u']
+  EmptyInterval * _ = EmptyInterval
+  _ * EmptyInterval = EmptyInterval
   i * (SingletonInterval s) = fmap (s*) i
   (SingletonInterval s) * i = fmap (s*) i
-  EmptyInterval *  x = x
-  x * EmptyInterval = x
+  (Interval l u) * (Interval l' u') =
+    space [l * l', l * u', u * l', u * u']
 
   one = one ... one
 

@@ -1,5 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE IncoherentInstances #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE MultiWayIf #-}
 
 module NumHask.Hedgehog.Gen where
 
@@ -80,12 +83,18 @@ genComplex g = do
   i <- g
   pure (r :+ i)
 
--- | a space random variate
-genIntervalFloat :: (Monad m) => m Float -> m (Interval Float)
-genIntervalFloat g = do
-  a <- g
-  b <- g
-  pure (a ... b)
+-- | Interval
+genInterval :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, Eq a, Subtractive a, MonadGen m) => (Float,Float) -> m a -> m (Interval a)
+genInterval (e,s) g = do
+  u :: Float <- uniform
+  if | u < e -> pure EmptyInterval
+     | u < s -> do
+         a <- g
+         pure (SingletonInterval a)
+     | True -> do
+         a <- g
+         b <- g
+         pure (a ... b)
 
 -- | a space random variate
 genPair :: (Monad m) => m a -> m (Pair a)

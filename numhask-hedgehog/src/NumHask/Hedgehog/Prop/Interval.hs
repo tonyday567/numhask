@@ -12,20 +12,20 @@ import NumHask.Hedgehog.Prop (unary, binary, ternary)
 
 
 -- * individual tests
-isIdempotent :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isIdempotent :: forall a. (Show a, Epsilon a, Lattice a, Multiplicative a) => (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
 isIdempotent (##) acc src = unary src $ \a ->
   a |.| (eps acc a ## eps acc a :: Interval a)
 
-isCommutative :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isCommutative :: forall a. (Show a, Epsilon a, Lattice a, Multiplicative a) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
 isCommutative (#) (##) acc src = binary src $ \a b ->
   (a # b) |.| eps acc b ## eps acc a
 
-isUnital :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => a -> (a -> a -> a) -> a -> Gen a -> Property
+isUnital :: forall a. (Show a, Epsilon a, Lattice a, Multiplicative a) => a -> (a -> a -> a) -> a -> Gen a -> Property
 isUnital u (#) acc src = unary src $ \a ->
   (u # a) |.| (eps acc a :: Interval a) &&
   (a # u) |.| (eps acc a :: Interval a)
 
-isAssociative :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isAssociative :: forall a. (Show a, Epsilon a, Lattice a, Multiplicative a) => (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
 isAssociative (#) (##) acc src = ternary src $ \a b c ->
   ((a # b) # c) |.| (eps acc a ## (eps acc b ## eps acc c))
 
@@ -71,13 +71,13 @@ isDistributiveJoinMeet acc src = ternary src $ \a b c ->
   where
     (.\/.) x y = eps acc x \/ eps acc y :: Interval a
 
-isAbsorbative :: forall a.(Show a, Epsilon a, Space (Interval a), Multiplicative a) => (a -> a -> a) -> a -> Gen a -> Property
-isAbsorbative (#) acc src = unary src $ \a ->
+isZeroAbsorbative :: forall a.(Show a, Epsilon a, Space (Interval a), Multiplicative a) => (a -> a -> a) -> a -> Gen a -> Property
+isZeroAbsorbative (#) acc src = unary src $ \a ->
   (a # zero) |.| (eps acc zero :: Interval a) &&
   (zero # a) |.| (eps acc zero :: Interval a)
 
-isAbsorbative' :: forall a. (Show a, Epsilon a, Lattice a, Subtractive a, Multiplicative a) => (a -> a -> a) -> (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
-isAbsorbative' (#) (%) (##) (%%) acc src = binary src $ \a b ->
+isAbsorbative :: forall a. (Show a, Epsilon a, Lattice a, Multiplicative a) => (a -> a -> a) -> (a -> a -> a) -> (Interval a -> Interval a -> Interval a) -> (Interval a -> Interval a -> Interval a) -> a -> Gen a -> Property
+isAbsorbative (#) (%) (##) (%%) acc src = binary src $ \a b ->
   (a # (a % b)) |.| (eps acc a %% (eps acc a ## eps acc b)) &&
   a |.| (eps acc a %% (eps acc a ## eps acc b :: Interval a))
 

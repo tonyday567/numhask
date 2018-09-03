@@ -10,10 +10,11 @@ module NumHask.Prelude
   , (<>)
   , Semigroup
 #endif
-    -- RebindableSyntax takes fromString and fail away so we need to put it back in
+    -- RebindableSyntax removes all sorts of stuff that we then have to put back in
   , fromString
   , fail
   , ifThenElse
+  , fromListN
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Abstract.Action
@@ -73,6 +74,7 @@ import NumHask.Data.Pair
 import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception
+import GHC.Exts
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.

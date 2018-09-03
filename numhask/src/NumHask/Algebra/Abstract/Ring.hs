@@ -78,6 +78,8 @@ instance (Distributive a, Subtractive a) =>
 --   generalizes a ring of integers by requiring the product of any two nonzero
 --   elements to be nonzero. This means that if a ≠ 0, an equality ab = ac
 --   implies b = c.
+-- FIXME: write a rule for this
+--
 class (Distributive a, Divisive a) =>
   IntegralDomain a
 
