@@ -153,7 +153,7 @@ rationalProps g = mconcat $
 fieldProps
   :: forall a.
   ( Show a
-  , Lattice a
+  , HasRange a
   , Epsilon a
   , LowerBoundedField a
   , UpperBoundedField a
@@ -167,15 +167,15 @@ fieldProps
   -> [(PropertyName, Property)]
 fieldProps g = mconcat $
   (\x -> x g) <$>
-  [ I.isAdditive 1.0
-  , \x -> [("subtractive", I.isSubtractive 1.0 x)]
-  , I.isMultiplicative 1.0
+  [ I.isAdditive one
+  , \x -> [("subtractive", I.isSubtractive one x)]
+  , I.isMultiplicative one
   , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
   , \x -> [("absorbative", I.isZeroAbsorbative (*) one x)]
-  , \x -> [("divisive", I.isDivisive 1.0 x)]
-  , \x -> [("signed", I.isSigned 1.0 x)]
-  , \x -> [("normed", I.isNormedUnbounded 1.0 x)]
-  , \x -> [("metric", I.isMetricUnbounded 1.0 x)]
+  , \x -> [("divisive", I.isDivisive one x)]
+  , \x -> [("signed", I.isSigned one x)]
+  , \x -> [("normed", I.isNormedUnbounded one x)]
+  , \x -> [("metric", I.isMetricUnbounded one x)]
   , \x -> [("upper bounded field", isUpperBoundedField x)]
   , \x -> [("lower bounded field", isLowerBoundedField x)]
   , \x -> [("expField", I.isExpField 100.0 x)]
@@ -185,8 +185,7 @@ fieldProps g = mconcat $
 quotientFieldProps
   :: forall a.
   ( Show a
-  , Lattice a
-  , Epsilon a
+  , HasRange a
   , FromInteger a
   , QuotientField a Integer
   )
@@ -228,15 +227,14 @@ logFieldProps
   , Epsilon a
   , LowerBoundedField a
   , UpperBoundedField a
-  , FromRatio a
-  , Lattice a
+  , HasRange a
   )
   => Gen a
   -> [(PropertyName, Property)]
 logFieldProps g = mconcat $
   (\x -> x g) <$>
-  [ I.isAdditive 1.0
-  , I.isMultiplicative 1.0
+  [ I.isAdditive one
+  , I.isMultiplicative one
   , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
   , \x -> [("absorbative", I.isZeroAbsorbative (*) one x)]
   , \x -> [("divisive", I.isDivisive one x)]
@@ -248,7 +246,8 @@ latticeProps
   ( Show a
   , Epsilon a
   , Multiplicative a
-  , Lattice a)
+  , HasRange a
+  )
   => Gen a
   -> [(PropertyName, Property)]
 latticeProps g = mconcat $
@@ -270,32 +269,31 @@ spaceProps
   , Space s
   , Epsilon (Element s)
   , LowerBoundedField (Element s)
-  , UpperBoundedField (Element s)
+  -- , UpperBoundedField (Element s)
   )
   => Gen s
   -> [(PropertyName, Property)]
 spaceProps g = mconcat $
   (\x -> x g) <$>
   [ \x -> [("commutative union", I.isCommutativeSpace union one x)]
-  , \x -> [("commutative intersection", I.isCommutativeSpace intersection one x)]
+  -- , \x -> [("commutative intersection", I.isCommutativeSpace intersection one x)]
   , \x -> [("associative union", I.isAssociativeSpace union one x)]
-  , \x -> [("associative intersection", I.isAssociativeSpace intersection one x)]
-  , \x -> [("unital union", I.isUnitalSpace nul union one x)]
-  , \x -> [("unital intersection", I.isUnitalSpace whole intersection one x)]
-  , \x -> [("distributive", I.isDistributiveUI one x)]
+  -- , \x -> [("associative intersection", I.isAssociativeSpace intersection one x)]
+  -- , \x -> [("unital union", I.isUnitalSpace nul union one x)]
+  -- , \x -> [("unital intersection", I.isUnitalSpace whole intersection one x)]
+  -- , \x -> [("distributive", I.isDistributiveUI one x)]
   , \x -> [("containment", I.isContainedUnion one x)]
   ]
-
 
 -- * Interval algebra
 intervalAlgebraProps
   :: forall a.
   ( Eq a
   , Show a
-  , Additive a
+  -- , Additive a
   -- , Distributive a
-  -- , Subtractive a
-  -- , Multiplicative a
+  , Subtractive a
+  , Multiplicative a
   -- , UpperBoundedField a
   -- , LowerBoundedField a
   -- , Integral a
@@ -303,18 +301,18 @@ intervalAlgebraProps
   -- , Bounded a
   -- , Normed a a
   -- , Metric a a
-  -- , JoinSemiLattice a
+  , JoinSemiLattice a
+  , MeetSemiLattice a
   )
-  => Gen a
+  => Gen (Interval a)
   -> [(PropertyName, Property)]
 intervalAlgebraProps g = mconcat $
   (\x -> x g) <$>
   [ isAdditive
-  -- intervals satisfy 'zero |.| a - a' not 'zero = a - a'
-  -- , isSubtractive
-  -- , isMultiplicative
+  , \x -> [("subtractive interval laws with zero |.| a - a", isSubtractiveI x)]
+  , isMultiplicative
   -- , isDivisive
-  -- , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  -- , \x -> [("left distributive only", isLeftDistributive zero (+) (*) x)]
   -- , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   -- , \x -> [("upper bounded field", isUpperBoundedField x)]
   -- , \x -> [("lower bounded field", isLowerBoundedField x)]

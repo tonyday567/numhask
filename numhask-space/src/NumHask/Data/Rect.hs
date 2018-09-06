@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -86,17 +87,17 @@ import NumHask.Algebra.Linear.Hadamard
 -- >>> grid MidPos (Rect 0 10 0 1) (Pair 2 2)
 -- [Pair 2.5 0.25,Pair 2.5 0.75,Pair 7.5 0.25,Pair 7.5 0.75]
 newtype Rect a =
-  Rect' (Compose Pair Range a)
+  Rect' (Compose Pair Hull a)
   deriving (Eq, Functor, Applicative, Foldable, Traversable,
             Generic)
 
 -- | pattern of Rect lowerx upperx lowery uppery
 pattern Rect :: a -> a -> a -> a -> Rect a
-pattern Rect a b c d = Rect' (Compose (Pair (Range a b) (Range c d)))
+pattern Rect a b c d = Rect' (Compose (Pair (Hull a b) (Hull c d)))
 {-# COMPLETE Rect#-}
 
 -- | pattern of Ranges xrange yrange
-pattern Ranges :: Range a -> Range a -> Rect a
+pattern Ranges :: Hull a -> Hull a -> Rect a
 pattern Ranges a b = Rect' (Compose (Pair a b))
 {-# COMPLETE Ranges#-}
 
@@ -123,25 +124,27 @@ instance Representable Rect where
   index (Rect _ _ _ d) (True, True) = d
 
 instance (HasRange a) => Semigroup (Rect a) where
-  (<>) (Ranges x y) (Ranges x' y') = Ranges (x <> x') (y <> y')
+  (<>) (Ranges x y) (Ranges x' y') = Ranges (x `union` x') (y `union` y')
 
-instance (HasRange a) => Monoid (Rect a) where
-  mempty = Ranges mempty mempty
+type RectField a = (HasRange a, UpperBoundedField a, LowerBoundedField a)
+
+instance (RectField a) => Monoid (Rect a) where
+  mempty = Ranges m m
+    where
+      m = Hull infinity negInfinity
 
 instance (HasRange a) => Space (Rect a) where
   type Element (Rect a) = Pair a
-  nul = Ranges nul nul
-  isNul (Ranges x y) = isNul x && isNul y
 
   union (Ranges a b) (Ranges c d) = Ranges (a `union` c) (b `union` d)
-  intersection (Ranges a b) (Ranges c d) = Ranges (a `intersection` c) (b `intersection` d)
+  -- intersection (Ranges a b) (Ranges c d) = Ranges (a `intersection` c) (b `intersection` d)
 
   lower (Rect l0 _ l1 _) = Pair l0 l1
   upper (Rect _ u0 _ u1) = Pair u0 u1
 
   singleton (Pair x y) = Rect x x y y
 
-instance (HasRange a, Field a) => FieldSpace (Rect a) where
+instance (HasRange a, Field a, FromInteger a) => FieldSpace (Rect a) where
     type Grid (Rect a) = Pair Int
 
     grid o s n = (+ bool zero (step/(one+one)) (o==MidPos)) <$> posns
@@ -167,7 +170,6 @@ instance (HasRange a, Field a) => FieldSpace (Rect a) where
         sx = width rX / fromIntegral stepX
         sy = width rY / fromIntegral stepY
 
-
 instance (Additive a) =>
          Additive (Rect a) where
   (Ranges x0 y0) + (Ranges x1 y1) = Ranges (x0 + x1) (y0 + y1)
@@ -177,17 +179,17 @@ instance (Subtractive a) =>
          Subtractive (Rect a) where
   negate (Ranges x y) = Ranges (negate x) (negate y)
 
-instance (HasRange a) =>
+instance (HasRange a, Field a, FromInteger a) =>
          Multiplicative (Rect a) where
   (Ranges x0 y0) * (Ranges x1 y1) =
     Ranges (x0 * x1) (y0 * y1)
   one = Ranges one one
 
-instance (HasRange a, Divisive a) =>
+instance (HasRange a, Field a, Divisive a, FromInteger a) =>
          Divisive (Rect a) where
   recip (Ranges x y) = Ranges (recip x) (recip y)
 
-instance (HasRange a) =>
+instance (HasRange a, Field a, FromInteger a) =>
          Signed (Rect a) where
   sign (Ranges l u) = Ranges (sign l) (sign u)
   abs (Ranges l u) = Ranges (sign l * l) (sign u * u)
@@ -208,7 +210,7 @@ corners r = [lower r, upper r]
 
 -- | project a Rect from an old range to a new one
 projectRect ::
-     (HasRange a)
+     (HasRange a, Field a, FromInteger a)
   => Rect a
   -> Rect a
   -> Rect a

@@ -53,9 +53,7 @@ library
     , distributive
   exposed-modules:
     NumHask.Analysis.Space
-    NumHask.Data.Interval
-    NumHask.Data.IntervalD
-    NumHask.Data.IntervalXY
+    -- NumHask.Data.IntervalD
     NumHask.Data.Range
     NumHask.Data.Rect
   other-modules:

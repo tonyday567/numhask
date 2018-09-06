@@ -78,8 +78,8 @@ ternary src p = property $ do
 isIdempotent :: (Eq a, Show a) =>
   (a -> a -> a) -> Gen a -> Property
 isIdempotent (#) src = property $ do
-  let p = \a -> (a # a) == a
   rv <- forAll src
+  let p = \a -> (a # a) == a
   assert (p rv)
 
 isCommutative :: (Eq a, Show a) =>
@@ -92,8 +92,8 @@ isCommutative (#) src = property $ do
 
 isUnital :: (Eq a, Show a) => a -> (a -> a -> a) -> Gen a -> Property
 isUnital z (#) src = property $ do
-  let p = \a -> (z # a) == a && (a # z) == a
   rv <- forAll src
+  let p = \a -> (z # a) == a && (a # z) == a
   assert (p rv)
 
 isAssociative :: (Eq a, Show a) => (a -> a -> a) -> Gen a -> Property
@@ -150,6 +150,18 @@ isDistributive u (#) (#*) src = property $ do
         u #* a == u &&
         a #* (b # c) == (a #* b) # (a #* c) &&
         (a # b) #* c == (a #* c) # (b #* c)
+  assert (p rv rv' rv'')
+
+isLeftDistributive :: (Eq a, Show a) => a -> (a -> a -> a) -> (a -> a -> a) ->
+  Gen a -> Property
+isLeftDistributive u (#) (#*) src = property $ do
+  rv <- forAll src
+  rv' <- forAll src
+  rv'' <- forAll src
+  let p = \a b c ->
+        a #* u == u &&
+        u #* a == u &&
+        a #* (b # c) == (a #* b) # (a #* c)
   assert (p rv rv' rv'')
 
 isAbsorbativeUnit :: (Eq a, Show a) => a -> (a -> a -> a) -> Gen a -> Property
@@ -337,3 +349,13 @@ isInvolutive src = property $ do
         adj (adj a) == a
   assert (p rv rv')
 
+-- 'zero |.| a - a' not 'zero = a - a'
+isSubtractiveI :: forall a. (HasRange a, Show a) =>
+  Gen (Interval a) -> Property
+isSubtractiveI src = property $ do
+  rv <- forAll src
+  let p = \a ->
+        (zero |.| (a - a)) &&
+        (negate a == zero - a) &&
+        (zero |.| (negate a + a))
+  assert (p rv) 

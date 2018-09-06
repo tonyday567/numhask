@@ -3,11 +3,24 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE MonoLocalBinds #-}
 
-module NumHask.Hedgehog.Gen where
+module NumHask.Hedgehog.Gen
+  ( rational
+  , rational_
+  , integral
+  , integral_
+  , uniform
+  , negUniform
+  , genPair
+  , genRange
+  , genInterval
+  , genHull
+  , genComplex
+  ) where
 
 import Hedgehog as H
-import NumHask.Prelude
+import NumHask.Prelude as P
 import qualified Hedgehog.Internal.Gen as Gen
 import qualified Hedgehog.Internal.Seed as Seed
 import qualified Hedgehog.Range as Range
@@ -16,7 +29,7 @@ import qualified Hedgehog.Range as Range
 -- There are basically two types of random variates: a discrete Integer type and a continuous rational type
 
 -- | a rational-style random variate
-rational :: (ToRatio a, FromRatio a, MonadGen m) => Range a -> m a
+rational :: (ToRatio a, FromRatio a, MonadGen m) => Range.Range a -> m a
 rational range =
   Gen.generate $ \size seed ->
     let
@@ -27,7 +40,7 @@ rational range =
         Seed.nextDouble (fromRational x) (fromRational y) seed
 
 -- | an integral-stype random variate
-integral :: (ToInteger a, FromInteger a, MonadGen m) => Range a -> m a
+integral :: (ToInteger a, FromInteger a, MonadGen m) => Range.Range a -> m a
 integral range =
   Gen.generate $ \size seed ->
     let
@@ -84,17 +97,39 @@ genComplex g = do
   pure (r :+ i)
 
 -- | Interval
-genInterval :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, Eq a, Subtractive a, MonadGen m) => (Float,Float) -> m a -> m (Interval a)
-genInterval (e,s) g = do
+genInterval :: forall a m. (HasRange a, MonadGen m) => m a -> m (Interval a)
+genInterval g = do
+  a <- g
+  b <- g
+  pure (a ... b)
+
+-- | Interval
+genRange :: forall a m. (MonadGen m) => m a -> m (P.Range a)
+genRange g = do
+  a <- g
+  b <- g
+  pure (Range a b)
+
+
+-- | Hull
+genHull :: forall a m. (MonadGen m) => m a -> m (Hull a)
+genHull g = do
+  a <- g
+  b <- g
+  pure (Hull a b)
+
+{-
+-- | Interval
+genHull :: forall a m. (HasRange a, MonadGen m) => Float -> m a -> m (Hull a)
+genHull e g = do
   u :: Float <- uniform
-  if | u < e -> pure EmptyInterval
-     | u < s -> do
-         a <- g
-         pure (SingletonInterval a)
+  if | u < e -> pure mempty
      | True -> do
          a <- g
          b <- g
-         pure (a ... b)
+         pure (Hull a b)
+
+-}
 
 -- | a space random variate
 genPair :: (Monad m) => m a -> m (Pair a)

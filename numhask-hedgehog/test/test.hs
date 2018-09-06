@@ -46,11 +46,10 @@ tests n = do
   bLatticeComplex <- assertProps "Complex Lattice" n
     (genComplex (negUniform :: H.Gen Float)) latticeProps
   bSpaceFloat <- assertProps "Space Float" n
-    (genInterval (0.1,0.2) (negUniform :: H.Gen Float)) spaceProps
-
+    (genRange (negUniform :: H.Gen Float)) spaceProps
   -- Interval fails isUnital zero (+) if EmptyInterval is included.
   bIntervalAlgebraInt <- assertProps "Interval Algebra Int" n
-    (genInterval (0.0,0.2) (integral (Range.constantFrom zero -1000 1000) :: H.Gen Integer))
+    (genInterval (integral (Range.constantFrom zero -10 10) :: H.Gen Integer))
     intervalAlgebraProps
 
   return $ bInt && bInt8 && bWord8 && bInteger && bNatural && bBool &&

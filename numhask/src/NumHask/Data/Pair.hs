@@ -15,14 +15,12 @@ module NumHask.Data.Pair
   ) where
 
 import qualified Prelude as P
-import Prelude (Foldable, Traversable, Applicative, Monad, Functor(..), Semigroup(..), Monoid(..), Bounded(..), Eq(..), Ord(..), (<$>), (<*>), (&&), (||))
+import Prelude (Foldable, Traversable, Applicative, Monad, Functor(..), Semigroup(..), Monoid(..), Bounded(..), Eq(..), (<$>), (<*>), (&&), (||))
 import GHC.Generics (Generic)
 import Data.Functor.Classes
 import NumHask.Algebra.Abstract
 import NumHask.Data.Integral
 import NumHask.Analysis.Metric
-import NumHask.Algebra.Abstract.Action
-import NumHask.Algebra.Abstract.Lattice
 import NumHask.Data.Rational
 import Text.Show
 
@@ -131,7 +129,7 @@ instance (Multiplicative a) => Multiplicative (Pair a) where
 instance (Divisive a) => Divisive (Pair a) where
   recip (Pair a b) = Pair (recip a) (recip b)
 
-instance (FromInteger a, Ord a, Integral a) => Integral (Pair a) where
+instance (Integral a) => Integral (Pair a) where
   (Pair a0 b0) `divMod` (Pair a1 b1) = (Pair da db, Pair ma mb)
     where
       (da, ma) = a0 `divMod` a1
@@ -165,15 +163,15 @@ instance (Distributive a) => Distributive (Pair a)
 instance (Field a) => Field (Pair a)
 instance (IntegralDomain a) => IntegralDomain (Pair a)
 
-instance (FromInteger a, Ord a, ExpField a) => ExpField (Pair a) where
+instance (ExpField a) => ExpField (Pair a) where
   exp (Pair a b) = Pair (exp a) (exp b)
   log (Pair a b) = Pair (log a) (log b)
 
-instance (UpperBoundedField a, FromInteger a, Ord a) => UpperBoundedField (Pair a)
+instance (UpperBoundedField a) => UpperBoundedField (Pair a)
   where
     isNaN (Pair a b) = isNaN a || isNaN b
 
-instance (LowerBoundedField a, FromInteger a, Ord a) => LowerBoundedField (Pair a)
+instance (LowerBoundedField a) => LowerBoundedField (Pair a)
 
 instance (Additive a) => AdditiveAction Pair a where
     (.+) r s = fmap (s+) r

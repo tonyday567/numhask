@@ -1,6 +1,8 @@
 {-# LANGUAGE ConstrainedClassMethods #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module NumHask.Analysis.Space
   ( Space(..)
@@ -18,10 +20,9 @@ where
 import Data.Bool
 import NumHask.Algebra.Abstract
 import NumHask.Analysis.Metric
-import Prelude (Foldable, Eq(..), Bool(..), Show)
-import qualified Prelude as P
+import Prelude (Functor(..), Eq(..), Bool(..), Show, foldr1, Traversable(..), (.))
 
--- | a space
+-- | a non-empty space
 -- mathematics does not define a space, so library devs are free to experiment.
 -- a space here is a continuous set of numbers
 --
@@ -33,8 +34,8 @@ class (Eq (Element s), Lattice (Element s), Subtractive (Element s)) => Space s 
   type Element s :: *
 
   -- | the containing space of a Foldable
-  space :: (Foldable f) => f (Element s) -> s
-  space = P.foldr (\a x -> x `union` singleton a) nul
+  space :: (Traversable f) => f (Element s) -> s
+  space = foldr1 union . fmap singleton
 
   -- | create a space between two elements
   infix 3 ...
@@ -49,11 +50,7 @@ class (Eq (Element s), Lattice (Element s), Subtractive (Element s)) => Space s 
   -- | is an element in the space
   infixl 7 |.|
   (|.|) :: Element s -> s -> Bool
-  (|.|) a s = case isNul s of
-    True -> False
-    False ->
-      (a `joinLeq` lower s) &&
-      (upper s `meetLeq` a)
+  (|.|) a s = (a `joinLeq` lower s) && (upper s `meetLeq` a)
 
   -- | lower boundary
   lower :: s -> Element s
@@ -74,12 +71,9 @@ class (Eq (Element s), Lattice (Element s), Subtractive (Element s)) => Space s 
 
   -- | is a space contained within another?
   contains :: s -> s -> Bool
-  contains s0 s1
-    | isNul s1 = True
-    | isNul s0 = False
-    | otherwise =
-        lower s1 |.| s0 &&
-        upper s1 |.| s0
+  contains s0 s1 =
+    lower s1 |.| s0 &&
+    upper s1 |.| s0
 
   -- | are two spaces disjoint?
   disjoint :: s -> s -> Bool
@@ -102,12 +96,6 @@ class (Eq (Element s), Lattice (Element s), Subtractive (Element s)) => Space s 
 
   -- | the union of two spaces
   union :: s -> s -> s
-
-  -- | an empty space
-  nul :: s
-
-  -- | is this a null space
-  isNul :: s -> Bool
 
 -- | a space that can be divided neatly
 --
@@ -164,8 +152,5 @@ widenEps ::
     , Epsilon (Element s)
     , Multiplicative (Element s))
     => Element s -> s -> s
-widenEps accuracy x =
-  case isNul x of
-    True -> nul
-    False -> widen (accuracy * epsilon) x
+widenEps accuracy = widen (accuracy * epsilon)
 

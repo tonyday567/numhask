@@ -56,10 +56,12 @@
 - ignore: {name: Eta reduce, within: NumHask.Algebra.Metric}
 - ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop}
 - ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop}
+- ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop.Interval}
+- ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop.Interval}
+- ignore: {name: Eta reduce, within: NumHask.Data.Pair}
 
 # Define some custom infix operators
 # - fixity: infixr 3 ~^#^~
-
 
 # To generate a suitable file for HLint do:
 # $ hlint --default > .hlint.yaml

@@ -1,13 +1,16 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -17,13 +20,18 @@ module NumHask.Data.Range
   ( Range(..)
   , pattern Range
   , HasRange
+  , Interval
+  , pattern Interval
+  , Hull
+  , pattern Hull
   , gridSensible
  ) where
 
 -- import NumHask.Prelude as P hiding (width, lower, upper, Space(..), mid, Pos(..), grid)
 import Data.Functor.Rep
-import Data.Distributive
-import Data.Bool (bool)
+import Data.Distributive as D
+import Data.Bool (bool, not)
+import Data.Maybe (Maybe(..))
 import Data.Functor.Apply (Apply(..))
 import Data.Functor.Classes
 import Data.Semigroup.Foldable (Foldable1(..))
@@ -86,12 +94,16 @@ import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Func
 -- [Range 0.0 0.25,Range 0.25 0.5,Range 0.5 0.75,Range 0.75 1.0]
 -- >>> gridSensible NumHask.Space.OuterPos (Range (-12.0) 23.0) 6
 -- [-10.0,-5.0,0.0,5.0,10.0,15.0,20.0]
+
 newtype Range a = Range' (a,a)
   deriving (Eq, Generic)
 
+-- not sure if this is correct or needed
+type role Range representational
+
 -- | A tuple is the preferred concrete implementation of a Range, due to many libraries having substantial optimizations for tuples already (eg 'Vector').  'Pattern Synonyms' allow us to recover a constructor without the need for tuple syntax.
 pattern Range :: a -> a -> Range a
-pattern Range a b = Range' (a, b)
+pattern Range a b = Range' (a,b)
 {-# COMPLETE Range#-}
 
 instance (Show a) => Show (Range a) where
@@ -124,7 +136,7 @@ instance Traversable Range where
 instance Traversable1 Range where
     traverse1 f (Range a b) = Range <$> f a Data.Functor.Apply.<.> f b
 
-instance Data.Distributive.Distributive Range where
+instance D.Distributive Range where
   collect f x = Range (getL . f <$> x) (getR . f <$> x)
     where getL (Range l _) = l
           getR (Range _ r) = r
@@ -135,13 +147,13 @@ instance Representable Range where
   index (Range l _) False = l
   index (Range _ r) True = r
 
-type HasRange a = (Eq a, Lattice a, UpperBoundedField a, LowerBoundedField a, Subtractive a, FromInteger a)
+type HasRange a = (Eq a, JoinSemiLattice a, MeetSemiLattice a, Subtractive a)
 
-instance (Eq a, Lattice a) => Semigroup (Range a) where
-  (<>) (Range l u) (Range l' u') = Range (l \/ l') (u /\ u')
+instance (JoinSemiLattice a) => JoinSemiLattice (Range a) where
+  (\/) = liftR2 (\/)
 
-instance (HasRange a) => Monoid (Range a) where
-  mempty = Range infinity negInfinity
+instance (MeetSemiLattice a) => MeetSemiLattice (Range a) where
+  (/\) = liftR2 (/\)
 
 instance (HasRange a) => Space (Range a) where
   type Element (Range a) = a
@@ -150,19 +162,14 @@ instance (HasRange a) => Space (Range a) where
   upper (Range _ u) = u
 
   singleton = pure
-  nul = mempty
-  isNul = (mempty ==)
 
-  union = (<>)
+  union (Range l u) (Range l' u') = Range (l \/ l') (u /\ u')
 
-  intersection a b =
-    case disjoint a b of
-      True -> nul
-      False -> Range l u where
-        l = lower a /\ lower b
-        u = upper a \/ upper b
+  intersection a b = Range l u where
+      l = lower a /\ lower b
+      u = upper a \/ upper b
 
-instance (HasRange a, Field a) => FieldSpace (Range a) where
+instance (HasRange a, Field a, FromInteger a) => FieldSpace (Range a) where
     type Grid (Range a) = Int
 
     grid o s n = (+ bool zero (step/(one+one)) (o==MidPos)) <$> posns
@@ -179,57 +186,59 @@ instance (HasRange a, Field a) => FieldSpace (Range a) where
       where
         ps = grid OuterPos r n
 
-instance (Additive a) => Additive (Range a) where
-    (+) = liftR2 (+)
-    zero = pure zero
 
-instance (Subtractive a) => Subtractive (Range a) where
-    negate = fmap negate
+-- | Interval is a wrapper for interval maths
+-- https://en.wikipedia.org/wiki/Interval_arithmetic
+--
+newtype Interval a = Interval' (Range a)
+  deriving
+    ( Eq
+    , Show
+    , Functor
+    , Space
+    , JoinSemiLattice
+    , MeetSemiLattice
+    )
 
--- | times may well be some sort of affine projection lurking under the hood
--- > width one = one
--- > mid zero = zero
-instance (HasRange a, Field a) => Multiplicative (Range a) where
-    a * b = bool (Range (m - r/two) (m + r/two)) zero (a == zero || b == zero)
-        where
-          m = mid a + mid b
-          r = width a * width b
+pattern Interval :: a -> a -> Interval a
+pattern Interval a b <- Interval' (Range' (a,b))
+{-# COMPLETE Interval #-}
 
-    one = Range (negate half) half
+instance (Additive a, HasRange a) => Additive (Interval a) where
+  (Interval l u) + (Interval l' u') = space [l+l',u+u']
+  zero = zero ... zero
 
-instance (HasRange a, Divisive a) => Divisive (Range a)
+instance (HasRange a) => Subtractive (Interval a) where
+  negate (Interval l u) = negate u ... negate l
+
+instance (HasRange a, Multiplicative a) => Multiplicative (Interval a) where
+  (Interval l u) * (Interval l' u') =
+    space [l * l', l * u', u * l', u * u']
+  one = one ... one
+
+instance (HasRange a, Epsilon a, UpperBoundedField a, LowerBoundedField a, Divisive a) =>
+  Divisive (Interval a)
   where
-    recip a = case width a == zero of
-      True  -> throw (NumHaskException "reciprocating a zero-width range")
-      False -> Range (m - r/two) (m + r/two)
-        where
-          m = negate (mid a)
-          r = recip (width a)
+  recip i@(Interval l u)
+    | zero |.| i && not (epsilon |.| i) = negInfinity ... recip l
+    | zero |.| i && not (negate epsilon |.| i) = infinity ... recip l
+    | zero |.| i = whole
+    | otherwise = recip l ... recip u
 
-instance (HasRange a, Field a) => Signed (Range a) where
-    sign (Range l u) = bool (Range half (negate half)) one (u `joinLeq` l)
-    abs (Range l u) = bool (Range u l) (Range l u) (u `joinLeq` l)
-
-instance (JoinSemiLattice a) => JoinSemiLattice (Range a) where
-  (\/) = liftR2 (\/)
-
-instance (MeetSemiLattice a) => MeetSemiLattice (Range a) where
-  (/\) = liftR2 (/\)
-
-instance (HasRange a, Epsilon a) => Epsilon (Range a) where
+instance (HasRange a, Epsilon a) => Epsilon (Interval a) where
   epsilon = zero +/- epsilon
-  nearZero (Range l u) = nearZero l && nearZero u
+  nearZero (Interval l u) = nearZero l && nearZero u
 
-instance (Additive a) => AdditiveAction Range a where
+instance (Additive a) => AdditiveAction Interval a where
     (.+) r s = fmap (s+) r
     (+.) s = fmap (s+)
-instance (Subtractive a) => SubtractiveAction Range a where
+instance (Subtractive a) => SubtractiveAction Interval a where
     (.-) r s = fmap (\x -> x - s) r
     (-.) s = fmap (\x -> x - s)
-instance (Multiplicative a) => MultiplicativeAction Range a where
+instance (Multiplicative a) => MultiplicativeAction Interval a where
     (.*) r s = fmap (s*) r
     (*.) s = fmap (s*)
-instance (Divisive a) => DivisiveAction Range a where
+instance (Divisive a) => DivisiveAction Interval a where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
 
@@ -246,8 +255,8 @@ stepSensible tp span n =
       | otherwise = step'
 
 gridSensible :: (Ord a, FromInteger a, FromRatio a, QuotientField a Integer, ExpField a) =>
-    Pos -> Range a -> Integer -> [a]
-gridSensible tp (Range l u) n =
+    Pos -> Interval a -> Integer -> [a]
+gridSensible tp (Interval l u) n =
     (+ bool zero (step/two) (tp==MidPos)) <$> posns
   where
     posns = (first' +) . (step *) . fromIntegral <$> [i0..i1]
@@ -262,3 +271,72 @@ gridSensible tp (Range l u) n =
                 LowerPos -> (0,n' - 1)
                 UpperPos -> (1,n')
                 MidPos -> (0,n' - 1)
+
+-- | Hull is a wrapper for convex hull maths
+newtype Hull a = Hull' (Range a)
+  deriving
+    ( Eq
+    , Eq1
+    , Show
+    , Functor
+    , Foldable
+    , Traversable
+    , Space
+    , FieldSpace
+    , JoinSemiLattice
+    , MeetSemiLattice
+    , Applicative
+    )
+
+instance D.Distributive Hull where
+  collect f x = Hull (getL . f <$> x) (getR . f <$> x)
+    where getL (Hull l _) = l
+          getR (Hull _ r) = r
+
+instance Representable Hull where
+  type Rep Hull = Bool
+  tabulate f = Hull (f False) (f True)
+  index (Hull l _) False = l
+  index (Hull _ r) True = r
+
+-- not sure if this is correct or needed
+type role Hull representational
+
+pattern Hull :: a -> a -> Hull a
+pattern Hull a b = Hull' (Range' (a, b))
+{-# COMPLETE Hull #-}
+
+instance (Additive a) => Additive (Hull a) where
+    (+) = liftR2 (+)
+    zero = pure zero
+
+instance (Subtractive a) => Subtractive (Hull a) where
+    negate = fmap negate
+
+-- | times may well be some sort of affine projection lurking under the hood
+-- > width one = one
+-- > mid zero = zero
+instance (HasRange a, FromInteger a, Field a) => Multiplicative (Hull a) where
+    a * b = bool (Hull (m - r/two) (m + r/two)) zero (a == zero || b == zero)
+        where
+          m = mid a + mid b
+          r = width a * width b
+
+    one = Hull (negate half) half
+
+instance (HasRange a, Field a, FromInteger a, Divisive a) => Divisive (Hull a)
+  where
+    recip a = case width a == zero of
+      True  -> throw (NumHaskException "reciprocating a zero-width range")
+      False -> Hull (m - r/two) (m + r/two)
+        where
+          m = negate (mid a)
+          r = recip (width a)
+
+instance (HasRange a, Field a, FromInteger a) => Signed (Hull a) where
+    sign (Hull l u) = bool (Hull half (negate half)) one (u `joinLeq` l)
+    abs (Hull l u) = bool (Hull u l) (Hull l u) (u `joinLeq` l)
+
+instance (HasRange a, Epsilon a) => Epsilon (Hull a) where
+  epsilon = zero +/- epsilon
+  nearZero (Hull l u) = nearZero l && nearZero u
