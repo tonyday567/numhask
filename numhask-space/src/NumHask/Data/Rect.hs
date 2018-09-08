@@ -170,26 +170,26 @@ instance (HasRange a, Field a, FromInteger a) => FieldSpace (Rect a) where
         sx = width rX / fromIntegral stepX
         sy = width rY / fromIntegral stepY
 
-instance (Additive a) =>
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Additive a) =>
          Additive (Rect a) where
   (Ranges x0 y0) + (Ranges x1 y1) = Ranges (x0 + x1) (y0 + y1)
   zero = Ranges zero zero
 
-instance (Subtractive a) =>
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Subtractive a) =>
          Subtractive (Rect a) where
   negate (Ranges x y) = Ranges (negate x) (negate y)
 
-instance (HasRange a, Field a, FromInteger a) =>
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, FromInteger a) =>
          Multiplicative (Rect a) where
   (Ranges x0 y0) * (Ranges x1 y1) =
     Ranges (x0 * x1) (y0 * y1)
   one = Ranges one one
 
-instance (HasRange a, Field a, Divisive a, FromInteger a) =>
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, Divisive a, FromInteger a) =>
          Divisive (Rect a) where
   recip (Ranges x y) = Ranges (recip x) (recip y)
 
-instance (HasRange a, Field a, FromInteger a) =>
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, FromInteger a) =>
          Signed (Rect a) where
   sign (Ranges l u) = Ranges (sign l) (sign u)
   abs (Ranges l u) = Ranges (sign l * l) (sign u * u)
@@ -200,7 +200,7 @@ instance (JoinSemiLattice a) => JoinSemiLattice (Rect a) where
 instance (MeetSemiLattice a) => MeetSemiLattice (Rect a) where
   (/\) = liftR2 (/\)
 
-instance (HasRange a, Epsilon a) => Epsilon (Rect a) where
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Epsilon a) => Epsilon (Rect a) where
     epsilon = Ranges epsilon epsilon
     nearZero (Ranges a b) = nearZero a && nearZero b
 

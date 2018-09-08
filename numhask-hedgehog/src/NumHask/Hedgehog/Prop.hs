@@ -359,3 +359,16 @@ isSubtractiveI src = property $ do
         (negate a == zero - a) &&
         (zero |.| (negate a + a))
   assert (p rv) 
+
+
+-- 'one |.| a / a' not 'one = a / a'
+isDivisiveI :: forall a. (UpperBoundedField a, LowerBoundedField a, Epsilon a, HasRange a, Show a) =>
+  Gen (Interval a) -> Property
+isDivisiveI src = property $ do
+  rv <- forAll src
+  let p = \a ->
+        (one |.| (a / a)) &&
+        (recip a == one / a) &&
+        (one |.| (recip a * a))
+  assert (p rv)
+

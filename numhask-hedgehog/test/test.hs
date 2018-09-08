@@ -47,14 +47,22 @@ tests n = do
     (genComplex (negUniform :: H.Gen Float)) latticeProps
   bSpaceFloat <- assertProps "Space Float" n
     (genRange (negUniform :: H.Gen Float)) spaceProps
-  -- Interval fails isUnital zero (+) if EmptyInterval is included.
-  bIntervalAlgebraInt <- assertProps "Interval Algebra Int" n
+  bIntervalIntegralAlgebra <- assertProps "Interval Algebra Int" n
     (genInterval (integral (Range.constantFrom zero -10 10) :: H.Gen Integer))
-    intervalAlgebraProps
+    intervalIntegralAlgebraProps
+  bIntervalFloatAlgebra <- assertProps "Interval Algebra Float" n
+    (genInterval (negUniform :: H.Gen Float))
+    intervalFloatAlgebraProps
+  bHullFloatAlgebra <- assertProps "Hull Algebra Float" n
+    (genHull (negUniform :: H.Gen Float))
+    hullFloatAlgebraProps
+  bFieldSpaceFloat <- assertProps "FieldSpace Float" n
+    (genHull (negUniform :: H.Gen Float)) fieldSpaceProps
 
   return $ bInt && bInt8 && bWord8 && bInteger && bNatural && bBool &&
     bRational && bFloat && bComplexFloat && bLatticeFloat && bLatticeComplex && bSpaceFloat
-    && bPairFloat && bQuotientFloat && bIntervalAlgebraInt
+    && bPairFloat && bQuotientFloat && bIntervalIntegralAlgebra && bIntervalFloatAlgebra &&
+    bHullFloatAlgebra && bFieldSpaceFloat
 
 main :: IO ()
 main = do

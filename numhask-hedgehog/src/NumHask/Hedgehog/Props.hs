@@ -198,14 +198,11 @@ quotientFieldProps g = mconcat $
 
 complexFieldProps
   :: forall a.
-  ( Show a
-  , Ord a
-  , Lattice (Complex a)
+  ( I.CanMeasure (Complex a)
   , Epsilon a
   , LowerBoundedField a
   , UpperBoundedField a
   , FromRatio a
-  , Signed a
   )
   => Complex a
   -> Gen (Complex a)
@@ -223,11 +220,9 @@ complexFieldProps acc g = mconcat $
 -- | field laws
 logFieldProps
   :: forall a.
-  ( Show a
-  , Epsilon a
+  ( I.CanMeasure a
   , LowerBoundedField a
   , UpperBoundedField a
-  , HasRange a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -243,10 +238,7 @@ logFieldProps g = mconcat $
 -- | field laws
 latticeProps
   :: forall a.
-  ( Show a
-  , Epsilon a
-  , Multiplicative a
-  , HasRange a
+  ( I.CanMeasure a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -267,60 +259,105 @@ spaceProps
   :: forall s.
   ( Show s
   , Space s
+  , Eq s
   , Epsilon (Element s)
   , LowerBoundedField (Element s)
-  -- , UpperBoundedField (Element s)
+  , UpperBoundedField (Element s)
   )
   => Gen s
   -> [(PropertyName, Property)]
 spaceProps g = mconcat $
   (\x -> x g) <$>
-  [ \x -> [("commutative union", I.isCommutativeSpace union one x)]
-  -- , \x -> [("commutative intersection", I.isCommutativeSpace intersection one x)]
-  , \x -> [("associative union", I.isAssociativeSpace union one x)]
-  -- , \x -> [("associative intersection", I.isAssociativeSpace intersection one x)]
-  -- , \x -> [("unital union", I.isUnitalSpace nul union one x)]
-  -- , \x -> [("unital intersection", I.isUnitalSpace whole intersection one x)]
-  -- , \x -> [("distributive", I.isDistributiveUI one x)]
+  [ \x -> [("commutative union", isCommutative union x)]
+  , \x -> [("commutative intersection", isCommutative intersection x)]
+  , \x -> [("associative union", isAssociative union x)]
+  , \x -> [("associative intersection", isAssociative intersection x)]
+  , \x -> [("unital union", isUnital (infinity >.< negInfinity) union x)]
+  , \x -> [("unital intersection", isUnital whole intersection x)]
+  , \x -> [("distributive", isDistributive (infinity >.< negInfinity) union intersection x)]
+  , \x -> [("distributive", isDistributive whole intersection union x)]
   , \x -> [("containment", I.isContainedUnion one x)]
+  , \x -> [("positive space", I.isLatticeSpace x)]
+  ]
+
+-- | space laws
+fieldSpaceProps
+  :: forall s.
+  ( Show s
+  , FieldSpace s
+  , Epsilon (Element s)
+  )
+  => Gen s
+  -> [(PropertyName, Property)]
+fieldSpaceProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("projective upper preserved", I.isProjectiveUpper x)]
+  , \x -> [("projective lower preserved", I.isProjectiveLower two x)]
   ]
 
 -- * Interval algebra
-intervalAlgebraProps
+intervalIntegralAlgebraProps
   :: forall a.
   ( Eq a
   , Show a
-  -- , Additive a
-  -- , Distributive a
   , Subtractive a
   , Multiplicative a
-  -- , UpperBoundedField a
-  -- , LowerBoundedField a
-  -- , Integral a
-  -- , Signed a
-  -- , Bounded a
-  -- , Normed a a
-  -- , Metric a a
+  -- , Divisive a
   , JoinSemiLattice a
   , MeetSemiLattice a
   )
   => Gen (Interval a)
   -> [(PropertyName, Property)]
-intervalAlgebraProps g = mconcat $
+intervalIntegralAlgebraProps g = mconcat $
   (\x -> x g) <$>
   [ isAdditive
   , \x -> [("subtractive interval laws with zero |.| a - a", isSubtractiveI x)]
   , isMultiplicative
   -- , isDivisive
-  -- , \x -> [("left distributive only", isLeftDistributive zero (+) (*) x)]
-  -- , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
-  -- , \x -> [("upper bounded field", isUpperBoundedField x)]
-  -- , \x -> [("lower bounded field", isLowerBoundedField x)]
-  -- , \x -> [("exponential field", isExpField x)]
-  -- , \x -> [("trigonometric field", isTrigField x)]
-  -- , \x -> [("integral", isIntegral x)]
-  -- , \x -> [("signed", isSigned x)]
-  -- , \x -> [("normed", isNormedBounded x)]
-  -- , \x -> [("metric", isMetricBounded x)]
   ]
 
+-- | Intervals are not distributive
+intervalFloatAlgebraProps
+  :: forall a.
+  ( Show a
+  , Subtractive a
+  , Divisive a
+  , JoinSemiLattice a
+  , UpperBoundedField a
+  , LowerBoundedField a
+  , Epsilon a
+  )
+  => Gen (Interval a)
+  -> [(PropertyName, Property)]
+intervalFloatAlgebraProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("commutative (+))", I.isCommutativeSpace (+) one x)]
+  , \x -> [("associative (+))", I.isAssociativeSpace (+) one x)]
+  , \x -> [("unital (+))", I.isUnitalSpace zero (+) one x)]
+  , \x -> [("subtractive interval laws with zero |.| a - a", isSubtractiveI x)]
+  , \x -> [("commutative (*))", I.isCommutativeSpace (*) one x)]
+  , \x -> [("associative (*))", I.isAssociativeSpace (*) one x)]
+  , \x -> [("unital (*))", I.isUnitalSpace one (*) one x)]
+  , \x -> [("divisive interval laws with one |.| a / a", isDivisiveI x)]
+  ]
+
+hullFloatAlgebraProps
+  :: forall a.
+  ( Show a
+  , Subtractive a
+  , Divisive a
+  , JoinSemiLattice a
+  , UpperBoundedField a
+  , LowerBoundedField a
+  , Epsilon a
+  )
+  => Gen (Hull a)
+  -> [(PropertyName, Property)]
+hullFloatAlgebraProps g = mconcat $
+  (\x -> x g) <$>
+  [ isAdditive
+  , \x -> [("commutative (*))", I.isCommutativeSpace (*) one x)]
+  , \x -> [("associative (*))", I.isAssociativeSpace (*) two x)]
+  , \x -> [("unital (*))", I.isUnitalSpace one (*) one x)]
+  ]
+ 

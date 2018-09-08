@@ -10,7 +10,6 @@ module NumHask.Hedgehog.Prop.Interval where
 import NumHask.Prelude hiding ((%), (.*.))
 import Hedgehog as H
 
-
 type CanMeasure a = (HasRange a, Multiplicative a, Show a, Epsilon a)
 
 -- * individual tests
@@ -239,28 +238,39 @@ isUnitalSpace u (#) acc src = property $ do
         (widenEps acc a # widenEps acc u) `contains` a
   assert (p rv)
 
-{-
-isDistributiveUI :: forall s. (Space s, Show s, Epsilon (Element s), Multiplicative (Element s)) =>
-  Element s -> Gen s -> Property
-isDistributiveUI acc src = property $ do
-  rv <- forAll src
-  rv' <- forAll src
-  rv'' <- forAll src
-  let p = \a b c ->
-        (widenEps acc a `intersection` (widenEps acc b `union` widenEps acc c)) `contains`
-        ((a `intersection` b) `union` (a `intersection` c)) &&
-        ((widenEps acc a `union` widenEps acc b) `intersection` widenEps acc c) `contains`
-        ((a `intersection` c) `union` (b `intersection` c))
-  assert (p rv rv' rv'')
-
--}
-
 isContainedUnion :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) =>
   Element s -> Gen s -> Property
 isContainedUnion acc src = property $ do
-  rv <- forAll src
-  rv' <- forAll src
+  rv <- norm <$> forAll src
+  rv' <- norm <$> forAll src
   let p = \a b ->
         (widenEps acc a `union` widenEps acc b) `contains` a &&
         (widenEps acc a `union` widenEps acc b) `contains` b
+  assert (p rv rv')
+
+isLatticeSpace :: forall s. (Show s, Space s) =>
+  Gen s -> Property
+isLatticeSpace src = property $ do
+  rv <- norm <$> forAll src
+  let p = \a ->
+        lower a \/ upper a == lower a &&
+        lower a /\ upper a == upper a
+  assert (p rv)
+
+isProjectiveLower :: forall s. (FieldSpace s, Epsilon (Element s), Show s) =>
+  Element s -> Gen s -> Property
+isProjectiveLower acc src = property $ do
+  rv <- forAll src
+  rv' <- forAll src
+  let p = \a b ->
+        lower b |.| (eps acc (project a b (lower a)) :: Hull (Element s))
+  assert (p rv rv')
+
+isProjectiveUpper :: forall s. (FieldSpace s, Epsilon (Element s), Show s) =>
+  Gen s -> Property
+isProjectiveUpper src = property $ do
+  rv <- forAll src
+  rv' <- forAll src
+  let p = \a b ->
+        upper b |.| ((project a b (upper a) +/- epsilon) :: Hull (Element s))
   assert (p rv rv')

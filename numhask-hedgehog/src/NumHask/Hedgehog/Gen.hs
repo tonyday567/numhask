@@ -30,22 +30,22 @@ import qualified Hedgehog.Range as Range
 
 -- | a rational-style random variate
 rational :: (ToRatio a, FromRatio a, MonadGen m) => Range.Range a -> m a
-rational range =
+rational r =
   Gen.generate $ \size seed ->
     let
       (x, y) =
-        Range.bounds size range
+        Range.bounds size r
     in
       fromRational . fst $
         Seed.nextDouble (fromRational x) (fromRational y) seed
 
 -- | an integral-stype random variate
 integral :: (ToInteger a, FromInteger a, MonadGen m) => Range.Range a -> m a
-integral range =
+integral r =
   Gen.generate $ \size seed ->
     let
       (x, y) =
-        Range.bounds size range
+        Range.bounds size r
     in
       fromIntegral . fst $
         Seed.nextInteger (fromIntegral x) (fromIntegral y) seed
@@ -97,26 +97,25 @@ genComplex g = do
   pure (r :+ i)
 
 -- | Interval
+genRange :: forall a m. (HasRange a, MonadGen m) => m a -> m (P.Range a)
+genRange g = do
+  a <- g
+  b <- g
+  pure (a >.< b)
+
+-- | Interval
 genInterval :: forall a m. (HasRange a, MonadGen m) => m a -> m (Interval a)
 genInterval g = do
   a <- g
   b <- g
   pure (a ... b)
 
--- | Interval
-genRange :: forall a m. (MonadGen m) => m a -> m (P.Range a)
-genRange g = do
-  a <- g
-  b <- g
-  pure (Range a b)
-
-
 -- | Hull
-genHull :: forall a m. (MonadGen m) => m a -> m (Hull a)
+genHull :: forall a m. (HasRange a, MonadGen m) => m a -> m (Hull a)
 genHull g = do
   a <- g
   b <- g
-  pure (Hull a b)
+  pure (a ... b)
 
 {-
 -- | Interval

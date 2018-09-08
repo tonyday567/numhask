@@ -20,6 +20,7 @@ module NumHask.Data.Range
   ( Range(..)
   , pattern Range
   , HasRange
+  , range
   , Interval
   , pattern Interval
   , Hull
@@ -31,7 +32,6 @@ module NumHask.Data.Range
 import Data.Functor.Rep
 import Data.Distributive as D
 import Data.Bool (bool, not)
-import Data.Maybe (Maybe(..))
 import Data.Functor.Apply (Apply(..))
 import Data.Functor.Classes
 import Data.Semigroup.Foldable (Foldable1(..))
@@ -155,6 +155,9 @@ instance (JoinSemiLattice a) => JoinSemiLattice (Range a) where
 instance (MeetSemiLattice a) => MeetSemiLattice (Range a) where
   (/\) = liftR2 (/\)
 
+range :: (JoinSemiLattice a, MeetSemiLattice a) => a -> a -> Range a
+range a b = Range (a\/b) (a/\b)
+
 instance (HasRange a) => Space (Range a) where
   type Element (Range a) = a
 
@@ -168,6 +171,8 @@ instance (HasRange a) => Space (Range a) where
   intersection a b = Range l u where
       l = lower a /\ lower b
       u = upper a \/ upper b
+
+  (>.<) = Range
 
 instance (HasRange a, Field a, FromInteger a) => FieldSpace (Range a) where
     type Grid (Range a) = Int
@@ -195,7 +200,7 @@ newtype Interval a = Interval' (Range a)
     ( Eq
     , Show
     , Functor
-    , Space
+    -- , Space
     , JoinSemiLattice
     , MeetSemiLattice
     )
@@ -204,8 +209,24 @@ pattern Interval :: a -> a -> Interval a
 pattern Interval a b <- Interval' (Range' (a,b))
 {-# COMPLETE Interval #-}
 
+instance (HasRange a) => Space (Interval a) where
+  type Element (Interval a) = a
+
+  lower (Interval l _) = l
+  upper (Interval _ u) = u
+
+  singleton a = Interval' (Range a a)
+
+  union (Interval l u) (Interval l' u') = Interval' (Range (l \/ l') (u /\ u')) 
+
+  intersection a b = Interval' (Range l u) where
+      l = lower a /\ lower b
+      u = upper a \/ upper b
+
+  (>.<) a b = Interval' (Range a b)
+
 instance (Additive a, HasRange a) => Additive (Interval a) where
-  (Interval l u) + (Interval l' u') = space [l+l',u+u']
+  (Interval l u) + (Interval l' u') = space1 [l+l',u+u']
   zero = zero ... zero
 
 instance (HasRange a) => Subtractive (Interval a) where
@@ -213,7 +234,7 @@ instance (HasRange a) => Subtractive (Interval a) where
 
 instance (HasRange a, Multiplicative a) => Multiplicative (Interval a) where
   (Interval l u) * (Interval l' u') =
-    space [l * l', l * u', u * l', u * u']
+    space1 [l * l', l * u', u * l', u * u']
   one = one ... one
 
 instance (HasRange a, Epsilon a, UpperBoundedField a, LowerBoundedField a, Divisive a) =>
@@ -225,9 +246,12 @@ instance (HasRange a, Epsilon a, UpperBoundedField a, LowerBoundedField a, Divis
     | zero |.| i = whole
     | otherwise = recip l ... recip u
 
-instance (HasRange a, Epsilon a) => Epsilon (Interval a) where
-  epsilon = zero +/- epsilon
-  nearZero (Interval l u) = nearZero l && nearZero u
+instance (LowerBoundedField a, HasRange a) => Signed (Interval a) where
+    sign (Interval l u) = bool (negate one) one (u `joinLeq` l)
+    abs (Interval l u) = bool (u ... l) (l ... u) (u `joinLeq` l)
+
+instance (HasRange a, FromInteger a) => FromInteger (Interval a) where
+    fromInteger x = fromInteger x ... fromInteger x
 
 instance (Additive a) => AdditiveAction Interval a where
     (.+) r s = fmap (s+) r
@@ -281,12 +305,45 @@ newtype Hull a = Hull' (Range a)
     , Functor
     , Foldable
     , Traversable
-    , Space
-    , FieldSpace
+    -- , Space
+    -- , FieldSpace
     , JoinSemiLattice
     , MeetSemiLattice
     , Applicative
     )
+
+instance (HasRange a) => Space (Hull a) where
+  type Element (Hull a) = a
+
+  lower (Hull l _) = l
+  upper (Hull _ u) = u
+
+  singleton a = Hull' (Range a a)
+
+  union (Hull l u) (Hull l' u') = Hull' (Range (l \/ l') (u /\ u')) 
+
+  intersection a b = Hull' (Range l u) where
+      l = lower a /\ lower b
+      u = upper a \/ upper b
+
+  (>.<) a b = Hull' (Range a b)
+
+instance (HasRange a, Field a, FromInteger a) => FieldSpace (Hull a) where
+    type Grid (Hull a) = Int
+
+    grid o s n = (+ bool zero (step/(one+one)) (o==MidPos)) <$> posns
+      where
+        posns = (lower s +) . (step *) . fromIntegral <$> [i0..i1]
+        step = (/) (width s) (fromIntegral n)
+        (i0,i1) = case o of
+                    OuterPos -> (zero,n)
+                    InnerPos -> (one,n - one)
+                    LowerPos -> (zero,n - one)
+                    UpperPos -> (one,n)
+                    MidPos -> (zero,n - one)
+    gridSpace r n = zipWith Hull ps (drop 1 ps)
+      where
+        ps = grid OuterPos r n
 
 instance D.Distributive Hull where
   collect f x = Hull (getL . f <$> x) (getR . f <$> x)
@@ -306,17 +363,20 @@ pattern Hull :: a -> a -> Hull a
 pattern Hull a b = Hull' (Range' (a, b))
 {-# COMPLETE Hull #-}
 
-instance (Additive a) => Additive (Hull a) where
-    (+) = liftR2 (+)
-    zero = pure zero
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a) => Additive (Hull a) where
+    (+) = union
+    zero = Hull infinity negInfinity
 
-instance (Subtractive a) => Subtractive (Hull a) where
-    negate = fmap negate
+-- | doesn't pass the group laws but convenient non-the-less
+-- > negate (negate a) == a
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a) => Subtractive (Hull a) where
+    negate (Hull a b) = Hull b a
 
 -- | times may well be some sort of affine projection lurking under the hood
 -- > width one = one
 -- > mid zero = zero
-instance (HasRange a, FromInteger a, Field a) => Multiplicative (Hull a) where
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a) =>
+  Multiplicative (Hull a) where
     a * b = bool (Hull (m - r/two) (m + r/two)) zero (a == zero || b == zero)
         where
           m = mid a + mid b
@@ -324,7 +384,7 @@ instance (HasRange a, FromInteger a, Field a) => Multiplicative (Hull a) where
 
     one = Hull (negate half) half
 
-instance (HasRange a, Field a, FromInteger a, Divisive a) => Divisive (Hull a)
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, FromInteger a, Divisive a) => Divisive (Hull a)
   where
     recip a = case width a == zero of
       True  -> throw (NumHaskException "reciprocating a zero-width range")
@@ -333,10 +393,10 @@ instance (HasRange a, Field a, FromInteger a, Divisive a) => Divisive (Hull a)
           m = negate (mid a)
           r = recip (width a)
 
-instance (HasRange a, Field a, FromInteger a) => Signed (Hull a) where
-    sign (Hull l u) = bool (Hull half (negate half)) one (u `joinLeq` l)
-    abs (Hull l u) = bool (Hull u l) (Hull l u) (u `joinLeq` l)
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a) => Signed (Hull a) where
+  sign (Hull l u) = bool (Hull half (negate half)) one (u `joinLeq` l)
+  abs (Hull l u) = bool (Hull u l) (Hull l u) (u `joinLeq` l)
 
-instance (HasRange a, Epsilon a) => Epsilon (Hull a) where
+instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Epsilon a) => Epsilon (Hull a) where
   epsilon = zero +/- epsilon
   nearZero (Hull l u) = nearZero l && nearZero u
