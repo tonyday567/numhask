@@ -1,9 +1,8 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE IncoherentInstances #-}
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MultiWayIf #-}
-{-# LANGUAGE MonoLocalBinds #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Gen
   ( rational
@@ -96,13 +95,13 @@ genComplex g = do
   pure (r :+ i)
 
 -- | Space
-genRange :: forall a m. (Lattice a, MonadGen m) => m a -> m (P.Range a)
+genRange :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, MonadGen m) => m a -> m (P.Range a)
 genRange g = do
   a <- g
   b <- g
   pure (a >.< b)
 
-genRangePos :: forall a m. (Lattice a, MonadGen m) => m a -> m (P.Range a)
+genRangePos :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, MonadGen m) => m a -> m (P.Range a)
 genRangePos g = do
   a <- g
   b <- g

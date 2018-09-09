@@ -16,16 +16,10 @@ import qualified Prelude as P
 import Prelude
   hiding ( Bounded(..)
   , Integral(..)
-  , (*)
-  , (/)
-  , (+)
   , (-)
   , negate
-  , sqrt
-  , (**)
   )
 
-import Data.Complex (Complex(..))
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))

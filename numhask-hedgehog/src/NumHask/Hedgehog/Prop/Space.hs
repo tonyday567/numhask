@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Prop.Space where
 

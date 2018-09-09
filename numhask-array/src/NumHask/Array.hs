@@ -566,22 +566,22 @@ squeeze (Array x) = Array x
 
 instance (Dimensions r, Container c, Additive a) =>
   Additive (Array c r a) where
-  a + b = (liftR2 (+) a b)
-  zero = (pureRep zero)
+  a + b = liftR2 (+) a b
+  zero = pureRep zero
 
 instance (Dimensions r, Container c, Subtractive a) =>
   Subtractive (Array c r a) where
-  negate a = (fmapRep negate a)
+  negate = fmapRep negate
 
 instance (Dimensions r, Container c, Multiplicative a) =>
   Multiplicative (Array c r a) where
-  a * b = (liftR2 (*) a b)
+  a * b = liftR2 (*) a b
 
-  one = (pureRep one)
+  one = pureRep one
 
 instance (Dimensions r, Container c, Divisive a) =>
   Divisive (Array c r a) where
-  recip a = (fmapRep recip a)
+  recip = fmapRep recip
 
 instance (Dimensions r, Container c, Multiplicative a, Additive a) =>
   P.Distributive (Array c r a)
@@ -692,5 +692,5 @@ instance (Eq (c a), Container c, Dimensions r, BoundedJoinSemiLattice a) => Boun
 instance (Eq (c a), Container c, Dimensions r, BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Array c r a) where
   top = pureRep top
 
-singleton :: (Dimensions r, Container c) => a -> (Array c r a)
+singleton :: (Dimensions r, Container c) => a -> Array c r a
 singleton a = tabulate (const a)

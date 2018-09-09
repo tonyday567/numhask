@@ -4,10 +4,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE IncoherentInstances #-}
 
 module NumHask.Data.Complex where
 

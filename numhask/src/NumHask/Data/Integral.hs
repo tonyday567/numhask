@@ -213,8 +213,7 @@ x0 ^ y0
   | -- P.errorWithoutStackTrace "Negative exponent"
     y0 P.== zero = one
   | P.otherwise = f x0 y0
- where
-  two = one + one
+  where
 
   -- f : x0 ^ y0 = x ^ y
   f x y

@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE IncoherentInstances #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Algebra.Abstract.Lattice where
 
@@ -56,8 +55,8 @@ class MeetSemiLattice a => BoundedMeetSemiLattice a where
     top :: a
 
 -- | Lattices with both bounds
-class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
-instance (BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
+class (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
+instance (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
 
 instance JoinSemiLattice Float where
   (\/) = min

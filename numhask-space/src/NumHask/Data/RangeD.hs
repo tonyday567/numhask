@@ -14,10 +14,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
-#if ( __GLASGOW_HASKELL__ < 820 )
-{-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
-{-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
-#endif
 
 -- | representation of a possibly discontinuous interval
 module NumHask.Data.RangeD
@@ -31,7 +27,7 @@ import NumHask.Algebra.Abstract
 import NumHask.Analysis.Metric
 import Data.Bool (bool)
 import GHC.Generics (Generic)
-import Prelude (Eq(..), Ord(..), Show, Read, Integer, Bool(..), Foldable, Functor, Traversable(..), Applicative, pure, (<*>), (.), ($), max, otherwise, (||), (&&), not, fmap, (++), (<$>), undefined, Semigroup(..), Monoid(..), zipWith, drop, show, reverse)
+import Prelude (Eq(..), Ord(..), Show, Foldable, Functor, Traversable(..), Applicative(..), ($), not, (<$>), Semigroup(..), reverse)
 import Data.List (sortBy, foldl')
 import Data.Ord (comparing)
 
@@ -45,7 +41,7 @@ normalise (RangeD rs) = RangeD $ reverse $ foldl' step [] (sortBy (comparing low
     step [] a = [a]
     step (x:xs) a = (a `unify` x) <> xs
 
-    unify a b = bool (bool [a,b] [b,a] (lower a < lower b)) [a + b] (not $ a `disjoint` b)
+    unify a b = bool (bool [a,b] [b,a] (lower a `joinLeq` lower b)) [a + b] (not $ a `disjoint` b)
 
 instance (Ord a, Lattice a, Subtractive a) => Additive (RangeD a) where
     (RangeD l0) + (RangeD l1) = normalise $ RangeD $ l0 <> l1
@@ -54,7 +50,7 @@ instance (Ord a, Lattice a, Subtractive a) => Additive (RangeD a) where
 instance (Divisive a, Ord a, Lattice a, Subtractive a) => Subtractive (RangeD a) where
     negate (RangeD rs) = normalise $ RangeD $ negate <$> rs
 
-instance (Ord a, Lattice a, Subtractive a, Eq a, Multiplicative a) => Multiplicative (RangeD a) where
+instance (Ord a, Lattice a, Subtractive a, Multiplicative a) => Multiplicative (RangeD a) where
     (RangeD a) * (RangeD b) = normalise $ RangeD $ (*) <$> a <*> b
     one = RangeD [one]
 

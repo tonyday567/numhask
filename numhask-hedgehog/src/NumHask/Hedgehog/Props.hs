@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module NumHask.Hedgehog.Props where
 
