@@ -3,11 +3,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -30,9 +25,9 @@ import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
@@ -164,7 +159,7 @@ log1p :: ExpField a => a -> a
 {-# INLINE [0] log1p #-}
 log1p x = log (one + x)
 
-expm1 :: ExpField a => a -> a
+expm1 :: (ExpField a, Subtractive a) => a -> a
 {-# INLINE [0] expm1 #-}
 expm1 x = exp x - one
 
@@ -174,59 +169,40 @@ expm1 x = exp x - one
  #-}
 
 instance (ExpField a, LowerBoundedField a, Ord a) =>
-  Magma (Sum (LogField a)) where
-  (Sum x@(LogField x')) `magma` (Sum y@(LogField y'))
-    | x == zero && y == zero = Sum zero
-    | x == zero = Sum y
-    | y == zero = Sum x
-    | x >= y = Sum $ LogField (x' + log1p (exp (y' - x')))
-    | otherwise = Sum $ LogField (y' + log1p (exp (x' - y')))
+  Additive (LogField a) where
+  x@(LogField x') + y@(LogField y')
+    | x == zero && y == zero = zero
+    | x == zero = y
+    | y == zero = x
+    | x >= y = LogField (x' + log1p (exp (y' - x')))
+    | otherwise = LogField (y' + log1p (exp (x' - y')))
 
-instance (LowerBoundedField a, ExpField a, Ord a) =>
-  Unital (Sum (LogField a)) where
-  unit = Sum $ LogField negInfinity
+  zero = LogField negInfinity
 
-instance (LowerBoundedField a, ExpField a, Ord a) =>
-  Associative (Sum (LogField a))
-
-instance (LowerBoundedField a, ExpField a, Ord a) =>
-  Commutative (Sum (LogField a))
-
-instance (ExpField a, Ord a, BoundedField a) => Invertible (Sum (LogField a)) where
-  inv (Sum x)
-    | x == zero = Sum zero
-    | otherwise = Sum nan
+instance (ExpField a, Ord a, LowerBoundedField a, UpperBoundedField a) =>
+  Subtractive (LogField a) where
+  negate x
+    | x == zero = zero
+    | otherwise = nan
 
 instance (LowerBoundedField a, Eq a) =>
-  Magma (Product (LogField a)) where
-  (Product (LogField x)) `magma` (Product (LogField y))
-    | x == negInfinity || y == negInfinity = Product $ LogField negInfinity
-    | otherwise = Product $ LogField (x + y)
+  Multiplicative (LogField a) where
+  (LogField x) * (LogField y)
+    | x == negInfinity || y == negInfinity = LogField negInfinity
+    | otherwise = LogField (x + y)
+
+  one = LogField zero
 
 instance (LowerBoundedField a, Eq a) =>
-  Unital (Product (LogField a)) where
-  unit = Product $ LogField zero
+  Divisive (LogField a) where
+  recip (LogField x) = LogField $ negate x
 
-instance (LowerBoundedField a, Eq a) =>
-  Associative (Product (LogField a))
-
-instance (LowerBoundedField a, Eq a) =>
-  Commutative (Product (LogField a))
-
-instance (LowerBoundedField a, Eq a) =>
-  Invertible (Product (LogField a)) where
-  inv (Product (LogField x)) = Product $ LogField $ negate x
-
-instance (LowerBoundedField a, Eq a) =>
-  Absorbing (Product (LogField a)) where
-  absorb = Product $ LogField negInfinity
-
-instance (LowerBoundedField a, ExpField a, Ord a) =>
+instance (Ord a, LowerBoundedField a, ExpField a) =>
   Distributive (LogField a)
 
 instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
-    exp (LogField x) = (LogField $ exp x)
-    log (LogField x) = (LogField $ log x)
+    exp (LogField x) = LogField $ exp x
+    log (LogField x) = LogField $ log x
     (**) x (LogField y) = pow x $ exp y
 
 instance (FromInteger a, ExpField a) => FromInteger (LogField a) where
@@ -241,26 +217,38 @@ instance (FromRatio a, ExpField a) => FromRatio (LogField a) where
 instance (ToRatio a, ExpField a) => ToRatio (LogField a) where
   toRatio = toRatio . fromLogField
 
-instance (Epsilon a, ExpField a, LowerBoundedField a, Ord a) =>
+instance (Ord a) => JoinSemiLattice (LogField a) where
+  (\/) = min
+
+instance (Ord a) => MeetSemiLattice (LogField a) where
+  (/\) = max
+
+instance (Epsilon a, ExpField a, LowerBoundedField a, UpperBoundedField a, Ord a) =>
   Epsilon (LogField a) where
   epsilon = logField epsilon
   nearZero (LogField x) = nearZero $ exp x
   aboutEqual (LogField x) (LogField y) = aboutEqual (exp x) (exp y)
 
-instance (Ord a, ExpField a, BoundedField a) => Field (LogField a)
+instance (Ord a, ExpField a, LowerBoundedField a) => Field (LogField a)
 
-instance (Ord a, ExpField a, BoundedField a) => LowerBoundedField (LogField a)
+instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
+  LowerBoundedField (LogField a)
 
-instance (Ord a, ExpField a, BoundedField a) => IntegralDomain (LogField a) where
+instance (Ord a, ExpField a, LowerBoundedField a) =>
+  IntegralDomain (LogField a) where
 
-instance (Ord a, ExpField a, BoundedField a) => UpperBoundedField (LogField a) where
+instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
+  UpperBoundedField (LogField a) where
   isNaN (LogField a) = isNaN a
 
-instance (Ord a, BoundedField a, ExpField a) => Signed (LogField a) where
+instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
+  Signed (LogField a) where
   sign a
     | a == negInfinity = zero
     | otherwise = one
   abs = id
+
+
 
 ----------------------------------------------------------------
 -- | /O(1)/. Compute powers in the log-domain; that is, the following
@@ -295,7 +283,7 @@ pow x@(LogField x') m
 -- it is not amenable to list fusion, and hence will use a lot of
 -- memory when summing long lists.
 {-# INLINE accurateSum #-}
-accurateSum :: (ExpField a, Foldable f, Ord a) => f (LogField a) -> LogField a
+accurateSum :: (ExpField a, Subtractive a, Foldable f, Ord a) => f (LogField a) -> LogField a
 accurateSum xs = LogField (theMax + log theSum)
  where
   LogField theMax = maximum xs
@@ -309,7 +297,7 @@ accurateSum xs = LogField (theMax + log theSum)
 --
 -- > LogField . accurateProduct == accurateProduct . map LogField
 {-# INLINE accurateProduct #-}
-accurateProduct :: (ExpField a, Foldable f) => f (LogField a) -> LogField a
+accurateProduct :: (ExpField a, Subtractive a, Foldable f) => f (LogField a) -> LogField a
 accurateProduct = LogField . fst . F.foldr kahanPlus (zero, zero)
  where
   kahanPlus (LogField x) (t, c) =

@@ -1,13 +1,8 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -15,8 +10,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
@@ -35,7 +28,6 @@ import NumHask.Shape (HasShape(..))
 import Numeric.Dimensions as D
 import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
-import qualified NumHask.Data.Interval as I
 
 -- $setup 
 -- >>> :set -XDataKinds
@@ -78,7 +70,7 @@ newtype AnyArray c a = AnyArray ([Int], c a)
 -- | convert an array with type-level shape to value-level shape
 anyArray :: (Dimensions ds) => Array c ds a -> AnyArray c a
 anyArray arr@(Array c) = AnyArray (shape arr, c)
-
+ 
 -- | a sweet class of container with attributes necessary to supply the set of operations here
 class (Functor f) => Container f where
   generate :: Int -> (Int -> a) -> f a
@@ -573,44 +565,23 @@ squeeze ::
 squeeze (Array x) = Array x
 
 instance (Dimensions r, Container c, Additive a) =>
-  Magma (Sum (Array c r a)) where
-  (Sum a) `magma` (Sum b) = Sum (liftR2 (+) a b)
-
-instance (Dimensions r, Container c, Additive a) =>
-  Unital (Sum (Array c r a)) where
-  unit = Sum (pureRep zero)
-
-instance (Dimensions r, Container c, Additive a) =>
-  Associative (Sum (Array c r a))
-
-instance (Dimensions r, Container c, Additive a) =>
-  Commutative (Sum (Array c r a))
+  Additive (Array c r a) where
+  a + b = liftR2 (+) a b
+  zero = pureRep zero
 
 instance (Dimensions r, Container c, Subtractive a) =>
-  Invertible (Sum (Array c r a)) where
-  inv (Sum a) = Sum (fmapRep negate a)
+  Subtractive (Array c r a) where
+  negate = fmapRep negate
 
 instance (Dimensions r, Container c, Multiplicative a) =>
-  Magma (Product (Array c r a)) where
-  (Product a) `magma` (Product b) = Product (liftR2 (*) a b)
+  Multiplicative (Array c r a) where
+  a * b = liftR2 (*) a b
 
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Unital (Product (Array c r a)) where
-  unit = Product (pureRep one)
-
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Associative (Product (Array c r a))
-
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Commutative (Product (Array c r a))
+  one = pureRep one
 
 instance (Dimensions r, Container c, Divisive a) =>
-  Invertible (Product (Array c r a)) where
-  inv (Product a) = Product (fmapRep recip a)
-
-instance (Dimensions r, Container c, Multiplicative a) =>
-  Absorbing (Product (Array c r a)) where
-  absorb = Product (pureRep zero')
+  Divisive (Array c r a) where
+  recip = fmapRep recip
 
 instance (Dimensions r, Container c, Multiplicative a, Additive a) =>
   P.Distributive (Array c r a)
@@ -635,7 +606,7 @@ instance (Dimensions r, Container c, Multiplicative a, Signed a)
   sign = fmapRep sign
   abs = fmapRep abs
 
-instance (Functor (Array c r), Foldable (Array c r), Normed a a, ExpField a) =>
+instance (Functor (Array c r), Foldable (Array c r), Additive (Array c r a), Normed a a, ExpField a) =>
          Normed (Array c r a) a where
   normL1 r = foldr (+) zero $ normL1 <$> r
   normL2 r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
@@ -647,7 +618,7 @@ instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) 
   nearZero f = and (fmapRep nearZero f)
   aboutEqual a b = and (liftR2 aboutEqual a b)
 
-instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Normed a a) =>
+instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Subtractive a, Normed a a) =>
          Metric (Array c r a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
@@ -709,23 +680,17 @@ instance
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
 
-instance forall a c r. (Eq (c a), Container c, Dimensions r, Ord a, Subtractive a, I.CanInterval a) => I.CanInterval (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, JoinSemiLattice a) => JoinSemiLattice (Array c r a) where
+  (\/) = liftR2 (\/)
 
-  (...) a b
-    | a == b = I.S a
-    | otherwise = I.I a' b'
-    where
-      a' = liftR2 min a b
-      b' = liftR2 max a b
+instance (Eq (c a), Container c, Dimensions r, MeetSemiLattice a) => MeetSemiLattice (Array c r a) where
+  (/\) = liftR2 (/\)
 
-  x =.= (I.I l u) = cfoldl' (&&) True $ _getContainer
-    (liftR2 (&&) (liftR2 (>=) x l) (liftR2 (<=) x u))
-  a =.= (I.S s) = a == s
-  _ =.= I.Empty = False
+instance (Eq (c a), Container c, Dimensions r, BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Array c r a) where
+  bottom = pureRep bottom
 
-  lowest xs = tabulate (\i -> I.lowest $ (\x -> index x i) <$> xs)
+instance (Eq (c a), Container c, Dimensions r, BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Array c r a) where
+  top = pureRep top
 
-  highest xs = tabulate (\i -> I.highest $ (\x -> index x i) <$> xs)
-
-singleton :: (Dimensions r, Container c) => a -> (Array c r a)
+singleton :: (Dimensions r, Container c) => a -> Array c r a
 singleton a = tabulate (const a)

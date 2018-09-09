@@ -1,22 +1,20 @@
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Hedgehog.Props where
 
-import Hedgehog as H
-import NumHask.Data.Interval
+import Hedgehog as H hiding (Range)
 import NumHask.Hedgehog.Prop
 import NumHask.Prelude hiding (isSigned)
-import qualified NumHask.Hedgehog.Prop.Interval as I
+import qualified NumHask.Hedgehog.Prop.Space as S
 
 -- * properties/law groupings
 integralProps
   :: forall a.
   ( Show a
-  , Ord a
   , Distributive a
   , Subtractive a
   , Integral a
@@ -26,6 +24,7 @@ integralProps
   , Bounded a
   , Normed a a
   , Metric a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -35,7 +34,9 @@ integralProps g = mconcat $
   , isSubtractive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
+  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedBounded x)]
   , \x -> [("metric", isMetricBounded x)]
@@ -44,7 +45,6 @@ integralProps g = mconcat $
 integralUnboundedProps
   :: forall a.
   ( Show a
-  , Ord a
   , Distributive a
   , Subtractive a
   , Integral a
@@ -53,6 +53,7 @@ integralUnboundedProps
   , Signed a
   , Normed a a
   , Metric a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -62,7 +63,9 @@ integralUnboundedProps g = mconcat $
   , isSubtractive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
+  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   , \x -> [("metric", isMetricUnbounded x)]
@@ -71,13 +74,13 @@ integralUnboundedProps g = mconcat $
 naturalProps
   :: forall a.
   ( Show a
-  , Ord a
   , Distributive a
   , Integral a
   , FromInteger a
   , ToInteger a
   , Signed a
   , Normed a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -86,7 +89,9 @@ naturalProps g = mconcat $
   [ isAdditive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
+  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   ]
@@ -96,7 +101,6 @@ boolProps
   ( Show a
   , Ord a
   , Distributive a
-  , Multiplicative a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -107,6 +111,8 @@ boolProps g = mconcat $
   , \x -> [("idempotent +", isIdempotent (+) x)]
   , \x -> [("idempotent *", isIdempotent (*) x)]
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative unit", isAbsorbativeUnit zero (*) x)]
+  , \x -> [("absorbative", isAbsorbative (+) (*) x)]
   ]
 
 rationalProps
@@ -121,6 +127,7 @@ rationalProps
   , Signed a
   , Normed a a
   , Metric a a
+  , JoinSemiLattice a
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -130,6 +137,7 @@ rationalProps g = mconcat $
   , isSubtractive
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
+  , \x -> [("absorbative unit", isAbsorbativeUnit zero (*) x)]
   , isDivisive
   , \x -> [("rational", isRational x)]
   , \x -> [("signed", isSigned x)]
@@ -140,15 +148,11 @@ rationalProps g = mconcat $
 -- | field laws
 fieldProps
   :: forall a.
-  ( Show a
-  , Ord a
-  , Epsilon a
-  , CanInterval a
-  , BoundedField a
+  ( S.CanMeasure a
+  , BoundedLattice a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , FromRatio a
-  , ToRatio a
-  , FromInteger a
-  , QuotientField a Integer
   , ExpField a
   , Signed a
   , Normed a a
@@ -158,58 +162,157 @@ fieldProps
   -> [(PropertyName, Property)]
 fieldProps g = mconcat $
   (\x -> x g) <$>
-  [ I.isAdditive 1.0
-  , \x -> [("subtractive", I.isSubtractive 1.0 x)]
-  , I.isMultiplicative 1.0
-  , \x -> [("distributive", I.isDistributive 1.0 x)]
-  , \x -> [("divisive", I.isDivisive 1.0 x)]
-  , \x -> [("rational", isRational x)]
-  , \x -> [("signed", I.isSigned 1.0 x)]
-  , \x -> [("normed", I.isNormedUnbounded 1.0 x)]
-  , \x -> [("metric", I.isMetricUnbounded 1.0 x)]
+  [ S.isAdditive one
+  , \x -> [("subtractive", S.isSubtractive one x)]
+  , S.isMultiplicative one
+  , \x -> [("distributive", S.isDistributiveTimesPlus one x)]
+  , \x -> [("absorbative", S.isZeroAbsorbative (*) one x)]
+  , \x -> [("divisive", S.isDivisive one x)]
+  , \x -> [("signed", S.isSigned one x)]
+  , \x -> [("normed", S.isNormedUnbounded one x)]
+  , \x -> [("metric", S.isMetricUnbounded one x)]
   , \x -> [("upper bounded field", isUpperBoundedField x)]
   , \x -> [("lower bounded field", isLowerBoundedField x)]
-  , \x -> [("quotient field", isQuotientField x)]
-  , \x -> [("expField", I.isExpField 100.0 x)]
+  , \x -> [("expField", S.isExpField 100.0 x)]
+  ]
+
+-- | quotient field laws
+quotientFieldProps
+  :: forall a.
+  ( S.CanMeasure a
+  , FromInteger a
+  , QuotientField a Integer
+  )
+  => Gen a
+  -> [(PropertyName, Property)]
+quotientFieldProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("quotient field", isQuotientIntegerField x)]
   ]
 
 complexFieldProps
   :: forall a.
-  ( Show a
-  , Ord a
+  ( S.CanMeasure (Complex a)
   , Epsilon a
-  , CanInterval a
-  , BoundedField a
+  , BoundedLattice (Complex a)
+  , Divisive a
   , FromRatio a
-  , Signed a
   )
   => Complex a
   -> Gen (Complex a)
   -> [(PropertyName, Property)]
 complexFieldProps acc g = mconcat $
   (\x -> x g) <$>
-  [ I.isAdditive acc
-  , \x -> [("subtractive", I.isSubtractive acc x)]
-  , I.isMultiplicative acc
-  , \x -> [("distributive", I.isDistributive acc x)]
-  , \x -> [("divisive", I.isDivisive (100.0 :+ 50.0) x)]
+  [ S.isAdditive acc
+  , \x -> [("subtractive", S.isSubtractive acc x)]
+  , S.isMultiplicative acc
+  , \x -> [("distributive", S.isDistributiveTimesPlus acc x)]
+  , \x -> [("absorbative", S.isZeroAbsorbative (*) acc x)]
+  , \x -> [("divisive", S.isDivisive (100.0 :+ 50.0) x)]
   ]
 
 -- | field laws
 logFieldProps
   :: forall a.
-  ( Show a
-  , Epsilon a
-  , CanInterval a
-  , BoundedField a
-  , FromRatio a
+  ( S.CanMeasure a
+  , BoundedLattice a
+  , Divisive a
   )
   => Gen a
   -> [(PropertyName, Property)]
 logFieldProps g = mconcat $
   (\x -> x g) <$>
-  [ I.isAdditive 1.0
-  , I.isMultiplicative 1.0
-  , \x -> [("distributive", I.isDistributive 1.0 x)]
-  , \x -> [("divisive", I.isDivisive 1.0 x)]
+  [ S.isAdditive one
+  , S.isMultiplicative one
+  , \x -> [("distributive", S.isDistributiveTimesPlus one x)]
+  , \x -> [("absorbative", S.isZeroAbsorbative (*) one x)]
+  , \x -> [("divisive", S.isDivisive one x)]
+  ]
+
+-- | lattice laws
+latticeProps
+  :: forall a.
+  ( S.CanMeasure a
+  )
+  => Gen a
+  -> [(PropertyName, Property)]
+latticeProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("join idem", S.isIdempotent (\/) one x)]
+  , \x -> [("meet idem", S.isIdempotent (/\) one x)]
+  , \x -> [("join comm", S.isCommutative (\/) (\/) one x)]
+  , \x -> [("meet comm", S.isCommutative (/\) (/\) one x)]
+  , \x -> [("join assoc", S.isAssociative (\/) (\/) one x)]
+  , \x -> [("meet assoc", S.isAssociative (/\) (/\) one x)]
+  , \x -> [("lattice distributive", S.isDistributiveJoinMeet one x)]
+  , \x -> [("lattice absorb", S.isAbsorbative (\/) (/\) (\/) (/\) one x)]
+  ]
+
+-- | space laws
+spaceProps
+  :: forall s.
+  ( Show s
+  , Space s
+  , Monoid s
+  , Eq s
+  , Epsilon (Element s)
+  , LowerBoundedField (Element s)
+  , UpperBoundedField (Element s)
+  , BoundedJoinSemiLattice (Element s)
+  , BoundedMeetSemiLattice (Element s)
+  )
+  => Gen s
+  -> [(PropertyName, Property)]
+spaceProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("commutative union", isCommutative union x)]
+  , \x -> [("commutative intersection", isCommutative intersection x)]
+  , \x -> [("associative union", isAssociative union x)]
+  , \x -> [("associative intersection", isAssociative intersection x)]
+  , \x -> [("unital union", isUnital (infinity >.< negInfinity) union x)]
+  , \x -> [("unital union", isUnital mempty mappend x)]
+  , \x -> [("unital intersection", isUnital whole intersection x)]
+  , \x -> [("distributive", isDistributive (infinity >.< negInfinity) union intersection x)]
+  , \x -> [("distributive", isDistributive whole intersection union x)]
+  , \x -> [("containment", S.isContainedUnion one x)]
+  , \x -> [("positive space", S.isLatticeSpace x)]
+  ]
+
+-- | space laws
+fieldSpaceProps
+  :: forall s.
+  ( Show s
+  , FieldSpace s
+  , Epsilon (Element s)
+  )
+  => Gen s
+  -> [(PropertyName, Property)]
+fieldSpaceProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("projective upper preserved", S.isProjectiveUpper x)]
+  , \x -> [("projective lower preserved", S.isProjectiveLower two x)]
+  ]
+
+-- | Interval algebra is not distributive
+spaceAlgebraProps
+  :: forall s.
+  ( Eq s
+  , Show s
+  , Space s
+  , Subtractive s
+  , Divisive s
+  , S.CanMeasure (Element s)
+  )
+  => Gen s
+  -> [(PropertyName, Property)]
+spaceAlgebraProps g = mconcat $
+  (\x -> x g) <$>
+  [ \x -> [("commutative (+))", S.isCommutativeSpace (+) one x)]
+  , \x -> [("associative (+))", S.isAssociativeSpace (+) one x)]
+  , \x -> [("unital (+))", S.isUnitalSpace zero (+) one x)]
+  , \x -> [("subtractive space laws with zero |.| a - a", S.isSubtractiveSpace x)]
+  , \x -> [("commutative (*))", S.isCommutativeSpace (*) one x)]
+  , \x -> [("associative (*))", S.isAssociativeSpace (*) one x)]
+  , \x -> [("unital (*))", S.isUnitalSpace one (*) one x)]
+  , \x -> [("divisive space laws with one |.| a / a", S.isDivisiveSpace x)]
   ]

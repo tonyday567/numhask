@@ -10,10 +10,11 @@ module NumHask.Prelude
   , (<>)
   , Semigroup
 #endif
-    -- RebindableSyntax takes fromString and fail away so we need to put it back in
+    -- RebindableSyntax removes all sorts of stuff that we then have to put back in
   , fromString
   , fail
   , ifThenElse
+  , fromListN
     -- * Algebraic Heirarchy
     -- $instances
   , module NumHask.Algebra.Abstract.Action
@@ -21,6 +22,7 @@ module NumHask.Prelude
   , module NumHask.Algebra.Abstract.Field
   , module NumHask.Algebra.Abstract.Group
   , module NumHask.Algebra.Abstract.Homomorphism
+  , module NumHask.Algebra.Abstract.Lattice
   , module NumHask.Algebra.Abstract.Module
   , module NumHask.Algebra.Abstract.Multiplicative
   , module NumHask.Algebra.Abstract.Ring
@@ -28,12 +30,16 @@ module NumHask.Prelude
   , module NumHask.Algebra.Linear.Hadamard
   , module NumHask.Analysis.Banach
   , module NumHask.Analysis.Metric
+  , module NumHask.Analysis.Space
   , module NumHask.Data.Complex   
   , module NumHask.Data.Integral
+  , module NumHask.Data.Range
   , module NumHask.Data.LogField       
   , module NumHask.Data.Rational
+  , module NumHask.Data.Pair
   , module NumHask.Data.Positive
   , Natural(..)
+  , module NumHask.Exception
   ) where
  
 #if MIN_VERSION_base(4,11,0)
@@ -51,6 +57,7 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Homomorphism
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
@@ -58,11 +65,16 @@ import NumHask.Algebra.Abstract.TensorProduct
 import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric
-import NumHask.Data.Complex   
+import NumHask.Analysis.Space
+import NumHask.Data.Complex
 import NumHask.Data.Integral
-import NumHask.Data.LogField       
+import NumHask.Data.Range
+import NumHask.Data.LogField
+import NumHask.Data.Pair
 import NumHask.Data.Positive
 import NumHask.Data.Rational
+import NumHask.Exception
+import GHC.Exts
 
 -- $backend
 -- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.

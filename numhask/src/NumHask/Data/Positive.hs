@@ -1,59 +1,67 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedLists #-}
-{-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Data.Positive where
 
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
+import NumHask.Data.Integral
+import NumHask.Exception
 import qualified Prelude as P
 
-newtype Positive a = Positive { unPositive :: a } deriving (P.Show, P.Eq)
+newtype Positive a = Positive { unPositive :: a }
+  deriving
+    ( P.Show
+    , P.Eq
+    , P.Ord
+    , Additive
+    , Multiplicative
+    , Divisive
+    , Distributive
+    , IntegralDomain
+    , Field
+    , ExpField
+    , TrigField
+    , Integral
+    , Signed
+    , JoinSemiLattice
+    , MeetSemiLattice
+    , Epsilon
+    )
 
-instance (Additive a) => Magma (Sum (Positive a)) where
-  (Sum (Positive a)) `magma` (Sum (Positive b)) = Sum (Positive (a + b))
+-- not sure if this is correct or needed
+type role Positive representational
 
-instance (Additive a) => Unital (Sum (Positive a)) where
-  unit = Sum (Positive zero)
+positive :: (P.Ord a, Additive a) => a -> P.Maybe (Positive a)
+positive a
+  | a P.< zero = P.Nothing
+  | P.otherwise = P.Just (Positive a)
 
-instance (Additive a) => Associative (Sum (Positive a))
+positive_ :: (P.Ord a, Additive a) => a -> Positive a
+positive_ a
+  | a P.< zero = throw (NumHaskException "positive number less than zero")
+  | P.otherwise = Positive a
 
-instance (Additive a) => Commutative (Sum (Positive a))
+instance (P.Ord a, Subtractive a) => Subtractive (Positive a) where
+  negate (Positive a)
+    | a P.== zero = Positive zero
+    | P.otherwise = throw (NumHaskException "negating a positive number")
 
-instance (Subtractive a) => Invertible (Sum (Positive a)) where
-  inv (Sum (Positive a)) = Sum (Positive (negate a))
+  (Positive a) - (Positive b)
+    | a P.>= b = Positive (a - b)
+    | P.otherwise = throw (NumHaskException "subtracting a larger positive")
 
-instance (Multiplicative a) => Absorbing (Product (Positive a)) where
-  absorb = Product (Positive zero')
-
-instance (Distributive  a) => Distributive  (Positive a)
-
-instance (Multiplicative a) => Magma (Product (Positive a)) where
-  (Product (Positive a)) `magma` (Product (Positive b)) =
-    Product (Positive (a * b))
-
-instance (Multiplicative a) =>
-  Associative (Product (Positive a))
-
-instance (Multiplicative a) => Unital (Product (Positive a)) where
-  unit = Product one
-
-instance (Multiplicative a) => Commutative (Product (Positive a))
-
-instance (Divisive a) => Invertible (Product (Positive a)) where
-  inv (Product (Positive a)) = Product (Positive (recip a))
-
-instance (IntegralDomain a) => IntegralDomain (Positive a)
+instance (P.Ord a, QuotientField a P.Integer) =>
+  QuotientField (Positive a) (Positive P.Integer) where
+  properFraction (Positive a) = let (i,r) = properFraction a in (Positive i, Positive r)
 
 instance (UpperBoundedField a) =>
   UpperBoundedField (Positive a) where
@@ -64,24 +72,14 @@ instance (UpperBoundedField a) => P.Bounded (Positive a) where
   minBound = zero
   maxBound = infinity
 
+-- Metric
 instance (Normed a a) =>
   Normed a (Positive a) where
   normL1 a = Positive (normL1 a)
   normL2 a = Positive (normL2 a)
   normLp (Positive p) a = Positive (normLp p a)
 
-instance (Normed a a) =>
-  Normed (Positive a) (Positive a) where
-  normL1 (Positive a) = Positive (normL1 a)
-  normL2 (Positive a) = Positive (normL2 a)
-  normLp (Positive p) (Positive a) = Positive (normLp p a)
-
 instance (Subtractive a, Normed a a) => Metric a (Positive a) where
   distanceL1 a b = Positive P.$ normL1 (a - b)
   distanceL2 a b = Positive P.$ normL2 (a - b)
   distanceLp (Positive p) a b = Positive P.$ normLp p (a - b)
-
-instance (Subtractive a, Normed a a) => Metric (Positive a) (Positive a) where
-  distanceL1 (Positive a) (Positive b) = Positive P.$ normL1 (a - b)
-  distanceL2 (Positive a) (Positive b) = Positive P.$ normL2 (a - b)
-  distanceLp (Positive p) (Positive a) (Positive b) = Positive P.$ normLp p (a - b)

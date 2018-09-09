@@ -1,12 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | NumHask usage examples
@@ -54,7 +52,7 @@ where
 --
 -- >>> 1 / (1::Int)
 -- ...
--- ... No instance for (Invertible (Product Int))
+-- ... No instance for (Divisive Int) ...
 -- ...
 --
 -- >>> 1.0 / fromIntegral (1::Int)
@@ -106,23 +104,14 @@ where
 -- >>> 0.0/0.0 + 1.0
 -- NaN
 --
--- should be Infinity
 -- >>> one/zero
--- ...
--- ... No instance for (Absorbing (Product ()))
--- ...
+-- Infinity
 --
--- should be -Infinity
 -- >>> -one/zero
--- ...
--- ... No instance for (Absorbing (Product ()))
--- ...
+-- -Infinity
 --
--- should be NaN
 -- >>> zero/zero+one
--- ...
--- ... No instance for (Absorbing (Product ()))
--- ...
+-- NaN
 --
 -- 'ExpField'
 --

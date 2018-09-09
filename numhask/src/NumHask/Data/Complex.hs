@@ -1,14 +1,10 @@
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Data.Complex where
@@ -17,10 +13,12 @@ import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
+import NumHask.Data.Integral
+
 import Prelude
   hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt, isNaN)
 import qualified Prelude as P (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
@@ -58,50 +56,31 @@ realPart (x :+ _) = x
 imagPart :: Complex a -> a
 imagPart (_ :+ y) = y
 
-instance (Additive a) => Magma (Sum (Complex a)) where
-  (Sum (rx :+ ix)) `magma` (Sum (ry :+ iy)) =
-    Sum $ (rx + ry) :+ (ix + iy)
+instance (Additive a) => Additive (Complex a) where
+  (rx :+ ix) + (ry :+ iy) = (rx + ry) :+ (ix + iy)
+  zero = zero :+ zero
 
-instance (Additive a) => Unital (Sum (Complex a)) where
-  unit = Sum (zero :+ zero)
+instance (Subtractive a) => Subtractive (Complex a) where
+  negate (rx :+ ix) = negate rx :+ negate ix
 
-instance (Additive a) => Associative (Sum (Complex a))
-
-instance (Additive a) => Commutative (Sum (Complex a))
-
-instance (Subtractive a) => Invertible (Sum (Complex a)) where
-  inv (Sum (rx :+ ix)) = Sum $ negate rx :+ negate ix
-
-instance (Subtractive a, Multiplicative a) =>
-  Absorbing (Product (Complex a)) where
-  absorb = Product $ zero' :+ zero'
-
-instance (Distributive a) =>
+instance (Distributive a, Subtractive a) =>
   Distributive (Complex a)
 
 instance (Subtractive a, Multiplicative a) =>
-  Unital (Product (Complex a)) where
-  unit = Product $ one :+ zero
-
-instance
-  ( Subtractive a
-  , Multiplicative a
-  ) =>
-  Magma (Product (Complex a)) where
-  (Product (rx :+ ix)) `magma` (Product (ry :+ iy)) =
-    Product $ (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
-
-instance (Subtractive a, Multiplicative a) =>
-  Commutative (Product (Complex a))
+  Multiplicative (Complex a) where
+  (rx :+ ix) * (ry :+ iy) =
+    (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
+  one = one :+ zero
 
 instance (Subtractive a, Divisive a) =>
-  Invertible (Product (Complex a)) where
-  inv (Product (rx :+ ix)) = Product $ (rx * d) :+ (negate ix * d)
+  Divisive (Complex a) where
+  recip (rx :+ ix) = (rx * d) :+ (negate ix * d)
     where
       d = recip ((rx * rx) + (ix * ix))
 
-instance (Multiplicative a, Subtractive a) =>
-  Associative (Product (Complex a))
+instance (Additive a, FromInteger a) =>
+  FromInteger (Complex a) where
+  fromInteger x = fromInteger x :+ zero
 
 instance (Multiplicative a, ExpField a, Normed a a) =>
   Normed (Complex a) a where
@@ -109,22 +88,22 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
   normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
+instance (Multiplicative a, Subtractive a, ExpField a, Normed a a) =>
   Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
   distanceLp p a b = normLp p (a - b)
 
-instance (Ord a, Signed a, AbelianGroup (Sum a), Epsilon a)
+instance (Ord a, Signed a, Subtractive a, Epsilon a)
   => Epsilon (Complex a) where
   epsilon = epsilon :+ epsilon
   nearZero (a :+ b) = nearZero a && nearZero b
 
-instance (IntegralDomain a) => IntegralDomain (Complex a)
+instance (IntegralDomain a, Subtractive a) => IntegralDomain (Complex a)
 
-instance (Field a) => Field (Complex a)
+instance (Field a, Subtractive a) => Field (Complex a)
 
-instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
+instance (Ord a, TrigField a, ExpField a, Subtractive a) => ExpField (Complex a) where
   exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
     where
@@ -138,13 +117,25 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
-instance (Ring a) => InvolutiveRing (Complex a) where
+instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
 
-instance (UpperBoundedField a, IntegralDomain a) => UpperBoundedField (Complex a) where
+instance (UpperBoundedField a, IntegralDomain a, Subtractive a) => UpperBoundedField (Complex a) where
   isNaN (a :+ b) = isNaN a || isNaN b
 
 instance (LowerBoundedField a) => LowerBoundedField (Complex a)
+
+instance (JoinSemiLattice a) => JoinSemiLattice (Complex a) where
+  (\/) (ar :+ ai) (br :+ bi) = (ar \/ br) :+ (ai \/ bi)
+
+instance (MeetSemiLattice a) => MeetSemiLattice (Complex a) where
+  (/\) (ar :+ ai) (br :+ bi) = (ar /\ br) :+ (ai /\ bi)
+
+instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
+  bottom = bottom :+ bottom
+
+instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
+  top = top :+ top
 
 -- * Helpers from Data.Complex
 mkPolar :: TrigField a => a -> a -> Complex a

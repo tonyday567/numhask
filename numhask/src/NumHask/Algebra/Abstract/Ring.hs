@@ -1,7 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -15,6 +12,7 @@ module NumHask.Algebra.Abstract.Ring
   , StarSemiring(..)
   , KleeneAlgebra
   , InvolutiveRing(..)
+  , two
   )
 where
 
@@ -30,13 +28,11 @@ import qualified Prelude as P
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
-class (Additive a, Magma (Sum a)) =>
+class (Additive a, Multiplicative a) =>
   Distributive a
 
 instance Distributive P.Double
-
 instance Distributive P.Float
-
 instance Distributive P.Int
 instance Distributive P.Integer
 instance Distributive Natural
@@ -49,42 +45,42 @@ instance Distributive Word8
 instance Distributive Word16
 instance Distributive Word32
 instance Distributive Word64
-
 instance Distributive P.Bool
-
 instance Distributive b => Distributive (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is a ring without,
 --   necessarily, negative elements.
 --
 -- TODO: rule zero' = zero. Is this somehow expressible in haskell?
-class (Distributive a, Multiplicative a) =>
+class (Distributive a) =>
   Semiring a where
-instance (Distributive a, Multiplicative a) =>
+instance (Distributive a) =>
   Semiring a
 
 -- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian
 --   group under addition and monoid under multiplication where multiplication
 --   distributes over addition. Alternatively, a ring is semiring where additive
 --   inverses exist
-class (Semiring a, Subtractive a) =>
+class (Distributive a, Subtractive a) =>
   Ring a
-instance (Semiring a, Subtractive a) =>
+instance (Distributive a, Subtractive a) =>
   Ring a
 
 -- | A <https://en.wikipedia.org/wiki/Commutative_ring Commutative Ring> is a
 --   ring with a Commutative Multiplication operation. Recall that Addition is
 --   Commutative in all Rings
-class (Ring a, Commutative (Product a)) =>
+class (Distributive a, Subtractive a) =>
   CommutativeRing a
-instance (Ring a, Commutative (Product a)) =>
+instance (Distributive a, Subtractive a) =>
   CommutativeRing a
 
 -- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain>
 --   generalizes a ring of integers by requiring the product of any two nonzero
 --   elements to be nonzero. This means that if a ≠ 0, an equality ab = ac
 --   implies b = c.
-class (CommutativeRing a, Divisive a) =>
+-- FIXME: write a rule for this
+--
+class (Distributive a, Divisive a) =>
   IntegralDomain a
 
 instance IntegralDomain P.Double
@@ -98,7 +94,7 @@ instance IntegralDomain b => IntegralDomain (a -> b)
 --
 -- > star a = one + a `times` star a
 --
-class (Semiring a) => StarSemiring a where
+class (Distributive a) => StarSemiring a where
   star :: a -> a
   star a = one + plus a
 
@@ -113,7 +109,7 @@ instance StarSemiring b => StarSemiring (a -> b)
 -- > a `times` x + x = a ==> star a `times` x + x = x
 -- > x `times` a + x = a ==> x `times` star a + x = x
 --
-class (StarSemiring a, Idempotent (Sum a)) => KleeneAlgebra a
+class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 
 instance KleeneAlgebra b => KleeneAlgebra (a -> b)
 
@@ -126,36 +122,25 @@ instance KleeneAlgebra b => KleeneAlgebra (a -> b)
 --
 -- Note: elements for which @adj a == a@ are called "self-adjoint".
 --
-class Semiring a => InvolutiveRing a where
+class (Distributive a) => InvolutiveRing a where
   adj :: a -> a
   adj x = x
 
 instance InvolutiveRing P.Double
-
 instance InvolutiveRing P.Float
-
 instance InvolutiveRing P.Integer
-
 instance InvolutiveRing P.Int
-
 instance InvolutiveRing Natural
-
 instance InvolutiveRing Int8
-
 instance InvolutiveRing Int16
-
 instance InvolutiveRing Int32
-
 instance InvolutiveRing Int64
-
 instance InvolutiveRing Word
-
 instance InvolutiveRing Word8
-
 instance InvolutiveRing Word16
-
 instance InvolutiveRing Word32
-
 instance InvolutiveRing Word64
-
 instance InvolutiveRing b => InvolutiveRing (a -> b)
+
+two :: (Multiplicative a, Additive a) => a
+two = one + one

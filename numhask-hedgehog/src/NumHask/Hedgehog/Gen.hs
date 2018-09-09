@@ -1,13 +1,24 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wall #-}
 
-module NumHask.Hedgehog.Gen where
+module NumHask.Hedgehog.Gen
+  ( rational
+  , rational_
+  , integral
+  , integral_
+  , uniform
+  , negUniform
+  , genPair
+  , genRange
+  , genRangePos
+  , genComplex
+  ) where
 
 import Hedgehog as H
-import NumHask.Prelude
+import NumHask.Prelude as P
 import qualified Hedgehog.Internal.Gen as Gen
 import qualified Hedgehog.Internal.Seed as Seed
 import qualified Hedgehog.Range as Range
@@ -16,23 +27,23 @@ import qualified Hedgehog.Range as Range
 -- There are basically two types of random variates: a discrete Integer type and a continuous rational type
 
 -- | a rational-style random variate
-rational :: (ToRatio a, FromRatio a, MonadGen m) => Range a -> m a
-rational range =
+rational :: (ToRatio a, FromRatio a, MonadGen m) => Range.Range a -> m a
+rational r =
   Gen.generate $ \size seed ->
     let
       (x, y) =
-        Range.bounds size range
+        Range.bounds size r
     in
       fromRational . fst $
         Seed.nextDouble (fromRational x) (fromRational y) seed
 
 -- | an integral-stype random variate
-integral :: (ToInteger a, FromInteger a, MonadGen m) => Range a -> m a
-integral range =
+integral :: (ToInteger a, FromInteger a, MonadGen m) => Range.Range a -> m a
+integral r =
   Gen.generate $ \size seed ->
     let
       (x, y) =
-        Range.bounds size range
+        Range.bounds size r
     in
       fromIntegral . fst $
         Seed.nextInteger (fromIntegral x) (fromIntegral y) seed
@@ -71,6 +82,7 @@ negUniform ::
   ( Field a
   , ToRatio a
   , FromRatio a
+  , Subtractive a
   , MonadGen m)
   => m a
 negUniform = rational (Range.constantFrom zero (negate one) one)
@@ -82,3 +94,22 @@ genComplex g = do
   i <- g
   pure (r :+ i)
 
+-- | Space
+genRange :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, MonadGen m) => m a -> m (P.Range a)
+genRange g = do
+  a <- g
+  b <- g
+  pure (a >.< b)
+
+genRangePos :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, MonadGen m) => m a -> m (P.Range a)
+genRangePos g = do
+  a <- g
+  b <- g
+  pure (a ... b)
+
+-- | a pair
+genPair :: (Monad m) => m a -> m (Pair a)
+genPair g = do
+  a <- g
+  b <- g
+  pure (Pair a b)

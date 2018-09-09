@@ -28,8 +28,7 @@ import NumHask.Prelude as P
 import Numeric.Dimensions as D
 import Test.DocTest
 import qualified Hedgehog as H
-import qualified NumHask.Data.Interval as I
-import qualified NumHask.Hedgehog.Prop.Interval as I
+import qualified NumHask.Hedgehog.Prop.Space as I
 import qualified Prelude
 
 genAIntegral :: forall a m r. (H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array [] r a)
@@ -37,7 +36,7 @@ genAIntegral = fromList <$> replicateM n integral_
   where
     n = dimVal $ dim @r
 
-genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, ToRatio a, FromRatio a) => m (Array [] r a)
+genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a, FromRatio a) => m (Array [] r a)
 genARational = fromList <$> replicateM n negUniform
   where
     n = dimVal $ dim @r
@@ -86,8 +85,11 @@ fieldProps'
   :: forall a.
   ( Show a
   , Epsilon a
-  , I.CanInterval a
-  , BoundedField a
+  , Lattice a
+  , LowerBoundedField a
+  , UpperBoundedField a
+  , BoundedJoinSemiLattice a
+  , BoundedMeetSemiLattice a
   , Signed a
   )
   => a
@@ -98,7 +100,7 @@ fieldProps' acc g = mconcat $
   [ I.isAdditive acc
   , \x -> [("subtractive", I.isSubtractive acc x)]
   , I.isMultiplicative acc
-  , \x -> [("distributive", I.isDistributive one x)]
+  , \x -> [("distributive", I.isDistributiveTimesPlus one x)]
   , \x -> [("divisive", I.isDivisive one x)]
   , \x -> [("signed", I.isSigned one x)]
   ]

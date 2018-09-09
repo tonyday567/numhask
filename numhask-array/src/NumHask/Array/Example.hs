@@ -100,7 +100,7 @@ import NumHask.Prelude as P
 -- [[0, 0, 0, 0],
 --  [0, 0, 0, 0],
 --  [0, 0, 0, 0]]
--- >>> let o = singleton one :: Array [] '[2,3,4] Int
+-- >>> let o = A.singleton one :: Array [] '[2,3,4] Int
 -- >>> o
 -- [[[1, 1, 1, 1],
 --   [1, 1, 1, 1],
@@ -108,7 +108,7 @@ import NumHask.Prelude as P
 --  [[1, 1, 1, 1],
 --   [1, 1, 1, 1],
 --   [1, 1, 1, 1]]]
--- >>> let empt = singleton nan :: Array [] '[2,3] Double
+-- >>> let empt = A.singleton nan :: Array [] '[2,3] Double
 -- >>> empt
 -- [[NaN, NaN, NaN],
 --  [NaN, NaN, NaN]]

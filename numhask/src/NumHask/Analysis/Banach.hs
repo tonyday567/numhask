@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MonoLocalBinds     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -29,13 +27,13 @@ class (ExpField a, Normed (r a) a, DivisiveAction r a) =>
   normalizeLp :: a -> r a -> r a
   normalizeLp p a = a ./ normLp p a
 
--- | the inner product of a representable over a semiring
+-- | the inner product: a distributive fold
 --
 -- > a <.> b == b <.> a
 -- > a <.> (b +c) == a <.> b + a <.> c
 -- > a <.> (s *. b + c) == s * (a <.> b) + a <.> c
 -- (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)
-class (Semiring a) =>
+class (Distributive a) =>
   Hilbert r a where
   infix 8 <.>
   (<.>) :: r a -> r a -> a
