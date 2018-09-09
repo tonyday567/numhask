@@ -20,15 +20,14 @@
 #endif
 
 -- | representation of a possibly discontinuous interval
-module NumHask.Data.IntervalD
-  ( IntervalD(..)
+module NumHask.Data.RangeD
+  ( RangeD(..)
   , normalise
   ) where
 
 import NumHask.Analysis.Space
-import NumHask.Data.Interval
+import NumHask.Data.Range
 import NumHask.Algebra.Abstract
-import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import Data.Bool (bool)
 import GHC.Generics (Generic)
@@ -36,29 +35,29 @@ import Prelude (Eq(..), Ord(..), Show, Read, Integer, Bool(..), Foldable, Functo
 import Data.List (sortBy, foldl')
 import Data.Ord (comparing)
 
-newtype IntervalD a = IntervalD [Interval a]
+newtype RangeD a = RangeD [Range a]
   deriving (Eq, Generic, Show, Functor, Foldable, Traversable)
 
 normalise :: (Ord a, Lattice a, Subtractive a) =>
-    IntervalD a -> IntervalD a
-normalise (IntervalD rs) = IntervalD $ reverse $ foldl' step [] (sortBy (comparing lower) rs)
+    RangeD a -> RangeD a
+normalise (RangeD rs) = RangeD $ reverse $ foldl' step [] (sortBy (comparing lower) rs)
   where
     step [] a = [a]
     step (x:xs) a = (a `unify` x) <> xs
 
     unify a b = bool (bool [a,b] [b,a] (lower a < lower b)) [a + b] (not $ a `disjoint` b)
 
-instance (Ord a, Lattice a, Subtractive a) => Additive (IntervalD a) where
-    (IntervalD l0) + (IntervalD l1) = normalise $ IntervalD $ l0 <> l1
-    zero = IntervalD []
+instance (Ord a, Lattice a, Subtractive a) => Additive (RangeD a) where
+    (RangeD l0) + (RangeD l1) = normalise $ RangeD $ l0 <> l1
+    zero = RangeD []
 
-instance (Divisive a, Ord a, Lattice a, Subtractive a) => Subtractive (IntervalD a) where
-    negate (IntervalD rs) = normalise $ IntervalD $ negate <$> rs
+instance (Divisive a, Ord a, Lattice a, Subtractive a) => Subtractive (RangeD a) where
+    negate (RangeD rs) = normalise $ RangeD $ negate <$> rs
 
-instance (Ord a, Lattice a, Subtractive a, Eq a, Multiplicative a) => Multiplicative (IntervalD a) where
-    (IntervalD a) * (IntervalD b) = normalise $ IntervalD $ (*) <$> a <*> b
-    one = IntervalD [one]
+instance (Ord a, Lattice a, Subtractive a, Eq a, Multiplicative a) => Multiplicative (RangeD a) where
+    (RangeD a) * (RangeD b) = normalise $ RangeD $ (*) <$> a <*> b
+    one = RangeD [one]
 
-instance (Multiplicative a, LowerBoundedField a, UpperBoundedField a, Epsilon a, Ord a, Lattice a, Subtractive a) => Divisive (IntervalD a) where
-    recip (IntervalD rs) = normalise $ IntervalD $ recip <$> rs
+instance (Multiplicative a, BoundedLattice a, Epsilon a, Ord a, Subtractive a, Divisive a) => Divisive (RangeD a) where
+    recip (RangeD rs) = normalise $ RangeD $ recip <$> rs
 

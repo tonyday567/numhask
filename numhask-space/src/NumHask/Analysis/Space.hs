@@ -1,11 +1,16 @@
 {-# LANGUAGE ConstrainedClassMethods #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+
 -- https://en.wikipedia.org/wiki/Interval_(mathematics)
 module NumHask.Analysis.Space
   ( Space(..)
+  , Spaceable
+  , Union(..)
+  , Intersection(..)
   , FieldSpace(..)
   , mid
   , project
@@ -32,7 +37,9 @@ where
 import Data.Bool
 import NumHask.Algebra.Abstract
 import NumHask.Analysis.Metric
-import Prelude (Functor(..), Eq(..), Bool(..), Show, foldr1, Traversable(..), (.))
+import Prelude (Functor(..), Eq(..), Bool(..), Show, foldr1, Traversable(..), (.), Semigroup(..), Monoid(..))
+
+type Spaceable a = (Eq a, JoinSemiLattice a, MeetSemiLattice a)
 
 -- | a continuous set of numbers
 -- mathematics does not define a space, so library devs are free to experiment.
@@ -41,7 +48,7 @@ import Prelude (Functor(..), Eq(..), Bool(..), Show, foldr1, Traversable(..), (.
 -- > lower a \/ upper a == lower a
 -- > lower a /\ upper a == upper a
 --
-class (Eq (Element s), Lattice (Element s)) => Space s where
+class (Spaceable (Element s)) => Space s where
 
   -- | the underlying element in the space
   type Element s :: *
@@ -54,12 +61,19 @@ class (Eq (Element s), Lattice (Element s)) => Space s where
 
   -- | space containing a single element
   singleton :: Element s -> s
+  singleton s = s >.< s
 
   -- | the intersection of two spaces
   intersection :: s -> s -> s
+  intersection a b = l >.< u where
+      l = lower a /\ lower b
+      u = upper a \/ upper b
 
   -- | the union of two spaces
   union :: s -> s -> s
+  union a b = l >.< u where
+    l = lower a \/ lower b
+    u = upper a /\ upper b
 
   -- | Normalise a space so that
   -- > lower a \/ upper a == lower a
@@ -76,18 +90,32 @@ class (Eq (Element s), Lattice (Element s)) => Space s where
   infix 3 >.<
   (>.<) :: Element s -> Element s -> s
 
+newtype Union a = Union { getUnion :: a }
+
+instance (Space a) => Semigroup (Union a) where
+  (<>) (Union a) (Union b) = Union (a `union` b)
+
+instance (BoundedJoinSemiLattice a, Space a) => Monoid (Union a) where
+  mempty = Union bottom
+
+newtype Intersection a = Intersection { getIntersection :: a }
+
+instance (Space a) => Semigroup (Intersection a) where
+  (<>) (Intersection a) (Intersection b) = Intersection (a `union` b)
+
+instance (BoundedMeetSemiLattice a, Space a) => Monoid (Intersection a) where
+  mempty = Intersection top
+
 -- | a space that can be divided neatly
 --
--- > project o n (lower o) = lower n
--- > project o n (upper o) = upper n
--- > project a a x = x
---
 class (Space s, Subtractive (Element s), Field (Element s)) => FieldSpace s where
-    type Grid s :: *
-    -- | create equally-spaced elements across a space
-    grid :: Pos -> s -> Grid s -> [Element s]
-    -- | create equally-spaced spaces from a space
-    gridSpace :: s -> Grid s -> [s]
+  type Grid s :: *
+
+  -- | create equally-spaced elements across a space
+  grid :: Pos -> s -> Grid s -> [Element s]
+
+  -- | create equally-spaced spaces from a space
+  gridSpace :: s -> Grid s -> [s]
 
 -- | Pos suggests where points should be placed in forming a grid across a field space.
 data Pos = OuterPos | InnerPos | LowerPos | UpperPos | MidPos deriving (Show, Eq)
@@ -97,6 +125,11 @@ mid :: (Space s, Field (Element s)) => s -> Element s
 mid s = (lower s + upper s)/two
 
 -- | project a data point from one space to another, preserving relative position
+--
+-- > project o n (lower o) = lower n
+-- > project o n (upper o) = upper n
+-- > project a a x = x
+--
 project :: (Space s, Field (Element s), Subtractive (Element s)) => s -> s -> Element s -> Element s
 project s0 s1 p =
   ((p-lower s0)/(upper s0-lower s0)) * (upper s1-lower s1) + lower s1
@@ -148,21 +181,21 @@ infixl 7 |<|
 monotone :: (Space a, Space b) => (Element a -> Element b) -> a -> b
 monotone f s = space1 [f (lower s), f (upper s)]
 
--- | a big space for Fields
+-- | a big, big space
 whole ::
   ( Space s
-  , LowerBoundedField (Element s)
-  , UpperBoundedField (Element s)
+  , BoundedJoinSemiLattice (Element s)
+  , BoundedMeetSemiLattice (Element s)
   ) => s
-whole = negInfinity ... infinity
+whole = bottom ... top
 
--- | a big space for Fields
+-- | a negative space
 negWhole ::
   ( Space s
-  , LowerBoundedField (Element s)
-  , UpperBoundedField (Element s)
+  , BoundedJoinSemiLattice (Element s)
+  , BoundedMeetSemiLattice (Element s)
   ) => s
-negWhole = infinity >.< negInfinity
+negWhole = top >.< bottom
 
 -- | a small space
 eps ::
@@ -178,7 +211,7 @@ widen ::
     ( Space s
     , Subtractive (Element s))
     => Element s -> s -> s
-widen a s = (lower s - a) ... (upper s + a)
+widen a s = (lower s - a) >.< (upper s + a)
 
 -- | widen by a small amount
 widenEps ::

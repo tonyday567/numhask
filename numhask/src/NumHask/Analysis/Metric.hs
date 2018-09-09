@@ -30,7 +30,6 @@ import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Lattice
 
@@ -145,7 +144,7 @@ instance Signed Word64 where
 --
 -- Note that the Normed codomain can be different to the domain.
 --
-class Normed a b where
+class (Additive a, Additive b) => Normed a b where
   normL1 :: a -> b
   normL2 :: a -> b
   normLp :: b -> a -> b
@@ -169,12 +168,6 @@ instance Normed Integer Integer where
   normL1 = P.abs
   normL2 = P.abs
   normLp _ = P.abs
-
-instance (Multiplicative a, ExpField a, Normed a a) =>
-  Normed (Complex a) a where
-  normL1 (rx :+ ix) = normL1 rx + normL1 ix
-  normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
-  normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
 instance Normed Natural Natural where
   normL1 = P.abs

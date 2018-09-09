@@ -133,6 +133,12 @@ instance (JoinSemiLattice a) => JoinSemiLattice (Complex a) where
 instance (MeetSemiLattice a) => MeetSemiLattice (Complex a) where
   (/\) (ar :+ ai) (br :+ bi) = (ar /\ br) :+ (ai /\ bi)
 
+instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
+  bottom = bottom :+ bottom
+
+instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
+  top = top :+ top
+
 -- * Helpers from Data.Complex
 mkPolar :: TrigField a => a -> a -> Complex a
 mkPolar r theta = (r * cos theta) :+ (r * sin theta)

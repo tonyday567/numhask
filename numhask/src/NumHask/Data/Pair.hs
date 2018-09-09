@@ -192,6 +192,12 @@ instance (JoinSemiLattice a) => JoinSemiLattice (Pair a) where
 instance (MeetSemiLattice a) => MeetSemiLattice (Pair a) where
   (/\) (Pair ax ay) (Pair bx by) = Pair (ax /\ bx) (ay /\ by)
 
+instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Pair a) where
+  bottom = Pair bottom bottom
+
+instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Pair a) where
+  top = Pair top top
+
 instance (FromInteger a) => FromInteger (Pair a) where
   fromInteger x = P.pure (fromInteger x)
 

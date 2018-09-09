@@ -56,8 +56,8 @@
 - ignore: {name: Eta reduce, within: NumHask.Algebra.Metric}
 - ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop}
 - ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop}
-- ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop.Interval}
-- ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop.Interval}
+- ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop.Space}
+- ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop.Space}
 - ignore: {name: Eta reduce, within: NumHask.Data.Pair}
 
 # Define some custom infix operators

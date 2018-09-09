@@ -28,7 +28,7 @@ import NumHask.Prelude as P
 import Numeric.Dimensions as D
 import Test.DocTest
 import qualified Hedgehog as H
-import qualified NumHask.Hedgehog.Prop.Interval as I
+import qualified NumHask.Hedgehog.Prop.Space as I
 import qualified Prelude
 
 genAIntegral :: forall a m r. (H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array [] r a)
@@ -86,9 +86,10 @@ fieldProps'
   ( Show a
   , Epsilon a
   , Lattice a
-  , Space (Interval a)
   , LowerBoundedField a
   , UpperBoundedField a
+  , BoundedJoinSemiLattice a
+  , BoundedMeetSemiLattice a
   , Signed a
   )
   => a

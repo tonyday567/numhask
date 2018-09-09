@@ -14,8 +14,7 @@ module NumHask.Hedgehog.Gen
   , negUniform
   , genPair
   , genRange
-  , genInterval
-  , genHull
+  , genRangePos
   , genComplex
   ) where
 
@@ -96,41 +95,20 @@ genComplex g = do
   i <- g
   pure (r :+ i)
 
--- | Interval
-genRange :: forall a m. (HasRange a, MonadGen m) => m a -> m (P.Range a)
+-- | Space
+genRange :: forall a m. (Lattice a, MonadGen m) => m a -> m (P.Range a)
 genRange g = do
   a <- g
   b <- g
   pure (a >.< b)
 
--- | Interval
-genInterval :: forall a m. (HasRange a, MonadGen m) => m a -> m (Interval a)
-genInterval g = do
+genRangePos :: forall a m. (Lattice a, MonadGen m) => m a -> m (P.Range a)
+genRangePos g = do
   a <- g
   b <- g
   pure (a ... b)
 
--- | Hull
-genHull :: forall a m. (HasRange a, MonadGen m) => m a -> m (Hull a)
-genHull g = do
-  a <- g
-  b <- g
-  pure (a ... b)
-
-{-
--- | Interval
-genHull :: forall a m. (HasRange a, MonadGen m) => Float -> m a -> m (Hull a)
-genHull e g = do
-  u :: Float <- uniform
-  if | u < e -> pure mempty
-     | True -> do
-         a <- g
-         b <- g
-         pure (Hull a b)
-
--}
-
--- | a space random variate
+-- | a pair
 genPair :: (Monad m) => m a -> m (Pair a)
 genPair g = do
   a <- g

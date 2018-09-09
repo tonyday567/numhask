@@ -141,27 +141,15 @@ isDivisive src =
 
 isDistributive :: (Eq a, Show a) => a -> (a -> a -> a) -> (a -> a -> a) ->
   Gen a -> Property
-isDistributive u (#) (#*) src = property $ do
+isDistributive u (#) (%) src = property $ do
   rv <- forAll src
   rv' <- forAll src
   rv'' <- forAll src
   let p = \a b c ->
-        a #* u == u &&
-        u #* a == u &&
-        a #* (b # c) == (a #* b) # (a #* c) &&
-        (a # b) #* c == (a #* c) # (b #* c)
-  assert (p rv rv' rv'')
-
-isLeftDistributive :: (Eq a, Show a) => a -> (a -> a -> a) -> (a -> a -> a) ->
-  Gen a -> Property
-isLeftDistributive u (#) (#*) src = property $ do
-  rv <- forAll src
-  rv' <- forAll src
-  rv'' <- forAll src
-  let p = \a b c ->
-        a #* u == u &&
-        u #* a == u &&
-        a #* (b # c) == (a #* b) # (a #* c)
+        a % u == u &&
+        u % a == u &&
+        a % (b # c) == (a % b) # (a % c) &&
+        (a # b) % c == (a % c) # (b % c)
   assert (p rv rv' rv'')
 
 isAbsorbativeUnit :: (Eq a, Show a) => a -> (a -> a -> a) -> Gen a -> Property
@@ -210,7 +198,7 @@ isSigned src = property $ do
         sign a * abs a == a
   assert (p rv)
 
-isNormed :: forall a b. (Eq b, JoinSemiLattice b, Additive a, Additive b, Show a, Normed a b)
+isNormed :: forall a b. (JoinSemiLattice b, Show a, Normed a b)
   => [b] -> Gen a -> Property
 isNormed _ src = property $ do
   rv <- forAll src
@@ -219,7 +207,7 @@ isNormed _ src = property $ do
         normL1 (zero :: a) == (zero :: b)
   assert (p rv)
 
-isNormedBounded :: forall a. (Eq a, JoinSemiLattice a, Bounded a, Additive a, Show a, Normed a a)
+isNormedBounded :: forall a. (JoinSemiLattice a, Bounded a, Show a, Normed a a)
   => Gen a -> Property
 isNormedBounded src = property $ do
   rv <- forAll src
@@ -229,7 +217,7 @@ isNormedBounded src = property $ do
         normL1 (zero :: a) == (zero :: a)
   assert (p rv)
 
-isNormedUnbounded :: forall a. (Eq a, JoinSemiLattice a, Additive a, Show a, Normed a a) => Gen a -> Property
+isNormedUnbounded :: forall a. (JoinSemiLattice a, Show a, Normed a a) => Gen a -> Property
 isNormedUnbounded src = property $ do
   rv <- forAll src
   let p = \a ->
@@ -237,7 +225,7 @@ isNormedUnbounded src = property $ do
         normL1 (zero :: a) == (zero :: a)
   assert (p rv)
 
-isMetricBounded :: forall a. (Eq a, JoinSemiLattice a, Bounded a, Additive a, Show a, Metric a a) => Gen a -> Property
+isMetricBounded :: forall a. (JoinSemiLattice a, Bounded a, Additive a, Show a, Metric a a) => Gen a -> Property
 isMetricBounded src = property $ do
   rv <- forAll src
   rv' <- forAll src
@@ -247,7 +235,7 @@ isMetricBounded src = property $ do
         distanceL1 a b == (minBound :: a)
   assert (p rv rv')
 
-isMetricUnbounded :: forall a. (Eq a, JoinSemiLattice a, Additive a, Show a, Metric a a) => Gen a -> Property
+isMetricUnbounded :: forall a. (JoinSemiLattice a, Additive a, Show a, Metric a a) => Gen a -> Property
 isMetricUnbounded src = property $ do
   rv <- forAll src
   rv' <- forAll src
@@ -281,7 +269,7 @@ isLowerBoundedField src = property $ do
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + one/(one+one))
 --
-isQuotientIntegerField :: forall a. (Eq a, JoinSemiLattice a, FromInteger a, QuotientField a Integer, Show a) => Gen a -> Property
+isQuotientIntegerField :: forall a. (JoinSemiLattice a, FromInteger a, QuotientField a Integer, Show a) => Gen a -> Property
 isQuotientIntegerField src = property $ do
   rv <- forAll src
   let p = \a ->
@@ -348,27 +336,4 @@ isInvolutive src = property $ do
         adj (one :: a) == (one :: a) &&
         adj (adj a) == a
   assert (p rv rv')
-
--- 'zero |.| a - a' not 'zero = a - a'
-isSubtractiveI :: forall a. (HasRange a, Show a) =>
-  Gen (Interval a) -> Property
-isSubtractiveI src = property $ do
-  rv <- forAll src
-  let p = \a ->
-        (zero |.| (a - a)) &&
-        (negate a == zero - a) &&
-        (zero |.| (negate a + a))
-  assert (p rv) 
-
-
--- 'one |.| a / a' not 'one = a / a'
-isDivisiveI :: forall a. (UpperBoundedField a, LowerBoundedField a, Epsilon a, HasRange a, Show a) =>
-  Gen (Interval a) -> Property
-isDivisiveI src = property $ do
-  rv <- forAll src
-  let p = \a ->
-        (one |.| (a / a)) &&
-        (recip a == one / a) &&
-        (one |.| (recip a * a))
-  assert (p rv)
 

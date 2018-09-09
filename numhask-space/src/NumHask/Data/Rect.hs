@@ -10,10 +10,6 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
-#if ( __GLASGOW_HASKELL__ < 820 )
-{-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
-{-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
-#endif
 
 -- | a two-dimensional plane, implemented as a composite of a 'Pair' of 'Range's.
 module NumHask.Data.Rect
@@ -31,13 +27,11 @@ import Data.Distributive
 import Data.Functor.Compose
 import Data.Functor.Rep
 import NumHask.Data.Pair
-import Prelude (Eq(..), Show(..), Bool(..), Foldable(..), Functor, Traversable(..), Applicative, (.), (&&), fmap, (<$>), Semigroup(..), Monoid(..))
+import Prelude (Eq(..), Show(..), Bool(..), Foldable(..), Functor, Traversable(..), Applicative, (.), fmap, (<$>), Semigroup(..), Monoid(..))
 import NumHask.Data.Range
 import NumHask.Data.Integral
 import NumHask.Analysis.Space
 import NumHask.Algebra.Abstract
-import NumHask.Analysis.Metric
-import NumHask.Algebra.Linear.Hadamard
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
@@ -87,17 +81,17 @@ import NumHask.Algebra.Linear.Hadamard
 -- >>> grid MidPos (Rect 0 10 0 1) (Pair 2 2)
 -- [Pair 2.5 0.25,Pair 2.5 0.75,Pair 7.5 0.25,Pair 7.5 0.75]
 newtype Rect a =
-  Rect' (Compose Pair Hull a)
+  Rect' (Compose Pair Range a)
   deriving (Eq, Functor, Applicative, Foldable, Traversable,
             Generic)
 
 -- | pattern of Rect lowerx upperx lowery uppery
 pattern Rect :: a -> a -> a -> a -> Rect a
-pattern Rect a b c d = Rect' (Compose (Pair (Hull a b) (Hull c d)))
+pattern Rect a b c d = Rect' (Compose (Pair (Range a b) (Range c d)))
 {-# COMPLETE Rect#-}
 
 -- | pattern of Ranges xrange yrange
-pattern Ranges :: Hull a -> Hull a -> Rect a
+pattern Ranges :: Range a -> Range a -> Rect a
 pattern Ranges a b = Rect' (Compose (Pair a b))
 {-# COMPLETE Ranges#-}
 
@@ -123,28 +117,26 @@ instance Representable Rect where
   index (Rect _ _ c _) (True, False) = c
   index (Rect _ _ _ d) (True, True) = d
 
-instance (HasRange a) => Semigroup (Rect a) where
+instance (BoundedLattice a) => Semigroup (Rect a) where
   (<>) (Ranges x y) (Ranges x' y') = Ranges (x `union` x') (y `union` y')
 
-type RectField a = (HasRange a, UpperBoundedField a, LowerBoundedField a)
+instance (BoundedLattice a) => Monoid (Rect a) where
+  mempty = Ranges mempty mempty
 
-instance (RectField a) => Monoid (Rect a) where
-  mempty = Ranges m m
-    where
-      m = Hull infinity negInfinity
-
-instance (HasRange a) => Space (Rect a) where
+instance (Lattice a) => Space (Rect a) where
   type Element (Rect a) = Pair a
 
   union (Ranges a b) (Ranges c d) = Ranges (a `union` c) (b `union` d)
-  -- intersection (Ranges a b) (Ranges c d) = Ranges (a `intersection` c) (b `intersection` d)
+  intersection (Ranges a b) (Ranges c d) = Ranges (a `intersection` c) (b `intersection` d)
+
+  (>.<) (Pair l0 l1) (Pair u0 u1) = Rect l0 u0 l1 u1
 
   lower (Rect l0 _ l1 _) = Pair l0 l1
   upper (Rect _ u0 _ u1) = Pair u0 u1
 
   singleton (Pair x y) = Rect x x y y
 
-instance (HasRange a, Field a, FromInteger a) => FieldSpace (Rect a) where
+instance (Lattice a, Field a, Subtractive a, FromInteger a) => FieldSpace (Rect a) where
     type Grid (Rect a) = Pair Int
 
     grid o s n = (+ bool zero (step/(one+one)) (o==MidPos)) <$> posns
@@ -170,47 +162,13 @@ instance (HasRange a, Field a, FromInteger a) => FieldSpace (Rect a) where
         sx = width rX / fromIntegral stepX
         sy = width rY / fromIntegral stepY
 
-instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Additive a) =>
-         Additive (Rect a) where
-  (Ranges x0 y0) + (Ranges x1 y1) = Ranges (x0 + x1) (y0 + y1)
-  zero = Ranges zero zero
-
-instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Subtractive a) =>
-         Subtractive (Rect a) where
-  negate (Ranges x y) = Ranges (negate x) (negate y)
-
-instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, FromInteger a) =>
-         Multiplicative (Rect a) where
-  (Ranges x0 y0) * (Ranges x1 y1) =
-    Ranges (x0 * x1) (y0 * y1)
-  one = Ranges one one
-
-instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, Divisive a, FromInteger a) =>
-         Divisive (Rect a) where
-  recip (Ranges x y) = Ranges (recip x) (recip y)
-
-instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Field a, FromInteger a) =>
-         Signed (Rect a) where
-  sign (Ranges l u) = Ranges (sign l) (sign u)
-  abs (Ranges l u) = Ranges (sign l * l) (sign u * u)
-
-instance (JoinSemiLattice a) => JoinSemiLattice (Rect a) where
-  (\/) = liftR2 (\/)
-
-instance (MeetSemiLattice a) => MeetSemiLattice (Rect a) where
-  (/\) = liftR2 (/\)
-
-instance (LowerBoundedField a, UpperBoundedField a, HasRange a, Epsilon a) => Epsilon (Rect a) where
-    epsilon = Ranges epsilon epsilon
-    nearZero (Ranges a b) = nearZero a && nearZero b
-
 -- | create a list of pairs representing the lower left and upper right cormners of a rectangle.
-corners :: (HasRange a) => Rect a -> [Pair a]
+corners :: (Lattice a) => Rect a -> [Pair a]
 corners r = [lower r, upper r]
 
 -- | project a Rect from an old range to a new one
 projectRect ::
-     (HasRange a, Field a, FromInteger a)
+     (Lattice a, Subtractive a, Field a)
   => Rect a
   -> Rect a
   -> Rect a
@@ -219,11 +177,6 @@ projectRect r0 r1 (Rect a b c d) = Rect a' b' c' d'
   where
     (Pair a' c') = project r0 r1 (Pair a c)
     (Pair b' d') = project r0 r1 (Pair b d)
-
-instance (Multiplicative a) => HadamardMultiplication Rect a where
-    (.*.) = liftR2 (*)
-instance (Divisive a) => HadamardDivision Rect a where
-    (./.) = liftR2 (/)
 
 instance (Additive a) => AdditiveAction Rect a where
     (.+) r s = fmap (s+) r
@@ -237,4 +190,3 @@ instance (Multiplicative a) => MultiplicativeAction Rect a where
 instance (Divisive a) => DivisiveAction Rect a where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
-

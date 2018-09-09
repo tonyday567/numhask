@@ -53,8 +53,8 @@ library
     , distributive
   exposed-modules:
     NumHask.Analysis.Space
-    -- NumHask.Data.IntervalD
     NumHask.Data.Range
+    NumHask.Data.RangeD
     NumHask.Data.Rect
   other-modules:
   default-language: Haskell2010

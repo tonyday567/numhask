@@ -1,8 +1,3 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE MonoLocalBinds #-}
@@ -13,21 +8,19 @@ module NumHask.Algebra.Abstract.Lattice where
 import Data.Int (Int8, Int16, Int32, Int64)
 import Data.Word (Word, Word8, Word16, Word32, Word64)
 import GHC.Natural (Natural(..))
-import GHC.Generics
-import Data.Data
-import Control.Monad
+import NumHask.Algebra.Abstract.Field
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
 --
 -- > Associativity: x \/ (y \/ z) == (x \/ y) \/ z
 -- > Commutativity: x \/ y == y \/ x
 -- > Idempotency:   x \/ x == x
-class JoinSemiLattice a where
+class (Eq a) => JoinSemiLattice a where
     infixr 5 \/
     (\/) :: a -> a -> a
 
 -- | The partial ordering induced by the join-semilattice structure
-joinLeq :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
+joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
 -- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
@@ -35,12 +28,12 @@ joinLeq x y = (x \/ y) == y
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
 -- > Commutativity: x /\ y == y /\ x
 -- > Idempotency:   x /\ x == x
-class MeetSemiLattice a where
+class (Eq a) => MeetSemiLattice a where
     infixr 6 /\
     (/\) :: a -> a -> a
 
 -- | The partial ordering induced by the meet-semilattice structure
-meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
+meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
@@ -50,26 +43,21 @@ meetLeq x y = (x /\ y) == x
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
 instance (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
 
-newtype Ordered a = Ordered { getOrdered :: a }
-  deriving ( Eq, Ord, Show, Read, Data, Typeable, Generic, Functor, Foldable, Traversable
-           , Generic1
-           )
+-- | A join-semilattice with an identity element 'bottom' for '\/'.
+--
+-- > Identity: x \/ bottom == x
+class JoinSemiLattice a => BoundedJoinSemiLattice a where
+    bottom :: a
 
-instance Applicative Ordered where
-  pure = return
-  (<*>) = ap
+-- | A meet-semilattice with an identity element 'top' for '/\'.
+--
+-- > Identity: x /\ top == x
+class MeetSemiLattice a => BoundedMeetSemiLattice a where
+    top :: a
 
-instance Monad Ordered where
-  return           = Ordered
-  Ordered x >>= f  = f x
-
-instance Ord a => JoinSemiLattice (Ordered a) where
-  Ordered x \/ Ordered y = Ordered (max x y)
-
-instance Ord a => MeetSemiLattice (Ordered a) where
-  Ordered x /\ Ordered y = Ordered (min x y)
-
-instance Ord a => Lattice (Ordered a)
+-- | Lattices with both bounds
+class (Lattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
+instance (BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
 
 instance JoinSemiLattice Float where
   (\/) = min
@@ -161,8 +149,101 @@ instance JoinSemiLattice Word64 where
 instance MeetSemiLattice Word64 where
   (/\) = max
 
-instance JoinSemiLattice b => JoinSemiLattice (a -> b) where
+instance (Eq (a -> b), JoinSemiLattice b) => JoinSemiLattice (a -> b) where
   f \/ f' = \a -> f a \/ f' a 
 
-instance MeetSemiLattice b => MeetSemiLattice (a -> b) where
+instance (Eq (a -> b), MeetSemiLattice b) => MeetSemiLattice (a -> b) where
   f /\ f' = \a -> f a /\ f' a 
+
+-- from here
+
+instance BoundedJoinSemiLattice Float where
+  bottom = negInfinity
+
+instance BoundedMeetSemiLattice Float where
+  top = infinity
+
+instance BoundedJoinSemiLattice Double where
+  bottom = negInfinity
+
+instance BoundedMeetSemiLattice Double where
+  top = infinity
+
+instance BoundedJoinSemiLattice Int where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Int where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Bool where
+  bottom = False
+
+instance BoundedMeetSemiLattice Bool where
+  top = True
+
+instance BoundedJoinSemiLattice Natural where
+  bottom = 0
+
+instance BoundedJoinSemiLattice Int8 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Int8 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Int16 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Int16 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Int32 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Int32 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Int64 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Int64 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Word where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Word where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Word8 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Word8 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Word16 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Word16 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Word32 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Word32 where
+  top = maxBound
+
+instance BoundedJoinSemiLattice Word64 where
+  bottom = minBound
+
+instance BoundedMeetSemiLattice Word64 where
+  top = maxBound
+
+instance (Eq (a -> b), BoundedJoinSemiLattice b) => BoundedJoinSemiLattice (a -> b) where
+  bottom = const bottom
+
+instance (Eq (a -> b), BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (a -> b) where
+  top = const top
+
+
+
+

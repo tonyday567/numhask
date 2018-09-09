@@ -606,7 +606,7 @@ instance (Dimensions r, Container c, Multiplicative a, Signed a)
   sign = fmapRep sign
   abs = fmapRep abs
 
-instance (Functor (Array c r), Foldable (Array c r), Normed a a, ExpField a) =>
+instance (Functor (Array c r), Foldable (Array c r), Additive (Array c r a), Normed a a, ExpField a) =>
          Normed (Array c r a) a where
   normL1 r = foldr (+) zero $ normL1 <$> r
   normL2 r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
@@ -680,39 +680,17 @@ instance
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
 
-instance (Container c, Dimensions r, JoinSemiLattice a) => JoinSemiLattice (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, JoinSemiLattice a) => JoinSemiLattice (Array c r a) where
   (\/) = liftR2 (\/)
 
-instance (Container c, Dimensions r, MeetSemiLattice a) => MeetSemiLattice (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, MeetSemiLattice a) => MeetSemiLattice (Array c r a) where
   (/\) = liftR2 (/\)
 
+instance (Eq (c a), Container c, Dimensions r, BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Array c r a) where
+  bottom = pureRep bottom
 
-{-
-
-instance (MeetSemiLattice a) => MeetSemiLattice (Complex a) where
-  (/\) (ar :+ ai) (br :+ bi) = (ar /\ br) :+ (ai /\ bi)
-
-
-
-instance forall a c r. (Eq (c a), Container c, Dimensions r, Ord a, Subtractive a, P.CanInterval a) => P.CanInterval (Array c r a) where
-
-  (...) a b
-    | a == b = P.SingletonInterval a
-    | otherwise = P.Interval a' b'
-    where
-      a' = liftR2 min a b
-      b' = liftR2 max a b
-
-  x =.= (P.Interval l u) = cfoldl' (&&) True $ _getContainer
-    (liftR2 (&&) (liftR2 (>=) x l) (liftR2 (<=) x u))
-  a =.= (P.SingletonInterval s) = a == s
-  _ =.= P.EmptyInterval = False
-
-  lowest xs = tabulate (\i -> P.lowest $ (\x -> index x i) <$> xs)
-
-  highest xs = tabulate (\i -> P.highest $ (\x -> index x i) <$> xs)
-
--}
+instance (Eq (c a), Container c, Dimensions r, BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Array c r a) where
+  top = pureRep top
 
 singleton :: (Dimensions r, Container c) => a -> (Array c r a)
 singleton a = tabulate (const a)

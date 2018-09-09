@@ -58,7 +58,7 @@ library
     NumHask.Hedgehog
     NumHask.Hedgehog.Gen
     NumHask.Hedgehog.Prop
-    NumHask.Hedgehog.Prop.Interval
+    NumHask.Hedgehog.Prop.Space
     NumHask.Hedgehog.Props
   default-language: Haskell2010
 
