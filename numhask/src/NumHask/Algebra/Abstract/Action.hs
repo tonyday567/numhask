@@ -1,9 +1,12 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Action
 module NumHask.Algebra.Abstract.Action
-  ( AdditiveAction(..)
+  ( Actor
+  , AdditiveAction(..)
   , SubtractiveAction(..)
   , MultiplicativeAction(..)
   , DivisiveAction(..)
@@ -12,32 +15,35 @@ module NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 
-class (Additive a) =>
-  AdditiveAction r a where
+-- | a type class to represent an action on a higher-kinded number
+type family Actor h
+
+class (Additive (Actor h)) =>
+  AdditiveAction h where
   infixl 6 .+
-  (.+) :: r a -> a -> r a
+  (.+) :: h -> Actor h -> h
 
   infixl 6 +.
-  (+.) :: a -> r a -> r a
+  (+.) :: Actor h -> h -> h
 
-class (Subtractive a) =>
-  SubtractiveAction r a where
+class (Subtractive (Actor h)) =>
+  SubtractiveAction h where
   infixl 6 .-
-  (.-) :: r a -> a -> r a
+  (.-) :: h -> Actor h -> h
 
   infixl 6 -.
-  (-.) :: a -> r a -> r a
+  (-.) :: Actor h -> h -> h
 
-class (Multiplicative a) =>
-  MultiplicativeAction r a where
+class (Multiplicative (Actor h)) =>
+  MultiplicativeAction h where
   infixl 7 .*
-  (.*) :: r a -> a -> r a
+  (.*) :: h -> Actor h -> h
   infixl 7 *.
-  (*.) :: a -> r a -> r a
+  (*.) :: Actor h -> h -> h
 
-class (Divisive a) =>
-  DivisiveAction r a where
+class (Divisive (Actor h)) =>
+  DivisiveAction h where
   infixl 7 ./
-  (./) :: r a -> a -> r a
+  (./) :: h -> Actor h -> h
   infixl 7 /.
-  (/.) :: a -> r a -> r a
+  (/.) :: Actor h -> h -> h
