@@ -46,7 +46,7 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.7 && <4.12
+      base >=4.7 && <4.13
     , numhask >=0.3 && <0.4
     , numhask-space
     , protolude >=0.1 && <0.3
@@ -55,7 +55,6 @@ library
     NumHask.Error
     NumHask.Examples
   default-language: Haskell2010
-
 test-suite test
   type:
     exitcode-stdio-1.0

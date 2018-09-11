@@ -1,57 +1,40 @@
-# https://serokell.io/posts/2018-01-24-using-travis-CI-for-Haskell-projects.html
-# also see:
-# https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix
+# This is the simple Travis configuration, which is intended for use
+# on applications which do not require cross-platform and
+# multiple-GHC-version support. For more information and other
+# options, see:
+#
 # https://docs.haskellstack.org/en/stable/travis_ci/
-# https://github.com/commercialhaskell/stack/blob/master/.travis.yml
-# https://github.com/ekmett/intervals/blob/master/.travis.yml
+#
+# Copy these contents into the root directory of your Github project in a file
+# named .travis.yml
 
-sudo: true
+# Use new container infrastructure to enable caching
+sudo: false
 
-language: haskell
+# Do not choose a language; we provide our own build tools.
+language: generic
 
 # Caching so the next build will be fast too.
 cache:
   directories:
   - $HOME/.stack
-  - $HOME/build/tonyday567/numhask/.stack-work
-
-ghc:
-  - head
-  # - 8.6.1
-  - 8.4.3
-
-env:
-  - PACKAGEDIR="numhask"
-  - PACKAGEDIR="numhask-prelude"
-  - PACKAGEDIR="numhask-array"
-  - PACKAGEDIR="numhask-hedgehog"
-
-matrix:
-  allow_failures:
-    - ghc: head
-    - ghc: ghc-8.6.1
 
 # Ensure necessary system libraries are present
 addons:
   apt:
-    sources:
-      - sourceline: 'ppa:hvr/ghc' # PPA of Haskell packages
     packages:
-      - libgmp-dev           # required by cabal
-      - cabal-install-2.2    # required by GHC 8.*
-      - cabal-install-head    # required by GHC head
+      - libgmp-dev
 
 before_install:
-  - cd ${PACKAGEDIR}
+# Download and unpack the stack executable
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 
 install:
-  # Download and unpack the stack executable
-  - mkdir -p ~/.local/bin
-  - export PATH=$HOME/.local/bin:$PATH
-  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-  # Build dependencies
-  - stack --no-terminal --install-ghc test --only-dependencies
+# Build dependencies
+- stack --no-terminal --install-ghc test --only-dependencies
 
 script:
-  # Build the package, its tests, and its docs and run the tests
-  - stack --no-terminal test --haddock --no-haddock-deps
+# Build the package, its tests, and its docs and run the tests
+- stack --no-terminal test --haddock --no-haddock-deps

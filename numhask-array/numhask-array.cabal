@@ -48,14 +48,14 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.11 && <4.12
+      base >=4.11 && <4.13
     , adjunctions >=4.0 && <5
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4
     , distributive >=0.4 && <0.6
-    , numhask-prelude >=0.3 && <0.4
+    , numhask-prelude
     , numhask-hedgehog
-    , protolude >=0.1 && <0.3
+    , protolude
     , singletons >=2.0 && <2.5
     , vector >=0.10 && <0.13
   exposed-modules:
@@ -64,7 +64,6 @@ library
     NumHask.Array.Example
     NumHask.Shape
   default-language: Haskell2010
-
 test-suite test
   type:
     exitcode-stdio-1.0

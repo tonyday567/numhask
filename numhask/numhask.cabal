@@ -49,7 +49,7 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-    base >=4.7 && <4.12
+    base >=4.7 && <4.13
   exposed-modules:
     NumHask.Algebra.Abstract
     NumHask.Algebra.Abstract.Action
