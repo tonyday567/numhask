@@ -5,7 +5,8 @@ packages:
   - numhask-prelude
   - numhask-array
   - numhask-hedgehog
-  - numhask-bench
+  # issues with hmatrix
+  # - numhask-bench
   - numhask-space
 
 extra-deps:
