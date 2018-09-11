@@ -212,16 +212,18 @@ instance (Multiplicative a, Subtractive a, Lattice a) => Signed (Range a) where
 instance (FromInteger a, Lattice a) => FromInteger (Range a) where
     fromInteger x = fromInteger x ... fromInteger x
 
-instance (Additive a) => AdditiveAction Range a where
+type instance Actor (Range a) = a
+
+instance (Additive a) => AdditiveAction (Range a) where
     (.+) r s = fmap (s+) r
     (+.) s = fmap (s+)
-instance (Subtractive a) => SubtractiveAction Range a where
+instance (Subtractive a) => SubtractiveAction (Range a) where
     (.-) r s = fmap (\x -> x - s) r
     (-.) s = fmap (\x -> x - s)
-instance (Multiplicative a) => MultiplicativeAction Range a where
+instance (Multiplicative a) => MultiplicativeAction (Range a) where
     (.*) r s = fmap (s*) r
     (*.) s = fmap (s*)
-instance (Divisive a) => DivisiveAction Range a where
+instance (Divisive a) => DivisiveAction (Range a) where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
 

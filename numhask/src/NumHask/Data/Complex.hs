@@ -86,13 +86,11 @@ instance (Multiplicative a, ExpField a, Normed a a) =>
   Normed (Complex a) a where
   normL1 (rx :+ ix) = normL1 rx + normL1 ix
   normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
-  normLp p (rx :+ ix) = (normL1 rx ** p + normL1 ix ** p) ** (one / p)
 
 instance (Multiplicative a, Subtractive a, ExpField a, Normed a a) =>
   Metric (Complex a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
-  distanceLp p a b = normLp p (a - b)
 
 instance (Ord a, Signed a, Subtractive a, Epsilon a)
   => Epsilon (Complex a) where
