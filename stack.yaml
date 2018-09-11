@@ -1,7 +1,6 @@
 resolver: nightly-2018-07-08
 
 packages:
-  - hunit-numhask
   - numhask
   - numhask-prelude
   - numhask-array

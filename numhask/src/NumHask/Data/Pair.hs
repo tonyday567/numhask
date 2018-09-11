@@ -110,6 +110,8 @@ instance (Bounded a) => Bounded (Pair a) where
   minBound = Pair minBound minBound
   maxBound = Pair maxBound maxBound
 
+unaryOp :: (a -> a) -> (Pair a -> Pair a)
+unaryOp f (Pair a b) = Pair (f a) (f b)
 
 binOp :: (a -> a -> a) -> (Pair a -> Pair a -> Pair a)
 binOp (#) (Pair a0 b0) (Pair a1 b1) = Pair (a0 # a1) (b0 # b1)
@@ -120,14 +122,14 @@ instance (Additive a) => Additive (Pair a) where
   zero = Pair zero zero
 
 instance (Subtractive a) => Subtractive (Pair a) where
-  negate (Pair a b) = Pair (negate a) (negate b)
+  negate = unaryOp negate
 
 instance (Multiplicative a) => Multiplicative (Pair a) where
   (Pair a0 b0) * (Pair a1 b1) = Pair (a0 * a1) (b0 * b1)
   one = Pair one one
 
 instance (Divisive a) => Divisive (Pair a) where
-  recip (Pair a b) = Pair (recip a) (recip b)
+  recip = unaryOp recip
 
 instance (Integral a) => Integral (Pair a) where
   (Pair a0 b0) `divMod` (Pair a1 b1) = (Pair da db, Pair ma mb)
@@ -140,14 +142,13 @@ instance (Integral a) => Integral (Pair a) where
       (db, mb) = b0 `quotRem` b1
 
 instance (Signed a) => Signed (Pair a) where
-  sign (Pair a b) = Pair (sign a) (sign b)
-  abs (Pair a b) = Pair (abs a) (abs b)
+  sign = unaryOp sign
+  abs = unaryOp abs
 
 instance (ExpField a, Normed a a) =>
          Normed (Pair a) a where
   normL1 (Pair a b) = normL1 a + normL1 b
   normL2 (Pair a b) = sqrt (a ** (one + one) + b ** (one + one))
-  normLp p (Pair a b) = (normL1 a ** p + normL1 b ** p) ** (one/p)
 
 instance (Subtractive a, Epsilon a) => Epsilon (Pair a) where
   epsilon = Pair epsilon epsilon
@@ -156,7 +157,6 @@ instance (Subtractive a, Epsilon a) => Epsilon (Pair a) where
 instance (ExpField a, Subtractive a, Normed a a) => Metric (Pair a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
-  distanceLp p a b = normLp p (a - b)
 
 instance (Distributive a) => Distributive (Pair a)
 
@@ -164,8 +164,8 @@ instance (Field a) => Field (Pair a)
 instance (IntegralDomain a) => IntegralDomain (Pair a)
 
 instance (ExpField a) => ExpField (Pair a) where
-  exp (Pair a b) = Pair (exp a) (exp b)
-  log (Pair a b) = Pair (log a) (log b)
+  exp = unaryOp exp
+  log = unaryOp log
 
 instance (UpperBoundedField a) => UpperBoundedField (Pair a)
   where
@@ -173,24 +173,26 @@ instance (UpperBoundedField a) => UpperBoundedField (Pair a)
 
 instance (LowerBoundedField a) => LowerBoundedField (Pair a)
 
-instance (Additive a) => AdditiveAction Pair a where
+type instance Actor (Pair a) = a
+
+instance (Additive a) => AdditiveAction (Pair a) where
     (.+) r s = fmap (s+) r
     (+.) s r = fmap (s+) r
-instance (Subtractive a) => SubtractiveAction Pair a where
+instance (Subtractive a) => SubtractiveAction (Pair a) where
     (.-) r s = fmap (\x -> x - s) r
     (-.) s r = fmap (\x -> x - s) r
-instance (Multiplicative a) => MultiplicativeAction Pair a where
+instance (Multiplicative a) => MultiplicativeAction (Pair a) where
     (.*) r s = fmap (s*) r
     (*.) s r = fmap (s*) r
-instance (Divisive a) => DivisiveAction Pair a where
+instance (Divisive a) => DivisiveAction (Pair a) where
     (./) r s = fmap (/ s) r
     (/.) s r = fmap (/ s) r
 
 instance (JoinSemiLattice a) => JoinSemiLattice (Pair a) where
-  (\/) (Pair ax ay) (Pair bx by) = Pair (ax \/ bx) (ay \/ by)
+  (\/) = binOp (\/)
 
 instance (MeetSemiLattice a) => MeetSemiLattice (Pair a) where
-  (/\) (Pair ax ay) (Pair bx by) = Pair (ax /\ bx) (ay /\ by)
+  (/\) = binOp (/\)
 
 instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Pair a) where
   bottom = Pair bottom bottom
@@ -208,10 +210,8 @@ instance (Normed a a) =>
   Normed (Pair a) (Pair a) where
   normL1 = fmap normL1
   normL2 = fmap normL2
-  normLp = binOp normLp
 
 instance (Subtractive a, Normed a a) =>
   Metric (Pair a) (Pair a) where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
-  distanceLp p a b = normLp p (a - b)

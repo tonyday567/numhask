@@ -283,7 +283,7 @@ instance
 --  [43, 50]]
 --
 mmult :: forall c m n k a.
-  ( Hilbert (Vector c k) a
+  ( Hilbert (Vector c k a)
   , Dimensions '[ m, k]
   , Dimensions '[ k, n]
   , Dimensions '[ m, n]
@@ -610,7 +610,6 @@ instance (Functor (Array c r), Foldable (Array c r), Additive (Array c r a), Nor
          Normed (Array c r a) a where
   normL1 r = foldr (+) zero $ normL1 <$> r
   normL2 r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
-  normLp p r = (** (one / p)) $ foldr (+) zero $ (** p) . normL1 <$> r
 
 instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) =>
          Epsilon (Array c r a) where
@@ -622,7 +621,6 @@ instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Subtracti
          Metric (Array c r a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
-  distanceLp p a b = normLp p (a - b)
 
 instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
   divMod a b = (d, m)
@@ -636,9 +634,7 @@ instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
       q = fmap fst x
       r = fmap snd x
 
-instance (Foldable (Array c r), CommutativeRing a, Semiring a, Dimensions r, Container c) =>
-  Hilbert (Array c r) a where
-  a <.> b = sum $ liftR2 (*) a b
+type instance Actor (Array c r a) = a
 
 instance (Dimensions r, Container c, Multiplicative a) =>
   HadamardMultiplication (Array c r) a where
@@ -649,24 +645,28 @@ instance (Dimensions r, Container c, Divisive a) =>
   (./.) = liftR2 (/)
 
 instance (Dimensions r, Container c, Additive a) =>
-  AdditiveAction (Array c (r::[Nat])) a where
+  AdditiveAction (Array c (r::[Nat]) a) where
   (.+) r s = fmap (s +) r
   (+.) s = fmap (s +)
 
 instance (Dimensions r, Container c, Subtractive a) =>
-  SubtractiveAction (Array c (r::[Nat])) a where
+  SubtractiveAction (Array c (r::[Nat]) a) where
   (.-) r s = fmap (\x -> x - s) r
   (-.) s = fmap (\x -> x - s)
 
 instance (Dimensions r, Container c, Multiplicative a) =>
-  MultiplicativeAction (Array c (r :: [Nat])) a where
+  MultiplicativeAction (Array c (r :: [Nat]) a) where
   (.*) r s = fmap (* s) r
   (*.) s = fmap (s *)
 
 instance (Dimensions r, Container c, Divisive a) =>
-  DivisiveAction (Array c (r::[Nat])) a where
+  DivisiveAction (Array c (r::[Nat]) a) where
   (./) r s = fmap (/ s) r
   (/.) s = fmap (/ s)
+
+instance forall a c r. (Actor (Array c r a) ~ a, Foldable (Array c r), P.Distributive a, CommutativeRing a, Semiring a, Dimensions r, Container c) =>
+  Hilbert (Array c r a) where
+  a <.> b = sum $ liftR2 (*) a b
 
 instance
   ( Foldable (Array c r)
