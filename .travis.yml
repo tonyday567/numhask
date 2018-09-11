@@ -25,6 +25,13 @@ addons:
     packages:
       - libgmp-dev
 
+matrix:
+  include:
+    - env: YAML=stack-ghc86.yaml
+    - env: YAML=stack.yaml
+  allow_failures:
+    - env: YAML=stack-ghc86.yaml
+
 before_install:
 # Download and unpack the stack executable
 - mkdir -p ~/.local/bin
@@ -33,8 +40,9 @@ before_install:
 
 install:
 # Build dependencies
-- stack --no-terminal --install-ghc test --only-dependencies
-
+- STACK_YAML=$YAML stack --no-terminal --install-ghc test --only-dependencies
+# - STACK_YAML=stack-ghc86.yaml stack --no-terminal --install-ghc test --only-dependencies
 script:
 # Build the package, its tests, and its docs and run the tests
-- stack --no-terminal test --haddock --no-haddock-deps
+- STACK_YAML=$YAML stack --no-terminal test --haddock --no-haddock-deps
+# - STACK_YAML=stack-ghc86.yaml stack --no-terminal test --haddock --no-haddock-deps
