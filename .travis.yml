@@ -20,16 +20,9 @@ ghc:
   # - 8.6.1
   - 8.4.3
 
-env:
-  - PACKAGEDIR="numhask"
-  - PACKAGEDIR="numhask-prelude"
-  - PACKAGEDIR="numhask-array"
-  - PACKAGEDIR="numhask-hedgehog"
-
 matrix:
   allow_failures:
     - ghc: head
-    - ghc: ghc-8.6.1
 
 # Ensure necessary system libraries are present
 addons:
@@ -40,9 +33,6 @@ addons:
       - libgmp-dev           # required by cabal
       - cabal-install-2.2    # required by GHC 8.*
       - cabal-install-head    # required by GHC head
-
-before_install:
-  - cd ${PACKAGEDIR}
 
 install:
   # Download and unpack the stack executable
