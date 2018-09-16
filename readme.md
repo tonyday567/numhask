@@ -3,9 +3,9 @@ numhask
 
 [![Build Status](https://travis-ci.org/tonyday567/numhask.svg)](https://travis-ci.org/tonyday567/numhask) [![Gitter chat](https://badges.gitter.im/numhask/Lobby.png)](https://gitter.im/numhask/Lobby)
 
-A numeric class heirarchy, providing a structure for numbers and functions that combine them.
+A numeric class hierarchy, providing a structure for numbers and functions that combine them.
 
-Ring heirarchy
+Ring hierarchy
 ---
 
 For example, the `Num` class in prelude is approximately a `Ring`. In numhask, the class laws and operators flow as follows:
@@ -15,7 +15,7 @@ For example, the `Num` class in prelude is approximately a `Ring`. In numhask, t
 Libraries
 ---
 
-- `numhask` the core class heirarchy with just base as a dependency
+- `numhask` the core class hierarchy with just base as a dependency
 - `numhask-prelude` numhask + [protolude](https://hackage.haskell.org/package/protolude)
 - `numhask-array` n-dimensional arrays with type-level size
 
