@@ -10,7 +10,7 @@ Ring hierarchy
 
 For example, the `Num` class in prelude is approximately a `Ring`. In numhask, the class laws and operators flow as follows:
 
-[![Ring Hierarchy](numhask-graph/other/ring.svg)](numhask-graph/other/ring.svg)
+[![Ring Hierarchy](numhask/other/ring.svg)](numhask/other/ring.svg)
 
 Libraries
 ---
@@ -19,7 +19,7 @@ Libraries
 - `numhask-prelude` numhask + [protolude](https://hackage.haskell.org/package/protolude)
 - `numhask-array` n-dimensional arrays with type-level size
 
-There is also some performance analytics in `numhask-bench` and `numhask-graph` produces the above chart.
+There is also some performance analytics in `numhask-bench` and `numhask` produces the above chart.
 
 numhask
 ---
