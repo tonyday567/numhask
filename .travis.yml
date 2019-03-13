@@ -6,7 +6,6 @@
 # https://github.com/ekmett/intervals/blob/master/.travis.yml
 
 sudo: true
-
 language: haskell
 
 # Caching so the next build will be fast too.
