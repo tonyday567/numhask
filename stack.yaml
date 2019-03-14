@@ -5,10 +5,12 @@ packages:
   - numhask-prelude
   - numhask-array
   - numhask-hedgehog
-  - numhask-bench
+  # issues with hmatrix
+  # - numhask-bench
   - numhask-space
 
 extra-deps:
   - dimensions-0.3.2.0
   - perf-0.4.1.0
   - perf-analysis-0.0.1.1
+

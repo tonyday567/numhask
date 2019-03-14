@@ -24,14 +24,13 @@ build-type:
   Simple
 cabal-version:
   >= 1.18
-
-extra-source-files:
-  stack.yaml
-
 source-repository head
-  type: git
-  location: https://github.com/tonyday567/numhask
-
+  type:
+    git
+  location:
+    https://github.com/tonyday567/numhask
+  subdir:
+    numhask-space
 library
   hs-source-dirs:
     src
