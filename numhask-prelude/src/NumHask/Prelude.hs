@@ -14,6 +14,7 @@ module NumHask.Prelude
   , fromString
   , fail
   , ifThenElse
+  , fromList
   , fromListN
     -- * Algebraic Heirarchy
     -- $instances

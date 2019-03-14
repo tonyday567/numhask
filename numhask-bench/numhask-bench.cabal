@@ -24,16 +24,13 @@ build-type:
   Simple
 cabal-version:
   >= 1.18
-
-extra-source-files:
-  stack.yaml
-
 source-repository head
   type:
     git
   location:
-    https://github.com/tonyday567/numhask-bench
-
+    https://github.com/tonyday567/numhask
+  subdir:
+    numhask-array
 executable numhask-bench
   main-is:
     bench.hs
@@ -52,7 +49,7 @@ executable numhask-bench
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      base >=4.7 && <4.13
     , hmatrix
     , matrix
     , numhask

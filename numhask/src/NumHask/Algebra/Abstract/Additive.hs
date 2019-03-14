@@ -14,7 +14,6 @@ import GHC.Natural (Natural(..))
 import Prelude (Int, Integer, Float, Double, Bool)
 import qualified Prelude as P
 
-
 class Additive a where
   infixl 6 +
   (+) :: a -> a -> a

@@ -178,15 +178,17 @@ projectRect r0 r1 (Rect a b c d) = Rect a' b' c' d'
     (Pair a' c') = project r0 r1 (Pair a c)
     (Pair b' d') = project r0 r1 (Pair b d)
 
-instance (Additive a) => AdditiveAction Rect a where
+type instance Actor (Rect a) = a
+
+instance (Additive a) => AdditiveAction (Rect a) where
     (.+) r s = fmap (s+) r
     (+.) s = fmap (s+)
-instance (Subtractive a) => SubtractiveAction Rect a where
+instance (Subtractive a) => SubtractiveAction (Rect a) where
     (.-) r s = fmap (\x -> x - s) r
     (-.) s = fmap (\x -> x - s)
-instance (Multiplicative a) => MultiplicativeAction Rect a where
+instance (Multiplicative a) => MultiplicativeAction (Rect a) where
     (.*) r s = fmap (s*) r
     (*.) s = fmap (s*)
-instance (Divisive a) => DivisiveAction Rect a where
+instance (Divisive a) => DivisiveAction (Rect a) where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)

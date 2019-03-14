@@ -34,7 +34,7 @@ import NumHask.Analysis.Metric
 import NumHask.Analysis.Space as S
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Functor, Traversable(..), Applicative, pure, (<*>), (.), otherwise, (&&), fmap, (<$>), Semigroup(..), Monoid(..), zipWith, drop)
+import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Functor, Traversable(..), Applicative, pure, (<*>), (.), otherwise, (&&), fmap, (<$>), Semigroup(..), Monoid(..), zipWith, drop, filter, ($), id)
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
@@ -212,16 +212,18 @@ instance (Multiplicative a, Subtractive a, Lattice a) => Signed (Range a) where
 instance (FromInteger a, Lattice a) => FromInteger (Range a) where
     fromInteger x = fromInteger x ... fromInteger x
 
-instance (Additive a) => AdditiveAction Range a where
+type instance Actor (Range a) = a
+
+instance (Additive a) => AdditiveAction (Range a) where
     (.+) r s = fmap (s+) r
     (+.) s = fmap (s+)
-instance (Subtractive a) => SubtractiveAction Range a where
+instance (Subtractive a) => SubtractiveAction (Range a) where
     (.-) r s = fmap (\x -> x - s) r
     (-.) s = fmap (\x -> x - s)
-instance (Multiplicative a) => MultiplicativeAction Range a where
+instance (Multiplicative a) => MultiplicativeAction (Range a) where
     (.*) r s = fmap (s*) r
     (*.) s = fmap (s*)
-instance (Divisive a) => DivisiveAction Range a where
+instance (Divisive a) => DivisiveAction (Range a) where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
 
@@ -237,16 +239,17 @@ stepSensible tp span n =
       | err <= 0.75 = 2.0 * step'
       | otherwise = step'
 
-gridSensible :: (Ord a, FromInteger a, FromRatio a, QuotientField a Integer, ExpField a) =>
-    Pos -> Range a -> Integer -> [a]
-gridSensible tp (Range l u) n =
+gridSensible :: (Ord a, JoinSemiLattice a, FromInteger a, FromRatio a, QuotientField a Integer, ExpField a, Epsilon a) =>
+    Pos -> Bool -> Range a -> Integer -> [a]
+gridSensible tp inside r@(Range l u) n =
+    bool id (filter (`memberOf` r)) inside $
     (+ bool zero (step/two) (tp==MidPos)) <$> posns
   where
     posns = (first' +) . (step *) . fromIntegral <$> [i0..i1]
     span = u - l
     step = stepSensible tp span n
-    first' = step * fromIntegral (ceiling (l/step) :: Integer)
-    last' =  step * fromIntegral (floor   (u/step) :: Integer)
+    first' = step * fromIntegral (floor (l/step + epsilon) :: Integer)
+    last' =  step * fromIntegral (ceiling (u/step - epsilon) :: Integer)
     n' = round ((last' - first')/step)
     (i0,i1) = case tp of
                 OuterPos -> (0::Integer,n')

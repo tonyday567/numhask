@@ -105,12 +105,10 @@ instance (GCDConstraints a) => Signed (Ratio a) where
 instance (GCDConstraints a) => Normed (Ratio a) (Ratio a) where
   normL1 = abs
   normL2 = abs
-  normLp _ = abs
 
 instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
-  distanceLp p a b = normLp p (a - b)
 
 instance (GCDConstraints a, MeetSemiLattice a) => Epsilon (Ratio a)
 

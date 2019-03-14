@@ -1,57 +1,59 @@
-# https://serokell.io/posts/2018-01-24-using-travis-CI-for-Haskell-projects.html
-# also see:
-# https://docs.travis-ci.com/user/customizing-the-build/#Build-Matrix
-# https://docs.haskellstack.org/en/stable/travis_ci/
-# https://github.com/commercialhaskell/stack/blob/master/.travis.yml
-# https://github.com/ekmett/intervals/blob/master/.travis.yml
-
-sudo: true
-
 language: haskell
+dist: trusty
 
-# Caching so the next build will be fast too.
 cache:
   directories:
   - $HOME/.stack
-  - $HOME/build/tonyday567/numhask/.stack-work
+  - $TRAVIS_BUILD_DIR/.stack-work
 
-ghc:
-  - head
-  # - 8.6.1
-  - 8.4.3
-
-env:
-  - PACKAGEDIR="numhask"
-  - PACKAGEDIR="numhask-prelude"
-  - PACKAGEDIR="numhask-array"
-  - PACKAGEDIR="numhask-hedgehog"
+cabal: "2.4"
 
 matrix:
+  include:
+    - env: ARGS="--resolver lts-13.11 --system-ghc"
+      ghc: "8.6.3"
+      # a -Werror build that is allowed to fail
+    - env: BUILD=werror ARGS="--resolver lts-13.11 --system-ghc"
+      ghc: "8.6.3"
+    - env: BUILD=stack ARGS="--resolver nightly --system-ghc"
+      ghc: "8.6.4"
+
   allow_failures:
-    - ghc: head
-    - ghc: ghc-8.6.1
-
-# Ensure necessary system libraries are present
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:hvr/ghc' # PPA of Haskell packages
-    packages:
-      - libgmp-dev           # required by cabal
-      - cabal-install-2.2    # required by GHC 8.*
-      - cabal-install-head    # required by GHC head
-
-before_install:
-  - cd ${PACKAGEDIR}
+    - env: BUILD=stack ARGS="--resolver nightly --system-ghc"
+    - env: BUILD=werror ARGS="--resolver lts-13.11 --system-ghc"
 
 install:
-  # Download and unpack the stack executable
-  - mkdir -p ~/.local/bin
-  - export PATH=$HOME/.local/bin:$PATH
-  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-  # Build dependencies
-  - stack --no-terminal --install-ghc test --only-dependencies
+- |
+  case "$BUILD" in
+    cabal)
+      cabal --version
+      ghc --version
+      ;;
+    stack|werror)
+      ghc --version
+      PATH=$HOME/.local/bin:$PATH
+      mkdir -p ~/.local/bin
+      if [ `uname` = "Darwin" ]
+      then
+        travis_retry curl --insecure -L https://get.haskellstack.org/stable/osx-x86_64.tar.gz | tar xz --strip-components=1 --include '*/stack' -C ~/.local/bin
+      else
+        travis_retry curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+      fi
+      ;;
+  esac
 
 script:
-  # Build the package, its tests, and its docs and run the tests
-  - stack --no-terminal test --haddock --no-haddock-deps
+- |
+  case "$BUILD" in
+    cabal)
+      cabal v2-update
+      cabal v2-build
+      cabal v2-test --enable-test
+      ;;
+    stack)
+      stack --no-terminal $ARGS test --haddock --no-haddock-deps
+      ;;
+    werror)
+      stack --no-terminal $ARGS test --haddock --no-haddock-deps --ghc-options -Werror --ghc-options -Wcompat --ghc-options -Wincomplete-record-updates --ghc-options -Wincomplete-uni-patterns --ghc-options -Wredundant-constraints
+      ;;
+  esac
