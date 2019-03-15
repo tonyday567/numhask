@@ -31,15 +31,15 @@ import qualified Hedgehog as H
 import qualified NumHask.Hedgehog.Prop.Space as I
 import qualified Prelude
 
-genAIntegral :: forall a m r. (H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array [] r a)
-genAIntegral = fromList <$> replicateM n integral_
+genAIntegral :: forall a m r. (H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array [] (r :: [Nat]) a)
+genAIntegral = fromList <$> replicateM (fromIntegral n) integral_
   where
-    n = dimVal $ dim @r
+    n = totalDim $ dims @Nat @r
 
-genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a, FromRatio a) => m (Array [] r a)
-genARational = fromList <$> replicateM n negUniform
+genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a, FromRatio a) => m (Array [] (r :: [Nat]) a)
+genARational = fromList <$> replicateM (fromIntegral n) negUniform
   where
-    n = dimVal $ dim @r
+    n = totalDim $ dims @Nat @r
 
 main :: IO ()
 main = do

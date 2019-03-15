@@ -10,6 +10,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
@@ -56,21 +57,27 @@ newtype instance
 instance NFData (Array c ds t) where
   rnf a = seq a ()
 
+{-
 -- | instance of array where some of the dimensions are known at compile time
 -- it wraps an Array with some weird magic
 data instance Array c (xds :: [XNat]) t = forall (ds :: [Nat]).
-  ( FixedDim xds ds ~ ds
-  , FixedXDim xds ds ~ xds
+  ( FixedDims xds ds
   , Dimensions ds) =>
   SomeArray (Array c ds t)
+
+-}
+
+instance (Dimensions r) => HasShape (Array c (r :: [Nat])) where
+  type Shape (Array c r) = [Int]
+  shape _ = fmap fromIntegral (listDims $ dims @Nat @r)
 
 -- | an array with dimensions represented at the value level
 newtype AnyArray c a = AnyArray ([Int], c a)
 
 -- | convert an array with type-level shape to value-level shape
-anyArray :: (Dimensions ds) => Array c ds a -> AnyArray c a
+anyArray :: (Dimensions ds) => Array c (ds :: [Nat]) a -> AnyArray c a
 anyArray arr@(Array c) = AnyArray (shape arr, c)
- 
+
 -- | a sweet class of container with attributes necessary to supply the set of operations here
 class (Functor f) => Container f where
   generate :: Int -> (Int -> a) -> f a
@@ -111,22 +118,25 @@ instance Container [] where
   cfoldr = foldr
   cconcat = mconcat
 
-instance (Eq (c t), Dimensions ds) => Eq (Array c ds t) where
+instance (Eq (c t), Dimensions ds) => Eq (Array c (ds :: [Nat]) t) where
     (Array a) == (Array b) = a == b
 
-dimList :: Dim ds -> [Int]
-dimList D = []
+{-
+dimList :: Dims ds -> [Int]
+dimList U = []
 dimList (d :* ds) = dimList d ++ dimList ds
-dimList (Dn :: Dim m) = [dimVal' @m]
-dimList (Dx (Dn :: Dim m)) = [dimVal' @m]
+dimList (Dn _ :: Dim m) = [dimVal' @m]
+-- dimList (Dx (Dn _ :: Dim m)) = [dimVal' @m]
 
-instance (Dimensions r) => HasShape (Array c r) where
-  type Shape (Array c r) = [Int]
-  shape _ = dimList $ dim @r
+-}
 
+
+{-
 instance HasShape (Array c (xds :: [XNat])) where
   type Shape (Array c xds) = [Int]
   shape (SomeArray a) = shape a
+-}
+
 
 -- * shape helpers where dimensions ~ [Int]
 
@@ -152,20 +162,20 @@ unind ns x =
     ns
 
 instance forall r c. (Dimensions r, Container c) =>
-  Data.Distributive.Distributive (Array c r) where
-  distribute f = Array $ generate n $ \i -> fmap (\(Array v) -> idx v i) f
+  Data.Distributive.Distributive (Array c (r :: [Nat])) where
+  distribute f = Array $ generate (fromIntegral n) $ \i -> fmap (\(Array v) -> idx v i) f
     where
-      n = dimVal $ dim @r
+      n = totalDim $ dims @Nat @r
 
 instance forall r c. (Dimensions r, Container c) =>
-  Representable (Array c r) where
+  Representable (Array c (r :: [Nat])) where
   type Rep (Array c r) = [Int]
-  tabulate f = Array $ generate (product ns) (f . unind ns)
+  tabulate f = Array $ generate (fromIntegral $ product ns) (f . unind (fmap fromIntegral ns))
     where
-      ns = dimList $ dim @r
-  index (Array xs) rs = xs `idx` ind ns rs
+      ns = listDims $ dims @Nat @r
+  index (Array xs) rs = xs `idx` ind (fmap fromIntegral ns) rs
     where
-      ns = dimList $ dim @r
+      ns = listDims $ dims @Nat @r
 
 -- | from flat list
 instance
@@ -174,11 +184,11 @@ instance
     , Additive a
     , IsList (c a)
     ) =>
-    IsList (Array c r a) where
+    IsList (Array c (r :: [Nat]) a) where
   type Item (Array c r a) = a
   fromList l = Array $ fromList $ take n $ l ++ repeat zero
     where
-      n = dimVal (dim @r)
+      n = fromIntegral $ totalDim (dims @_ @r)
   toList (Array v) = GHC.Exts.toList v
 
 instance (Show a, Show (Item (c a)), Container c, IsList (c a)) => Show (AnyArray c a) where
@@ -207,7 +217,7 @@ flatten1 (AnyArray (rep, v)) =
     ss = take n [0 ..]
 
 instance (Show a, Show (Item (c a)), IsList (c a), Container c, Dimensions ds)
-  => Show (Array c ds a) where
+  => Show (Array c (ds :: [Nat]) a) where
   show = GHC.Show.show . anyArray
 
 type Vector c n = Array c '[ n]
@@ -289,7 +299,7 @@ mmult :: forall c m n k a.
   , Dimensions '[ m, n]
   , Container c
   )
-  => Matrix c m k a
+  => Matrix c (m :: Nat) (k :: Nat) a
   -> Matrix c k n a
   -> Matrix c m n a
 mmult x y = tabulate go
@@ -313,7 +323,7 @@ row i_ = unsafeRow i
 
 rank2Shape
   :: Dimensions '[ m, n]
-  => Matrix c m n a
+  => Matrix c (m :: Nat) (n :: Nat) a
   -> (Int, Int)
 rank2Shape t =
   case shape t of
@@ -324,11 +334,20 @@ unsafeRow :: forall c a m n.
   ( Container c
   , Dimensions '[ m, n])
   => Int
-  -> Matrix c m n a
+  -> Matrix c (m :: Nat) (n :: Nat) a
   -> Vector c n a
 unsafeRow i t@(Array a) = Array $ cslice (i * n) n a
   where
     (_, n) = rank2Shape t
+
+unsafeCol ::
+     forall c a m n. (Container c, Dimensions '[ m, n])
+  => Int
+  -> Matrix c (m :: Nat) (n :: Nat) a
+  -> Vector c m a
+unsafeCol j t@(Array a) = Array $ generate m (\x -> a `idx` (j + x * n))
+  where
+    (m, n) = rank2Shape t
 
 -- | extract the column of a matrix
 col :: forall c j a m n.
@@ -344,20 +363,12 @@ col j_ = unsafeCol j
   where
     j = (fromIntegral . S.fromSing . S.singByProxy) j_
 
-unsafeCol ::
-     forall c a m n. (Container c, Dimensions '[ m, n])
-  => Int
-  -> Matrix c m n a
-  -> Vector c m a
-unsafeCol j t@(Array a) = Array $ generate m (\x -> a `idx` (j + x * n))
-  where
-    (m, n) = rank2Shape t
 
 -- |
 --
 -- >>> unsafeIndex a [0,2,1]
 -- 10
-unsafeIndex :: (Container c, Dimensions r) => Array c r a -> [Int] -> a
+unsafeIndex :: (Container c, Dimensions r) => Array c (r :: [Nat]) a -> [Int] -> a
 unsafeIndex t@(Array a) i = a `idx` ind (shape t) i
 
 -- |
@@ -368,8 +379,8 @@ unsafeIndex t@(Array a) i = a `idx` ind (shape t) i
 unsafeSlice ::
      (Container c, IsList (c a), Item (c a) ~ a, Dimensions r, Dimensions r0)
   => [[Int]]
-  -> Array c r a
-  -> Array c r0 a
+  -> Array c (r :: [Nat]) a
+  -> Array c (r0 :: [Nat]) a
 unsafeSlice s t = Array (fromList [unsafeIndex t i | i <- sequence s])
 
 -- |
@@ -518,8 +529,8 @@ concatenate s_ r@(Array vr) t@(Array vt) =
 --
 transpose ::
      forall c s t a. (t ~ Transpose s, Container c, Dimensions s, Dimensions t)
-  => Array c s a
-  -> Array c t a
+  => Array c (s :: [Nat]) a
+  -> Array c (t :: [Nat]) a
 transpose (Array x) = Array x
 
 -- |
@@ -565,64 +576,64 @@ squeeze ::
 squeeze (Array x) = Array x
 
 instance (Dimensions r, Container c, Additive a) =>
-  Additive (Array c r a) where
+  Additive (Array c (r :: [Nat]) a) where
   a + b = liftR2 (+) a b
   zero = pureRep zero
 
 instance (Dimensions r, Container c, Subtractive a) =>
-  Subtractive (Array c r a) where
+  Subtractive (Array c (r :: [Nat]) a) where
   negate = fmapRep negate
 
 instance (Dimensions r, Container c, Multiplicative a) =>
-  Multiplicative (Array c r a) where
+  Multiplicative (Array c (r :: [Nat]) a) where
   a * b = liftR2 (*) a b
 
   one = pureRep one
 
 instance (Dimensions r, Container c, Divisive a) =>
-  Divisive (Array c r a) where
+  Divisive (Array c (r :: [Nat]) a) where
   recip = fmapRep recip
 
 instance (Dimensions r, Container c, Multiplicative a, Additive a) =>
-  P.Distributive (Array c r a)
+  P.Distributive (Array c (r :: [Nat]) a)
 
-instance (Dimensions r, Container c, IntegralDomain a) => IntegralDomain (Array c r a)
+instance (Dimensions r, Container c, IntegralDomain a) => IntegralDomain (Array c (r :: [Nat]) a)
 
-instance (Dimensions r, Container c, Field a) => Field (Array c r a)
+instance (Dimensions r, Container c, Field a) => Field (Array c (r :: [Nat]) a)
 
-instance (Dimensions r, Container c, ExpField a) => ExpField (Array c r a) where
+instance (Dimensions r, Container c, ExpField a) => ExpField (Array c (r :: [Nat]) a) where
   exp = fmapRep exp
   log = fmapRep log
 
 instance (Foldable (Array c r), Dimensions r, Container c, UpperBoundedField a) =>
-         UpperBoundedField (Array c r a) where
+         UpperBoundedField (Array c (r :: [Nat]) a) where
   isNaN = foldl' (||) False . fmapRep isNaN
 
 instance (Foldable (Array c r), Dimensions r, Container c, LowerBoundedField a) =>
-         LowerBoundedField (Array c r a)
+         LowerBoundedField (Array c (r :: [Nat]) a)
 
 instance (Dimensions r, Container c, Multiplicative a, Signed a)
-  => Signed (Array c r a) where
+  => Signed (Array c (r :: [Nat]) a) where
   sign = fmapRep sign
   abs = fmapRep abs
 
 instance (Functor (Array c r), Foldable (Array c r), Additive (Array c r a), Normed a a, ExpField a) =>
-         Normed (Array c r a) a where
+         Normed (Array c (r :: [Nat]) a) a where
   normL1 r = foldr (+) zero $ normL1 <$> r
   normL2 r = sqrt $ foldr (+) zero $ (** (one + one)) <$> r
 
 instance (Eq (c a), Foldable (Array c r), Dimensions r, Container c, Epsilon a) =>
-         Epsilon (Array c r a) where
+         Epsilon (Array c (r :: [Nat]) a) where
   epsilon = tabulate (const epsilon)
   nearZero f = and (fmapRep nearZero f)
   aboutEqual a b = and (liftR2 aboutEqual a b)
 
 instance (Foldable (Array c r), Dimensions r, Container c, ExpField a, Subtractive a, Normed a a) =>
-         Metric (Array c r a) a where
+         Metric (Array c (r :: [Nat]) a) a where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)
 
-instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
+instance (Dimensions r, Container c, Integral a) => Integral (Array c (r :: [Nat]) a) where
   divMod a b = (d, m)
     where
       x = liftR2 divMod a b
@@ -637,11 +648,11 @@ instance (Dimensions r, Container c, Integral a) => Integral (Array c r a) where
 type instance Actor (Array c r a) = a
 
 instance (Dimensions r, Container c, Multiplicative a) =>
-  HadamardMultiplication (Array c r) a where
+  HadamardMultiplication (Array c (r :: [Nat])) a where
   (.*.) = liftR2 (*)
 
 instance (Dimensions r, Container c, Divisive a) =>
-  HadamardDivision (Array c r) a where
+  HadamardDivision (Array c (r :: [Nat])) a where
   (./.) = liftR2 (/)
 
 instance (Dimensions r, Container c, Additive a) =>
@@ -665,7 +676,7 @@ instance (Dimensions r, Container c, Divisive a) =>
   (/.) s = fmap (/ s)
 
 instance forall a c r. (Actor (Array c r a) ~ a, Foldable (Array c r), P.Distributive a, CommutativeRing a, Semiring a, Dimensions r, Container c) =>
-  Hilbert (Array c r a) where
+  Hilbert (Array c (r :: [Nat]) a) where
   a <.> b = sum $ liftR2 (*) a b
 
 instance
@@ -675,22 +686,22 @@ instance
   , CommutativeRing a
   , Multiplicative a
   ) =>
-  TensorProduct (Array c r a) where
+  TensorProduct (Array c (r :: [Nat]) a) where
   (><) m n = tabulate (\i -> index m i *. n)
   timesleft v m = tabulate (\i -> v <.> index m i)
   timesright m v = tabulate (\i -> v <.> index m i)
 
-instance (Eq (c a), Container c, Dimensions r, JoinSemiLattice a) => JoinSemiLattice (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, JoinSemiLattice a) => JoinSemiLattice (Array c (r :: [Nat]) a) where
   (\/) = liftR2 (\/)
 
-instance (Eq (c a), Container c, Dimensions r, MeetSemiLattice a) => MeetSemiLattice (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, MeetSemiLattice a) => MeetSemiLattice (Array c (r :: [Nat]) a) where
   (/\) = liftR2 (/\)
 
-instance (Eq (c a), Container c, Dimensions r, BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Array c (r :: [Nat]) a) where
   bottom = pureRep bottom
 
-instance (Eq (c a), Container c, Dimensions r, BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Array c r a) where
+instance (Eq (c a), Container c, Dimensions r, BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Array c (r :: [Nat]) a) where
   top = pureRep top
 
-singleton :: (Dimensions r, Container c) => a -> Array c r a
+singleton :: (Dimensions r, Container c) => a -> Array c (r :: [Nat]) a
 singleton a = tabulate (const a)

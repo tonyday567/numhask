@@ -51,7 +51,7 @@ library
       base >=4.11 && <5
     , adjunctions >=4.0 && <5
     , deepseq >=1.4.2.0 && <2
-    , dimensions >=0.3.2.0 && <0.4
+    , dimensions >=1.0 && <1.1
     , distributive >=0.4 && <0.7
     , numhask-prelude
     , numhask-hedgehog
