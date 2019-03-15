@@ -48,7 +48,7 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.11 && <4.13
+      base >=4.11 && <5
     , adjunctions >=4.0 && <5
     , deepseq >=1.4.2.0 && <2
     , dimensions >=0.3.2.0 && <0.4

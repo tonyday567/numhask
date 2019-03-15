@@ -46,7 +46,7 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.7 && <4.13
+      base >=4.7 && <5
     , numhask >=0.3 && <0.4
     , numhask-space
     , protolude >=0.1 && <0.3

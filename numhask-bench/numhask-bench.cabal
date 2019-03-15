@@ -49,7 +49,7 @@ executable numhask-bench
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.7 && <4.13
+      base >=4.7 && <5
     , hmatrix
     , matrix
     , numhask
