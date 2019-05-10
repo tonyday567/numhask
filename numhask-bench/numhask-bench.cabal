@@ -61,4 +61,5 @@ executable numhask-bench
     , protolude
     , text
     , vector
+    , dense-linear-algebra
   default-language: Haskell2010

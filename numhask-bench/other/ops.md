@@ -1,13 +1,13 @@
 
 ```
-square matrix size: 10
+square matrix size: 100
 run                        first      2nd      3rd   median      av.
 
-row                       4.65e3   6.64e2   4.04e2   3.45e2   3.64e2
-col                       1.77e3   1.74e2   7.00e1   4.48e1   5.01e1
-unsafeRow                 8.96e2   1.04e2   7.60e1   5.04e1   5.17e1
-unsafeCol                 4.60e2   9.40e1   7.80e1   4.83e1   8.69e2
-unsafeIndex               4.75e3   8.14e2   4.08e2   2.04e2   2.27e2
-concat                    1.72e4   9.68e3   9.27e3   8.01e3   1.49e4
-transpose                 3.44e2   2.40e1   2.60e1   2.19e1   2.26e1
+row                       1.26e4   3.31e3   2.97e3   2.88e3   2.99e3
+col                       1.04e3   1.32e2   6.80e1   4.00e1   6.01e1
+unsafeRow                 6.90e2   8.20e1   4.20e1   4.12e1   4.93e1
+unsafeCol                 5.38e2   9.20e1   6.40e1   4.15e1   5.10e1
+unsafeIndex               5.48e3   1.35e3   1.21e3   1.19e3   1.25e3
+concat                    7.95e6   1.12e7   1.24e7   9.97e6   1.00e7
+transpose                 3.02e2   5.00e1   2.20e1   2.15e1   2.64e1
 ```
