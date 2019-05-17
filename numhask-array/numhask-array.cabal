@@ -25,7 +25,7 @@ tested-with:
 build-type:
   Simple
 cabal-version:
-  >= 1.18
+  1.18
 source-repository head
   type:
     git
