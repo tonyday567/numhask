@@ -10,7 +10,7 @@ cabal: "2.4"
 
 matrix:
   include:
-    - env: ARGS="--resolver lts-13.21 --system-ghc"
+    - env: BUILD=cabal ARGS="--resolver lts-13.21 --system-ghc"
       ghc: "8.6.5"
       # a -Werror build that is allowed to fail
     - env: BUILD=werror ARGS="--resolver lts-13.21 --system-ghc"
