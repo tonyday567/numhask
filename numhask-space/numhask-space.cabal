@@ -46,10 +46,10 @@ library
     -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , numhask >= 0.3 && < 0.4
-    , adjunctions
-    , semigroupoids
-    , distributive
+    , numhask >=0.3 && < 0.4
+    , adjunctions >=4.0 && <5
+    , semigroupoids >=5 && <6
+    , distributive >=0.2.2 && <1
   exposed-modules:
     NumHask.Analysis.Space
     NumHask.Data.Range

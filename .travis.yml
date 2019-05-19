@@ -10,17 +10,17 @@ cabal: "2.4"
 
 matrix:
   include:
-    - env: ARGS="--resolver lts-13.11 --system-ghc"
-      ghc: "8.6.3"
+    - env: ARGS="--resolver lts-13.21 --system-ghc"
+      ghc: "8.6.5"
       # a -Werror build that is allowed to fail
-    - env: BUILD=werror ARGS="--resolver lts-13.11 --system-ghc"
-      ghc: "8.6.3"
+    - env: BUILD=werror ARGS="--resolver lts-13.21 --system-ghc"
+      ghc: "8.6.5"
     - env: BUILD=stack ARGS="--resolver nightly --system-ghc"
-      ghc: "8.6.4"
+      ghc: "8.6.5"
 
   allow_failures:
     - env: BUILD=stack ARGS="--resolver nightly --system-ghc"
-    - env: BUILD=werror ARGS="--resolver lts-13.11 --system-ghc"
+    - env: BUILD=werror ARGS="--resolver lts-13.21 --system-ghc"
 
 install:
 - |

@@ -53,9 +53,8 @@ library
     , deepseq >=1.4.2.0 && <2
     , dimensions >=1.0 && <1.1
     , distributive >=0.4 && <0.7
-    , numhask-prelude
-    , numhask-hedgehog
-    , protolude
+    , numhask-prelude >=0.3 && <0.4
+    , protolude >=0.2 && <0.3
     , singletons >=2.0 && <2.6
     , vector >=0.10 && <0.13
   exposed-modules:
@@ -77,12 +76,12 @@ test-suite test
     OverloadedStrings
     UnicodeSyntax
   build-depends:
-      base
-    , doctest
-    , dimensions >=0.3.2.0 && <0.4
-    , numhask-array
-    , numhask-prelude
-    , numhask-hedgehog
-    , hedgehog
+      base >=4.11 && <5
+    , doctest >=0.13 && <0.17
+    , dimensions >=1.0 && <1.1
+    , numhask-array >=0.3 && <0.4
+    , numhask-prelude >=0.1 && <0.2
+    , numhask-hedgehog >=0.3 && <0.4
+    , hedgehog >=0.5 && <1.1
     , adjunctions >=4.0 && <5
   default-language: Haskell2010
