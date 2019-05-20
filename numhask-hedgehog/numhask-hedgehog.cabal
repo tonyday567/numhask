@@ -46,11 +46,11 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >= 4.7 && < 5
-    , hedgehog
-    , numhask >= 0.3 && < 0.4
-    , numhask-space
-    , numhask-prelude
+      base >=4.7 && <5
+    , hedgehog >=0.5 && <1.1
+    , numhask >=0.3 && <0.4
+    , numhask-space >=0.1.1 && <0.2
+    , numhask-prelude >=0.3 && <0.4
   exposed-modules:
     NumHask.Hedgehog
     NumHask.Hedgehog.Gen
@@ -72,9 +72,8 @@ test-suite test
     UnicodeSyntax
   build-depends:
       base >=4.7 && <5
-    , hedgehog
-    , numhask >= 0.3 && < 0.4
-    , numhask-prelude
-    , numhask-space
-    , numhask-hedgehog
+    , hedgehog >=0.5 && <1.1
+    , numhask >=0.3 && <0.4
+    , numhask-prelude >=0.3 && <0.4
+    , numhask-hedgehog >=0.3 && <0.4
   default-language: Haskell2010

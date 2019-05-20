@@ -17,6 +17,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 module Main where
 
@@ -66,7 +67,6 @@ integralProps'
   , Eq a
   , Distributive a
   , Subtractive a
-  , Multiplicative a
   , Signed a
   )
   => H.Gen a
@@ -87,7 +87,6 @@ fieldProps'
   , Epsilon a
   , Lattice a
   , LowerBoundedField a
-  , UpperBoundedField a
   , BoundedJoinSemiLattice a
   , BoundedMeetSemiLattice a
   , Signed a
