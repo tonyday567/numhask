@@ -152,8 +152,6 @@ fieldProps
   , BoundedLattice a
   , LowerBoundedField a
   , UpperBoundedField a
-  , FromRatio a
-  , ExpField a
   , Signed a
   , Normed a a
   , Metric a a
