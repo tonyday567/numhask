@@ -54,15 +54,15 @@ newtype instance
     Array { _getContainer :: c t}
     deriving (Functor, Foldable)
 
-instance NFData (Array c ds t) where
-  rnf a = seq a ()
+instance NFData (c t) => NFData (Array c (ds :: [Nat]) t) where
+  rnf (Array a) = rnf a
 
 {-
 -- | instance of array where some of the dimensions are known at compile time
 -- it wraps an Array with some weird magic
 data instance Array c (xds :: [XNat]) t = forall (ds :: [Nat]).
   ( FixedDims xds ds
-  , Dimensions ds) =>
+  , Dimensions ds) =>` 
   SomeArray (Array c ds t)
 
 -}
