@@ -34,7 +34,7 @@ import NumHask.Analysis.Metric
 import NumHask.Analysis.Space as S
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Functor, Traversable(..), Applicative, pure, (<*>), (.), otherwise, (&&), fmap, (<$>), Semigroup(..), Monoid(..), zipWith, drop, filter, ($), id)
+import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Functor, Traversable(..), Applicative, pure, (<*>), (.), otherwise, (&&), fmap, (<$>), Semigroup(..), Monoid(..), zipWith, drop, filter, ($), id, undefined)
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
@@ -209,8 +209,8 @@ instance (Multiplicative a, Subtractive a, Lattice a) => Signed (Range a) where
     sign (Range l u) = bool (negate one) one (u `joinLeq` l)
     abs (Range l u) = bool (u ... l) (l ... u) (u `joinLeq` l)
 
-instance (FromInteger a, Lattice a) => FromInteger (Range a) where
-    fromInteger x = fromInteger x ... fromInteger x
+instance (FromIntegral a b, Lattice a) => FromIntegral (Range a) b where
+    fromIntegral_ x = fromIntegral_ x ... fromIntegral_ x
 
 type instance Actor (Range a) = a
 
@@ -227,21 +227,24 @@ instance (Divisive a) => DivisiveAction (Range a) where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
 
-stepSensible :: (Ord a, FromRatio a, FromInteger a, ExpField a, QuotientField a Integer) => Pos -> a -> Integer -> a
-stepSensible tp span n =
+stepSensible :: (Ord a, FromRatio a b, FromIntegral a b, ExpField a, QuotientField a b) => Pos -> a -> b -> a
+stepSensible tp span n = undefined
+{-
     step + bool zero (step/two) (tp==MidPos)
   where
-    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral n)) :: Integer)
-    err = fromIntegral n / span * step'
+    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral_ n)))
+    err = fromIntegral_ n / span * step'
     step
       | err <= 0.15 = 10.0 * step'
       | err <= 0.35 = 5.0 * step'
       | err <= 0.75 = 2.0 * step'
       | otherwise = step'
+-}
 
-gridSensible :: (Ord a, JoinSemiLattice a, FromInteger a, FromRatio a, QuotientField a Integer, ExpField a, Epsilon a) =>
-    Pos -> Bool -> Range a -> Integer -> [a]
-gridSensible tp inside r@(Range l u) n =
+gridSensible :: (Ord a, JoinSemiLattice a, FromIntegral a b, FromRatio a b, QuotientField a b, ExpField a, Epsilon a) =>
+    Pos -> Bool -> Range a -> b -> [a]
+gridSensible tp inside r@(Range l u) n = undefined
+{-
     bool id (filter (`memberOf` r)) inside $
     (+ bool zero (step/two) (tp==MidPos)) <$> posns
   where
@@ -257,3 +260,5 @@ gridSensible tp inside r@(Range l u) n =
                 LowerPos -> (0,n' - 1)
                 UpperPos -> (1,n')
                 MidPos -> (0,n' - 1)
+
+-}

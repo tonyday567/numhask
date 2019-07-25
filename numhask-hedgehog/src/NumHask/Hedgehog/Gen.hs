@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -27,18 +27,22 @@ import qualified Hedgehog.Range as Range
 -- There are basically two types of random variates: a discrete Integer type and a continuous rational type
 
 -- | a rational-style random variate
-rational :: (ToRatio a, FromRatio a, MonadGen m) => Range.Range a -> m a
+rational :: (ToRatio a Integer, FromRatio a Integer, MonadGen m) => Range.Range a -> m a
 rational r =
   Gen.generate $ \size seed ->
     let
       (x, y) =
         Range.bounds size r
     in
-      fromRational . fst $
-        Seed.nextDouble (fromRational x) (fromRational y) seed
+      fromRatio . (toRatio :: Double -> Ratio Integer) . fst $
+        Seed.nextDouble (fromRatio $ (toRatio x :: Ratio Integer)) (fromRatio $ (toRatio y :: Ratio Integer)) seed
 
--- | an integral-stype random variate
-integral :: (ToInteger a, FromInteger a, MonadGen m) => Range.Range a -> m a
+
+-- | an integral-type random variate
+-- integral :: (ToIntegral a Integer, FromIntegral a Integer, MonadGen m) => Range.Range a -> m a
+integral
+  :: (MonadGen m, FromInteger a, ToInteger a)
+  => Range.Range a -> m a
 integral r =
   Gen.generate $ \size seed ->
     let
@@ -46,7 +50,7 @@ integral r =
         Range.bounds size r
     in
       fromIntegral . fst $
-        Seed.nextInteger (fromIntegral x) (fromIntegral y) seed
+        Seed.nextInteger (toInteger x) (toInteger y) seed
 
 -- | an integral-style random variate utilising Bounds
 integral_ ::
@@ -62,8 +66,8 @@ integral_ = integral (Range.constantFrom zero minBound maxBound)
 rational_ ::
   ( Additive a
   , Bounded a
-  , ToRatio a
-  , FromRatio a
+  , ToRatio a Integer
+  , FromRatio a Integer
   , MonadGen m)
   => m a
 rational_ = rational (Range.constantFrom zero minBound maxBound)
@@ -71,8 +75,8 @@ rational_ = rational (Range.constantFrom zero minBound maxBound)
 -- | a uniform distribution between zero and one
 uniform ::
   ( Field a
-  , ToRatio a
-  , FromRatio a
+  , ToRatio a Integer
+  , FromRatio a Integer
   , MonadGen m)
   => m a
 uniform = rational (Range.constantFrom zero zero one)
@@ -80,8 +84,8 @@ uniform = rational (Range.constantFrom zero zero one)
 -- | a uniform distribution between -1 and 1
 negUniform ::
   ( Field a
-  , ToRatio a
-  , FromRatio a
+  , ToRatio a Integer
+  , FromRatio a Integer
   , Subtractive a
   , MonadGen m)
   => m a

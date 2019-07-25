@@ -1,6 +1,8 @@
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
@@ -8,7 +10,10 @@ module NumHask.Data.Rational
   ( Ratio(..)
   , Rational
   , ToRatio(..)
+  , ToRational
+  , toRational
   , FromRatio(..)
+  , FromRational
   , fromRational
   -- * $integral_functionality
   , reduce
@@ -86,8 +91,8 @@ instance (GCDConstraints a) => IntegralDomain (Ratio a)
 
 instance (GCDConstraints a) => Field (Ratio a)
 
-instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromInteger b) => QuotientField (Ratio a) b where
-  properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral w,r:%d)
+instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
+  properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral_ w,r:%d)
 
 instance (GCDConstraints a, Distributive a, IntegralDomain a) =>
   UpperBoundedField (Ratio a) where
@@ -112,82 +117,80 @@ instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
 
 instance (GCDConstraints a, MeetSemiLattice a) => Epsilon (Ratio a)
 
-instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
-  fromInteger x = fromInteger x :% one
+instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
+  fromIntegral_ x = fromIntegral_ x :% one
 
--- | toRatio is equivalent to `Real` in base.
-class ToRatio a where
-  toRatio :: a -> Ratio Integer
+-- | toRatio is equivalent to `Real` in base, but is polymorphic in the Integral type.
+class ToRatio a b where
+  toRatio :: a -> Ratio b
 
-instance (ToInteger a) => ToRatio (Ratio a) where
-  toRatio (n :% d) = toInteger n :% toInteger d
+type ToRational a = ToRatio a Integer
+
+toRational :: (ToRatio a Integer) => a -> Ratio Integer
+toRational = toRatio
 
 -- | `Fractional` in base splits into fromRatio and Field
-class FromRatio a where
-  fromRatio :: Ratio Integer -> a
+class FromRatio a b where
+  fromRatio :: Ratio b -> a
 
-instance (FromInteger a) => FromRatio (Ratio a) where
-  fromRatio (n :% d) = fromInteger n :% fromInteger d
+type FromRational a = FromRatio a Integer
 
--- | coercion of 'Rational's
---
--- > fromRational a == a
-fromRational :: (ToRatio a, FromRatio b) => a -> b
-fromRational = fromRatio . toRatio
-
--- | fixme: use coerce
 fromBaseRational :: P.Rational -> Ratio Integer
 fromBaseRational (n GHC.Real.:% d) = n :% d
 
-instance FromRatio Double where
+-- | general coercion via Ratio Integer using the legacy prelude name
+fromRational :: (ToRational a, FromRational b) => a -> b
+fromRational = fromRatio . toRational
+
+instance FromRatio Double Integer where
   fromRatio (n:%d)= rationalToDouble n d
 
-instance FromRatio Float where
+instance FromRatio Float Integer where
   fromRatio (n:%d)= rationalToFloat n d
 
-instance ToRatio Double where
+instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Float where
+instance ToRatio Float Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Int where
+instance ToRatio Int Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Integer where
+instance ToRatio Integer Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Natural where
+instance ToRatio Natural Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio P.Rational where
+instance ToRatio P.Rational Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Int8 where
+instance ToRatio Int8 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Int16 where
+instance ToRatio Int16 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Int32 where
+instance ToRatio Int32 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Int64 where
+instance ToRatio Int64 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Word where
+instance ToRatio Word Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Word8 where
+instance ToRatio Word8 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Word16 where
+instance ToRatio Word16 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Word32 where
+instance ToRatio Word32 Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Word64 where
+instance ToRatio Word64 Integer where
   toRatio = fromBaseRational . P.toRational
 
 instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where

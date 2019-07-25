@@ -5,6 +5,7 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wall #-}
 
 module NumHask.Data.Complex where
@@ -18,9 +19,8 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
-
 import Prelude
-  hiding (Num(..), (**), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt, isNaN)
+  hiding (Num(..), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt, isNaN)
 import qualified Prelude as P (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
 
 -- -----------------------------------------------------------------------------
@@ -78,9 +78,9 @@ instance (Subtractive a, Divisive a) =>
     where
       d = recip ((rx * rx) + (ix * ix))
 
-instance (Additive a, FromInteger a) =>
-  FromInteger (Complex a) where
-  fromInteger x = fromInteger x :+ zero
+instance (Additive a, FromIntegral a b) =>
+  FromIntegral (Complex a) b where
+  fromIntegral_ x = fromIntegral_ x :+ zero
 
 instance (Multiplicative a, ExpField a, Normed a a) =>
   Normed (Complex a) a where

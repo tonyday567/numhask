@@ -200,10 +200,10 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Pair a) where
 instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Pair a) where
   top = Pair top top
 
-instance (FromInteger a) => FromInteger (Pair a) where
-  fromInteger x = P.pure (fromInteger x)
+instance (FromIntegral a b) => FromIntegral (Pair a) b where
+  fromIntegral_ x = P.pure (fromIntegral_ x)
 
-instance (FromRatio a) => FromRatio (Pair a) where
+instance (FromRatio a b) => FromRatio (Pair a) b where
   fromRatio x = P.pure (fromRatio x)
 
 instance (Normed a a) =>

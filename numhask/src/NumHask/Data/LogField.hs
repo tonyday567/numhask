@@ -3,6 +3,8 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -31,7 +33,7 @@ import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num(..), exp, log, negate, toInteger, isNaN)
+import Prelude hiding (Num(..), exp, log, negate, isNaN)
 import qualified Data.Foldable as F
 
 -- LogField is adapted from LogFloat
@@ -205,16 +207,16 @@ instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpFiel
     log (LogField x) = LogField $ log x
     (**) x (LogField y) = pow x $ exp y
 
-instance (FromInteger a, ExpField a) => FromInteger (LogField a) where
-  fromInteger = logField . fromInteger
+instance (FromIntegral a b, ExpField a) => FromIntegral (LogField a) b where
+  fromIntegral_ = logField . fromIntegral_
 
-instance (ToInteger a, ExpField a) => ToInteger (LogField a) where
-  toInteger = toInteger . fromLogField
+instance (ToIntegral a b, ExpField a) => ToIntegral (LogField a) b where
+  toIntegral_ = toIntegral_ . fromLogField
 
-instance (FromRatio a, ExpField a) => FromRatio (LogField a) where
+instance (FromRatio a b, ExpField a) => FromRatio (LogField a) b where
   fromRatio = logField . fromRatio
 
-instance (ToRatio a, ExpField a) => ToRatio (LogField a) where
+instance (ToRatio a b, ExpField a) => ToRatio (LogField a) b where
   toRatio = toRatio . fromLogField
 
 instance (Ord a) => JoinSemiLattice (LogField a) where

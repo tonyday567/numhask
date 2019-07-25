@@ -273,7 +273,7 @@ class (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
   epsilon = zero
 
   nearZero :: a -> Bool
-  nearZero a = a `meetLeq` epsilon && negate a `meetLeq` epsilon
+  nearZero a = epsilon `meetLeq` a && epsilon `meetLeq` negate a
 
   aboutEqual :: a -> a -> Bool
   aboutEqual a b = nearZero $ a - b

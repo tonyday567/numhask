@@ -29,15 +29,19 @@ asserts n =
     naturalProps
   , assertProps "Bool" n Gen.bool
     boolProps
+{-
   , assertProps "Rational" n
     (negUniform :: H.Gen Rational) rationalProps
+-}
   , assertProps "Float" n
     (negUniform :: H.Gen Float) fieldProps
   , assertProps "Float - Quotient" n
     (negUniform :: H.Gen Float) quotientFieldProps
+{-
   , assertProps "Complex Float" n
     (genComplex (negUniform :: H.Gen Float))
     (complexFieldProps (5.0 :+ 5.0))
+-}
   , assertProps "Pair Float" n
     (genPair (negUniform :: H.Gen Float)) fieldProps
   , assertProps "Float Lattice" n
@@ -46,8 +50,8 @@ asserts n =
     (genComplex (negUniform :: H.Gen Float)) latticeProps
   , assertProps "Space Properties" n
     (genRange (negUniform :: H.Gen Float)) spaceProps
-  , assertProps "FieldSpace" n
-    (genRange (negUniform :: H.Gen Float)) fieldSpaceProps
+  -- , assertProps "FieldSpace" n
+  --  (genRange (negUniform :: H.Gen Float)) fieldSpaceProps
   , assertProps "Space Algebra" n
     (genRangePos (negUniform :: H.Gen Float))
     spaceAlgebraProps

@@ -34,6 +34,7 @@ where
 -- $setup
 -- >>> :set -XNoImplicitPrelude
 -- >>> :set -XFlexibleContexts
+-- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 --
 -- $basic

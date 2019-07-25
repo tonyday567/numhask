@@ -178,18 +178,21 @@ isIntegral src = property $ do
         b * (a `div` b) + (a `mod` b) == a
   assert (p rv rv')
 
-isFromIntegral :: (Eq a, Show a, FromInteger a, ToInteger a) => Gen a -> Property
+isFromIntegral :: (Eq a, Show a, FromIntegral a a) => Gen a -> Property
 isFromIntegral src = property $ do
   rv <- forAll src
-  let p = \a -> fromIntegral a == a
+  let p = \a -> fromIntegral_ a == a
   assert (p rv)
 
-isRational :: (Eq a, Show a, FromRatio a, ToRatio a) => Gen a -> Property
+{-
+isRational :: (Eq a, Show a, FromRatio a a, ToRatio a a) => Gen a -> Property
 isRational src = property $ do
   rv <- forAll src
   let p = \a ->
-        fromRational a == a
+        fromRatio a == a
   assert (p rv)
+
+-}
 
 isSigned :: (Eq a, Show a, Signed a) => Gen a -> Property
 isSigned src = property $ do

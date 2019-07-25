@@ -1,10 +1,21 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral(..)
-  , ToInteger(..)
-  , FromInteger(..)
+  , ToIntegral(..)
+  , ToInteger
+  , toInteger
+  , FromIntegral(..)
+  , FromInteger
+  , fromInteger
   , fromIntegral
   , even
   , odd
@@ -98,100 +109,183 @@ instance Integral b => Integral (a -> b) where
   rem f f' a = f a `mod` f' a
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
 
--- | toInteger is kept separate from Integral to help with compatability issues.
-class ToInteger a where
-  toInteger :: a -> Integer
+-- | toIntegral is kept separate from Integral to help with compatability issues.
+-- > toIntegral_ a == a
+class ToIntegral a b where
+  toIntegral_ :: a -> b
+  default toIntegral_ :: (a ~ b) => a -> b
+  toIntegral_ = P.id
 
-instance ToInteger Int where
-  toInteger = P.toInteger
+type ToInteger a = ToIntegral a Integer
 
-instance ToInteger Integer where
-  toInteger = P.toInteger
+-- fitting in with legacy naming conventions.
+toInteger :: (ToInteger a) => a -> Integer
+toInteger = toIntegral_
 
-instance ToInteger Natural where
-  toInteger = P.toInteger
+instance ToIntegral Integer Integer where
+  toIntegral_ = P.id
 
-instance ToInteger Int8 where
-  toInteger = P.toInteger
+instance ToIntegral Int Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Int16 where
-  toInteger = P.toInteger
+instance ToIntegral Natural Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Int32 where
-  toInteger = P.toInteger
+instance ToIntegral Int8 Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Int64 where
-  toInteger = P.toInteger
+instance ToIntegral Int16 Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Word where
-  toInteger = P.toInteger
+instance ToIntegral Int32 Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Word8 where
-  toInteger = P.toInteger
+instance ToIntegral Int64 Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Word16 where
-  toInteger = P.toInteger
+instance ToIntegral Word Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Word32 where
-  toInteger = P.toInteger
+instance ToIntegral Word8 Integer where
+  toIntegral_ = P.toInteger
 
-instance ToInteger Word64 where
-  toInteger = P.toInteger
+instance ToIntegral Word16 Integer where
+  toIntegral_ = P.toInteger
 
--- | fromInteger is the most problematic of the 'Num' class operators.  Particularly heinous, it is assumed that any number type can be constructed from an Integer, so that the broad classes of objects that are composed of multiple elements is avoided in haskell.
-class FromInteger a where
-  fromInteger :: Integer -> a
+instance ToIntegral Word32 Integer where
+  toIntegral_ = P.toInteger
 
-instance FromInteger b => FromInteger (a -> b) where
-  fromInteger i _ = fromInteger i
+instance ToIntegral Word64 Integer where
+  toIntegral_ = P.toInteger
 
--- | coercion of 'Integral's
---
--- > fromIntegral a == a
+instance ToIntegral Int Int where
+  toIntegral_ = P.id
+
+instance ToIntegral Natural Natural where
+  toIntegral_ = P.id
+
+instance ToIntegral Int8 Int8 where
+  toIntegral_ = P.id
+
+instance ToIntegral Int16 Int16 where
+  toIntegral_ = P.id
+
+instance ToIntegral Int32 Int32 where
+  toIntegral_ = P.id
+
+instance ToIntegral Int64 Int64 where
+  toIntegral_ = P.id
+
+instance ToIntegral Word Word where
+  toIntegral_ = P.id
+
+instance ToIntegral Word8 Word8 where
+  toIntegral_ = P.id
+
+instance ToIntegral Word16 Word16 where
+  toIntegral_ = P.id
+
+instance ToIntegral Word32 Word32 where
+  toIntegral_ = P.id
+
+instance ToIntegral Word64 Word64 where
+  toIntegral_ = P.id
+
+-- | fromxIntegral differs from the legacy prelude, abstracting the codomain type
+-- | toIntegral is kept separate from Integral to help with compatability issues.
+-- > fromIntegral_ a == a
+class FromIntegral a b where
+  fromIntegral_ :: b -> a
+  default fromIntegral_ :: (a ~ b) => b -> a
+  fromIntegral_ = P.id
+
+type FromInteger a = FromIntegral a Integer
+
+-- fitting in with legacy naming conventions.
+fromInteger :: (FromInteger a) => Integer -> a
+fromInteger = fromIntegral_
+
+-- | general coercion via Integer using the legacy prelude name
 fromIntegral :: (ToInteger a, FromInteger b) => a -> b
 fromIntegral = fromInteger . toInteger
 
-instance FromInteger Double where
-  fromInteger = P.fromInteger
+instance (FromIntegral a b) => FromIntegral (c -> a) b where
+  fromIntegral_ i _ = fromIntegral_ i
 
-instance FromInteger Float where
-  fromInteger = P.fromInteger
+instance FromIntegral Double Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Int where
-  fromInteger = P.fromInteger
+instance FromIntegral Float Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Integer where
-  fromInteger = P.fromInteger
+instance FromIntegral Int Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Natural where
-  fromInteger = P.fromInteger
+instance FromIntegral Integer Integer where
+  fromIntegral_ = P.id
 
-instance FromInteger Int8 where
-  fromInteger = P.fromInteger
+instance FromIntegral Natural Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Int16 where
-  fromInteger = P.fromInteger
+instance FromIntegral Int8 Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Int32 where
-  fromInteger = P.fromInteger
+instance FromIntegral Int16 Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Int64 where
-  fromInteger = P.fromInteger
+instance FromIntegral Int32 Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Word where
-  fromInteger = P.fromInteger
+instance FromIntegral Int64 Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Word8 where
-  fromInteger = P.fromInteger
+instance FromIntegral Word Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Word16 where
-  fromInteger = P.fromInteger
+instance FromIntegral Word8 Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Word32 where
-  fromInteger = P.fromInteger
+instance FromIntegral Word16 Integer where
+  fromIntegral_ = P.fromInteger
 
-instance FromInteger Word64 where
-  fromInteger = P.fromInteger
+instance FromIntegral Word32 Integer where
+  fromIntegral_ = P.fromInteger
+
+instance FromIntegral Word64 Integer where
+  fromIntegral_ = P.fromInteger
+
+instance FromIntegral Int Int where
+  fromIntegral_ = P.id
+
+instance FromIntegral Natural Natural where
+  fromIntegral_ = P.id
+
+instance FromIntegral Int8 Int8 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Int16 Int16 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Int32 Int32 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Int64 Int64 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Word Word where
+  fromIntegral_ = P.id
+
+instance FromIntegral Word8 Word8 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Word16 Word16 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Word32 Word32 where
+  fromIntegral_ = P.id
+
+instance FromIntegral Word64 Word64 where
+  fromIntegral_ = P.id
 
 -- $operators
 

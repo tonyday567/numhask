@@ -37,7 +37,7 @@ genAIntegral = fromList <$> replicateM (fromIntegral n) integral_
   where
     n = totalDim $ dims @Nat @r
 
-genARational :: forall a m r. (H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a, FromRatio a) => m (Array [] (r :: [Nat]) a)
+genARational :: forall a m r. (Ord a, H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a Integer, FromRatio a Integer) => m (Array [] (r :: [Nat]) a)
 genARational = fromList <$> replicateM (fromIntegral n) negUniform
   where
     n = totalDim $ dims @Nat @r
@@ -54,12 +54,12 @@ main = do
     (genAIntegral :: H.Gen (Array [] '[3,4] Int)) integralProps'
   -- bVFloat <- assertProps "Vector Float 6" (Prelude.fromInteger 100)
   --  (genARational :: H.Gen (Vector [] 6 Float)) (fieldProps' acc)
-  bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
-    (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc)
-  unless (bVInt && bMInt && bMFloat)
+  -- bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
+  --  (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc)
+  unless (bVInt && bMInt)
     exitFailure
-  where
-    acc = tabulate (const 1.0)
+  -- where
+  --   acc = tabulate (const 1.0)
 
 integralProps'
   :: forall a.
