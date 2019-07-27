@@ -20,7 +20,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import Prelude
-  hiding (Num(..), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt, isNaN)
+  hiding (Num(..), (/), atan, cos, exp, log, negate, pi, recip, sin, sqrt)
 import qualified Prelude as P (Ord(..), (&&), (<), (<=), (==), (>), otherwise)
 
 -- -----------------------------------------------------------------------------
@@ -118,8 +118,7 @@ instance (Ord a, TrigField a, ExpField a, Subtractive a) => ExpField (Complex a)
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
 
-instance (UpperBoundedField a, IntegralDomain a, Subtractive a) => UpperBoundedField (Complex a) where
-  isNaN (a :+ b) = isNaN a || isNaN b
+instance (UpperBoundedField a, IntegralDomain a, Subtractive a) => UpperBoundedField (Complex a)
 
 instance (LowerBoundedField a) => LowerBoundedField (Complex a)
 

@@ -95,8 +95,7 @@ instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromIntegral
   properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral_ w,r:%d)
 
 instance (GCDConstraints a, Distributive a, IntegralDomain a) =>
-  UpperBoundedField (Ratio a) where
-  isNaN (a :% b) = (a P.== zero) P.&& (b P.== zero)
+  UpperBoundedField (Ratio a)
 
 instance (GCDConstraints a, Field a) => LowerBoundedField (Ratio a)
 

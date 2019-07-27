@@ -168,8 +168,6 @@ instance (ExpField a) => ExpField (Pair a) where
   log = unaryOp log
 
 instance (UpperBoundedField a) => UpperBoundedField (Pair a)
-  where
-    isNaN (Pair a b) = isNaN a || isNaN b
 
 instance (LowerBoundedField a) => LowerBoundedField (Pair a)
 

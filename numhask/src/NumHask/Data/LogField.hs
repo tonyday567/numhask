@@ -33,7 +33,7 @@ import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num(..), exp, log, negate, isNaN)
+import Prelude hiding (Num(..), exp, log, negate)
 import qualified Data.Foldable as F
 
 -- LogField is adapted from LogFloat
@@ -240,8 +240,7 @@ instance (Ord a, ExpField a, LowerBoundedField a) =>
   IntegralDomain (LogField a) where
 
 instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
-  UpperBoundedField (LogField a) where
-  isNaN (LogField a) = isNaN a
+  UpperBoundedField (LogField a)
 
 instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
   Signed (LogField a) where

@@ -66,7 +66,6 @@ instance (P.Ord a, QuotientField a P.Integer) =>
 instance (UpperBoundedField a) =>
   UpperBoundedField (Positive a) where
   infinity = Positive infinity
-  isNaN (Positive a) = isNaN a
 
 instance (UpperBoundedField a) => P.Bounded (Positive a) where
   minBound = zero

@@ -167,20 +167,14 @@ class (IntegralDomain a) =>
   nan :: a
   nan = zero / zero
 
-  isNaN :: a -> P.Bool
+instance UpperBoundedField P.Float
 
-instance UpperBoundedField P.Float where
-  isNaN = P.isNaN
-
-instance UpperBoundedField P.Double where
-  isNaN = P.isNaN
+instance UpperBoundedField P.Double
 
 {-
 instance UpperBoundedField b => UpperBoundedField (a -> b) where
   infinity _ = infinity
   nan _ = nan
-  isNaN = P.undefined
-
 -}
 
 class (Subtractive a, Field a) =>
@@ -196,7 +190,6 @@ instance LowerBoundedField P.Double
 {-
 instance LowerBoundedField b => LowerBoundedField (a -> b) where
   negInfinity _ = negInfinity
-
 -}
 
 -- | todo: work out boundings for complex

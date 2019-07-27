@@ -606,8 +606,7 @@ instance (Dimensions r, Container c, ExpField a) => ExpField (Array c (r :: [Nat
   log = fmapRep log
 
 instance (Foldable (Array c r), Dimensions r, Container c, UpperBoundedField a) =>
-         UpperBoundedField (Array c (r :: [Nat]) a) where
-  isNaN = foldl' (||) False . fmapRep isNaN
+         UpperBoundedField (Array c (r :: [Nat]) a)
 
 instance (Foldable (Array c r), Dimensions r, Container c, LowerBoundedField a) =>
          LowerBoundedField (Array c (r :: [Nat]) a)
