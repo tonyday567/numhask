@@ -15,7 +15,7 @@ module NumHask.Data.Pair
   ) where
 
 import qualified Prelude as P
-import Prelude (Foldable, Traversable, Applicative, Monad, Functor(..), Semigroup(..), Monoid(..), Bounded(..), Eq(..), (<$>), (<*>), (&&), (||))
+import Prelude (Foldable, Traversable, Applicative, Monad, Functor(..), Semigroup(..), Monoid(..), Bounded(..), Eq(..), (<$>), (<*>), (&&))
 import GHC.Generics (Generic)
 import Data.Functor.Classes
 import NumHask.Algebra.Abstract
