@@ -51,7 +51,7 @@ instance Distributive b => Distributive (a -> b)
 -- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is a ring without,
 --   necessarily, negative elements.
 --
--- TODO: rule zero' = zero. Is this somehow expressible in haskell?
+-- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
 class (Distributive a) =>
   Semiring a where
 instance (Distributive a) =>

@@ -147,11 +147,17 @@ instance FromRatio Double Integer where
 instance FromRatio Float Integer where
   fromRatio (n:%d)= rationalToFloat n d
 
+instance FromRatio Rational Integer where
+  fromRatio = P.id
+
 instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
 
 instance ToRatio Float Integer where
   toRatio = fromBaseRational . P.toRational
+
+instance ToRatio Rational Integer where
+  toRatio = P.id
 
 instance ToRatio Int Integer where
   toRatio = fromBaseRational . P.toRational

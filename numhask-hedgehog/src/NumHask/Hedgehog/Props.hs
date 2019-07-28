@@ -18,13 +18,13 @@ integralProps
   , Distributive a
   , Subtractive a
   , Integral a
-  , FromIntegral a a
-  , ToIntegral a a
   , Signed a
   , Bounded a
   , Normed a a
   , Metric a a
   , JoinSemiLattice a
+  , FromIntegral a Integer
+  , ToIntegral a Integer
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -36,7 +36,7 @@ integralProps g = mconcat $
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
   , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
-  , \x -> [("fromIntegral", isFromIntegral x)]
+  , \x -> [("ToIntegral", toFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedBounded x)]
   , \x -> [("metric", isMetricBounded x)]
@@ -48,8 +48,6 @@ integralUnboundedProps
   , Distributive a
   , Subtractive a
   , Integral a
-  , FromIntegral a a
-  , ToIntegral a a
   , Signed a
   , Normed a a
   , Metric a a
@@ -65,7 +63,6 @@ integralUnboundedProps g = mconcat $
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
   , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
-  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   , \x -> [("metric", isMetricUnbounded x)]
@@ -76,8 +73,6 @@ naturalProps
   ( Show a
   , Distributive a
   , Integral a
-  , FromIntegral a a
-  , ToIntegral a a
   , Signed a
   , Normed a a
   , JoinSemiLattice a
@@ -91,7 +86,6 @@ naturalProps g = mconcat $
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
   , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
   , \x -> [("integral", isIntegral x)]
-  , \x -> [("fromIntegral", isFromIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   ]
@@ -122,12 +116,12 @@ rationalProps
   , Distributive a
   , Subtractive a
   , Divisive a
-  , FromRatio a Integer
-  , ToRatio a Integer
   , Signed a
   , Normed a a
   , Metric a a
   , JoinSemiLattice a
+  , FromRatio a Integer
+  , ToRatio a Integer
   )
   => Gen a
   -> [(PropertyName, Property)]
@@ -139,7 +133,7 @@ rationalProps g = mconcat $
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
   , \x -> [("absorbative unit", isAbsorbativeUnit zero (*) x)]
   , isDivisive
-  -- , \x -> [("rational", isRational x)]
+  , \x -> [("rational", toFromRatio x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   , \x -> [("metric", isMetricUnbounded x)]
@@ -207,7 +201,7 @@ complexFieldProps acc g = mconcat $
   , S.isMultiplicative acc
   , \x -> [("distributive", S.isDistributiveTimesPlus acc x)]
   , \x -> [("absorbative", S.isZeroAbsorbative (*) acc x)]
-  -- , \x -> [("divisive", S.isDivisive (100.0 :+ 50.0) x)]
+  , \x -> [("divisive", S.isDivisive (100.0 :+ 50.0) x)]
   ]
 
 -- | field laws

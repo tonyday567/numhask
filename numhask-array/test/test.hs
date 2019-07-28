@@ -52,14 +52,15 @@ main = do
     (genAIntegral :: H.Gen (Vector [] 6 Int)) integralProps'
   bMInt <- assertProps "Matrix [] '[3,4] Int" (Prelude.fromInteger 100)
     (genAIntegral :: H.Gen (Array [] '[3,4] Int)) integralProps'
-  -- bVFloat <- assertProps "Vector Float 6" (Prelude.fromInteger 100)
-  --  (genARational :: H.Gen (Vector [] 6 Float)) (fieldProps' acc)
-  -- bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
-  --  (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc)
+  bVFloat <- assertProps "Vector Float 6" (Prelude.fromInteger 100)
+    (genARational :: H.Gen (Vector [] 6 Float)) (fieldProps' acc6)
+  bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
+    (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc34)
   unless (bVInt && bMInt)
     exitFailure
-  -- where
-  --   acc = tabulate (const 1.0)
+    where
+      acc6 = tabulate (const 1.0)
+      acc34 = tabulate (const 1.0)
 
 integralProps'
   :: forall a.

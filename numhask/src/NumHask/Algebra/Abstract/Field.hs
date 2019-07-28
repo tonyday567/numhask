@@ -1,5 +1,8 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -20,6 +23,7 @@ import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Data.Integral
 import qualified Prelude as P
+import Prelude ((.))
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is an
 --   Integral domain in which every non-zero element has a multiplicative
@@ -54,7 +58,7 @@ instance Field P.Double
 
 instance Field P.Float
 
--- instance Field b => Field (a -> b)
+instance Field b => Field (a -> b)
 
 -- | A hyperbolic field class
 --
@@ -82,14 +86,12 @@ instance ExpField P.Float where
   log = P.log
   (**) = (P.**)
 
-{-
 instance ExpField b => ExpField (a -> b) where
   exp f = exp . f
   log f = log . f
-  logBase f f' = \a -> logBase (f a) (f' a)
+  logBase f f' a = logBase (f a) (f' a)
   f ** f' = \a -> f a ** f' a
   sqrt f = sqrt . f
--}
 
 -- | quotient fields explode constraints if they allow for polymorphic integral types
 --
@@ -135,10 +137,9 @@ instance QuotientField P.Float P.Integer where
 instance QuotientField P.Double P.Integer where
   properFraction = P.properFraction
 
-{-
 instance QuotientField b c => QuotientField (a -> b) (a -> c) where
-  properFraction f = (fst . frac, snd . frac)
-    where
+  properFraction f = (P.fst . frac, P.snd . frac)
+     where
       frac a = properFraction @b @c (f a)
 
   round f = round . f
@@ -148,8 +149,6 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
   floor f = floor . f
 
   truncate f = truncate . f
-
--}
 
 -- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
 --
@@ -171,11 +170,9 @@ instance UpperBoundedField P.Float
 
 instance UpperBoundedField P.Double
 
-{-
 instance UpperBoundedField b => UpperBoundedField (a -> b) where
   infinity _ = infinity
   nan _ = nan
--}
 
 class (Subtractive a, Field a) =>
       LowerBoundedField a where
@@ -187,17 +184,8 @@ instance LowerBoundedField P.Float
 
 instance LowerBoundedField P.Double
 
-{-
 instance LowerBoundedField b => LowerBoundedField (a -> b) where
   negInfinity _ = negInfinity
--}
-
--- | todo: work out boundings for complex
--- as it stands now, complex is different eg
---
--- > one / (zero :: Complex Float) == nan
--- instance (UpperBoundedField a) =>
---   UpperBoundedField (Complex a)
 
 -- | Trigonometric Field
 class (Field a) =>
@@ -244,7 +232,6 @@ instance TrigField P.Float where
   acosh = P.acosh
   atanh = P.atanh
 
-{-
 instance TrigField b => TrigField (a -> b) where
   pi _ = pi
   sin f = sin . f
@@ -257,7 +244,6 @@ instance TrigField b => TrigField (a -> b) where
   asinh f = asinh . f
   acosh f = acosh . f
   atanh f = atanh . f
--}
 
 half :: (Field a) => a
 half = one / two

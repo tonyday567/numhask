@@ -126,7 +126,6 @@ logField :: (ExpField a) => a -> LogField a
 {-# INLINE [0] logField #-}
 logField = LogField . log
 
--- TODO: figure out what to do here, removed guards
 -- | Constructor which assumes the argument is already in the
 -- log-domain.
 logToLogField :: a -> LogField a
@@ -249,8 +248,6 @@ instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
     | otherwise = one
   abs = id
 
-
-
 ----------------------------------------------------------------
 -- | /O(1)/. Compute powers in the log-domain; that is, the following
 -- equivalence holds (modulo underflow and all that):
@@ -307,38 +304,3 @@ accurateProduct = LogField . fst . F.foldr kahanPlus (zero, zero)
       t' = t + y
       c' = (t' - t) - y
     in (t', c')
--- This version *completely* eliminates rounding errors and loss
--- of significance due to catastrophic cancellation during summation.
--- <http://code.activestate.com/recipes/393090/> Also see the other
--- implementations given there. For Python's actual C implementation,
--- see math_fsum in
--- <http://svn.python.org/view/python/trunk/Modules/mathmodule.c?view=markup>
---
--- For merely *mitigating* errors rather than completely eliminating
--- them, see <http://code.activestate.com/recipes/298339/>.
---
--- A good test case is @msum([1, 1e100, 1, -1e100] * 10000) == 20000.0@
-{-
--- For proof of correctness, see
--- <www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps>
-def msum(xs):
-    partials = [] # sorted, non-overlapping partial sums
-    # N.B., the actual C implementation uses a 32 array, doubling size as needed
-    for x in xs:
-        i = 0
-        for y in partials: # for(i = j = 0; j < n; j++)
-            if abs(x) < abs(y):
-                x, y = y, x
-            hi = x + y
-            lo = y - (hi - x)
-            if lo != 0.0:
-                partials[i] = lo
-                i += 1
-            x = hi
-        # does an append of x while dropping all the partials after
-        # i. The C version does n=i; and leaves the garbage in place
-        partials[i:] = [x]
-    # BUG: this last step isn't entirely correct and can lose
-    # precision <http://stackoverflow.com/a/2704565/358069>
-    return sum(partials, 0.0)
--}

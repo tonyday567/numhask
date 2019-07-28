@@ -57,15 +57,13 @@ newtype instance
 instance NFData (c t) => NFData (Array c (ds :: [Nat]) t) where
   rnf (Array a) = rnf a
 
-{-
+
 -- | instance of array where some of the dimensions are known at compile time
 -- it wraps an Array with some weird magic
 data instance Array c (xds :: [XNat]) t = forall (ds :: [Nat]).
   ( FixedDims xds ds
-  , Dimensions ds) =>` 
+  , Dimensions ds) => 
   SomeArray (Array c ds t)
-
--}
 
 instance (Dimensions r) => HasShape (Array c (r :: [Nat])) where
   type Shape (Array c r) = [Int]
@@ -121,21 +119,9 @@ instance Container [] where
 instance (Eq (c t), Dimensions ds) => Eq (Array c (ds :: [Nat]) t) where
     (Array a) == (Array b) = a == b
 
-{-
-dimList :: Dims ds -> [Int]
-dimList U = []
-dimList (d :* ds) = dimList d ++ dimList ds
-dimList (Dn _ :: Dim m) = [dimVal' @m]
--- dimList (Dx (Dn _ :: Dim m)) = [dimVal' @m]
-
--}
-
-
-{-
 instance HasShape (Array c (xds :: [XNat])) where
   type Shape (Array c xds) = [Int]
   shape (SomeArray a) = shape a
--}
 
 
 -- * shape helpers where dimensions ~ [Int]
@@ -223,36 +209,6 @@ instance (Show a, Show (Item (c a)), IsList (c a), Container c, Dimensions ds)
 type Vector c n = Array c '[ n]
 
 type Matrix c m n = Array c '[ m, n]
-
-{-
-instance
-  ( IsList (c a)
-  , Item (c a) ~ a
-  , Container c
-  , KnownNat n
-  , Unital (Sum (Vector c n a))
-  , QC.Arbitrary a
-  , Additive a) =>
-  QC.Arbitrary (Vector c n a) where
-  arbitrary = QC.frequency [(1, pure zero), (9, fromList <$> QC.vector n)]
-    where
-      n = fromInteger $ P.natVal (Proxy :: Proxy n)
-
-instance
-  ( IsList (c a)
-  , Item (c a) ~ a
-  , Additive (Matrix c m n a)
-  , Container c
-  , KnownNat m
-  , KnownNat n
-  , QC.Arbitrary a
-  , Additive a) =>
-  QC.Arbitrary (Matrix c m n a) where
-  arbitrary = QC.frequency [(1, pure zero), (9, fromList <$> QC.vector (m * n))]
-    where
-      n = fromInteger $ P.natVal (Proxy :: Proxy n)
-      m = fromInteger $ P.natVal (Proxy :: Proxy m)
--}
 
 -- ** Operations
 -- | outer product

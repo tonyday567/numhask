@@ -34,7 +34,7 @@ import NumHask.Analysis.Metric
 import NumHask.Analysis.Space as S
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Functor, Traversable(..), Applicative, pure, (<*>), (.), otherwise, (&&), fmap, (<$>), Semigroup(..), Monoid(..), zipWith, drop, filter, ($), id, undefined)
+import Prelude (Eq(..), Ord(..), Show(..), Integer, Bool(..), Foldable(..), Functor, Traversable(..), Applicative, pure, (<*>), (.), otherwise, (&&), fmap, (<$>), Semigroup(..), Monoid(..), zipWith, drop, filter, ($), id)
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
@@ -227,24 +227,21 @@ instance (Divisive a) => DivisiveAction (Range a) where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
 
-stepSensible :: (Ord a, FromRatio a b, FromIntegral a b, ExpField a, QuotientField a b) => Pos -> a -> b -> a
-stepSensible tp span n = undefined
-{-
+stepSensible :: (Ord a, FromRatio a Integer, FromIntegral a Integer, ExpField a, QuotientField a Integer) => Pos -> a -> Integer -> a
+stepSensible tp span n =
     step + bool zero (step/two) (tp==MidPos)
   where
-    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral_ n)))
+    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral_ n)) :: Integer)
     err = fromIntegral_ n / span * step'
     step
       | err <= 0.15 = 10.0 * step'
       | err <= 0.35 = 5.0 * step'
       | err <= 0.75 = 2.0 * step'
       | otherwise = step'
--}
 
-gridSensible :: (Ord a, JoinSemiLattice a, FromIntegral a b, FromRatio a b, QuotientField a b, ExpField a, Epsilon a) =>
-    Pos -> Bool -> Range a -> b -> [a]
-gridSensible tp inside r@(Range l u) n = undefined
-{-
+gridSensible :: (Ord a, JoinSemiLattice a, FromIntegral a Integer, FromRatio a Integer, QuotientField a Integer, ExpField a, Epsilon a) =>
+    Pos -> Bool -> Range a -> Integer -> [a]
+gridSensible tp inside r@(Range l u) n =
     bool id (filter (`memberOf` r)) inside $
     (+ bool zero (step/two) (tp==MidPos)) <$> posns
   where
@@ -261,4 +258,3 @@ gridSensible tp inside r@(Range l u) n = undefined
                 UpperPos -> (1,n')
                 MidPos -> (0,n' - 1)
 
--}

@@ -35,7 +35,7 @@ rational r =
         Range.bounds size r
     in
       fromRatio . (toRatio :: Double -> Ratio Integer) . fst $
-        Seed.nextDouble (fromRatio $ (toRatio x :: Ratio Integer)) (fromRatio $ (toRatio y :: Ratio Integer)) seed
+        Seed.nextDouble (fromRatio (toRatio x :: Ratio Integer)) (fromRatio (toRatio y :: Ratio Integer)) seed
 
 
 -- | an integral-type random variate
