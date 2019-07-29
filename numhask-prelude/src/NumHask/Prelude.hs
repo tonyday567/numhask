@@ -44,9 +44,9 @@ module NumHask.Prelude
   ) where
  
 #if MIN_VERSION_base(4,11,0)
-import Protolude hiding (Integral(..), Rep, Semiring(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, even, odd, infinity, log, logBase, negate, pi, product, properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans, truncate, zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract, Complex(..), Sum(..), Product(..), realPart, imagPart, polar, phase, mkPolar, magnitude, cis, toRational)
+import Protolude hiding (Integral(..), Rep, Semiring(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, even, odd, infinity, log, logBase, negate, pi, product, properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans, truncate, zero, fromRational, Ratio(..), reduce, gcd, subtract, Complex(..), Sum(..), Product(..), realPart, imagPart, polar, phase, mkPolar, magnitude, cis, toRational)
 #else
-import Protolude hiding (Integral(..), Rep, Semiring(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, even, odd, infinity, log, logBase, negate, pi, product, properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans, truncate, zero, fromRational, Ratio(..), Rational, reduce, gcd, subtract, Complex(..), Sum(..), Product(..), realPart, imagPart, polar, phase, mkPolar, magnitude, cis, toRational, (<>), Semigroup)
+import Protolude hiding (Integral(..), Rep, Semiring(..), (*), (**), (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger, fromIntegral, even, odd, infinity, log, logBase, negate, pi, product, properFraction, recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans, truncate, zero, fromRational, Ratio(..), reduce, gcd, subtract, Complex(..), Sum(..), Product(..), realPart, imagPart, polar, phase, mkPolar, magnitude, cis, toRational, (<>), Semigroup)
 import Data.Semigroup ((<>), Semigroup)
 #endif
 

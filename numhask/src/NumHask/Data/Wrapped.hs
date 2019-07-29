@@ -57,7 +57,7 @@ instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral_ a = Wrapped (fromIntegral_ a)
 
 instance (ToIntegral a b) => ToIntegral (Wrapped a) b where
-  toIntegral_ (Wrapped a) = toIntegral_ a
+  toIntegral (Wrapped a) = toIntegral a
 
 instance (FromRatio a b) => FromRatio (Wrapped a) b where
   fromRatio a = Wrapped (fromRatio a)

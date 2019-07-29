@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 -- | NumHask usage examples
 module NumHask.Examples
@@ -28,6 +29,8 @@ module NumHask.Examples
   )
 where
 
+import NumHask.Prelude
+
 -- $imports
 -- NumHask.Prelude is a replacement for the standard prelude with the 'NoImplicitPrelude' extension explicitly required.
 --
@@ -46,6 +49,7 @@ where
 -- 0
 -- >>> 1 * 1
 -- 1
+--
 -- >>> 1.0 / 1.0
 -- 1.0
 --
@@ -56,11 +60,12 @@ where
 -- ... No instance for (Divisive Int) ...
 -- ...
 --
--- >>> 1.0 / fromIntegral (1::Int)
+-- >>> 1.0 / fromInteger 1
 -- 1.0
 --
--- RebindableSyntax removes the Haskell98 link between literal numbers and base classes.  Literal numbers are pre-processed by ghc as `fromInteger 1` and `fromRational 1.0`.
+-- RebindableSyntax removes the Haskell98 link between literal numbers and prelude.  Literal numbers are pre-pended by ghc with `fromInteger` for integers and `fromRational` for decimals.
 --
+-- >>> :set -XNoRebindableSyntax
 -- >>> :t 1
 -- 1 :: Num p => p
 --
@@ -72,7 +77,7 @@ where
 -- 1 :: FromInteger a => a
 --
 -- >>> :t 1.0
--- 1.0 :: FromRatio b => b
+-- 1.0 :: FromRational a => a
 --
 -- 'Float' and 'Double' are 'NumHask.Algebra.Fields.Field' instances.
 --
@@ -136,5 +141,6 @@ where
 -- (-1) :+ (-2)
 -- >>> (1 :+ (-2)) * ((-2) :+ 4)
 -- 6 :+ 8
+--
 -- >>> (1.0 :+ (-1.0)) / (2.0 :+ 2.0)
 -- 0.0 :+ (-0.5)

@@ -3,6 +3,8 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -93,17 +95,14 @@ instance ExpField b => ExpField (a -> b) where
   f ** f' = \a -> f a ** f' a
   sqrt f = sqrt . f
 
--- | quotient fields explode constraints if they allow for polymorphic integral types
---
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + one/(one+one))
 --
--- fixme: had to redefine Signed operators here because of the Field import in Metric, itself due to Complex being defined there
-class (Field a, Subtractive a, Integral b) => QuotientField a b where
+class (Field a, Subtractive a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round ::(P.Ord a, P.Ord b, Subtractive b) => a -> b
+  default round ::(P.Ord a, P.Ord b, Subtractive b, Integral b) => a -> b
   round x = case properFraction x of
     (n,r) -> let
       m         = bool (n+one) (n-one) (r P.< zero)

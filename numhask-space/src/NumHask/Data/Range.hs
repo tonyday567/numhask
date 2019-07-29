@@ -11,6 +11,7 @@
 {-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | An Space with no empty, a semigroup based on a convex hull union, and a monoid on a negative space.
@@ -227,20 +228,20 @@ instance (Divisive a) => DivisiveAction (Range a) where
     (./) r s = fmap (/ s) r
     (/.) s = fmap (/ s)
 
-stepSensible :: (Ord a, FromRatio a Integer, FromIntegral a Integer, ExpField a, QuotientField a Integer) => Pos -> a -> Integer -> a
+stepSensible :: (Ord a, ToInteger b, FromRational a, FromInteger a, ExpField a, QuotientField a Integer) => Pos -> a -> b -> a
 stepSensible tp span n =
     step + bool zero (step/two) (tp==MidPos)
   where
-    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral_ n)) :: Integer)
-    err = fromIntegral_ n / span * step'
+    step' = 10.0 ^^ (floor (logBase 10 (span/fromIntegral n)) :: Integer)
+    err = fromIntegral n / span * step'
     step
       | err <= 0.15 = 10.0 * step'
       | err <= 0.35 = 5.0 * step'
       | err <= 0.75 = 2.0 * step'
       | otherwise = step'
 
-gridSensible :: (Ord a, JoinSemiLattice a, FromIntegral a Integer, FromRatio a Integer, QuotientField a Integer, ExpField a, Epsilon a) =>
-    Pos -> Bool -> Range a -> Integer -> [a]
+gridSensible :: (Ord a, ToIntegral b Integer, JoinSemiLattice a, FromInteger a, FromRational a, QuotientField a Integer, ExpField a, Epsilon a) =>
+    Pos -> Bool -> Range a -> b -> [a]
 gridSensible tp inside r@(Range l u) n =
     bool id (filter (`memberOf` r)) inside $
     (+ bool zero (step/two) (tp==MidPos)) <$> posns

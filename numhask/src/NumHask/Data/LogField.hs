@@ -210,7 +210,7 @@ instance (FromIntegral a b, ExpField a) => FromIntegral (LogField a) b where
   fromIntegral_ = logField . fromIntegral_
 
 instance (ToIntegral a b, ExpField a) => ToIntegral (LogField a) b where
-  toIntegral_ = toIntegral_ . fromLogField
+  toIntegral = toIntegral . fromLogField
 
 instance (FromRatio a b, ExpField a) => FromRatio (LogField a) b where
   fromRatio = logField . fromRatio

@@ -189,7 +189,7 @@ complexFieldProps
   , Epsilon a
   , BoundedLattice (Complex a)
   , Divisive a
-  , FromRatio a Integer
+  , FromRational a
   )
   => Complex a
   -> Gen (Complex a)

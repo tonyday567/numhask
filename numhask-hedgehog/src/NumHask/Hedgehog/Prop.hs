@@ -189,7 +189,7 @@ toFromIntegral :: (Eq a, Show a, FromIntegral a Integer, ToIntegral a Integer) =
 toFromIntegral src = property $ do
   rv <- forAll src
   let p = \a ->
-        fromIntegral_ (toIntegral_ a :: Integer) == a
+        fromIntegral_ (toIntegral a :: Integer) == a
   assert (p rv)
 
 isSigned :: (Eq a, Show a, Signed a) => Gen a -> Property

@@ -1,7 +1,10 @@
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -15,6 +18,7 @@ module NumHask.Data.Rational
   , FromRatio(..)
   , FromRational
   , fromRational
+  , fromBaseRational
   -- * $integral_functionality
   , reduce
   , gcd
@@ -33,7 +37,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
-import Prelude (Double, Float, Int, Integer, (.))
+import Prelude (Double, Float, Int, Integer, Rational, (.))
 import qualified GHC.Real
 import qualified Prelude as P
 
@@ -52,10 +56,7 @@ isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
 
-
-type Rational = Ratio Integer
-
-instance  (P.Ord a, Multiplicative a, Integral a)  => P.Ord (Ratio a)  where
+instance  (P.Ord a, Multiplicative a, Additive a)  => P.Ord (Ratio a)  where
   (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
   (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
 
@@ -122,33 +123,13 @@ instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
 -- | toRatio is equivalent to `Real` in base, but is polymorphic in the Integral type.
 class ToRatio a b where
   toRatio :: a -> Ratio b
+  default toRatio :: (Ratio c ~ a, ToIntegral c Integer, ToRatio (Ratio b) b, FromInteger b) => a -> Ratio b
+  toRatio (n :% d) = toRatio ((fromIntegral n :: b) :% fromIntegral d)
 
 type ToRational a = ToRatio a Integer
 
 toRational :: (ToRatio a Integer) => a -> Ratio Integer
 toRational = toRatio
-
--- | `Fractional` in base splits into fromRatio and Field
-class FromRatio a b where
-  fromRatio :: Ratio b -> a
-
-type FromRational a = FromRatio a Integer
-
-fromBaseRational :: P.Rational -> Ratio Integer
-fromBaseRational (n GHC.Real.:% d) = n :% d
-
--- | general coercion via Ratio Integer using the legacy prelude name
-fromRational :: (ToRational a, FromRational b) => a -> b
-fromRational = fromRatio . toRational
-
-instance FromRatio Double Integer where
-  fromRatio (n:%d)= rationalToDouble n d
-
-instance FromRatio Float Integer where
-  fromRatio (n:%d)= rationalToFloat n d
-
-instance FromRatio Rational Integer where
-  fromRatio = P.id
 
 instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
@@ -157,6 +138,9 @@ instance ToRatio Float Integer where
   toRatio = fromBaseRational . P.toRational
 
 instance ToRatio Rational Integer where
+  toRatio = fromBaseRational
+
+instance ToRatio (Ratio Integer) Integer where
   toRatio = P.id
 
 instance ToRatio Int Integer where
@@ -166,9 +150,6 @@ instance ToRatio Integer Integer where
   toRatio = fromBaseRational . P.toRational
 
 instance ToRatio Natural Integer where
-  toRatio = fromBaseRational . P.toRational
-
-instance ToRatio P.Rational Integer where
   toRatio = fromBaseRational . P.toRational
 
 instance ToRatio Int8 Integer where
@@ -197,6 +178,41 @@ instance ToRatio Word32 Integer where
 
 instance ToRatio Word64 Integer where
   toRatio = fromBaseRational . P.toRational
+
+-- | `Fractional` in base splits into fromRatio and Field
+-- FIXME: work out why the default type isn't firing so that an explicit instance is needed
+-- for `FromRatio (Ratio Integer) Integer`
+class FromRatio a b where
+  fromRatio :: Ratio b -> a
+  -- default fromRatio :: (a ~ Ratio c, ToIntegral b c) => Ratio b -> a
+  -- fromRatio (n :% d) = toIntegral n :% toIntegral d
+  default fromRatio :: (Ratio b ~ a) => Ratio b -> a
+  fromRatio = P.id
+
+fromBaseRational :: P.Rational -> Ratio Integer
+fromBaseRational (n GHC.Real.:% d) = n :% d
+
+instance FromRatio Double Integer where
+  fromRatio (n:%d)= rationalToDouble n d
+
+instance FromRatio Float Integer where
+  fromRatio (n:%d)= rationalToFloat n d
+
+instance FromRatio Rational Integer where
+  fromRatio (n:%d) = n GHC.Real.% d
+
+instance FromRatio (Ratio Integer) Integer where
+  fromRatio = P.id
+
+-- | under RebindableSyntax the literal '1.0' mean exactly `fromRational (1.0::Rational)` where 'Rational' is the type from GHC.Real (rather than the numhask one).
+class FromRational a where
+  fromRational :: P.Rational -> a
+  default fromRational :: (FromRatio a Integer) => P.Rational -> a
+  fromRational = fromRatio . fromBaseRational
+
+instance FromRational Double
+instance FromRational Float
+instance FromRational Rational
 
 instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
