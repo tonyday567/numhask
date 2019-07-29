@@ -56,7 +56,7 @@ main = do
     (genARational :: H.Gen (Vector [] 6 Float)) (fieldProps' acc6)
   bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
     (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc34)
-  unless (bVInt && bMInt)
+  unless (bVInt && bMInt && bVFloat && bMFloat)
     exitFailure
     where
       acc6 = tabulate (const 1.0)
