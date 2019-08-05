@@ -57,8 +57,13 @@ library
     , protolude >=0.2 && <0.3
     , singletons >=2.0 && <2.6
     , vector >=0.10 && <0.13
+    , vector-sized
+    , finite-typelits
+    , ghc-typelits-knownnat
   exposed-modules:
     NumHask.Array
+    NumHask.Vector
+    NumHask.Matrix
     NumHask.Array.Constraints
     NumHask.Array.Example
     NumHask.Shape

@@ -19,8 +19,6 @@ Libraries
 - `numhask-prelude` numhask + [protolude](https://hackage.haskell.org/package/protolude)
 - `numhask-array` n-dimensional arrays with type-level size
 
-There is also some performance analytics in `numhask-bench` and `numhask` produces the above chart.
-
 numhask
 ---
 

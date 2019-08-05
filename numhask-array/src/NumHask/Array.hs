@@ -57,7 +57,6 @@ newtype instance
 instance NFData (c t) => NFData (Array c (ds :: [Nat]) t) where
   rnf (Array a) = rnf a
 
-
 -- | instance of array where some of the dimensions are known at compile time
 -- it wraps an Array with some weird magic
 data instance Array c (xds :: [XNat]) t = forall (ds :: [Nat]).
@@ -90,17 +89,26 @@ class (Functor f) => Container f where
 
 instance Container V.Vector where
   generate = V.generate
+  {-# inline generate #-}
   idx = V.unsafeIndex
+  {-# inline idx #-}
   cslice = V.unsafeSlice
+  {-# inline cslice #-}
   zipWith = V.zipWith
+  {-# inline zipWith #-}
   chunkItUp acc i v =
     if null v
       then acc
       else let (c, r) = V.splitAt i v
            in chunkItUp (c : acc) i r
+  {-# inline chunkItUp #-}
+
   cfoldl' = V.foldl'
+  {-# inline cfoldl' #-}
   cfoldr = V.foldr
+  {-# inline cfoldr #-}
   cconcat = V.concat
+  {-# inline cconcat #-}
 
 instance Container [] where
   generate n g = take n $ g <$> [0 ..]
@@ -122,7 +130,7 @@ instance (Eq (c t), Dimensions ds) => Eq (Array c (ds :: [Nat]) t) where
 instance HasShape (Array c (xds :: [XNat])) where
   type Shape (Array c xds) = [Int]
   shape (SomeArray a) = shape a
-
+  {-# inline shape #-}
 
 -- * shape helpers where dimensions ~ [Int]
 
@@ -132,6 +140,7 @@ instance HasShape (Array c (xds :: [XNat])) where
 -- 17
 ind :: [Int] -> [Int] -> Int
 ind ns xs = sum $ P.zipWith (*) xs (drop 1 $ scanr (*) 1 ns)
+{-# inline ind #-}
 
 -- | convert from a flat index to a shape index
 --
@@ -146,6 +155,7 @@ unind ns x =
        in (m : acc, d))
     ([], x)
     ns
+{-# inline unind #-}
 
 instance forall r c. (Dimensions r, Container c) =>
   Data.Distributive.Distributive (Array c (r :: [Nat])) where
@@ -159,9 +169,11 @@ instance forall r c. (Dimensions r, Container c) =>
   tabulate f = Array $ generate (fromIntegral $ product ns) (f . unind (fmap fromIntegral ns))
     where
       ns = listDims $ dims @Nat @r
+  {-# inline tabulate #-}
   index (Array xs) rs = xs `idx` ind (fmap fromIntegral ns) rs
     where
       ns = listDims $ dims @Nat @r
+  {-# inline index #-}
 
 -- | from flat list
 instance
@@ -262,6 +274,8 @@ mmult x y = tabulate go
   where
     go [i, j] = unsafeRow i x <.> unsafeCol j y
     go _  = impossible "mmult only typechecks on arrays"
+{-# inline mmult #-}
+
 
 -- | extract the row of a matrix
 row :: forall c i a m n.
@@ -295,6 +309,7 @@ unsafeRow :: forall c a m n.
 unsafeRow i t@(Array a) = Array $ cslice (i * n) n a
   where
     (_, n) = rank2Shape t
+{-# inline unsafeRow #-}
 
 unsafeCol ::
      forall c a m n. (Container c, Dimensions '[ m, n])
@@ -304,6 +319,7 @@ unsafeCol ::
 unsafeCol j t@(Array a) = Array $ generate m (\x -> a `idx` (j + x * n))
   where
     (m, n) = rank2Shape t
+{-# inline unsafeCol #-}
 
 -- | extract the column of a matrix
 col :: forall c j a m n.
@@ -326,6 +342,7 @@ col j_ = unsafeCol j
 -- 10
 unsafeIndex :: (Container c, Dimensions r) => Array c (r :: [Nat]) a -> [Int] -> a
 unsafeIndex t@(Array a) i = a `idx` ind (shape t) i
+{-# inline unsafeIndex #-}
 
 -- |
 --
@@ -534,6 +551,7 @@ squeeze (Array x) = Array x
 instance (Dimensions r, Container c, Additive a) =>
   Additive (Array c (r :: [Nat]) a) where
   a + b = liftR2 (+) a b
+  {-# inline (+) #-}
   zero = pureRep zero
 
 instance (Dimensions r, Container c, Subtractive a) =>
@@ -543,6 +561,7 @@ instance (Dimensions r, Container c, Subtractive a) =>
 instance (Dimensions r, Container c, Multiplicative a) =>
   Multiplicative (Array c (r :: [Nat]) a) where
   a * b = liftR2 (*) a b
+  {-# inline (*) #-}
 
   one = pureRep one
 
@@ -600,6 +619,21 @@ instance (Dimensions r, Container c, Integral a) => Integral (Array c (r :: [Nat
       q = fmap fst x
       r = fmap snd x
 
+instance (Dimensions r, Container c, TrigField a) => TrigField (Array c (r :: [Nat]) a) where
+  pi = pureRep pi
+  sin = fmapRep sin
+  cos     = fmapRep cos
+  tan     = fmapRep tan
+  asin    = fmapRep asin
+  acos    = fmapRep acos
+  atan    = fmapRep atan
+  sinh    = fmapRep sinh
+  cosh    = fmapRep cosh
+  tanh    = fmapRep tanh
+  asinh   = fmapRep asinh
+  acosh   = fmapRep acosh
+  atanh   = fmapRep atanh
+
 type instance Actor (Array c r a) = a
 
 instance (Dimensions r, Container c, Multiplicative a) =>
@@ -633,6 +667,7 @@ instance (Dimensions r, Container c, Divisive a) =>
 instance forall a c r. (Actor (Array c r a) ~ a, Foldable (Array c r), P.Distributive a, CommutativeRing a, Semiring a, Dimensions r, Container c) =>
   Hilbert (Array c (r :: [Nat]) a) where
   a <.> b = sum $ liftR2 (*) a b
+  {-# inline (<.>) #-}
 
 instance
   ( Foldable (Array c r)
