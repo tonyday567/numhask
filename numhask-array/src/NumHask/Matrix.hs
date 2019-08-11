@@ -45,17 +45,10 @@ import GHC.TypeLits
 -- concrete vector based on vector-sized
 import qualified Prelude (fromIntegral)
 import qualified NumHask.Vector as NH
-import qualified Data.Vec.Lazy as L
-import qualified Data.Nat as N
-import qualified Data.Fin as Fin
-import qualified Data.Type.Nat as N
-import qualified Data.List as List
 
 newtype Matrix m n a = Matrix { unMatrix :: S.Vector V.Vector (m GHC.TypeLits.* n) a} deriving (Eq, Show, Ord, NFData, Functor, Foldable, Generic, Traversable)
 
 newtype UMatrix m n a = UMatrix { unUMatrix :: U.Vector (m GHC.TypeLits.* n) a} deriving (Eq, Show)
-
-newtype LMatrix m n a = LMatrix { unLMatrix :: L.Vec (N.Mult m n) a} deriving (Eq, Show, Ord, NFData, Functor, Foldable, Generic, Traversable)
 
 shape :: forall a m n. (KnownNat m, KnownNat n) => Matrix m n a -> [Integer]
 shape _ = [m, n]
@@ -123,29 +116,6 @@ instance forall m n.
       m = fromIntegral $ natVal @m Proxy
       n = fromIntegral $ natVal @n Proxy
   {-# inline index #-}
-
-instance
-  ( N.SNatI m
-  , N.SNatI n
-  , N.SNatI (N.Mult m n)
-  ) => Data.Distributive.Distributive (LMatrix m n) where
-  distribute = distributeRep
-  {-# inline distribute #-}
-
-instance forall m n.
-  ( N.SNatI m
-  , N.SNatI n
-  , N.SNatI (N.Mult m n)
-  ) => Representable (LMatrix m n) where
-  type Rep (LMatrix m n) = (Integer, Integer)
-  tabulate f =
-    -- Matrix . S.generate $ (f . (`divMod` n) . getFinite)
-    LMatrix . tabulate $ (f . (`divMod` n) . Prelude.fromIntegral)
-    where
-      -- m = Prelude.fromIntegral $ N.reflect (Proxy::Proxy m)
-      n = Prelude.fromIntegral $ N.reflect (Proxy::Proxy n)
-  {-# inline tabulate #-}
-  index = undefined
 
 instance (NFData a) => NFData (UMatrix m n a) where
   rnf (UMatrix a) = rnf a
@@ -227,22 +197,6 @@ instance
 
   toList (UMatrix v) = S.toList v
 
--- | from flat list
-instance
-    ( Additive a
-    , N.SNatI m
-    , N.SNatI n
-    , N.SNatI (N.Mult m n)
-    ) =>
-    IsList (LMatrix m n a) where
-  type Item (LMatrix m n a) = a
-  fromList l = LMatrix l'
-    where
-      m = Prelude.fromIntegral $ N.reflect (Proxy::Proxy m)
-      n = Prelude.fromIntegral $ N.reflect (Proxy::Proxy n)
-      (Just l') = L.fromList $ take (m * n) $ l ++ repeat zero
-  toList (LMatrix v) = L.toList v
-
 mmult :: forall m n k a.
   ( KnownNat k
   , KnownNat m
@@ -275,27 +229,7 @@ mmult' (UMatrix (SI.Vector x)) (UMatrix (SI.Vector y)) = UMatrix $ SI.Vector $ U
     go i = let (i', j') = i `divMod` n in UV.foldl' (+) zero $ UV.zipWith (*) (UV.slice (i' * n) n x) (UV.generate m (\x' -> y UV.! (j' + x' * n)))
     m = fromIntegral $ natVal @m Proxy
     n = fromIntegral $ natVal @n Proxy
-      -- unsafeRow (Prelude.fromIntegral i) x <.> unsafeCol (Prelude.fromIntegral j) y
 {-# inline mmult' #-}
-
-mmultVec :: forall m n k a.
-  ( N.SNatI m
-  , N.SNatI n
-  , N.SNatI (N.Mult m n)
-  , Ring a
-  )
-  => LMatrix m k a
-  -> LMatrix k n a
-  -> LMatrix m n a
-mmultVec (LMatrix x) (LMatrix y) = tabulate go
-  where
-    go (i,j) = foldl' (+) zero $ zipWith (*) (drop (fromIntegral i * n) $ take n (L.toList x)) (fmap (\x' -> L.toList y List.!! (fromIntegral j + x' * n)) [1..m])
-    m = Prelude.fromIntegral $ N.reflect (Proxy::Proxy m)
-    n = Prelude.fromIntegral $ N.reflect (Proxy::Proxy n)
-
-{-# inline mmultVec #-}
-
-
 
 unsafeRow :: forall a m n.
   ( KnownNat m
