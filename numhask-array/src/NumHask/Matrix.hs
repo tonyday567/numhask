@@ -2,6 +2,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
@@ -15,6 +17,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE NoStarIsType #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
@@ -32,7 +35,9 @@ import NumHask.Prelude as P
 -- import Numeric.Dimensions as D
 -- import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as UV
 import qualified Data.Vector.Generic.Sized as S
+import qualified Data.Vector.Unboxed.Sized as U
 import qualified Data.Vector.Generic.Sized.Internal as SI
 -- import qualified Data.Vector.Generic.Base as B
 import Data.Finite
@@ -40,8 +45,17 @@ import GHC.TypeLits
 -- concrete vector based on vector-sized
 import qualified Prelude (fromIntegral)
 import qualified NumHask.Vector as NH
+import qualified Data.Vec.Lazy as L
+import qualified Data.Nat as N
+import qualified Data.Fin as Fin
+import qualified Data.Type.Nat as N
+import qualified Data.List as List
 
-newtype Matrix m n a = Matrix { unMatrix :: S.Vector V.Vector (m GHC.TypeLits.* n) a} deriving (Eq, Show, Functor, Foldable)
+newtype Matrix m n a = Matrix { unMatrix :: S.Vector V.Vector (m GHC.TypeLits.* n) a} deriving (Eq, Show, Ord, NFData, Functor, Foldable, Generic, Traversable)
+
+newtype UMatrix m n a = UMatrix { unUMatrix :: U.Vector (m GHC.TypeLits.* n) a} deriving (Eq, Show)
+
+newtype LMatrix m n a = LMatrix { unLMatrix :: L.Vec (N.Mult m n) a} deriving (Eq, Show, Ord, NFData, Functor, Foldable, Generic, Traversable)
 
 shape :: forall a m n. (KnownNat m, KnownNat n) => Matrix m n a -> [Integer]
 shape _ = [m, n]
@@ -85,15 +99,23 @@ unind ns x =
     ns
 {-# inline unind #-}
 
+unind' :: (Int,Int) -> Int -> (Int,Int)
+unind' (_,j) x = divMod x j
+{-# inline unind' #-}
+
+unind'' :: Integral a => (a,a) -> a -> (a,a)
+unind'' (_,j) x = divMod x j
+{-# inline unind'' #-}
+
 instance forall m n.
   ( KnownNat m
   , KnownNat n
   ) => Representable (Matrix m n) where
-  type Rep (Matrix m n) = (Finite m, Finite n)
+  type Rep (Matrix m n) = (Integer, Integer)
   tabulate f =
-    Matrix . S.generate $ (f . (\[x,y] -> (Prelude.fromIntegral x, Prelude.fromIntegral y)) . unind [fromIntegral m, fromIntegral n] . Prelude.fromIntegral)
+    Matrix . S.generate $ (f . (`divMod` n) . getFinite)
     where
-      m = natVal @m Proxy
+      -- m = natVal @m Proxy
       n = natVal @n Proxy
   {-# inline tabulate #-}
   index (Matrix s) i = S.index s (Prelude.fromIntegral $ ind [m,n] $ (\(x,y) -> [Prelude.fromIntegral x, Prelude.fromIntegral y]) i)
@@ -102,8 +124,31 @@ instance forall m n.
       n = fromIntegral $ natVal @n Proxy
   {-# inline index #-}
 
-instance (NFData a) => NFData (Matrix m n a) where
-  rnf (Matrix a) = rnf a
+instance
+  ( N.SNatI m
+  , N.SNatI n
+  , N.SNatI (N.Mult m n)
+  ) => Data.Distributive.Distributive (LMatrix m n) where
+  distribute = distributeRep
+  {-# inline distribute #-}
+
+instance forall m n.
+  ( N.SNatI m
+  , N.SNatI n
+  , N.SNatI (N.Mult m n)
+  ) => Representable (LMatrix m n) where
+  type Rep (LMatrix m n) = (Integer, Integer)
+  tabulate f =
+    -- Matrix . S.generate $ (f . (`divMod` n) . getFinite)
+    LMatrix . tabulate $ (f . (`divMod` n) . Prelude.fromIntegral)
+    where
+      -- m = Prelude.fromIntegral $ N.reflect (Proxy::Proxy m)
+      n = Prelude.fromIntegral $ N.reflect (Proxy::Proxy n)
+  {-# inline tabulate #-}
+  index = undefined
+
+instance (NFData a) => NFData (UMatrix m n a) where
+  rnf (UMatrix a) = rnf a
 
 instance
   ( Additive a
@@ -167,6 +212,37 @@ instance
 
   toList (Matrix v) = S.toList v
 
+-- | from flat list
+instance
+    ( KnownNat m
+    , KnownNat n
+    , Additive a
+    , U.Unbox a
+    ) =>
+    IsList (UMatrix m n a) where
+  type Item (UMatrix m n a) = a
+  fromList l = UMatrix $ SI.Vector $ UV.fromList $ take mn $ l ++ repeat zero
+    where
+      mn = fromIntegral $ natVal @m Proxy * natVal @n Proxy
+
+  toList (UMatrix v) = S.toList v
+
+-- | from flat list
+instance
+    ( Additive a
+    , N.SNatI m
+    , N.SNatI n
+    , N.SNatI (N.Mult m n)
+    ) =>
+    IsList (LMatrix m n a) where
+  type Item (LMatrix m n a) = a
+  fromList l = LMatrix l'
+    where
+      m = Prelude.fromIntegral $ N.reflect (Proxy::Proxy m)
+      n = Prelude.fromIntegral $ N.reflect (Proxy::Proxy n)
+      (Just l') = L.fromList $ take (m * n) $ l ++ repeat zero
+  toList (LMatrix v) = L.toList v
+
 mmult :: forall m n k a.
   ( KnownNat k
   , KnownNat m
@@ -176,10 +252,50 @@ mmult :: forall m n k a.
   => Matrix m k a
   -> Matrix k n a
   -> Matrix m n a
-mmult x y = tabulate go
+mmult (Matrix (SI.Vector x)) (Matrix (SI.Vector y)) = tabulate go
   where
-    go (i,j) = unsafeRow (Prelude.fromIntegral i) x <.> unsafeCol (Prelude.fromIntegral j) y
+    go (i,j) = V.foldl' (+) zero $ V.zipWith (*) (V.slice (fromIntegral i * n) n x) (V.generate m (\x' -> y V.! (fromIntegral j + x' * n)))
+    m = fromIntegral $ natVal @m Proxy
+    n = fromIntegral $ natVal @n Proxy
+      -- unsafeRow (Prelude.fromIntegral i) x <.> unsafeCol (Prelude.fromIntegral j) y
 {-# inline mmult #-}
+
+mmult' :: forall m n k a.
+  ( KnownNat k
+  , KnownNat m
+  , KnownNat n
+  , Ring a
+  , U.Unbox a
+  )
+  => UMatrix m k a
+  -> UMatrix k n a
+  -> UMatrix m n a
+mmult' (UMatrix (SI.Vector x)) (UMatrix (SI.Vector y)) = UMatrix $ SI.Vector $ UV.generate (m*n) go
+  where
+    go i = let (i', j') = i `divMod` n in UV.foldl' (+) zero $ UV.zipWith (*) (UV.slice (i' * n) n x) (UV.generate m (\x' -> y UV.! (j' + x' * n)))
+    m = fromIntegral $ natVal @m Proxy
+    n = fromIntegral $ natVal @n Proxy
+      -- unsafeRow (Prelude.fromIntegral i) x <.> unsafeCol (Prelude.fromIntegral j) y
+{-# inline mmult' #-}
+
+mmultVec :: forall m n k a.
+  ( N.SNatI m
+  , N.SNatI n
+  , N.SNatI (N.Mult m n)
+  , Ring a
+  )
+  => LMatrix m k a
+  -> LMatrix k n a
+  -> LMatrix m n a
+mmultVec (LMatrix x) (LMatrix y) = tabulate go
+  where
+    go (i,j) = foldl' (+) zero $ zipWith (*) (drop (fromIntegral i * n) $ take n (L.toList x)) (fmap (\x' -> L.toList y List.!! (fromIntegral j + x' * n)) [1..m])
+    m = Prelude.fromIntegral $ N.reflect (Proxy::Proxy m)
+    n = Prelude.fromIntegral $ N.reflect (Proxy::Proxy n)
+
+{-# inline mmultVec #-}
+
+
 
 unsafeRow :: forall a m n.
   ( KnownNat m
