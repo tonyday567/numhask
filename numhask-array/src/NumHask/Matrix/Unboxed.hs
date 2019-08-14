@@ -29,10 +29,10 @@ import NumHask.Prelude as P
 -- import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector.Unboxed as UV
 import qualified Data.Vector.Unboxed.Sized as U
-import qualified Data.Vector.Generic.Sized.Internal as SI
-import GHC.TypeLits
+-- import qualified Data.Vector.Generic.Sized.Internal as SI
+-- import GHC.TypeLits
 
-newtype Matrix m n a = Matrix { unUMatrix :: U.Vector (m GHC.TypeLits.* n) a} deriving (Eq, Show)
+newtype Matrix m n a = Matrix { unMatrix :: UV.Vector a} deriving (Eq, Show)
 
 -- | convert from n-dim shape index to a flat index
 --
@@ -78,7 +78,7 @@ mmult :: forall m n k a.
   => Matrix m k a
   -> Matrix k n a
   -> Matrix m n a
-mmult (Matrix (SI.Vector x)) (Matrix (SI.Vector y)) = Matrix $ SI.Vector $ UV.generate (m*n) go
+mmult (Matrix x) (Matrix y) = Matrix $ UV.generate (m*n) go
   where
     go i =
       let (i', j') = i `divMod` n in
@@ -99,9 +99,9 @@ instance
     ) =>
     IsList (Matrix m n a) where
   type Item (Matrix m n a) = a
-  fromList l = Matrix $ SI.Vector $ UV.fromList $ take mn $ l ++ repeat zero
+  fromList l = Matrix $ UV.fromList $ take mn $ l ++ repeat zero
     where
       mn = fromIntegral $ natVal @m Proxy * natVal @n Proxy
 
-  toList (Matrix v) = U.toList v
+  toList (Matrix v) = UV.toList v
 

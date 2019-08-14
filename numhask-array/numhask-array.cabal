@@ -60,13 +60,20 @@ library
     , vector-sized
     , finite-typelits
     , ghc-typelits-knownnat
+    , hmatrix
   exposed-modules:
-    NumHask.Array
-    NumHask.Vector
-    NumHask.Matrix
-    NumHask.Matrix.Unboxed
+    -- NumHask.Array
+    -- NumHask.Vector
+    -- NumHask.Matrix
+    -- NumHask.Matrix.Unboxed
     NumHask.Array.Constraints
     NumHask.Array.Example
+    NumHask.Array.HMatrix
+    NumHask.Array.HMatrixV
+    NumHask.Array.Simple
+    NumHask.Array.Dynamic
+    NumHask.Array.Storable
+    NumHask.Array.Unboxed
     NumHask.Shape
   default-language: Haskell2010
 test-suite test
