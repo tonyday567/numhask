@@ -41,6 +41,7 @@ where
 
 import NumHask.Shape
 import NumHask.Array.Simple
+import Data.Functor.Rep
 import NumHask.Prelude as P
 
 -- $setup
@@ -150,7 +151,7 @@ import NumHask.Prelude as P
 -- [20.0, 29.0, 38.0, 47.0]
 -- >>> -- todo: resolve potential to polymorph number literals eg b**2
 -- >>> b ** (one+one)
--- [0.0, 1.0, 4.0, 9.000000000000002]
+-- [0.0, 1.0, 4.0, 9.0]
 -- >>> 10 *. (sin <$> a)
 -- [9.129452507276277, -9.880316240928618, 7.451131604793488, -2.6237485370392877]
 -- >>> (<35) <$> a
@@ -158,11 +159,14 @@ import NumHask.Prelude as P
 --
 -- >>> let a = [0..] :: Array '[2,3] Int
 -- >>> let b = [0..] :: Array '[3,2] Int
--- >>> a .*. a
+--
+-- FIXME:
+-- > a .*. a
 -- [[0, 1, 4],
 --  [9, 16, 25]]
+--
 -- >>> -- todo: resolve NumHask.Array and NumHask.Matrix operation names
--- >>> a `NumHask.Array.mmult` b
+-- >>> a `mmult` b
 -- [[10, 13],
 --  [28, 40]]
 -- >>> a .* 2
@@ -210,7 +214,7 @@ import NumHask.Prelude as P
 -- >>> s
 -- [8, 27, 64, 125]
 -- >>> :t s
--- s :: Array [] '[4] Int
+-- s :: Array '[4] Int
 -- >>> -- replace every second number with -1000
 -- >>> let a' = (tabulate (\[i] -> if i `mod` 2 == 0 then -1000 else (index a [i]))) :: Array '[10] Int
 -- >>> a'

@@ -47,7 +47,7 @@ size xs = product xs
 flatten :: [Int] -> [Int] -> Int
 flatten [] _ = zero
 flatten _ [x'] = x'
-flatten ns xs = sum $ zipWith (*) xs (Prelude.scanr1 (*) ns)
+flatten ns xs = sum $ zipWith (*) xs (drop 1 $ scanr (*) one ns)
 {-# inline flatten #-}
 
 -- | convert from a flat index to a shape index
@@ -107,7 +107,7 @@ type family Take (n :: Nat) (a :: [k]) :: [k] where
 
 type family Drop (n :: Nat) (a :: [k]) :: [k] where
   Drop 0 xs = xs
-  Drop n (_:xs) = Take (n - 1) xs
+  Drop n (_:xs) = Drop (n - 1) xs
 
 type family Tail (a :: [k]) :: [k] where
   Tail '[] = L.TypeError ('Text "No tail")

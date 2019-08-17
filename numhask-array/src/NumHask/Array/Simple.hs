@@ -22,18 +22,22 @@
 
 module NumHask.Array.Simple where
 
-import Control.Category (id)
+-- import Control.Category (id)
 import Data.Distributive (Distributive(..))
 import Data.Functor.Rep
 import GHC.Exts (IsList(..))
 import GHC.Show (Show(..))
-import Data.List (last)
+-- import Data.List (last)
 -- import NumHask.Error (impossible)
 -- import NumHask.Array.Constraints
 --  (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
 import NumHask.Prelude as P
 import NumHask.Shape
 import qualified NumHask.Array.Dynamic as D
+-- import qualified Numeric.LinearAlgebra.Data as H
+-- import qualified Numeric.LinearAlgebra as H
+-- import qualified Numeric.LinearAlgebra.HMatrix as OldH
+-- import qualified Numeric.LinearAlgebra.Devel as H
 -- import qualified Prelude
 -- import NumHask.Shape (HasShape(..))
 -- import Numeric.Dimensions as D
@@ -48,7 +52,7 @@ import qualified Data.Vector as V
 -- import qualified Prelude (fromIntegral)
 -- import qualified NumHask.Vector as NH
 
-newtype Array s a = Array { unArray :: V.Vector a} deriving (Eq, Ord, Show, NFData, Functor, Foldable, Generic, Traversable)
+newtype Array s a = Array { unArray :: V.Vector a} deriving (Eq, Ord, NFData, Functor, Foldable, Generic, Traversable)
 
 -- | <https://en.wikipedia.org/wiki/Scalarr_(mathematics) Scalar> is rank 0 of tensor
 type Scalar a  = Array '[] a
@@ -63,25 +67,10 @@ shape :: forall a s. (HasShape s) => Array s a -> [Int]
 shape _ = shapeVal $ toShape @s
 {-# inline shape #-}
 
-pretty a = go a
-    where
-      go a'@(Array v) =
-        case (length (shape a')) of
-          0 -> "[]"
-          1 -> "[" ++ intercalate ", " (GHC.Show.show <$> GHC.Exts.toList v) ++ "]"
-          x -> let as = flatten1 a' in
-            "[" ++
-            intercalate
-              (",\n" ++ replicate ((length as) - x + 1) ' ')
-              (go <$> as) ++
-            "]"
+toDArray a = D.fromFlatList (shape a) (P.toList a)
 
--- | convert the first dimension to a list
--- flatten ([1..] :: Array '[2,3,4]) ~ [Array '[3,4]]
-flatten1 :: (HasShape s, HasShape s') => Array s a -> [Array s' a]
-flatten1 a = (\i -> unsafeSelect 0 i a) <$> [0..x0]
-  where
-    x0 = maybe 0 id (head (shape a))
+instance (HasShape s, Show a, Additive a) => Show (Array s a) where
+  show a = GHC.Show.show (toDArray a)
 
 instance
   ( HasShape s
@@ -189,7 +178,65 @@ instance
   (+) = liftR2 (+)
   zero = pureRep zero
 
+instance
+  ( Subtractive a
+  , HasShape s
+  )
+  => Subtractive (Array s a) where
+  negate = fmapRep negate
+
+instance
+  ( Multiplicative a
+  , HasShape s
+  )
+  => Multiplicative (Array s a) where
+  (*) = liftR2 (*)
+  one = pureRep one
+
+instance
+  ( Divisive a
+  , HasShape s
+  )
+  => Divisive (Array s a) where
+  recip = fmapRep recip
+
+
+instance
+  ( P.Distributive a
+  , HasShape s
+  )
+  => P.Distributive (Array s a) where
+
+instance
+  ( IntegralDomain a
+  , HasShape s
+  )
+  => IntegralDomain (Array s a) where
+
+
+instance
+  ( Field a
+  , HasShape s
+  )
+  => Field (Array s a) where
+
+
+instance
+  ( ExpField a
+  , HasShape s
+  )
+  => ExpField (Array s a) where
+  exp = fmapRep exp
+  log = fmapRep log
+  (**) = liftR2 (**)
+
 type instance Actor (Array s a) = a
+
+instance
+  ( Multiplicative a
+  , HasShape s
+  )
+  => HadamardMultiplication (Array s) a where
 
 instance
   ( HasShape s
@@ -244,9 +291,10 @@ mmult :: forall m n k a.
   -> Array [m, n] a
 mmult (Array x) (Array y) = tabulate go
   where
-    go [i,j] = V.foldl' (+) zero $ V.zipWith (*) (V.slice (fromIntegral i * n) n x) (V.generate m (\x' -> y V.! (fromIntegral j + x' * n)))
-    m = fromIntegral $ natVal @m Proxy
+    go [i,j] = V.foldl' (+) zero $ V.zipWith (*) (V.slice (fromIntegral i * k) k x) (V.generate k (\x' -> y V.! (fromIntegral j + x' * n)))
+    -- m = fromIntegral $ natVal @m Proxy
     n = fromIntegral $ natVal @n Proxy
+    k = fromIntegral $ natVal @k Proxy
 {-# inline mmult #-}
 
 mmult' :: forall m n k a.
