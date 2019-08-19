@@ -64,12 +64,12 @@ type family Concatenate i (a :: [Nat]) (b :: [Nat]) :: [Nat] where
     ('[ Head (Drop i a) + Head (Drop i b)]) ++
     Snd (SplitAt (i + 1) b)
 
--- | Reduces axis i in shape s.  Maintains singlton dimension
+-- | Reduces axis i in shape s.  Maintains singleton dimension
 type family FoldAlong i (s :: [Nat]) where
   FoldAlong _ '[] = '[]
   FoldAlong d xs = Take d (Fst (SplitAt (d + 1) xs)) ++ '[ 1] ++ Snd (SplitAt (d + 1) xs)
 
--- | Reduces axis i in shape s. Does not maintain singlton dimension.
+-- | Reduces axis i in shape s. Does not maintain singleton dimension.
 type family Fold i (s :: [Nat]) where
   Fold _ '[] = '[]
   Fold d xs = Take d (Fst (SplitAt (d + 1) xs)) ++ Snd (SplitAt (d + 1) xs)
@@ -81,3 +81,6 @@ type family TailModule i (s :: [Nat]) where
 type family HeadModule i (s :: [Nat]) where
   HeadModule _ '[] = '[]
   HeadModule d xs = (Fst (SplitAt d xs))
+
+
+

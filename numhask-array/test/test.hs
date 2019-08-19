@@ -45,8 +45,10 @@ genARational = fromList <$> replicateM (fromIntegral n) negUniform
 
 main :: IO ()
 main = do
-  -- putStrLn ("Array DocTest turned on" :: Text)
-  -- doctest ["src/NumHask/Array.hs"]
+  putStrLn ("Array.Simple DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array/Simple.hs"]
+  putStrLn ("NumHask.Shape DocTest turned on" :: Text)
+  doctest ["src/NumHask/Shape.hs"]
   putStrLn ("Example DocTest turned on" :: Text)
   doctest ["src/NumHask/Array/Example.hs"]
   {-
