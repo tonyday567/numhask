@@ -18,6 +18,7 @@ module NumHask.Data.Rational
   , FromRatio(..)
   , FromRational
   , fromRational
+  , fromRational'
   , fromBaseRational
   -- * $integral_functionality
   , reduce
@@ -213,6 +214,10 @@ class FromRational a where
 instance FromRational Double
 instance FromRational Float
 instance FromRational Rational
+
+-- | general conversion between rationals
+fromRational' :: (FromRatio b Integer, ToRatio a Integer) => a -> b
+fromRational' a = fromRatio (toRatio a :: Ratio Integer)
 
 instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min

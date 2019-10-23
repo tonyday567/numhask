@@ -129,6 +129,9 @@ mid s = (lower s + upper s)/two
 -- > project o n (lower o) = lower n
 -- > project o n (upper o) = upper n
 -- > project a a x = x
+-- > project mempty one zero = NaN
+-- > project one mempty zero = Infinity
+-- > project one mempty one = NaN
 --
 project :: (Space s, Field (Element s), Subtractive (Element s)) => s -> s -> Element s -> Element s
 project s0 s1 p =
