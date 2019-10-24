@@ -23,7 +23,7 @@
 module NumHask.Array.Simple where
 
 -- import Control.Category (id)
-import qualified GHC.TypeNats
+-- import qualified GHC.TypeNats
 import Data.Distributive (Distributive(..))
 import Data.Functor.Rep
 import GHC.Exts (IsList(..))
@@ -32,7 +32,8 @@ import GHC.Show (Show(..))
 -- import NumHask.Error (impossible)
 -- import NumHask.Array.Constraints
 --  (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
-import NumHask.Prelude as P hiding (outer)
+import NumHask.Prelude as P hiding (outer, identity, singleton)
+import Control.Category (id)
 import NumHask.Shape
 import NumHask.Array.Constraints
 import qualified NumHask.Array.Dynamic as D
@@ -91,7 +92,7 @@ shape _ = shapeVal $ toShape @s
 
 toDArray a = D.fromFlatList (shape a) (P.toList a)
 
-instance (HasShape s, Show a, Additive a) => Show (Array s a) where
+instance (HasShape s, Show a) => Show (Array s a) where
   show a = GHC.Show.show (toDArray a)
 
 instance
@@ -120,22 +121,35 @@ reshape a = tabulate (index a . shapen s' . flatten s )
       s = shapeVal (toShape @s)
       s' = shapeVal (toShape @s')
 
--- revrse indices eg copy Aijk to Akji
+-- reverse indices eg copy Aijk to Akji
 transpose :: forall a s. (HasShape s, HasShape (Reverse s)) => Array s a -> Array (Reverse s) a
 transpose a = tabulate (index a . shapen s' . flatten s)
   where
     s = shapeVal (toShape @s)
     s' = reverse s
 
-identity :: forall a s. (HasShape s, Additive a, Multiplicative a) => Array s a
-identity = tabulate (bool zero one (all' s))
-  where
-    s = shapeVal (toShape @s)
-    all' [] = True
-    all' [_] = True
-    all' [x,y] = x==y
-    all' (x:y:xs) = all' [x,y] && all' (y:xs)
 
+all' :: (Eq a) => [a] -> Bool
+all' [] = True
+all' [_] = True
+all' [x,y] = x==y
+all' (x:y:xs) = x == y && all' (y:xs)
+
+-- | 
+-- >>> ident :: Array '[3,2] Int
+-- [[1, 0],
+--  [0, 1],
+--  [0, 0]]
+--
+ident :: forall a s. (HasShape s, Additive a, Multiplicative a) => Array s a
+ident = tabulate (bool zero one . all')
+
+-- |
+-- >>> singleton one :: Array '[3,2] Int
+-- [[1, 1],
+--  [1, 1],
+--  [1, 1]]
+--
 singleton :: (HasShape s) => a -> Array s a
 singleton a = tabulate (const a)
 
@@ -202,7 +216,8 @@ extract :: forall dim s s' ss a.
   -> Array ss (Array s' a)
 extract d a = tabulate go
   where
-    go [s'] = select d s' a
+    go [] = throw (NumHaskException "Needs a dimension")
+    go (s':_) = select d s' a
 
 -- | extracts dimensions
 -- >>> let e = extracts (Proxy :: Proxy '[1,2]) ([1..] :: Array '[2,3,4] Int)
@@ -223,7 +238,7 @@ extracts d a = tabulate go
   where
     go s' = selects d s' a
 
--- | join a single outer dimension layer
+-- | join an outer dimension layer at a specified dimension location
 -- >>> let e = extract (Proxy :: Proxy 1) ([1..] :: Array '[2,3,4] Int)
 -- >>> let j = NumHask.Array.Simple.join (Proxy :: Proxy 1) e
 -- >>> :t j
@@ -247,15 +262,20 @@ join _ a = tabulate go
     dim = fromIntegral $ natVal @dim Proxy
     si = shapeVal (toShape @si)
 
--- | join an inner and outer dimension layers
--- >>> let e = extracts (Proxy :: Proxy '[2,0]) ([1..] :: Array '[2,3,4] Int)
+-- | join inner and outer dimension layers
+-- >>> let a = [1..] :: Array '[2,3,4] Int
+-- >>> let e = extracts (Proxy :: Proxy '[2,0]) a
 --
 -- >>> :t e
 -- e :: Array '[4, 2] (Array '[3] Int)
 --
--- > let j = joins (Proxy :: Proxy '[2,0]) e
--- > :t j
+-- FIXME: should be '[2,0] not '[1,0]
+-- >>> let j = joins (Proxy :: Proxy '[1,0]) e
+-- >>> :t j
 -- j :: Array '[2, 3, 4] Int
+--
+-- >>> a == j
+-- True
 --
 joins :: forall ds si st so a.
   ( HasShape st
@@ -269,17 +289,42 @@ joins :: forall ds si st so a.
   -> Array st a
 joins _ a = tabulate go
   where
-    go s' = index (index a (outer' s')) (inner' s')
+    go s' = index (index a (fmap (s' List.!!) ds')) (removeDims ds' s')
     ds = shapeVal (toShape @ds)
-    outer' s' = fmap (s' List.!!) ds
-    inner' s' =
-      reverse $
-      foldl' (\acc (x, i0) -> bool (x:acc) acc (i0 `List.elem` ds))
-      [] (zip s' [0..])
--- let ds = [2,0]
--- let si = [4,2]
--- let s = [3]
--- s' = [2,3,4]
+    ds' = reverse $ bumpDims (reverse ds)
+
+bumpDims :: (Ord a, Additive a, Num a) => [a] -> [a]
+bumpDims = go []
+  where
+    go r [] = r
+    go r (x:xs) = go (r <> [x]) ((\y -> bool (y + 1) y (y < x)) <$> xs)
+
+debumpDims :: (Ord a, Subtractive a, Num a) => [a] -> [a]
+debumpDims = go []
+  where
+    go r [] = r
+    go r (x:xs) = go (r <> [x]) ((\y -> bool (y - 1) y (y < x)) <$> xs)
+
+removeDims :: [Int] -> [Int] -> [Int]
+removeDims [] rs = rs
+removeDims (x:xs) rs = removeDims (debumpDims xs) (take x rs <> drop (x + 1) rs)
+
+joinsI :: forall ds si st so a.
+  ( HasShape st
+  , HasShape ds
+  , st ~ AddIndexes si ds so
+  , HasShape si
+  , HasShape so
+  )
+  => Proxy ds
+  -> Array so (Array si a)
+  -> Array st ([Int], [Int])
+joinsI _ a = tabulate go
+  where
+    go s' = ((outer''' s'), (removeDims ds' s'))
+    ds = shapeVal (toShape @ds)
+    ds' = reverse $ bumpDims (reverse ds)
+    outer''' s' = fmap (s' List.!!) ds'
 
 -- |
 --
@@ -358,50 +403,17 @@ instance
   => Subtractive (Array s a) where
   negate = fmapRep negate
 
+
 instance
   ( Multiplicative a
-  , HasShape s
+  , P.Distributive a
+  , Subtractive a
+  , KnownNat m
+  , HasShape '[m,m]
   )
-  => Multiplicative (Array s a) where
-  (*) = liftR2 (*)
-  one = pureRep one
-
-instance
-  ( Divisive a
-  , HasShape s
-  )
-  => Divisive (Array s a) where
-  recip = fmapRep recip
-
-
-instance
-  ( P.Distributive a
-  , HasShape s
-  )
-  => P.Distributive (Array s a) where
-
-instance
-  ( IntegralDomain a
-  , HasShape s
-  )
-  => IntegralDomain (Array s a) where
-
-
-instance
-  ( Field a
-  , HasShape s
-  )
-  => Field (Array s a) where
-
-
-instance
-  ( ExpField a
-  , HasShape s
-  )
-  => ExpField (Array s a) where
-  exp = fmapRep exp
-  log = fmapRep log
-  (**) = liftR2 (**)
+  => Multiplicative (Matrix m m a) where
+  (*) = mmult
+  one = ident
 
 type instance Actor (Array s a) = a
 
@@ -410,6 +422,14 @@ instance
   , HasShape s
   )
   => HadamardMultiplication (Array s) a where
+  (.*.) = liftR2 (*)
+
+instance
+  ( Divisive a
+  , HasShape s
+  )
+  => HadamardDivision (Array s) a where
+  (./.) = liftR2 (/)
 
 instance
   ( HasShape s
@@ -464,28 +484,12 @@ mmult :: forall m n k a.
   -> Array [m, n] a
 mmult (Array x) (Array y) = tabulate go
   where
-    go [i,j] = V.foldl' (+) zero $ V.zipWith (*) (V.slice (fromIntegral i * k) k x) (V.generate k (\x' -> y V.! (fromIntegral j + x' * n)))
-    -- m = fromIntegral $ natVal @m Proxy
+    go [] = throw (NumHaskException "Needs two dimensions")
+    go [_] = throw (NumHaskException "Needs two dimensions")
+    go (i:j:_) = sum $ V.zipWith (*) (V.slice (fromIntegral i * k) k x) (V.generate k (\x' -> y V.! (fromIntegral j + x' * n)))
     n = fromIntegral $ natVal @n Proxy
     k = fromIntegral $ natVal @k Proxy
 {-# inline mmult #-}
-
-mmult' :: forall m n k a.
-  ( KnownNat k
-  , KnownNat m
-  , KnownNat n
-  , HasShape [m,n]
-  , Ring a
-  )
-  => Array [m, k] a
-  -> Array [k, n] a
-  -> Array [m, n] a
-mmult' (Array x) (Array y) = tabulate go
-  where
-    go [i,j] = sum $ V.zipWith (*) (V.slice (i * n) n x) (V.generate m (\x' -> y V.! (j + x' * n)))
-    m = fromIntegral $ natVal @m Proxy
-    n = fromIntegral $ natVal @n Proxy
-{-# inline mmult' #-}
 
 type instance Actor (Array s a) = a
 

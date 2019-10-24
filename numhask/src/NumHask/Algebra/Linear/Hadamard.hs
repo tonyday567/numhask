@@ -20,13 +20,13 @@ import Data.Coerce
 --
 -- > (a .*. b) .*. c == a .*. (b .*. c)
 -- > singleton one .*. a = a
--- > a .*. singelton one = a
+-- > a .*. singleton one = a
 -- > a .*. b == b .*. a
 class (Multiplicative a) =>
   HadamardMultiplication m a where
   infixl 7 .*.
   (.*.) :: m a -> m a -> m a
-  (.*.) = coerce ((.*.) @m @a)
+  -- (.*.) = coerce ((.*.) @m @a)
 
 
 -- | element by element division

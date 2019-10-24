@@ -19,9 +19,10 @@
 module NumHask.Shape where
 
 import NumHask.Prelude as P hiding (Last)
-import qualified Prelude
+-- import qualified Prelude
 import GHC.TypeLits as L
-import           Data.Type.Bool hiding (If, Not, (>), (<))
+import Data.Type.Bool hiding (If, Not)
+import NumHask.Exception
 
 newtype Shape (s :: [Nat]) = Shape { shapeVal :: [Int] } deriving Show
 
@@ -147,11 +148,26 @@ type family (a :: k) < (b :: k) :: Bool
 
 type family BumpDim (d::Nat) (ds::[Nat]) :: [Nat] where
   BumpDim _ '[] = '[]
-  BumpDim d (x:xs) = (If ((<) d x) x (x + 1)) : xs
+  BumpDim d (x:xs) = (If ((<) d x) x (x + 1)) : BumpDim d xs
 
-type family AddIndexes (s::[Nat]) (d::[Nat]) (i::[Nat]) where
-  AddIndexes s '[] _ = s
-  AddIndexes s (d:ds) (i:is) = AddIndexes (AddIndexI s d i) (BumpDim d ds) is
+-- let ds = [0,1]
+-- let so = [2,3]
+-- let si = [4]
+-- AddIndexes [4] [0,1] [2,3]
+-- AddIndexes (AddIndexI [4] 0 2) (BumpDim 0 [1]) [3]
+-- AddIndexes (AddIndexI [3] 1 4) [1] [2]
+-- AddIndexes (Take 2 [3] ++ (4:Drop 2 [3])) [0] [2]
+-- AddIndexes [3,4] [0] [2]
+-- AddIndexes (AddIndexI [3,4] 0 2) (BumpDim 0 []) []
+-- AddIndexes [2,3,4] [] []
+-- [2,3,4]
+-- s' = [2,3,4]
+type family AddIndexes (si::[Nat]) (ds::[Nat]) (so::[Nat]) where
+  AddIndexes si '[] _ = si
+  AddIndexes si (d:ds) (o:os) =
+    If ((==) (Rank ds) (Rank os))
+    (AddIndexes (AddIndexI si d o) ds os)
+    '[]
 
 type SelectIndex s i = Take 1 (Drop i s)
 

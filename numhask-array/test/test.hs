@@ -21,7 +21,7 @@
 
 module Main where
 
-import Data.Functor.Rep
+-- import Data.Functor.Rep
 import GHC.Exts (IsList(..))
 import NumHask.Array.Simple
 import NumHask.Shape
@@ -31,7 +31,7 @@ import Numeric.Dimensions as D
 import Test.DocTest
 import qualified Hedgehog as H
 import qualified NumHask.Hedgehog.Prop.Space as I
-import qualified Prelude
+-- import qualified Prelude
 
 genAIntegral :: forall a m r. (HasShape r, H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array (r :: [Nat]) a)
 genAIntegral = fromList <$> replicateM (fromIntegral n) integral_

@@ -53,6 +53,7 @@ library
     , deepseq >=1.4.2.0 && <2
     , dimensions >=1.0 && <1.1
     , distributive >=0.4 && <0.7
+    , numhask
     , numhask-prelude >=0.3 && <0.4
     , protolude >=0.2 && <0.3
     , singletons >=2.0 && <2.6
@@ -69,7 +70,6 @@ library
     NumHask.Array.Constraints
     NumHask.Array.Example
     NumHask.Array.HMatrix
-    NumHask.Array.HMatrixV
     NumHask.Array.Simple
     NumHask.Array.Dynamic
     NumHask.Array.Storable

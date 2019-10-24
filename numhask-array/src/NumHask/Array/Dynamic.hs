@@ -50,7 +50,7 @@ import qualified Numeric.LinearAlgebra.Devel as H
 
 data DArray a = DZero | DOne | DSingleton a | DArray { shape :: [Int], unArray :: V.Vector a} deriving (NFData, Generic)
 
-instance (Additive a, Show a) => Show (DArray a) where
+instance (Show a) => Show (DArray a) where
   show a = pretty a
 
 pretty a@(DArray l _) = go (length l) a
@@ -135,7 +135,7 @@ mmult (DArray s1 x) (DArray s2 y) = generate s3 go
 
 type instance Actor (DArray a) = a
 
-fromFlatList ds l = DArray ds $ V.fromList $ take (product ds) $ l ++ repeat zero
+fromFlatList ds l = DArray ds $ V.fromList $ take (product ds) $ l
 
 toFlatList (DArray _ v) = V.toList v
 

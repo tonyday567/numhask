@@ -110,11 +110,8 @@ import NumHask.Prelude as P
 -- >>> [0, 0.3.. 2] :: Array '[7] Double
 -- [0.0, 0.3, 0.6, 0.8999999999999999, 1.2, 1.5, 1.7999999999999998]
 --
--- > todo: fix NumHask.Range grid
--- > fromList (grid OuterPos (Range 0 2) 8) :: Array '[9] Double
--- > [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
--- > let x = fromList (grid OuterPos (Range 0 (2*pi)) 100) :: Array '[101] Double
--- > let f = fmap sin x
+-- >>> fromList (grid OuterPos (Range 0 2) 8) :: Array '[9] Double
+-- [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
 --
 
 -- $printingArrays
@@ -131,16 +128,6 @@ import NumHask.Prelude as P
 --    [4],
 --    [5]]]]
 --
--- > todo: implement display
--- > import Formatting
--- > display (left 7 . fixed 2) ", " (fromList $ fromIntegral <$> [0..] :: Array [] '[100,100] Double)
--- > [[   0.00,    1.00,    2.00 ..   98.00   99.00],
--- >  [ 100.00,  101.00,  102.00 ..  198.00  199.00],
--- >  [ 200.00,  201.00,  202.00 ..  298.00  299.00],
--- >  ..
--- >  [9800.00, 9801.00, 9802.00 .. 9898.00 9899.00],
--- >  [9900.00, 9901.00, 9902.00 .. 9998.00 9999.00]]
---
 
 -- $basicOperation
 --
@@ -149,8 +136,9 @@ import NumHask.Prelude as P
 -- >>> let c = a - b
 -- >>> c
 -- [20.0, 29.0, 38.0, 47.0]
--- >>> -- todo: resolve potential to polymorph number literals eg b**2
--- >>> b ** (one+one)
+-- 
+-- | note that `b ** 2.0` is a type error.
+-- >>> (**2) <$> b
 -- [0.0, 1.0, 4.0, 9.0]
 -- >>> 10 *. (sin <$> a)
 -- [9.129452507276277, -9.880316240928618, 7.451131604793488, -2.6237485370392877]
@@ -160,8 +148,7 @@ import NumHask.Prelude as P
 -- >>> let a = [0..] :: Array '[2,3] Int
 -- >>> let b = [0..] :: Array '[3,2] Int
 --
--- FIXME:
--- > a .*. a
+-- >>> a .*. a
 -- [[0, 1, 4],
 --  [9, 16, 25]]
 --
