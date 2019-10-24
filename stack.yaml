@@ -1,4 +1,4 @@
-resolver: lts-13.21
+resolver: lts-14.11
 
 packages:
   - numhask
