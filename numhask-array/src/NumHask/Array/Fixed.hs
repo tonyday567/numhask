@@ -20,7 +20,7 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
-module NumHask.Array.Simple where
+module NumHask.Array.Fixed where
 
 import GHC.TypeLits
 import Data.Distributive (Distributive(..))
@@ -28,8 +28,7 @@ import Data.Functor.Rep
 import GHC.Exts (IsList(..))
 import GHC.Show (Show(..))
 import NumHask.Prelude as P hiding (outer, identity, singleton)
-import NumHask.Shape
-import NumHask.Array.Constraints
+import NumHask.Array.Shape
 import qualified NumHask.Array.Dynamic as D
 import qualified Data.Vector as V
 import qualified Data.List as List

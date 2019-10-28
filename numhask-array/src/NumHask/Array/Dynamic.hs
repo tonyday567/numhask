@@ -31,7 +31,7 @@ import GHC.Show (Show(..))
 --  (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
 import NumHask.Prelude as P
 import qualified Prelude
-import NumHask.Shape
+import NumHask.Array.Shape
 -- import Numeric.Dimensions as D
 -- import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V

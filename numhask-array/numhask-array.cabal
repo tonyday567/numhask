@@ -63,18 +63,11 @@ library
     , ghc-typelits-knownnat
     , hmatrix
   exposed-modules:
-    -- NumHask.Array
-    -- NumHask.Vector
-    -- NumHask.Matrix
-    -- NumHask.Matrix.Unboxed
-    NumHask.Array.Constraints
     NumHask.Array.Example
     NumHask.Array.HMatrix
-    NumHask.Array.Simple
+    NumHask.Array.Fixed
     NumHask.Array.Dynamic
-    NumHask.Array.Storable
-    NumHask.Array.Unboxed
-    NumHask.Shape
+    NumHask.Array.Shape
   default-language: Haskell2010
 test-suite test
   type:

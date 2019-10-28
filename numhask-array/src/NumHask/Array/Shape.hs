@@ -16,7 +16,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | numbers with a shape
-module NumHask.Shape where
+module NumHask.Array.Shape where
 
 import NumHask.Prelude as P hiding (Last)
 -- import qualified Prelude
