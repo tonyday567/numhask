@@ -22,38 +22,16 @@
 
 module NumHask.Array.Simple where
 
--- import Control.Category (id)
--- import qualified GHC.TypeNats
+import GHC.TypeLits
 import Data.Distributive (Distributive(..))
 import Data.Functor.Rep
 import GHC.Exts (IsList(..))
 import GHC.Show (Show(..))
--- import Data.List (last)
--- import NumHask.Error (impossible)
--- import NumHask.Array.Constraints
---  (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
 import NumHask.Prelude as P hiding (outer, identity, singleton)
-import Control.Category (id)
 import NumHask.Shape
 import NumHask.Array.Constraints
 import qualified NumHask.Array.Dynamic as D
--- import qualified Numeric.LinearAlgebra.Data as H
--- import qualified Numeric.LinearAlgebra as H
--- import qualified Numeric.LinearAlgebra.HMatrix as OldH
--- import qualified Numeric.LinearAlgebra.Devel as H
--- import qualified Prelude
--- import NumHask.Shape (HasShape(..))
--- import Numeric.Dimensions as D
--- import qualified Data.Singletons.Prelude as S
 import qualified Data.Vector as V
--- import qualified Data.Vector.Generic.Sized as S
--- import qualified Data.Vector.Generic.Sized.Internal as SI
--- import qualified Data.Vector.Generic.Base as B
--- import Data.Finite
--- import GHC.TypeLits
--- concrete vector based on vector-sized
--- import qualified Prelude (fromIntegral)
--- import qualified NumHask.Vector as NH
 import qualified Data.List as List
 
 -- $setup 
@@ -77,13 +55,13 @@ import qualified Data.List as List
 --   [21, 22, 23, 24]]]
 newtype Array s a = Array { unArray :: V.Vector a} deriving (Eq, Ord, NFData, Functor, Foldable, Generic, Traversable)
 
--- | <https://en.wikipedia.org/wiki/Scalarr_(mathematics) Scalar> is rank 0 of tensor
+-- | <https://en.wikipedia.org/wiki/Scalarr_(mathematics) Scalar>
 type Scalar a  = Array '[] a
 
--- | <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics) Vector> is rank 1 of tensor
+-- | <https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics) Vector>
 type Vector s a = Array '[s] a
 
--- | <https://en.wikipedia.org/wiki/Matrix_(mathematics) Matrix> is rank 2 of tensor
+-- | <https://en.wikipedia.org/wiki/Matrix_(mathematics) Matrix>
 type Matrix m n a = Array '[m,n] a
 
 shape :: forall a s. (HasShape s) => Array s a -> [Int]
@@ -121,7 +99,7 @@ reshape a = tabulate (index a . shapen s' . flatten s )
       s = shapeVal (toShape @s)
       s' = shapeVal (toShape @s')
 
--- reverse indices eg copy Aijk to Akji
+-- reverse indices eg transpose Aijk to Akji
 transpose :: forall a s. (HasShape s, HasShape (Reverse s)) => Array s a -> Array (Reverse s) a
 transpose a = tabulate (index a . shapen s' . flatten s)
   where
@@ -153,27 +131,47 @@ ident = tabulate (bool zero one . all')
 singleton :: (HasShape s) => a -> Array s a
 singleton a = tabulate (const a)
 
--- | select an index along a (single) dimension
--- >>> let s = select (Proxy :: Proxy 1) 1 ([1..] :: Array '[2,3,4] Int)
--- >>> :t s
--- s :: Array '[2, 4] Int
---
--- >>> s
--- [[5, 6, 7, 8],
---  [17, 18, 19, 20]]
-select :: forall dim s s' a.
-  ( HasShape s'
-  , s' ~ DropIndex s dim
-  , HasShape s
-  , KnownNat dim
-  ) => Proxy dim
-  -> Int
-  -> Array s a
-  -> Array (DropIndex s dim) a
-select _ i a = tabulate go
+-- | drop the ith element
+-- >>> dropIndex [2, 3, 4] 1
+-- [2,4]
+dropIndex :: [a] -> Int -> [a]
+dropIndex s i = take i s ++ drop (i+1) s
+
+-- | convert a list of indexes that references the final indexes to one that references indexes at removal
+-- >>> debumpDropIndexes [0,1]
+-- [0,0]
+debumpDropIndexes :: (Ord a, Subtractive a, Multiplicative a) => [a] -> [a]
+debumpDropIndexes as = reverse (go [] as)
   where
-    go s' = index a (let (x1,x2) = splitAt dim s' in x1++(i:x2))
-    dim = fromIntegral $ natVal @dim Proxy
+    go r [] = r
+    go r (x:xs) = go (x:r) ((\y -> bool (y - one) y (y < x)) <$> xs)
+
+-- | drop elements according to a list of placements (where the placements refer to the initial indexes)
+-- >>> dropIndexes [2, 3, 4] [1, 0]
+-- [4]
+dropIndexes :: [a] -> [Int] -> [a]
+dropIndexes rs xs = foldl' dropIndex rs (debumpDropIndexes xs)
+
+-- | insert an element
+-- >>> addIndex [2,4] 1 3
+-- [2,3,4]
+addIndex :: [a] -> Int -> a -> [a]
+addIndex s i a = take i s ++ (a:drop i s)
+
+-- | convert a list of indexes that references the final indexes to one that references indexes at insertion.
+-- >>> debumpAddIndexes [1,0]
+-- [0,0]
+debumpAddIndexes :: (Ord a, Subtractive a, Multiplicative a) => [a] -> [a]
+debumpAddIndexes as = go [] (reverse as)
+  where
+    go r [] = r
+    go r (x:xs) = go (x:r) ((\y -> bool (y - one) y (y < x)) <$> xs)
+
+-- | insert elements according to a list of indexes.  Note that the list of placements references the final indexes
+-- >>> addIndexes [4] [(1,3), (0,2)]
+-- [2,3,4]
+addIndexes :: (Ord a, Subtractive a) => [a] -> [(Int, a)] -> [a]
+addIndexes as adds = foldl' (\s (i,a) -> addIndex s i a) as (zip (debumpAddIndexes . fmap fst $ adds) (fmap snd adds))
 
 -- | select an index along dimensions
 -- >>> let s = selects (Proxy :: Proxy '[0,1]) [1,1] ([1..] :: Array '[2,3,4] Int)
@@ -193,31 +191,51 @@ selects :: forall ds s s' a.
   -> Array s' a
 selects _ i a = tabulate go
   where
-    go s' = index a (xs s')
+    go s' = index a (addIndexes s' (zip ds i))
     ds = shapeVal (toShape @ds)
-    xs s' =
-      foldl' (\acc (x, i0) ->
-                take x acc ++ (List.!!) i i0:drop x acc) s' (zip ds [0..])
 
--- | extract a dimension
--- >>> let e = extract (Proxy :: Proxy 1) ([1..] :: Array '[2,3,4] Int)
--- >>> :t e
--- e :: Array '[3] (Array '[2, 4] Int)
+-- | folds along specified dimensions
+-- >>> foldsAlong sum (Proxy :: Proxy '[1]) ([1..] :: Array '[2,3,4] Int)
+-- [68, 100, 132]
 --
-extract :: forall dim s s' ss a.
-  ( HasShape s'
-  , s' ~ DropIndex s dim
-  , ss ~ SelectIndex s dim
-  , HasShape s
-  , HasShape ss
-  , KnownNat dim
-  ) => Proxy dim
-  -> Array s a
-  -> Array ss (Array s' a)
-extract d a = tabulate go
+foldsAlong :: forall ds st si so a b.
+  ( HasShape st
+  , HasShape ds
+  , HasShape si
+  , HasShape so
+  , si ~ DropIndexes st ds
+  , so ~ TakeIndexes st ds
+  )
+  => (Array si a -> b)
+  -> Proxy ds
+  -> Array st a
+  -> Array so b
+foldsAlong f d a = tabulate go
   where
-    go [] = throw (NumHaskException "Needs a dimension")
-    go (s':_) = select d s' a
+    go s' = f (selects d s' a)
+
+-- | maps along specified dimensions
+-- > mapsAlong (transpose) (Proxy :: Proxy '[1]) ([1..] :: Array '[2,3,4] Int)
+--
+mapsAlong :: forall ds st st' si si' so a b.
+  ( HasShape st
+  , HasShape st'
+  , HasShape ds
+  , HasShape si
+  , HasShape si'
+  , HasShape so
+  , si ~ DropIndexes st ds
+  , so ~ TakeIndexes st ds
+  , st ~ AddIndexes' si ds so
+  , st' ~ AddIndexes' si' ds so
+  , st ~ AddIndexes si ds so
+  , st' ~ AddIndexes si' ds so
+  )
+  => (Array si a -> Array si' b)
+  -> Proxy ds
+  -> Array st a
+  -> Array st' b
+mapsAlong f d a = joins d (fmapRep f (extracts d a))
 
 -- | extracts dimensions
 -- >>> let e = extracts (Proxy :: Proxy '[1,2]) ([1..] :: Array '[2,3,4] Int)
@@ -238,38 +256,13 @@ extracts d a = tabulate go
   where
     go s' = selects d s' a
 
--- | join an outer dimension layer at a specified dimension location
--- >>> let e = extract (Proxy :: Proxy 1) ([1..] :: Array '[2,3,4] Int)
--- >>> let j = NumHask.Array.Simple.join (Proxy :: Proxy 1) e
--- >>> :t j
--- j :: Array '[2, 3, 4] Int
---
-join :: forall dim s s' si a.
-  ( HasShape s'
-  , s' ~ AddIndex s dim si
-  , HasShape s
-  , HasShape si
-  , KnownNat dim
-  ) => Proxy dim
-  -> Array si (Array s a)
-  -> Array s' a
-join _ a = tabulate go
-  where
-    go s' =
-      index
-      (index a (take (length si) (drop dim s')))
-      (take dim s' ++ drop (dim + length si) s')
-    dim = fromIntegral $ natVal @dim Proxy
-    si = shapeVal (toShape @si)
-
 -- | join inner and outer dimension layers
 -- >>> let a = [1..] :: Array '[2,3,4] Int
--- >>> let e = extracts (Proxy :: Proxy '[2,0]) a
+-- >>> let e = extracts (Proxy :: Proxy '[1,0]) a
 --
 -- >>> :t e
--- e :: Array '[4, 2] (Array '[3] Int)
+-- e :: Array '[3, 2] (Array '[4] Int)
 --
--- FIXME: should be '[2,0] not '[1,0]
 -- >>> let j = joins (Proxy :: Proxy '[1,0]) e
 -- >>> :t j
 -- j :: Array '[2, 3, 4] Int
@@ -280,7 +273,7 @@ join _ a = tabulate go
 joins :: forall ds si st so a.
   ( HasShape st
   , HasShape ds
-  , st ~ AddIndexes si ds so
+  , st ~ AddIndexes' si ds so
   , HasShape si
   , HasShape so
   )
@@ -289,104 +282,103 @@ joins :: forall ds si st so a.
   -> Array st a
 joins _ a = tabulate go
   where
-    go s' = index (index a (fmap (s' List.!!) ds')) (removeDims ds' s')
+    go s' = index (index a (fmap (s' List.!!) ds)) (dropIndexes s' ds)
     ds = shapeVal (toShape @ds)
-    ds' = reverse $ bumpDims (reverse ds)
-
-bumpDims :: (Ord a, Additive a, Num a) => [a] -> [a]
-bumpDims = go []
-  where
-    go r [] = r
-    go r (x:xs) = go (r <> [x]) ((\y -> bool (y + 1) y (y < x)) <$> xs)
-
-debumpDims :: (Ord a, Subtractive a, Num a) => [a] -> [a]
-debumpDims = go []
-  where
-    go r [] = r
-    go r (x:xs) = go (r <> [x]) ((\y -> bool (y - 1) y (y < x)) <$> xs)
-
-removeDims :: [Int] -> [Int] -> [Int]
-removeDims [] rs = rs
-removeDims (x:xs) rs = removeDims (debumpDims xs) (take x rs <> drop (x + 1) rs)
-
-joinsI :: forall ds si st so a.
-  ( HasShape st
-  , HasShape ds
-  , st ~ AddIndexes si ds so
-  , HasShape si
-  , HasShape so
-  )
-  => Proxy ds
-  -> Array so (Array si a)
-  -> Array st ([Int], [Int])
-joinsI _ a = tabulate go
-  where
-    go s' = ((outer''' s'), (removeDims ds' s'))
-    ds = shapeVal (toShape @ds)
-    ds' = reverse $ bumpDims (reverse ds)
-    outer''' s' = fmap (s' List.!!) ds'
-
--- |
---
--- > foldAlong (Proxy :: Proxy 1) (\_ -> ([0..3] :: Array '[4] Int)) a
--- [[0, 1, 2, 3],
---  [0, 1, 2, 3]]
---
-foldAlong ::
-     forall dim s s' ss a b.
-     ( KnownNat dim
-     , HasShape s'
-     , s' ~ DropIndex s dim
-     , ss ~ SelectIndex s dim
-     , HasShape s
-     , HasShape ss
-     )
-  => Proxy dim
-  -> (Array s' a -> b)
-  -> Array s a
-  -> Array ss b
-foldAlong dim_ f a = fmap f (extract dim_ a)
 
 {-
--- | select an index along a dimension
--- > :t select (Proxy 1) 1 ([1..] :: Array '[2,3,4] Int)
--- Array '[2,4]
--- [[5, 6, 7, 8],
---  [17, 18, 19, 20]
--- ]
-unsafeSelect :: forall s s' a. (HasShape s', HasShape s) => Int -> Int -> Array s a -> Array s' a
-unsafeSelect d i (Array a) = Array $ V.generate (size s) go
-  where
-    go flats = V.unsafeIndex a (let (x1,x2) = splitAt d (shapen s' flats) in flatten s (x1++(i:x2)))
-    s = shapeVal (toShape @s)
-    s' = shapeVal (toShape @s')
+-- | Join a sequence of arrays along an existing axis.
+--
+-- > λ> a = [1..4] :: Tensor '[2,2] Int
+-- > λ> a
+-- > [[1,2],
+-- > [3,4]]
+-- > λ> b = [1,1,1,1] :: Tensor '[2,2] Int
+-- > λ> b
+-- > [[1,1],
+-- > [1,1]]
+-- > λ> concentrate i0 a b
+-- > [[1,2],
+-- > [3,4],
+-- > [1,1],
+-- > [1,1]]
+-- > λ> concentrate i1 a b
+-- > [[1,2,1,1],
+-- > [3,4,1,1]]
+concatenate
+  :: ( TensorRank a ~ TensorRank b
+    , DropIndex a i ~ DropIndex b i
+    , CheckConcatenate i a b
+    , Concatenate i a b ~ c
+    , HasShape a
+    , HasShape b
+    , KnownNat i)
+  => Proxy i
+  -> Tensor a n
+  -> Tensor b n
+  -> Tensor c n
+concatenate p ta@(Tensor a) tb@(Tensor b) =
+  let i  = toNat p
+      sa = shape ta
+      sb = shape tb
+      n  = sa !! i
+  in Tensor $ \_ ind -> let (ai,x:bi) = splitAt i ind in if x >= n then b sb (ai ++ (x-n):bi) else a sa ind
+
+
 -}
 
-
-row  :: forall m n a. (KnownNat m, KnownNat n, HasShape '[m,n]) => Int -> Matrix m n a -> Vector n a
+-- | extract specialised to a matrix
+--
+-- >>> row 1 ([0..12] :: Array '[3,4] Int)
+-- [4, 5, 6, 7]
+--
+row :: forall m n a. (KnownNat m, KnownNat n, HasShape '[m,n]) => Int -> Matrix m n a -> Vector n a
 row i (Array a) = Array $ V.slice (i * n) n a
   where
     n = fromIntegral $ natVal @n Proxy
 
+-- | row extraction checked at type level
+--
+-- >>> safeRow (Proxy :: Proxy 1) ([0..12] :: Array '[3,4] Int)
+-- [4, 5, 6, 7]
+--
+-- >>> safeRow (Proxy :: Proxy 1) ([1,2,3] :: Array '[1,3] Int)
+-- ...
+-- ... index outside range
+-- ...
+
+safeRow :: forall m n a j. ('True ~ CheckIndex j m, KnownNat j, KnownNat m, KnownNat n, HasShape '[m,n]) => Proxy j -> Matrix m n a -> Vector n a
+safeRow _j (Array a) = Array $ V.slice (j * n) n a
+  where
+    n = fromIntegral $ natVal @n Proxy
+    j = fromIntegral $ natVal @j Proxy
+
+-- | extract specialised to a matrix
+--
+-- >>> col 1 ([0..12] :: Array '[3,4] Int)
+-- [1, 5, 9]
+--
 col  :: forall m n a. (KnownNat m, KnownNat n, HasShape '[m,n]) => Int -> Matrix m n a -> Vector n a
 col i (Array a) = Array $ V.generate m (\x -> V.unsafeIndex a (i + x * n))
   where
     m = fromIntegral $ natVal @m Proxy
     n = fromIntegral $ natVal @n Proxy
 
--- swapaxes
--- dyad (outer product?), ><
--- dot (mmult + vector dot?)
--- contraction
--- > dot a b == contraction (dyad a b) (rank a - 1, rank a)
--- slice
--- expand ???
--- concatenate
--- insert
--- append
--- squeeze
--- foldAlong
--- mapAlong
+-- | column extraction checked at type level
+--
+-- >>> safeCol (Proxy :: Proxy 1) ([1..12] :: Array '[3,4] Int)
+-- [2, 6, 10]
+--
+-- >>> safeCol (Proxy :: Proxy 4) ([1..12] :: Array '[3,4] Int)
+-- ...
+-- ... index outside range
+-- ...
+--
+safeCol :: forall m n a j. ('True ~ CheckIndex j n, KnownNat j, KnownNat m, KnownNat n, HasShape '[m,n]) => Proxy j -> Matrix m n a -> Vector n a
+safeCol _j (Array a) = Array $ V.generate m (\x -> V.unsafeIndex a (j + x * n))
+  where
+    m = fromIntegral $ natVal @m Proxy
+    n = fromIntegral $ natVal @n Proxy
+    j = fromIntegral $ natVal @j Proxy
 
 instance
   ( Additive a
@@ -402,7 +394,6 @@ instance
   )
   => Subtractive (Array s a) where
   negate = fmapRep negate
-
 
 instance
   ( Multiplicative a
@@ -472,6 +463,22 @@ instance
 
   toList (Array v) = V.toList v
 
+-- | matrix multiplication
+--
+-- >>> let a = [1, 2, 3, 4] :: Array '[2, 2] Int
+-- >>> let b = [5, 6, 7, 8] :: Array '[2, 2] Int
+-- >>> a
+-- [[1, 2],
+--  [3, 4]]
+--
+-- >>> b
+-- [[5, 6],
+--  [7, 8]]
+--
+-- >>> mmult a b
+-- [[19, 22],
+--  [43, 50]]
+--
 mmult :: forall m n k a.
   ( KnownNat k
   , KnownNat m
@@ -564,4 +571,5 @@ squeeze ::
   => Array s a
   -> Array t a
 squeeze (Array x) = Array x
+
 

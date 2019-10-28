@@ -22,7 +22,6 @@ import NumHask.Prelude as P hiding (Last)
 -- import qualified Prelude
 import GHC.TypeLits as L
 import Data.Type.Bool hiding (If, Not)
-import NumHask.Exception
 
 newtype Shape (s :: [Nat]) = Shape { shapeVal :: [Int] } deriving Show
 
@@ -87,7 +86,6 @@ type family Not (a :: Bool) where
   Not 'True  = 'False
   Not 'False = 'True
 
-
 type family Replicate (a :: k) (dim :: Nat) :: [k] where
   Replicate a 0 = '[]
   Replicate a n = a : Replicate a n
@@ -98,10 +96,15 @@ type family Dimension (s :: [Nat]) (i :: Nat) :: Nat where
   Dimension _ _     = L.TypeError ('Text "Index overflow")
 
 type CheckDimension dim s = IsIndex dim (Rank s)
+
 type CheckIndices i j s = IsIndices i j (Rank s) ~ 'True
 
 type IsIndex i n = (0 <=? i) && (i + 1 <=? n)
 type IsIndices i j n = (0 <=? i) && (i + 1 <=? j) && (j + 1 <=? n)
+
+type family CheckIndex (i :: Nat) (n :: Nat) :: Bool where
+  CheckIndex i n =
+    If ((0 <=? i) && (i + 1 <=? n)) 'True (L.TypeError ('Text "index outside range"))
 
 type family Take (n :: Nat) (a :: [k]) :: [k] where
   Take 0 _ = '[]
@@ -143,31 +146,78 @@ type AddIndex s d i = Take d s ++ i ++ Drop d s
 
 type AddIndexI s d i = Take d s ++ (i:Drop d s)
 
-type family (a :: k) > (b :: k) :: Bool
-type family (a :: k) < (b :: k) :: Bool
+type family (a :: k) > (b :: k) :: Bool where
+  (>) a b = a > b
 
-type family BumpDim (d::Nat) (ds::[Nat]) :: [Nat] where
-  BumpDim _ '[] = '[]
-  BumpDim d (x:xs) = (If ((<) d x) x (x + 1)) : BumpDim d xs
+type family (a :: k) < (b :: k) :: Bool where
+  (<) a b = a < b
 
 -- let ds = [0,1]
 -- let so = [2,3]
 -- let si = [4]
 -- AddIndexes [4] [0,1] [2,3]
--- AddIndexes (AddIndexI [4] 0 2) (BumpDim 0 [1]) [3]
--- AddIndexes (AddIndexI [3] 1 4) [1] [2]
--- AddIndexes (Take 2 [3] ++ (4:Drop 2 [3])) [0] [2]
--- AddIndexes [3,4] [0] [2]
--- AddIndexes (AddIndexI [3,4] 0 2) (BumpDim 0 []) []
+-- AddIndexes (AddIndexI [4] 0 2) [1] [3]
+-- AddIndexes (Take 0 [4] ++ (2:Drop 0 [4])) [1] [3]
+-- AddIndexes [2,4] [1] [3]
+-- AddIndexes (AddIndexI [2,4] 1 3) [] []
 -- AddIndexes [2,3,4] [] []
 -- [2,3,4]
--- s' = [2,3,4]
+--
 type family AddIndexes (si::[Nat]) (ds::[Nat]) (so::[Nat]) where
   AddIndexes si '[] _ = si
   AddIndexes si (d:ds) (o:os) =
     If ((==) (Rank ds) (Rank os))
     (AddIndexes (AddIndexI si d o) ds os)
     '[]
+
+type family AddDim (d::Nat) (ds::[Nat]) :: [Nat] where
+  AddDim _ '[] = '[]
+  AddDim d (x:xs) = (If ((<) d x) x (x + 1)) : AddDim d xs
+
+type family SubDim (d::Nat) (ds::[Nat]) :: [Nat] where
+  SubDim _ '[] = '[]
+  SubDim d (x:xs) = (If ((<=?) d x) (x - 1) x) : SubDim d xs
+
+type family SubDims (ds::[Nat]) (rs :: [Nat]) :: [Nat] where
+  SubDims '[] rs = rs
+  SubDims (x:xs) rs = SubDims (SubDim x xs) (x:rs)
+
+type family SubDimsReverse (ds::[Nat]) :: [Nat] where
+  SubDimsReverse xs = (SubDims (Reverse xs) '[])
+
+-- let ds = [1,0]
+-- let so = [3,2]
+-- let si = [4]
+-- AddIndexes' [4] [1,0] [3,2]
+-- AddIndexes'' [4] (SubDimsReverse [1,0]) [3,2]
+-- AddIndexes'' [4] ((SubDims (Reverse [1,0]) [])) [3,2]
+-- AddIndexes'' [4] ((SubDims [0,1] [])) [3,2]
+-- AddIndexes'' [4] ((SubDims (SubDim 0 [1]) [0])) [3,2]
+-- AddIndexes'' [4] ((SubDims [0] [0])) [3,2]
+-- AddIndexes'' [4] ((SubDims (SubDim 0 []) [0, 0])) [3,2]
+-- AddIndexes'' [4] ((SubDims [] [0, 0])) [3,2]
+-- AddIndexes'' [4] [0, 0] [3,2]
+-- AddIndexes'' [4] [0, 0] [3,2]
+-- AddIndexes'' (AddIndexI [4] 0 3) [0] [2]
+-- AddIndexes'' Take 0 [4] ++ (3:Drop 0 [4]) [0] [2]
+-- AddIndexes'' [3,4] [0] [2]
+-- AddIndexes'' (AddIndexI [3,4] 0 2) [] []
+-- AddIndexes'' Take 0 [3,4] ++ (2:Drop 0 [3,4]) [] []
+-- AddIndexes'' [2,3,4] [] []
+-- [2,3,4]
+type family AddIndexes' (si::[Nat]) (ds::[Nat]) (so::[Nat]) where
+  AddIndexes' si ds os =
+    If ((==) (Rank ds) (Rank os))
+    (AddIndexes'' si (SubDimsReverse ds) os)
+    (L.TypeError ('Text "indices and dimensions need to be the same size"))
+
+type family AddIndexes'' (si::[Nat]) (ds::[Nat]) (so::[Nat]) where
+  AddIndexes'' si '[] _ = si
+  AddIndexes'' si (d:ds) (o:os) =
+    AddIndexes'' (AddIndexI si d o) ds os
+
+-- type CheckConcatenate i a b = (IsIndex i (TensorRank a)) ~ 'True
+-- type Concatenate i a b = Take i a ++ (Dimension a i + Dimension b i : Drop (i+1) a)
 
 type SelectIndex s i = Take 1 (Drop i s)
 
