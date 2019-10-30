@@ -10,7 +10,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -68,15 +67,64 @@ shapen ns x =
     ns
 {-# inline shapen #-}
 
--- | Tensor rank.
+-- |
+isDiag :: (Eq a) => [a] -> Bool
+isDiag [] = True
+isDiag [_] = True
+isDiag [x,y] = x==y
+isDiag (x:y:xs) = x == y && isDiag (y:xs)
+
+-- | drop the ith element
+-- >>> dropIndex [2, 3, 4] 1
+-- [2,4]
+dropIndex :: [a] -> Int -> [a]
+dropIndex s i = take i s ++ drop (i+1) s
+
+-- | convert a list of indexes that references the final indexes to one that references indexes at removal
+-- >>> debumpDropIndexes [0,1]
+-- [0,0]
+debumpDropIndexes :: (Ord a, Subtractive a, Multiplicative a) => [a] -> [a]
+debumpDropIndexes as = reverse (go [] as)
+  where
+    go r [] = r
+    go r (x:xs) = go (x:r) ((\y -> bool (y - one) y (y < x)) <$> xs)
+
+-- | drop elements according to a list of placements (where the placements refer to the initial indexes)
+-- >>> dropIndexes [2, 3, 4] [1, 0]
+-- [4]
+dropIndexes :: [a] -> [Int] -> [a]
+dropIndexes rs xs = foldl' dropIndex rs (debumpDropIndexes xs)
+
+-- | insert an element
+-- >>> addIndex [2,4] 1 3
+-- [2,3,4]
+addIndex :: [a] -> Int -> a -> [a]
+addIndex s i a = take i s ++ (a:drop i s)
+
+-- | convert a list of indexes that references the final indexes to one that references indexes at insertion.
+-- >>> debumpAddIndexes [1,0]
+-- [0,0]
+debumpAddIndexes :: (Ord a, Subtractive a, Multiplicative a) => [a] -> [a]
+debumpAddIndexes as = go [] (reverse as)
+  where
+    go r [] = r
+    go r (x:xs) = go (x:r) ((\y -> bool (y - one) y (y < x)) <$> xs)
+
+-- | insert elements according to a list of indexes.  Note that the list of placements references the final indexes
+-- >>> addIndexes [4] [(1,3), (0,2)]
+-- [2,3,4]
+addIndexes :: ( ) => [a] -> [(Int, a)] -> [a]
+addIndexes as adds = foldl' (\s (i,a) -> addIndex s i a) as (zip (debumpAddIndexes . fmap fst $ adds) (fmap snd adds))
+
+-- | Number of Dimensions
 type family Rank (s :: [Nat]) :: Nat where
   Rank '[] = 0
   Rank (_:s) = Rank s + 1
 
--- | Tensor size.
-type family Size (s :: [Nat]) :: Nat where
-  Size '[] = 1
-  Size (n:s) = n L.* Size s
+-- | Number of Elements
+type family Product (s :: [Nat]) :: Nat where
+  Product '[] = 1
+  Product (n:s) = n L.* Product s
 
 type family If (b :: Bool) c d where
   If 'True  c d = c
@@ -90,10 +138,19 @@ type family Replicate (a :: k) (dim :: Nat) :: [k] where
   Replicate a 0 = '[]
   Replicate a n = a : Replicate a n
 
+type family Min (s :: [Nat]) :: Nat where
+  Min '[] = L.TypeError ('Text "zero dimension")
+  Min '[x] = x
+  Min (x:xs) = If (x <=? Min xs) x (Min xs)
+
 type family Dimension (s :: [Nat]) (i :: Nat) :: Nat where
   Dimension (s:_) 0 = s
   Dimension (_:s) n = Dimension s (n - 1)
   Dimension _ _     = L.TypeError ('Text "Index overflow")
+
+dimension (s:_) 0 = s
+dimension (_:s) n = dimension s (n - 1)
+dimension _ _     = throw (NumHaskException "index overflow")
 
 type CheckDimension dim s = IsIndex dim (Rank s)
 
@@ -132,13 +189,16 @@ type family Last (a :: [k]) :: k where
   Last '[x] = x
   Last (_:xs) = Last xs
 
+{-
+type family (a :: [k]) == (b :: [k]) :: Bool where
+  '[] == '[] = True
+  (a:as) == (b:bs) = a==b && as == bs
+
+-}
+
 type family (a :: [k]) ++ (b :: [k]) :: [k] where
   '[] ++ b = b
   (a:as) ++ b = a : (as ++ b)
-
--- type Transpose (a :: [Nat]) = Reverse a '[]
-
-type Swapaxes i j s = Take i s ++ (Dimension s j : Drop i (Take j s)) ++ (Dimension s j : Tail (Drop j s))
 
 type DropIndex s i = Take i s ++ Drop (i+1) s
 
@@ -216,9 +276,53 @@ type family AddIndexes'' (si::[Nat]) (ds::[Nat]) (so::[Nat]) where
   AddIndexes'' si (d:ds) (o:os) =
     AddIndexes'' (AddIndexI si d o) ds os
 
--- type CheckConcatenate i a b = (IsIndex i (TensorRank a)) ~ 'True
--- type Concatenate i a b = Take i a ++ (Dimension a i + Dimension b i : Drop (i+1) a)
 
+type CheckConcatenate i a b = (IsIndex i (Rank a)) ~ 'True
+
+type Concatenate i a b = Take i a ++ (Dimension a i + Dimension b i : Drop (i+1) a)
+
+type CheckInsert dim i b =
+  (CheckDimension dim b && IsIndex i (Dimension b dim))  ~ 'True
+
+type Insert dim b = Take dim b ++ (Dimension b dim + 1 : Drop (dim + 1) b)
+
+incAt' dim b = take dim b ++ (dimension b dim + 1 : drop (dim + 1) b)
+
+decAt dim b = take dim b ++ (dimension b dim - 1 : drop (dim + 1) b)
+
+
+type family ReorderDims (d :: [Nat]) (dims :: [Nat]) :: [Nat] where
+  ReorderDims '[] _ = '[]
+  ReorderDims _ '[] = '[]
+  ReorderDims ss (dim:dims) = (Dimension ss dim) : ReorderDims ss dims
+
+reorderDims :: [Int] -> [Int] -> [Int]
+reorderDims [] _ = []
+reorderDims _ [] = []
+reorderDims ss (dim:dims) = dimension ss dim:reorderDims ss dims
+
+type family CheckReorder (dims :: [Nat]) (d :: [Nat]) (d' :: [Nat]) where
+  CheckReorder dims d d' =
+    If (ReorderDims d dims == d') 'True
+    (L.TypeError ('Text "bad dimensions")) ~ 'True
+
+type family DimSeq (n :: Nat) :: [Nat] where
+  DimSeq 0 = '[0]
+  DimSeq x = (DimSeq (x - 1)) ++ '[x]
+
+type family Sort (xs :: [k]) :: [k] where
+            Sort '[]       = '[]
+            Sort (x ': xs) = ((Sort (SFilter 'FMin x xs)) ++ '[x]) ++ (Sort (SFilter 'FMax x xs))
+
+data Flag = FMin | FMax
+
+type family Cmp (a :: k) (b :: k) :: Ordering
+
+type family SFilter (f :: Flag) (p :: k) (xs :: [k]) :: [k] where
+            SFilter f p '[]       = '[]
+            SFilter FMin p (x ': xs) = If (Cmp x p == LT) (x ': (SFilter FMin p xs)) (SFilter FMin p xs)
+            SFilter FMax p (x ': xs) = If (Cmp x p == GT || Cmp x p == EQ) (x ': (SFilter FMax p xs)) (SFilter FMax p xs)
+            
 type SelectIndex s i = Take 1 (Drop i s)
 
 type Contraction s x y = DropIndex (DropIndex s y) x
@@ -276,5 +380,10 @@ type family (a :: [k]) !! (b :: Nat) :: k where
   (!!) (x:_) 0 = x
   (!!) (_:xs) i = (!!) xs (i - 1)
 
+type family Filter (r::[Nat]) (xs::[Nat]) (i::Nat) where
+  Filter r '[] _ = Reverse r
+  Filter r (x:xs) i = Filter (If (x==i) r (x:r)) xs i
 
-
+type family Squeeze (a :: [Nat]) where
+  Squeeze '[] = '[]
+  Squeeze a = Filter '[] a 1

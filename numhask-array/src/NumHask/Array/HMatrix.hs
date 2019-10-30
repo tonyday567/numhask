@@ -1,8 +1,5 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
@@ -22,45 +19,18 @@
 
 module NumHask.Array.HMatrix where
 
-import Data.Distributive (Distributive(..))
-import Data.Functor.Rep
 import GHC.Exts (IsList(..))
 import GHC.Show (Show(..))
--- import NumHask.Error (impossible)
--- import NumHask.Array.Constraints
---  (Fold, HeadModule, TailModule, IsValidConcat, Concatenate, Transpose, Squeeze)
 import NumHask.Prelude as P
+import NumHask.Array.Shape
 import qualified Prelude
--- import NumHask.Shape (HasShape(..))
--- import Numeric.Dimensions as D
--- import qualified Data.Singletons.Prelude as S
-import qualified Data.Vector as V
--- import qualified Data.Vector.Generic.Sized as S
--- import qualified Data.Vector.Generic.Sized.Internal as SI
--- import qualified Data.Vector.Generic.Base as B
--- import Data.Finite
--- import GHC.TypeLits
--- concrete vector based on vector-sized
--- import qualified Prelude (fromIntegral)
--- import qualified NumHask.Vector as NH
 import qualified Numeric.LinearAlgebra.Data as H
 import qualified Numeric.LinearAlgebra as H
--- import qualified Numeric.LinearAlgebra.HMatrix as OldH
 import qualified Numeric.LinearAlgebra.Devel as H
-newtype Array s a = Array { unArray :: H.Matrix a} deriving (Show, NFData, Generic)
 
-newtype Shape (s :: [Nat]) = Shape { shapeVal :: [Int] } deriving Show
+newtype HArray s a = HArray { unArray :: H.Matrix a} deriving (Show, NFData, Generic)
 
-class HasShape s where
-  toShape :: Shape s
-
-instance HasShape '[] where
-  toShape = Shape []
-
-instance (KnownNat n, HasShape s) => HasShape (n:s) where
-  toShape = Shape $ fromInteger (natVal (Proxy :: Proxy n)) : shapeVal (toShape :: Shape s)
-
-shape :: forall a s. (HasShape s) => Array s a -> [Int]
+shape :: forall a s. (HasShape s) => HArray s a -> [Int]
 shape _ = shapeVal $ toShape @s
 {-# inline shape #-}
 
@@ -104,8 +74,8 @@ index :: forall s a.
   , H.Element a
   , H.Container H.Vector a
   )
-  => Array s a -> [Int] -> a
-index (Array v) i = (H.flatten v) `H.atIndex` (ind s i)
+  => HArray s a -> [Int] -> a
+index (HArray v) i = H.flatten v `H.atIndex` ind s i
     where
       s = shapeVal (toShape @s)
 
@@ -115,9 +85,9 @@ instance
   , H.Container H.Vector a
   , Num a
   )
-  => Additive (Array s a) where
-  (+) (Array x1) (Array x2) = Array $ H.add x1 x2
-  zero = Array $ H.konst zero (n,m)
+  => Additive (HArray s a) where
+  (+) (HArray x1) (HArray x2) = HArray $ H.add x1 x2
+  zero = HArray $ H.konst zero (n,m)
     where
       s = shapeVal (toShape @s)
       [n,m] = s
@@ -129,14 +99,14 @@ instance
   , Num (H.Vector a)
   , Num a
   )
-  => Multiplicative (Array s a) where
-  (*) (Array x1) (Array x2) = Array $ H.liftMatrix2 (Prelude.*) x1 x2
-  one = Array $ H.konst one (n,m)
+  => Multiplicative (HArray s a) where
+  (*) (HArray x1) (HArray x2) = HArray $ H.liftMatrix2 (Prelude.*) x1 x2
+  one = HArray $ H.konst one (n,m)
     where
       s = shapeVal (toShape @s)
       [n,m] = s
 
-type instance Actor (Array s a) = a
+type instance Actor (HArray s a) = a
 
 instance
   ( HasShape s
@@ -147,8 +117,8 @@ instance
   , Num (H.Vector a)
   , Num a
   ) =>
-  Hilbert (Array s a) where
-  (<.>) (Array a) (Array b) = H.sumElements $ H.liftMatrix2 (Prelude.*) a b
+  Hilbert (HArray s a) where
+  (<.>) (HArray a) (HArray b) = H.sumElements $ H.liftMatrix2 (Prelude.*) a b
   {-# inline (<.>) #-}
 
 instance
@@ -157,10 +127,10 @@ instance
   , H.Container H.Vector a
   , Num a
   ) =>
-  MultiplicativeAction (Array s a) where
-  (.*) (Array r) s = Array $ H.cmap (*s) r
+  MultiplicativeAction (HArray s a) where
+  (.*) (HArray r) s = HArray $ H.cmap (*s) r
   {-# inline (.*) #-}
-  (*.) s (Array r) = Array $ H.cmap (s*) r
+  (*.) s (HArray r) = HArray $ H.cmap (s*) r
   {-# inline (*.) #-}
 
 -- | from flat list
@@ -169,14 +139,14 @@ instance
     , Additive a
     , H.Element a
     ) =>
-    IsList (Array s a) where
-  type Item (Array s a) = a
-  fromList l = Array $ H.reshape n $ H.fromList $ take mn $ l ++ repeat zero
+    IsList (HArray s a) where
+  type Item (HArray s a) = a
+  fromList l = HArray $ H.reshape n $ H.fromList $ take mn $ l ++ repeat zero
     where
       mn = P.product $ shapeVal (toShape @s)
       s = shapeVal (toShape @s)
       n = Prelude.last s
-  toList (Array v) = H.toList $ H.flatten $ v
+  toList (HArray v) = H.toList $ H.flatten v
 
 mmult :: forall m n k a.
   ( KnownNat k
@@ -186,9 +156,9 @@ mmult :: forall m n k a.
   , Ring a
   , H.Numeric a
   )
-  => Array [m, k] a
-  -> Array [k, n] a
-  -> Array [m, n] a
-mmult (Array x) (Array y) = Array $ x H.<> y
+  => HArray [m, k] a
+  -> HArray [k, n] a
+  -> HArray [m, n] a
+mmult (HArray x) (HArray y) = HArray $ x H.<> y
 
-type instance Actor (Array s a) = a
+type instance Actor (HArray s a) = a

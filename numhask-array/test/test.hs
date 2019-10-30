@@ -23,34 +23,31 @@ module Main where
 
 -- import Data.Functor.Rep
 import GHC.Exts (IsList(..))
-import NumHask.Array.Simple
-import NumHask.Shape
+import NumHask.Array.Fixed
+import NumHask.Array.Shape
 import NumHask.Hedgehog
 import NumHask.Prelude as P
-import Numeric.Dimensions as D
 import Test.DocTest
 import qualified Hedgehog as H
 import qualified NumHask.Hedgehog.Prop.Space as I
 -- import qualified Prelude
 
-genAIntegral :: forall a m r. (HasShape r, H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array (r :: [Nat]) a)
+genAIntegral :: forall a m r. (HasShape r, H.MonadGen m, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array (r :: [Nat]) a)
 genAIntegral = fromList <$> replicateM (fromIntegral n) integral_
   where
-    n = totalDim $ dims @Nat @r
+    n = product $ shapeVal $ toShape @r
 
-genARational :: forall a m r. (Ord a, H.MonadGen m, HasShape r, Dimensions r, Field a, Subtractive a, ToRatio a Integer, FromRatio a Integer) => m (Array (r :: [Nat]) a)
+genARational :: forall a m r. (Ord a, H.MonadGen m, HasShape r, Field a, Subtractive a, ToRatio a Integer, FromRatio a Integer) => m (Array (r :: [Nat]) a)
 genARational = fromList <$> replicateM (fromIntegral n) negUniform
   where
-    n = totalDim $ dims @Nat @r
+    n = product $ shapeVal $ toShape @r
 
 main :: IO ()
 main = do
-  putStrLn ("Array.Simple DocTest turned on" :: Text)
-  doctest ["src/NumHask/Array/Simple.hs"]
-  putStrLn ("NumHask.Shape DocTest turned on" :: Text)
-  doctest ["src/NumHask/Shape.hs"]
-  putStrLn ("Example DocTest turned on" :: Text)
-  doctest ["src/NumHask/Array/Example.hs"]
+  putStrLn ("NumHask.Array.Fixed DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array/Fixed.hs"]
+  putStrLn ("NumHask.Array.Shape DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array/Shape.hs"]
   {-
   bVInt <- assertProps "Vector Int 6" (Prelude.fromInteger 100)
     (genAIntegral :: H.Gen (Vector 6 Int)) integralProps'
