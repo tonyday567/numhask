@@ -187,6 +187,8 @@ complexFieldProps
   :: forall a.
   ( S.CanMeasure (Complex a)
   , Epsilon a
+  , LowerBoundedField (Complex a)
+  , UpperBoundedField (Complex a)
   , BoundedLattice (Complex a)
   , Divisive a
   , FromRational a
@@ -209,6 +211,8 @@ logFieldProps
   :: forall a.
   ( S.CanMeasure a
   , BoundedLattice a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , Divisive a
   )
   => Gen a
@@ -222,90 +226,3 @@ logFieldProps g = mconcat $
   , \x -> [("divisive", S.isDivisive one x)]
   ]
 
--- | lattice laws
-latticeProps
-  :: forall a.
-  ( S.CanMeasure a
-  )
-  => Gen a
-  -> [(PropertyName, Property)]
-latticeProps g = mconcat $
-  (\x -> x g) <$>
-  [ \x -> [("join idem", S.isIdempotent (\/) one x)]
-  , \x -> [("meet idem", S.isIdempotent (/\) one x)]
-  , \x -> [("join comm", S.isCommutative (\/) (\/) one x)]
-  , \x -> [("meet comm", S.isCommutative (/\) (/\) one x)]
-  , \x -> [("join assoc", S.isAssociative (\/) (\/) one x)]
-  , \x -> [("meet assoc", S.isAssociative (/\) (/\) one x)]
-  , \x -> [("lattice distributive", S.isDistributiveJoinMeet one x)]
-  , \x -> [("lattice absorb", S.isAbsorbative (\/) (/\) (\/) (/\) one x)]
-  ]
-
--- | space laws
-spaceProps
-  :: forall s.
-  ( Show s
-  , Space s
-  , Monoid s
-  , Eq s
-  , Epsilon (Element s)
-  , LowerBoundedField (Element s)
-  , UpperBoundedField (Element s)
-  , BoundedJoinSemiLattice (Element s)
-  , BoundedMeetSemiLattice (Element s)
-  )
-  => Gen s
-  -> [(PropertyName, Property)]
-spaceProps g = mconcat $
-  (\x -> x g) <$>
-  [ \x -> [("commutative union", isCommutative union x)]
-  , \x -> [("commutative intersection", isCommutative intersection x)]
-  , \x -> [("associative union", isAssociative union x)]
-  , \x -> [("associative intersection", isAssociative intersection x)]
-  , \x -> [("unital union", isUnital (infinity >.< negInfinity) union x)]
-  , \x -> [("unital union", isUnital mempty mappend x)]
-  , \x -> [("unital intersection", isUnital whole intersection x)]
-  , \x -> [("distributive", isDistributive (infinity >.< negInfinity) union intersection x)]
-  , \x -> [("distributive", isDistributive whole intersection union x)]
-  , \x -> [("containment", S.isContainedUnion one x)]
-  , \x -> [("positive space", S.isLatticeSpace x)]
-  ]
-
--- | space laws
-fieldSpaceProps
-  :: forall s.
-  ( Show s
-  , FieldSpace s
-  , Epsilon (Element s)
-  )
-  => Gen s
-  -> [(PropertyName, Property)]
-fieldSpaceProps g = mconcat $
-  (\x -> x g) <$>
-  [ \x -> [("projective upper preserved", S.isProjectiveUpper x)]
-  , \x -> [("projective lower preserved", S.isProjectiveLower two x)]
-  ]
-
--- | Interval algebra is not distributive
-spaceAlgebraProps
-  :: forall s.
-  ( Eq s
-  , Show s
-  , Space s
-  , Subtractive s
-  , Divisive s
-  , S.CanMeasure (Element s)
-  )
-  => Gen s
-  -> [(PropertyName, Property)]
-spaceAlgebraProps g = mconcat $
-  (\x -> x g) <$>
-  [ \x -> [("commutative (+))", S.isCommutativeSpace (+) one x)]
-  , \x -> [("associative (+))", S.isAssociativeSpace (+) one x)]
-  , \x -> [("unital (+))", S.isUnitalSpace zero (+) one x)]
-  , \x -> [("subtractive space laws with zero |.| a - a", S.isSubtractiveSpace x)]
-  , \x -> [("commutative (*))", S.isCommutativeSpace (*) one x)]
-  , \x -> [("associative (*))", S.isAssociativeSpace (*) one x)]
-  , \x -> [("unital (*))", S.isUnitalSpace one (*) one x)]
-  , \x -> [("divisive space laws with one |.| a / a", S.isDivisiveSpace x)]
-  ]

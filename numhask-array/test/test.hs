@@ -92,6 +92,10 @@ fieldProps'
   , LowerBoundedField a
   , BoundedJoinSemiLattice a
   , BoundedMeetSemiLattice a
+  , Ord a
+  , Fractional a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , Signed a
   )
   => a

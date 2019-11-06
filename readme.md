@@ -66,22 +66,5 @@ numhask-array
 
 An experimental array with:
 
-- a polymorphic container
 - shape specified at the type level
 - Representable instances
-
-See [Examples](src/NumHask/Array/Example.hs) for the emergent API.
-
-To try out in ghci:
-
-```
-stack ghci
-> :set -XDataKinds
-> :set -XOverloadedLists
-> import NumHask.Prelude
-> import NumHask.Array
-> let a = [0..5] :: Array [] '[2,3] Int
-> a + a
-[[0, 2, 4],
- [6, 8, 10]]
-```
