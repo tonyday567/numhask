@@ -12,13 +12,17 @@ matrix:
   include:
     - env: BUILD=cabal
       ghc: "8.6.5"
+      addons: {apt: {packages: [libblas-dev, liblapack-dev, g++-4.8], sources: [ubuntu-toolchain-r-test]}}
     - env: BUILD=stack ARGS="--resolver lts-14.13 --system-ghc"
       ghc: "8.6.5"
       # a -Werror build that is allowed to fail
+      addons: {apt: {packages: [libblas-dev, liblapack-dev, g++-4.8], sources: [ubuntu-toolchain-r-test]}}
     - env: BUILD=werror ARGS="--resolver lts-14.13 --system-ghc"
       ghc: "8.6.5"
+      addons: {apt: {packages: [libblas-dev, liblapack-dev, g++-4.8], sources: [ubuntu-toolchain-r-test]}}
     - env: BUILD=stack ARGS="--resolver nightly --system-ghc"
       ghc: "8.8.1"
+      addons: {apt: {packages: [libblas-dev, liblapack-dev, g++-4.8], sources: [ubuntu-toolchain-r-test]}}
 
   allow_failures:
     - env: BUILD=stack ARGS="--resolver nightly --system-ghc"
