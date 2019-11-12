@@ -3,10 +3,9 @@ resolver: lts-14.13
 packages:
   - numhask
   - numhask-prelude
-  - numhask-array
   - numhask-hedgehog
 
 extra-deps:
-  - numhask-space-0.2.0
+  - numhask-space-0.3.0
   - tdigest-0.2.1
 

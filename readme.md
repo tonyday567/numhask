@@ -17,7 +17,7 @@ Libraries
 
 - `numhask` the core class hierarchy with just base as a dependency
 - `numhask-prelude` numhask + [protolude](https://hackage.haskell.org/package/protolude)
-- `numhask-array` n-dimensional arrays with type-level size
+- `numhask-hedgehog` testing of numhask
 
 numhask
 ---
@@ -57,14 +57,3 @@ numhask-hedgehog
 [![Hackage](https://img.shields.io/hackage/v/numhask-hedgehog.svg)](https://hackage.haskell.org/package/numhask-hedgehog) [![lts](https://www.stackage.org/package/numhask-test/badge/lts)](http://stackage.org/lts/package/numhask-hedgehog) [![nightly](https://www.stackage.org/package/numhask-hedgehog/badge/nightly)](http://stackage.org/nightly/package/numhask-hedgehog)
 
 Testing framework for numhask, based around hedgehog.
-
-
-numhask-array
----
-
-[![Hackage](https://img.shields.io/hackage/v/numhask-array.svg)](https://hackage.haskell.org/package/numhask-array) [![lts](https://www.stackage.org/package/numhask-array/badge/lts)](http://stackage.org/lts/package/numhask-array) [![nightly](https://www.stackage.org/package/numhask-array/badge/nightly)](http://stackage.org/nightly/package/numhask-array)
-
-An experimental array with:
-
-- shape specified at the type level
-- Representable instances
