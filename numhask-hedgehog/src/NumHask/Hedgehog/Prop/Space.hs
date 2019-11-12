@@ -1,9 +1,10 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wredundant-constraints #-}
 
 module NumHask.Hedgehog.Prop.Space where
 
@@ -34,7 +35,7 @@ instance (Ord a, LowerBoundedField a, UpperBoundedField a, Epsilon a, Divisive a
   recip i@(Range l u)
     | zero |.| i && not (epsilon |.| i) = negInfinity ... recip l
     | zero |.| i && not (negate epsilon |.| i) = infinity ... recip l
-    | zero |.| i = (Range negInfinity infinity)
+    | zero |.| i = Range negInfinity infinity
     | otherwise = recip l ... recip u
 
 -- * individual tests
@@ -101,7 +102,7 @@ isMultiplicative acc src =
   , ("commutative *", isCommutative (*) (*) acc src)
   ]
 
-isDivisive :: forall a. (CanMeasure a, LowerBoundedField a, UpperBoundedField a, Divisive a) =>
+isDivisive :: forall a. (CanMeasure a, LowerBoundedField a, UpperBoundedField a) =>
   a -> Gen a -> Property
 isDivisive acc src = property $ do
   rv <- forAll src
@@ -200,7 +201,7 @@ isExpField acc src = property $ do
          || (a ** logBase a b |.| (eps acc b :: Range a)))
   assert (p rv rv')
 
-isCommutativeSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Fractional (Element s), Show s, Space s) =>
+isCommutativeSpace :: forall s. (Fractional (Element s), Show s, Space s) =>
   (s -> s -> s) -> Element s -> Gen s -> Property
 isCommutativeSpace (#) acc src = property $ do
   rv <- forAll src
@@ -209,7 +210,7 @@ isCommutativeSpace (#) acc src = property $ do
         (widenEps acc b # widenEps acc a) `contains` (a # b)
   assert (p rv rv')
 
-isAssociativeSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Fractional (Element s), Show s, Space s) =>
+isAssociativeSpace :: forall s. (Fractional (Element s), Show s, Space s) =>
   (s -> s -> s) -> Element s -> Gen s -> Property
 isAssociativeSpace (#) acc src = property $ do
   rv <- forAll src
@@ -220,7 +221,7 @@ isAssociativeSpace (#) acc src = property $ do
         (a # (b # c))
   assert (p rv rv' rv'')
 
-isUnitalSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Fractional (Element s), Show s, Space s) =>
+isUnitalSpace :: forall s. (Fractional (Element s), Show s, Space s) =>
   s -> (s -> s -> s) -> Element s -> Gen s -> Property
 isUnitalSpace u (#) acc src = property $ do
   rv <- forAll src
@@ -261,7 +262,7 @@ isDivisiveSpace src = property $ do
         (one |.| (recip a * a))
   assert (p rv)
 
-isContainedUnion :: forall s. (Epsilon (Element s), Multiplicative (Element s), Fractional (Element s), Show s, Space s) =>
+isContainedUnion :: forall s. (Fractional (Element s), Show s, Space s) =>
   Element s -> Gen s -> Property
 isContainedUnion acc src = property $ do
   rv <- norm <$> forAll src

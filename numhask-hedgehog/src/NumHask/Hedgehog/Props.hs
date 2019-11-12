@@ -143,7 +143,6 @@ rationalProps g = mconcat $
 fieldProps
   :: forall a.
   ( S.CanMeasure a
-  , BoundedLattice a
   , LowerBoundedField a
   , UpperBoundedField a
   , Signed a
@@ -186,11 +185,8 @@ quotientFieldProps g = mconcat $
 complexFieldProps
   :: forall a.
   ( S.CanMeasure (Complex a)
-  , Epsilon a
   , LowerBoundedField (Complex a)
   , UpperBoundedField (Complex a)
-  , BoundedLattice (Complex a)
-  , Divisive a
   , FromRational a
   )
   => Complex a
@@ -210,10 +206,8 @@ complexFieldProps acc g = mconcat $
 logFieldProps
   :: forall a.
   ( S.CanMeasure a
-  , BoundedLattice a
   , LowerBoundedField a
   , UpperBoundedField a
-  , Divisive a
   )
   => Gen a
   -> [(PropertyName, Property)]
