@@ -1,1 +1,1 @@
-packages: numhask/ numhask-prelude/ numhask-hedgehog/ numhask-array/
+packages: numhask/ numhask-prelude/ numhask-hedgehog/

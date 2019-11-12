@@ -58,7 +58,6 @@
 - ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop}
 - ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop.Space}
 - ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop.Space}
-- ignore: {name: Eta reduce, within: NumHask.Data.Pair}
 
 # Define some custom infix operators
 # - fixity: infixr 3 ~^#^~
