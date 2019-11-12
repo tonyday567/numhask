@@ -19,6 +19,7 @@ module NumHask.Hedgehog.Gen
 
 import Hedgehog as H
 import NumHask.Prelude as P
+import NumHask.Space as S
 import qualified Hedgehog.Internal.Gen as Gen
 import qualified Hedgehog.Internal.Seed as Seed
 import qualified Hedgehog.Range as Range
@@ -99,13 +100,13 @@ genComplex g = do
   pure (r :+ i)
 
 -- | Space
-genRange :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, MonadGen m) => m a -> m (P.Range a)
+genRange :: forall a m. (Ord a, MonadGen m) => m a -> m (S.Range a)
 genRange g = do
   a <- g
   b <- g
   pure (a >.< b)
 
-genRangePos :: forall a m. (JoinSemiLattice a, MeetSemiLattice a, MonadGen m) => m a -> m (P.Range a)
+genRangePos :: forall a m. (Ord a, MonadGen m) => m a -> m (S.Range a)
 genRangePos g = do
   a <- g
   b <- g

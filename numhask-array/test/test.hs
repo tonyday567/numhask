@@ -21,46 +21,48 @@
 
 module Main where
 
-import Data.Functor.Rep
+-- import Data.Functor.Rep
 import GHC.Exts (IsList(..))
-import NumHask.Array
+import NumHask.Array.Fixed
+import NumHask.Array.Shape
 import NumHask.Hedgehog
 import NumHask.Prelude as P
-import Numeric.Dimensions as D
 import Test.DocTest
 import qualified Hedgehog as H
 import qualified NumHask.Hedgehog.Prop.Space as I
-import qualified Prelude
+-- import qualified Prelude
 
-genAIntegral :: forall a m r. (H.MonadGen m, Dimensions r, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array [] (r :: [Nat]) a)
+genAIntegral :: forall a m r. (HasShape r, H.MonadGen m, Additive a, Bounded a, ToInteger a, FromInteger a) => m (Array (r :: [Nat]) a)
 genAIntegral = fromList <$> replicateM (fromIntegral n) integral_
   where
-    n = totalDim $ dims @Nat @r
+    n = product $ shapeVal $ toShape @r
 
-genARational :: forall a m r. (Ord a, H.MonadGen m, Dimensions r, Field a, Subtractive a, ToRatio a Integer, FromRatio a Integer) => m (Array [] (r :: [Nat]) a)
+genARational :: forall a m r. (Ord a, H.MonadGen m, HasShape r, Field a, Subtractive a, ToRatio a Integer, FromRatio a Integer) => m (Array (r :: [Nat]) a)
 genARational = fromList <$> replicateM (fromIntegral n) negUniform
   where
-    n = totalDim $ dims @Nat @r
+    n = product $ shapeVal $ toShape @r
 
 main :: IO ()
 main = do
-  putStrLn ("Array DocTest turned on" :: Text)
-  doctest ["src/NumHask/Array.hs"]
-  putStrLn ("Example DocTest turned on" :: Text)
-  doctest ["src/NumHask/Array/Example.hs"]
+  putStrLn ("NumHask.Array.Fixed DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array/Fixed.hs"]
+  putStrLn ("NumHask.Array.Shape DocTest turned on" :: Text)
+  doctest ["src/NumHask/Array/Shape.hs"]
+  {-
   bVInt <- assertProps "Vector Int 6" (Prelude.fromInteger 100)
-    (genAIntegral :: H.Gen (Vector [] 6 Int)) integralProps'
-  bMInt <- assertProps "Matrix [] '[3,4] Int" (Prelude.fromInteger 100)
-    (genAIntegral :: H.Gen (Array [] '[3,4] Int)) integralProps'
+    (genAIntegral :: H.Gen (Vector 6 Int)) integralProps'
+  bMInt <- assertProps "Matrix '[3,4] Int" (Prelude.fromInteger 100)
+    (genAIntegral :: H.Gen (Array '[3,4] Int)) integralProps'
   bVFloat <- assertProps "Vector Float 6" (Prelude.fromInteger 100)
-    (genARational :: H.Gen (Vector [] 6 Float)) (fieldProps' acc6)
-  bMFloat <- assertProps "Array [] '[3,4] Float" (Prelude.fromInteger 100)
-    (genARational :: H.Gen (Array [] '[3,4] Float)) (fieldProps' acc34)
+    (genARational :: H.Gen (Vector 6 Float)) (fieldProps' acc6)
+  bMFloat <- assertProps "Array '[3,4] Float" (Prelude.fromInteger 100)
+    (genARational :: H.Gen (Array '[3,4] Float)) (fieldProps' acc34)
   unless (bVInt && bMInt && bVFloat && bMFloat)
     exitFailure
     where
       acc6 = tabulate (const 1.0)
       acc34 = tabulate (const 1.0)
+-}
 
 integralProps'
   :: forall a.
@@ -90,6 +92,10 @@ fieldProps'
   , LowerBoundedField a
   , BoundedJoinSemiLattice a
   , BoundedMeetSemiLattice a
+  , Ord a
+  , Fractional a
+  , LowerBoundedField a
+  , UpperBoundedField a
   , Signed a
   )
   => a

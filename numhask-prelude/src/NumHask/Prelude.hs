@@ -31,10 +31,8 @@ module NumHask.Prelude
   , module NumHask.Algebra.Linear.Hadamard
   , module NumHask.Analysis.Banach
   , module NumHask.Analysis.Metric
-  , module NumHask.Analysis.Space
   , module NumHask.Data.Complex   
   , module NumHask.Data.Integral
-  , module NumHask.Data.Range
   , module NumHask.Data.LogField       
   , module NumHask.Data.Rational
   , module NumHask.Data.Pair
@@ -66,10 +64,8 @@ import NumHask.Algebra.Abstract.TensorProduct
 import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Banach
 import NumHask.Analysis.Metric
-import NumHask.Analysis.Space
 import NumHask.Data.Complex
 import NumHask.Data.Integral
-import NumHask.Data.Range
 import NumHask.Data.LogField
 import NumHask.Data.Pair
 import NumHask.Data.Positive

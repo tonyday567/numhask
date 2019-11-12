@@ -48,7 +48,6 @@ library
   build-depends:
       base >=4.7 && <5
     , numhask >=0.3 && <0.4
-    , numhask-space >=0.1.1 && <0.2
     , protolude >=0.1 && <0.3
   exposed-modules:
     NumHask.Prelude

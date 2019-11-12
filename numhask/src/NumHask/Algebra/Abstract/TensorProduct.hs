@@ -1,11 +1,13 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | TensorProduct
 module NumHask.Algebra.Abstract.TensorProduct
   ( TensorProduct(..)
+  , TensorProduct'(..)
   , type (><)
   ) where
 
@@ -66,3 +68,14 @@ class TensorProduct a where
   outer = (><)
   timesleft :: a -> (a >< a) -> a
   timesright :: (a >< a) -> a -> a
+
+-- | generalised outer product
+--
+-- > a><b + c><b == (a+c) >< b
+-- > a><b + a><c == a >< (b+c)
+-- > a *. (b><c) == (a><b) .* c
+-- > (a><b) .* c == a *. (b><c)
+class TensorProduct' a b where
+  outer' :: a -> b -> (a >< b)
+  timesleft' :: a -> (a >< b) -> b
+  timesright' :: (a >< b) -> a -> b

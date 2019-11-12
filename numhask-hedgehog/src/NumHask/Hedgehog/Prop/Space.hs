@@ -1,17 +1,43 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_GHC -Wredundant-constraints #-}
 
 module NumHask.Hedgehog.Prop.Space where
 
 import NumHask.Prelude hiding ((%), (.*.))
 import Hedgehog as H hiding (Range)
+import NumHask.Space
 
-type CanMeasure a = (Lattice a, Multiplicative a, Show a, Epsilon a)
- 
+type CanMeasure a = (Ord a, Fractional a, Lattice a, Multiplicative a, Show a, Epsilon a)
+
+-- | Numeric algebra based on Interval arithmetic
+-- https://en.wikipedia.org/wiki/Interval_arithmetic
+--
+instance (Ord a, Additive a) => Additive (Range a) where
+  (Range l u) + (Range l' u') = space1 [l+l',u+u']
+  zero = zero ... zero
+
+instance (Ord a, Subtractive a) => Subtractive (Range a) where
+  negate (Range l u) = negate u ... negate l
+
+instance (Ord a, Multiplicative a) => Multiplicative (Range a) where
+  (Range l u) * (Range l' u') =
+    space1 [l * l', l * u', u * l', u * u']
+  one = one ... one
+
+instance (Ord a, LowerBoundedField a, UpperBoundedField a, Epsilon a, Divisive a) =>
+  Divisive (Range a)
+  where
+  recip i@(Range l u)
+    | zero |.| i && not (epsilon |.| i) = negInfinity ... recip l
+    | zero |.| i && not (negate epsilon |.| i) = infinity ... recip l
+    | zero |.| i = Range negInfinity infinity
+    | otherwise = recip l ... recip u
+
 -- * individual tests
 isIdempotent :: forall a. (CanMeasure a) =>
   (Range a -> Range a -> Range a) -> a -> Gen a -> Property
@@ -76,7 +102,7 @@ isMultiplicative acc src =
   , ("commutative *", isCommutative (*) (*) acc src)
   ]
 
-isDivisive :: forall a. (CanMeasure a, BoundedLattice a, Divisive a) =>
+isDivisive :: forall a. (CanMeasure a, LowerBoundedField a, UpperBoundedField a) =>
   a -> Gen a -> Property
 isDivisive acc src = property $ do
   rv <- forAll src
@@ -99,19 +125,6 @@ isDistributiveTimesPlus acc src = property $ do
   assert (p rv rv' rv'')
     where
       (.*.) x y = eps acc x * eps acc y :: Range a
-
-isDistributiveJoinMeet :: forall a. (CanMeasure a) =>
-  a -> Gen a -> Property
-isDistributiveJoinMeet acc src = property $ do
-  rv <- forAll src
-  rv' <- forAll src
-  rv'' <- forAll src
-  let p = \a b c ->
-        (a \/ (b /\ c)) |.| ((a .\/. b) /\ (a .\/. c)) &&
-        ((a /\ b) \/ c) |.| ((a .\/. c) /\ (b .\/. c))
-  assert (p rv rv' rv'')
-    where
-      (.\/.) x y = eps acc x \/ eps acc y :: Range a
 
 isZeroAbsorbative :: forall a. (CanMeasure a) =>
   (a -> a -> a) -> a -> Gen a -> Property
@@ -188,7 +201,7 @@ isExpField acc src = property $ do
          || (a ** logBase a b |.| (eps acc b :: Range a)))
   assert (p rv rv')
 
-isCommutativeSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) =>
+isCommutativeSpace :: forall s. (Fractional (Element s), Show s, Space s) =>
   (s -> s -> s) -> Element s -> Gen s -> Property
 isCommutativeSpace (#) acc src = property $ do
   rv <- forAll src
@@ -197,7 +210,7 @@ isCommutativeSpace (#) acc src = property $ do
         (widenEps acc b # widenEps acc a) `contains` (a # b)
   assert (p rv rv')
 
-isAssociativeSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) =>
+isAssociativeSpace :: forall s. (Fractional (Element s), Show s, Space s) =>
   (s -> s -> s) -> Element s -> Gen s -> Property
 isAssociativeSpace (#) acc src = property $ do
   rv <- forAll src
@@ -208,7 +221,7 @@ isAssociativeSpace (#) acc src = property $ do
         (a # (b # c))
   assert (p rv rv' rv'')
 
-isUnitalSpace :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) =>
+isUnitalSpace :: forall s. (Fractional (Element s), Show s, Space s) =>
   s -> (s -> s -> s) -> Element s -> Gen s -> Property
 isUnitalSpace u (#) acc src = property $ do
   rv <- forAll src
@@ -217,7 +230,7 @@ isUnitalSpace u (#) acc src = property $ do
         (widenEps acc a # widenEps acc u) `contains` a
   assert (p rv)
 
-isLatticeSpace :: forall s. (Show s, Space s) =>
+isLatticeSpace :: forall s. (Show s, Space s, JoinSemiLattice (Element s), MeetSemiLattice (Element s)) =>
   Gen s -> Property
 isLatticeSpace src = property $ do
   rv <- norm <$> forAll src
@@ -249,7 +262,7 @@ isDivisiveSpace src = property $ do
         (one |.| (recip a * a))
   assert (p rv)
 
-isContainedUnion :: forall s. (Epsilon (Element s), Multiplicative (Element s), Show s, Space s) =>
+isContainedUnion :: forall s. (Fractional (Element s), Show s, Space s) =>
   Element s -> Gen s -> Property
 isContainedUnion acc src = property $ do
   rv <- norm <$> forAll src
@@ -259,21 +272,21 @@ isContainedUnion acc src = property $ do
         (widenEps acc a `union` widenEps acc b) `contains` b
   assert (p rv rv')
 
-isProjectiveLower :: forall s. (FieldSpace s, Epsilon (Element s), Show s) =>
+isProjectiveLower :: forall s. (FieldSpace s, Epsilon (Element s), Ord (Element s), Fractional (Element s), Show s) =>
   Element s -> Gen s -> Property
 isProjectiveLower acc src = property $ do
   rv <- forAll src
   rv' <- forAll src
   let p = \a b ->
-        lower b |.| (eps acc (project a b (lower a)) :: NumHask.Prelude.Range (Element s))
+        lower b |.| (eps acc (project a b (lower a)) :: NumHask.Space.Range (Element s))
   assert (p rv rv')
 
-isProjectiveUpper :: forall s. (FieldSpace s, Epsilon (Element s), Show s) =>
+isProjectiveUpper :: forall s. (FieldSpace s, Epsilon (Element s), Ord (Element s), Fractional (Element s), Show s) =>
   Gen s -> Property
 isProjectiveUpper src = property $ do
   rv <- forAll src
   rv' <- forAll src
   let p = \a b ->
-        upper b |.| ((project a b (upper a) +/- epsilon) :: NumHask.Prelude.Range (Element s))
+        upper b |.| ((project a b (upper a) +/- epsilon) :: NumHask.Space.Range (Element s))
   assert (p rv rv')
 

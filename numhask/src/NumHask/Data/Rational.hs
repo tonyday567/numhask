@@ -18,6 +18,7 @@ module NumHask.Data.Rational
   , FromRatio(..)
   , FromRational
   , fromRational
+  , fromRational'
   , fromBaseRational
   -- * $integral_functionality
   , reduce
@@ -204,7 +205,7 @@ instance FromRatio Rational Integer where
 instance FromRatio (Ratio Integer) Integer where
   fromRatio = P.id
 
--- | under RebindableSyntax the literal '1.0' mean exactly `fromRational (1.0::Rational)` where 'Rational' is the type from GHC.Real (rather than the numhask one).
+-- | with RebindableSyntax the literal '1.0' mean exactly `fromRational (1.0::GHC.Real.Rational)`.
 class FromRational a where
   fromRational :: P.Rational -> a
   default fromRational :: (FromRatio a Integer) => P.Rational -> a
@@ -214,12 +215,15 @@ instance FromRational Double
 instance FromRational Float
 instance FromRational Rational
 
+-- | Given that fromRational is reserved, fromRational' provides general conversion between numhask rationals.
+fromRational' :: (FromRatio b Integer, ToRatio a Integer) => a -> b
+fromRational' a = fromRatio (toRatio a :: Ratio Integer)
+
 instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
 
 instance (GCDConstraints a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
-
 
 -- * $integral_functions
 -- integral functionality is largely based on GHC.Real
