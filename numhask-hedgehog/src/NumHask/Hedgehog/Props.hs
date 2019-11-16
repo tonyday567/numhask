@@ -47,7 +47,6 @@ integralUnboundedProps
   ( Show a
   , Distributive a
   , Subtractive a
-  , Integral a
   , Signed a
   , Normed a a
   , Metric a a
@@ -62,7 +61,6 @@ integralUnboundedProps g = mconcat $
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
   , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
-  , \x -> [("integral", isIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   , \x -> [("metric", isMetricUnbounded x)]
@@ -72,7 +70,6 @@ naturalProps
   :: forall a.
   ( Show a
   , Distributive a
-  , Integral a
   , Signed a
   , Normed a a
   , JoinSemiLattice a
@@ -85,7 +82,6 @@ naturalProps g = mconcat $
   , isMultiplicative
   , \x -> [("distributive", isDistributive zero (+) (*) x)]
   , \x -> [("absorbative zero", isAbsorbativeUnit zero (*) x)]
-  , \x -> [("integral", isIntegral x)]
   , \x -> [("signed", isSigned x)]
   , \x -> [("normed", isNormedUnbounded x)]
   ]

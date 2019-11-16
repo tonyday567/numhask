@@ -169,12 +169,13 @@ isAbsorbative (#) (%) src = property $ do
         a == (a % (a # b))
   assert (p rv rv')
 
-isIntegral :: (Eq a, Show a, Integral a) => Gen a -> Property
+isIntegral :: (Eq a, Show a, Integral a, Bounded a, Subtractive a) => Gen a -> Property
 isIntegral src = property $ do
   rv <- forAll src
   rv' <- forAll src
   let p = \a b ->
         b == zero ||
+        ((a == minBound && b == negate one) || (a == negate one && b == minBound)) ||
         b * (a `div` b) + (a `mod` b) == a
   assert (p rv rv')
 
@@ -283,7 +284,7 @@ isQuotientIntegerField src = property $ do
            False -> (round a :: Integer) == ceiling (a - (one / (one + one))))
   assert (p rv)
   where
-    (~<) a b = joinLeq b a && not (a == b)
+    (~<) a b = joinLeq b a && (a /= b)
     (~<=) = flip joinLeq
 
 -- > sqrt . (**(one+one)) == id
@@ -294,13 +295,13 @@ isExpField src = property $ do
   rv <- forAll src
   rv' <- forAll src
   let p = \a b ->
-        (not (a > (zero :: a))
+        ((a <= (zero :: a))
          || ((sqrt . (** (one + one)) $ a) == a)
          && (((** (one + one)) . sqrt $ a) == a)) &&
-        (not (a > (zero :: a))
+        ((a <= (zero :: a))
          || ((log . exp $ a) == a)
          && ((exp . log $ a) == a)) &&
-        (not (normL1 b > (zero :: a))
+        ((normL1 b <= (zero :: a))
          || not (nearZero (a - zero))
          || (a == one)
          || (a == zero && nearZero (logBase a b))

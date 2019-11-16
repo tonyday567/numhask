@@ -50,6 +50,7 @@
 # Ignore some builtin hints
 # - ignore: {name: Use let}
 # - ignore: {name: Use const, within: SpecialModule} # Only within certain modules
+- ignore: {name: Use if}
 - ignore: {name: Use tan, within: NumHask.Algebra.Field}
 - ignore: {name: Use logBase, within: NumHask.Algebra.Field}
 - ignore: {name: Use -}
