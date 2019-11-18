@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -14,7 +13,6 @@ module NumHask.Algebra.Linear.Hadamard
 where
 
 import NumHask.Algebra.Abstract.Multiplicative
-import Data.Coerce
 
 -- | element by element multiplication
 --
@@ -26,7 +24,6 @@ class (Multiplicative a) =>
   HadamardMultiplication m a where
   infixl 7 .*.
   (.*.) :: m a -> m a -> m a
-  -- (.*.) = coerce ((.*.) @m @a)
 
 
 -- | element by element division
@@ -36,7 +33,6 @@ class (Divisive a) =>
   HadamardDivision m a where
   infixl 7 ./.
   (./.) :: m a -> m a -> m a
-  (./.) = coerce ((./.) @m @a)
 
 class (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a
 instance (HadamardMultiplication m a, HadamardDivision m a) => Hadamard m a

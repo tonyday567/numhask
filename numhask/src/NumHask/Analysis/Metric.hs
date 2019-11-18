@@ -27,7 +27,7 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Lattice
 
--- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
+-- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' where there is a change in codomain
 --
 -- > abs a * sign a == a
 --

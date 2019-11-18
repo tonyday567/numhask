@@ -56,14 +56,11 @@ library
     NumHask.Algebra.Abstract.Additive
     NumHask.Algebra.Abstract.Field
     NumHask.Algebra.Abstract.Group
-    NumHask.Algebra.Abstract.Homomorphism
     NumHask.Algebra.Abstract.Lattice
     NumHask.Algebra.Abstract.Module
     NumHask.Algebra.Abstract.Multiplicative
     NumHask.Algebra.Abstract.Ring
-    NumHask.Algebra.Abstract.TensorProduct
     NumHask.Algebra.Linear.Hadamard
-    NumHask.Analysis.Banach
     NumHask.Analysis.Metric
     NumHask.Data.Complex
     NumHask.Data.Integral
