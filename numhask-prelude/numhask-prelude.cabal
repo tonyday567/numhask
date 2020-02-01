@@ -47,7 +47,7 @@ library
     -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , numhask >=0.3 && <0.4
+    , numhask >=0.3 && <0.5
     , protolude >=0.1 && <0.3
   exposed-modules:
     NumHask.Prelude
