@@ -28,6 +28,10 @@ import qualified Prelude as P
 --
 -- > a * (b + c) == a * b + a * c
 -- > (a * b) * c == a * c + b * c
+-- > zero * a == zero
+-- > a * zero == zero
+--
+-- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element annihilation> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
 class (Additive a, Multiplicative a) =>
   Distributive a
 
@@ -48,27 +52,22 @@ instance Distributive Word64
 instance Distributive P.Bool
 instance Distributive b => Distributive (a -> b)
 
--- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is a ring without,
---   necessarily, negative elements.
---
--- FIXME: rule zero' = zero. Is this somehow expressible in haskell?
+-- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is commutative monoidal under addition, has a monoidal multiplication operator (not necessarily commutative), and where multiplication distributes over addition.
 class (Distributive a) =>
   Semiring a where
 instance (Distributive a) =>
   Semiring a
 
 -- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian
---   group under addition and monoid under multiplication where multiplication
---   distributes over addition. Alternatively, a ring is semiring where additive
---   inverses exist
+--   group under addition and monoidal under multiplication, and where multiplication
+--   distributes over addition.
 class (Distributive a, Subtractive a) =>
   Ring a
 instance (Distributive a, Subtractive a) =>
   Ring a
 
 -- | A <https://en.wikipedia.org/wiki/Commutative_ring Commutative Ring> is a
---   ring with a Commutative Multiplication operation. Recall that Addition is
---   Commutative in all Rings
+--   ring with commutative multiplication.
 class (Distributive a, Subtractive a) =>
   CommutativeRing a
 instance (Distributive a, Subtractive a) =>
@@ -78,9 +77,8 @@ instance (Distributive a, Subtractive a) =>
 --   generalizes a ring of integers by requiring the product of any two nonzero
 --   elements to be nonzero. This means that if a ≠ 0, an equality ab = ac
 --   implies b = c.
--- FIXME: write a rule for this
 --
-class (Distributive a, Divisive a) =>
+class (Distributive a) =>
   IntegralDomain a
 
 instance IntegralDomain P.Double
@@ -142,5 +140,6 @@ instance InvolutiveRing Word32
 instance InvolutiveRing Word64
 instance InvolutiveRing b => InvolutiveRing (a -> b)
 
+-- | Defining 'two' requires adding the multiplicative unital to itself.
 two :: (Multiplicative a, Additive a) => a
 two = one + one

@@ -14,6 +14,14 @@ import GHC.Natural (Natural(..))
 import Prelude (Int, Integer, Float, Double)
 import qualified Prelude as P
 
+-- | For practical reasons, 'Multiplicative' has no super classes. Using 'Associative' and 'Unital' from this library, or using 'Semigroup' and 'Monoid' from base tends to complexify the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+--
+-- > one * a == a
+-- > a * one == a
+-- > (a * b) * c == a * (b * c)
+-- > a * b == b * a
+--
+-- By convention, (*) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative multiplication seems a bit dogmatic.
 class Multiplicative a where
 
   infixl 7 *
@@ -21,9 +29,16 @@ class Multiplicative a where
 
   one :: a
 
+-- | Compute the product of a 'Foldable'.
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
+-- |
+--
+-- > a / a = one
+-- > recip a = one / a
+-- > recip a * a = one
+-- > a * recip a = one
 class (Multiplicative a) => Divisive a where
   recip :: a -> a
 
@@ -102,4 +117,3 @@ instance Multiplicative b => Multiplicative (a -> b) where
 
 instance Divisive b => Divisive (a -> b) where
   recip f = recip P.. f
-

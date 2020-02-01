@@ -12,7 +12,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Action
 
 -- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module> over r a is
---   a (Ring a), an abelian (Group r a) and an scalar-mult. (.*, *.) with the
+--   a (Ring a), an abelian (Group r a) and a scalar multiplier (.*, *.) with the
 --   laws:
 --
 -- > a .* one == a

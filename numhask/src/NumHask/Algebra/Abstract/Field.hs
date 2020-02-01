@@ -27,11 +27,10 @@ import NumHask.Data.Integral
 import qualified Prelude as P
 import Prelude ((.))
 
--- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is an
---   Integral domain in which every non-zero element has a multiplicative
---   inverse.
+-- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
+--   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
 --
--- A summary of the rules inherited from super-classes of Field
+-- A summary of the rules thus inherited from super-classes of Field
 --
 -- > zero + a == a
 -- > a + zero == a
@@ -53,7 +52,7 @@ import Prelude ((.))
 -- > recip a = one / a
 -- > recip a * a = one
 -- > a * recip a = one
-class (IntegralDomain a) =>
+class (Distributive a, Subtractive a, Divisive a) =>
       Field a
 
 instance Field P.Double
@@ -156,7 +155,7 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
 -- > zero / zero != nan
 --
 -- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
-class (IntegralDomain a) =>
+class (Field a) =>
       UpperBoundedField a where
 
   infinity :: a
@@ -244,5 +243,6 @@ instance TrigField b => TrigField (a -> b) where
   acosh f = acosh . f
   atanh f = atanh . f
 
+-- | A 'half' is a 'Field' because it requires addition, multiplication and division to be computed.
 half :: (Field a) => a
 half = one / two

@@ -160,7 +160,7 @@ log1p :: ExpField a => a -> a
 {-# INLINE [0] log1p #-}
 log1p x = log (one + x)
 
-expm1 :: (ExpField a, Subtractive a) => a -> a
+expm1 :: (ExpField a) => a -> a
 {-# INLINE [0] expm1 #-}
 expm1 x = exp x - one
 
@@ -230,7 +230,7 @@ instance (Epsilon a, ExpField a, LowerBoundedField a, UpperBoundedField a, Ord a
   nearZero (LogField x) = nearZero $ exp x
   aboutEqual (LogField x) (LogField y) = aboutEqual (exp x) (exp y)
 
-instance (Ord a, ExpField a, LowerBoundedField a) => Field (LogField a)
+instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) => Field (LogField a)
 
 instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
   LowerBoundedField (LogField a)
@@ -281,7 +281,7 @@ pow x@(LogField x') m
 -- it is not amenable to list fusion, and hence will use a lot of
 -- memory when summing long lists.
 {-# INLINE accurateSum #-}
-accurateSum :: (ExpField a, Subtractive a, Foldable f, Ord a) => f (LogField a) -> LogField a
+accurateSum :: (ExpField a, Foldable f, Ord a) => f (LogField a) -> LogField a
 accurateSum xs = LogField (theMax + log theSum)
  where
   LogField theMax = maximum xs
@@ -295,7 +295,7 @@ accurateSum xs = LogField (theMax + log theSum)
 --
 -- > LogField . accurateProduct == accurateProduct . map LogField
 {-# INLINE accurateProduct #-}
-accurateProduct :: (ExpField a, Subtractive a, Foldable f) => f (LogField a) -> LogField a
+accurateProduct :: (ExpField a, Foldable f) => f (LogField a) -> LogField a
 accurateProduct = LogField . fst . F.foldr kahanPlus (zero, zero)
  where
   kahanPlus (LogField x) (t, c) =

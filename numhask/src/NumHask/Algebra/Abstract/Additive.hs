@@ -14,15 +14,29 @@ import GHC.Natural (Natural(..))
 import Prelude (Int, Integer, Float, Double, Bool)
 import qualified Prelude as P
 
+-- | For practical reasons, 'Additive' has no super classes. Using `Associative` and 'Unital' from this library, or using 'Semigroup' and 'Monoid' from base tends to complexify the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+--
+-- > zero + a == a
+-- > a + zero == a
+-- > (a + b) + c == a + (b + c)
+-- > a + b == b + a
+--
+-- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative multiplication seems a bit dogmatic.
 class Additive a where
   infixl 6 +
   (+) :: a -> a -> a
 
   zero :: a
 
+-- | Compute the sum of a 'Foldable'.
 sum :: (Additive a, P.Foldable f) => f a -> a
 sum = P.foldr (+) zero
 
+-- |
+-- > a - a = zero
+-- > negate a = zero - a
+-- > negate a + a = zero
+-- > a + negate a = zero
 class (Additive a) => Subtractive a where
   negate :: a -> a
 

@@ -87,7 +87,6 @@ negUniform ::
   ( Field a
   , ToRatio a Integer
   , FromRatio a Integer
-  , Subtractive a
   , MonadGen m)
   => m a
 negUniform = rational (Range.constantFrom zero (negate one) one)
@@ -114,7 +113,4 @@ genRangePos g = do
 
 -- | a pair
 genPair :: (Monad m) => m a -> m (Pair a)
-genPair g = do
-  a <- g
-  b <- g
-  pure (Pair a b)
+genPair g = Pair <$> g <*> g

@@ -63,11 +63,11 @@ instance (P.Ord a, QuotientField a P.Integer) =>
   QuotientField (Positive a) (Positive P.Integer) where
   properFraction (Positive a) = let (i,r) = properFraction a in (Positive i, Positive r)
 
-instance (UpperBoundedField a) =>
+instance (P.Ord a, UpperBoundedField a) =>
   UpperBoundedField (Positive a) where
   infinity = Positive infinity
 
-instance (UpperBoundedField a) => P.Bounded (Positive a) where
+instance (P.Ord a, UpperBoundedField a) => P.Bounded (Positive a) where
   minBound = zero
   maxBound = infinity
 

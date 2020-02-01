@@ -5,12 +5,10 @@ numhask
 
 A numeric class hierarchy, providing a structure for numbers and functions that combine them.
 
-Ring hierarchy
+Field hierarchy
 ---
 
-For example, the `Num` class in prelude is approximately a `Ring`. In numhask, the class laws and operators flow as follows:
-
-[![Ring Hierarchy](numhask/other/ring.svg)](numhask/other/ring.svg)
+[![Field Hierarchy](numhask/other/field.svg)](numhask/other/field.svg)
 
 Libraries
 ---
