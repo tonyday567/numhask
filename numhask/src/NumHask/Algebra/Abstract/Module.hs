@@ -7,7 +7,6 @@ module NumHask.Algebra.Abstract.Module
   ( Module
   ) where
 
-import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Action
 
@@ -20,4 +19,4 @@ import NumHask.Algebra.Abstract.Action
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Distributive (Actor h), Divisive h, MultiplicativeAction h) => Module h
+class (Distributive (Actor h), MultiplicativeAction h) => Module h

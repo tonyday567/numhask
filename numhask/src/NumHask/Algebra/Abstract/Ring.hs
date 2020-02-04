@@ -7,7 +7,6 @@ module NumHask.Algebra.Abstract.Ring
   ( Distributive
   , Semiring
   , Ring
-  , CommutativeRing
   , IntegralDomain
   , StarSemiring(..)
   , KleeneAlgebra
@@ -65,13 +64,6 @@ class (Distributive a, Subtractive a) =>
   Ring a
 instance (Distributive a, Subtractive a) =>
   Ring a
-
--- | A <https://en.wikipedia.org/wiki/Commutative_ring Commutative Ring> is a
---   ring with commutative multiplication.
-class (Distributive a, Subtractive a) =>
-  CommutativeRing a
-instance (Distributive a, Subtractive a) =>
-  CommutativeRing a
 
 -- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain>
 --   generalizes a ring of integers by requiring the product of any two nonzero

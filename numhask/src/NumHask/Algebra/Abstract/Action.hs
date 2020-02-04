@@ -15,7 +15,7 @@ module NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 
--- | a type class to represent an action on a higher-kinded number
+-- | a type class to represent an action on elements of a higher-kinded number
 type family Actor h
 
 class (Additive (Actor h)) =>

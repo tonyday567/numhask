@@ -10,6 +10,13 @@ Field hierarchy
 
 [![Field Hierarchy](numhask/other/field.svg)](numhask/other/field.svg)
 
+
+NumHask class structure
+---
+
+[![NumHask Hierarchy](numhask/other/numhask.svg)](numhask/other/numhask.svg)
+
+
 Libraries
 ---
 
