@@ -38,7 +38,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
-import Prelude (Double, Float, Int, Integer, Rational, (.))
+import Prelude (Int, Integer, Rational, (.))
 import qualified GHC.Real
 import qualified Prelude as P
 
