@@ -49,8 +49,7 @@ script:
 - |
   case "$BUILD" in
     cabal)
-      cabal v2-update
-      cabal v2-build all
+      cabal build all
       ;;
     stack)
       stack --no-terminal $ARGS test --haddock --no-haddock-deps
