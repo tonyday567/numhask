@@ -7,7 +7,4 @@ packages:
 
 extra-deps:
   - protolude-0.3.0
-  # - numhask-space-0.4.0
-  - git: https://github.com/tonyday567/numhask-space
-    commit: 6f3bfed38ecf3087ba3356f7b50e2ff22e337730
-
+  - numhask-space-0.4.0
