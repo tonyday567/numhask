@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask-prelude
-version: 0.4.0
+version: 0.5.0
 synopsis:
   A numeric prelude
 description:
@@ -46,7 +46,7 @@ library
     -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , numhask >=0.3 && <0.5
+    , numhask >=0.3 && <0.6
     , protolude >=0.3 && <0.4
   exposed-modules:
     NumHask.Prelude
@@ -67,5 +67,5 @@ test-suite test
     UnicodeSyntax
   build-depends:
       doctest >=0.13 && <0.17
-    , numhask-prelude >=0.4 && <0.5
+    , numhask-prelude
   default-language: Haskell2010
