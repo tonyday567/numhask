@@ -6,7 +6,7 @@ cache:
   - $HOME/.stack
   - $TRAVIS_BUILD_DIR/.stack-work
 
-cabal: "3.0"
+cabal: "2.4"
 
 matrix:
   include:
@@ -49,7 +49,7 @@ script:
 - |
   case "$BUILD" in
     cabal)
-      cabal build all
+      cabal v2-build all
       ;;
     stack)
       stack --no-terminal $ARGS test --haddock --no-haddock-deps
