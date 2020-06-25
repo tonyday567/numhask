@@ -48,7 +48,7 @@ library
       base >=4.7 && <5
     , hedgehog >=0.5 && <1.1
     , numhask >=0.3 && <0.6
-    , numhask-space >=0.4 && <0.5
+    , numhask-space >=0.4 && <0.6
     , numhask-prelude >=0.4 && <0.6
   exposed-modules:
     NumHask.Hedgehog

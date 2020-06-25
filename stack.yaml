@@ -1,4 +1,4 @@
-resolver: lts-15.13
+resolver: nightly-2020-06-25
 
 packages:
   - numhask
@@ -7,4 +7,5 @@ packages:
 
 extra-deps:
   - protolude-0.3.0
-  - numhask-space-0.4.0
+  - git: https://github.com/tonyday567/numhask-space
+    commit: b559c42cc43de8b837721861f5e02ef8bba9e6ee

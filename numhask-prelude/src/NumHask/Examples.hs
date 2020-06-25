@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -21,21 +20,15 @@ module NumHask.Examples
     -- ** Complex numbers
     -- $complex
 
-    -- ** Vectors
-    -- $vector
-
-    -- ** Matrices
-    -- $matrices
   )
 where
 
 import NumHask.Prelude
 
 -- $imports
--- NumHask.Prelude is a replacement for the standard prelude with the 'NoImplicitPrelude' extension explicitly required.
+-- NumHask.Prelude is a replacement for the standard prelude. 'RebindableSyntax' is necessary to read numbers and also implies 'NoImplicitPrelude'
 --
 -- $setup
--- >>> :set -XNoImplicitPrelude
 -- >>> :set -XFlexibleContexts
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude

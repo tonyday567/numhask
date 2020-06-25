@@ -17,7 +17,7 @@ assertProps
   -> IO Bool
 assertProps t n g ps =
   H.checkParallel $
-  H.Group t $ (\(pn,pp) -> (pn, H.withTests n pp)) <$> ps g
+  H.Group t $ second (H.withTests n) <$> ps g
 
 -- | run tests sequentially
 assertPropsSeq
@@ -28,7 +28,7 @@ assertPropsSeq
   -> IO Bool
 assertPropsSeq t n g ps =
   H.checkSequential $
-  H.Group t $ (\(pn,pp) -> (pn, H.withTests n pp)) <$> ps g
+  H.Group t $ second (H.withTests n) <$> ps g
 
 -- * Combinators
 -- These combinators seem neat, but hedgehog UI requires check fails to be closer to the source.
