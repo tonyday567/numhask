@@ -50,7 +50,6 @@ library
     , protolude >=0.3 && <0.4
   exposed-modules:
     NumHask.Prelude
-    NumHask.Error
     NumHask.Examples
   default-language: Haskell2010
 test-suite test
