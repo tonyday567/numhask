@@ -4,7 +4,17 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
-module NumHask.Hedgehog.Props where
+module NumHask.Hedgehog.Props
+  ( integralProps,
+    integralUnboundedProps,
+    naturalProps,
+    boolProps,
+    rationalProps,
+    fieldProps,
+    quotientFieldProps,
+    complexFieldProps,
+    logFieldProps,
+  ) where
 
 import Hedgehog as H hiding (Range)
 import NumHask.Hedgehog.Prop

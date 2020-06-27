@@ -1,41 +1,42 @@
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
 module NumHask.Data.Integral
-  ( Integral(..)
-  , ToIntegral(..)
-  , ToInteger
-  , toInteger
-  , FromIntegral(..)
-  , FromInteger(..)
-  , fromIntegral
-  , even
-  , odd
-  , (^)
-  , (^^)
+  ( Integral (..),
+    ToIntegral (..),
+    ToInteger,
+    toInteger,
+    FromIntegral (..),
+    FromInteger (..),
+    fromIntegral,
+    even,
+    odd,
+    (^),
+    (^^),
   )
 where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import Prelude (Double, Float, Int, Integer, (.), fst, snd)
+import Prelude ((.), Double, Float, Int, Integer, fst, snd)
 import qualified Prelude as P
 
 -- | Integral laws
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
-class (Distributive a) =>
+class
+  (Distributive a) =>
   Integral a where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
@@ -288,18 +289,31 @@ class FromInteger a where
   fromInteger = fromIntegral_
 
 instance FromInteger Integer
+
 instance FromInteger Int
+
 instance FromInteger Double
+
 instance FromInteger Float
+
 instance FromInteger Natural
+
 instance FromInteger Int8
+
 instance FromInteger Int16
+
 instance FromInteger Int32
+
 instance FromInteger Int64
+
 instance FromInteger Word
+
 instance FromInteger Word8
+
 instance FromInteger Word16
+
 instance FromInteger Word32
+
 instance FromInteger Word64
 
 -- $operators
@@ -311,32 +325,34 @@ odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
 
 -------------------------------------------------------
+
 -- | raise a number to a non-negative integral power
-(^)
-  :: (P.Ord b, Multiplicative a, Integral b)
-  => a
-  -> b
-  -> a
+(^) ::
+  (P.Ord b, Multiplicative a, Integral b) =>
+  a ->
+  b ->
+  a
 x0 ^ y0
   | y0 P.< zero = P.undefined
   | -- P.errorWithoutStackTrace "Negative exponent"
-    y0 P.== zero = one
+    y0 P.== zero =
+    one
   | P.otherwise = f x0 y0
   where
+    -- f : x0 ^ y0 = x ^ y
+    f x y
+      | even y = f (x * x) (y `quot` two)
+      | y P.== one = x
+      | P.otherwise = g (x * x) (y `quot` two) x
+    -- See Note [Half of y - 1]
+    -- g : x0 ^ y0 = (x ^ y) * z
+    g x y z
+      | even y = g (x * x) (y `quot` two) z
+      | y P.== one = x * z
+      | P.otherwise = g (x * x) (y `quot` two) (x * z)
 
-  -- f : x0 ^ y0 = x ^ y
-  f x y
-    | even y = f (x * x) (y `quot` two)
-    | y P.== one = x
-    | P.otherwise = g (x * x) (y `quot` two) x
-          -- See Note [Half of y - 1]
-  -- g : x0 ^ y0 = (x ^ y) * z
-  g x y z
-    | even y = g (x * x) (y `quot` two) z
-    | y P.== one = x * z
-    | P.otherwise = g (x * x) (y `quot` two) (x * z)
-                -- See Note [Half of y - 1]
+-- See Note [Half of y - 1]
 
-(^^)
-  :: (Divisive a, Subtractive b, Integral b, P.Ord b) => a -> b -> a
+(^^) ::
+  (Divisive a, Subtractive b, Integral b, P.Ord b) => a -> b -> a
 (^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)

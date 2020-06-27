@@ -1,6 +1,6 @@
 cabal-version: 2.4
 name: numhask
-version: 0.5.0
+version: 0.6.0
 synopsis:
   numeric classes
 description:
@@ -38,6 +38,7 @@ library
   hs-source-dirs:
     src
   default-extensions:
+    NoImplicitPrelude
     NegativeLiterals
     OverloadedStrings
     UnicodeSyntax

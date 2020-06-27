@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -10,24 +9,24 @@
 
 -- | A Pair is *the* classical higher-kinded number but there is no canon.
 module NumHask.Data.Pair
-  ( Pair(..)
-  , pattern Pair
-  ) where
+  ( Pair (..),
+    pattern Pair,
+  )
+where
 
-import qualified Prelude as P
-import Prelude (Foldable, Traversable, Applicative, Monad, Functor(..), Semigroup(..), Monoid(..), Bounded(..), Eq(..), (<$>), (<*>), (&&))
-import GHC.Generics (Generic)
 import Data.Functor.Classes
+import GHC.Generics (Generic)
 import NumHask.Algebra.Abstract
-import NumHask.Data.Integral
 import NumHask.Analysis.Metric
+import NumHask.Data.Integral
 import NumHask.Data.Rational
 import Text.Show
+import Prelude ((&&), (<$>), (<*>), Applicative, Bounded (..), Eq (..), Foldable, Functor (..), Monad, Monoid (..), Semigroup (..), Traversable)
+import qualified Prelude as P
 
 -- $setup
 -- >>> :set -XNoImplicitPrelude
 -- >>> :set -XFlexibleContexts
---
 
 -- | A pair of a's, implemented as a tuple, but api represented as a Pair of a's.
 --
@@ -43,7 +42,7 @@ import Text.Show
 -- Pair "a string" "pair mappended"
 --
 -- As a Ring and Field class
--- 
+--
 -- >>> Pair 0 1 + zero
 -- Pair 0 1
 -- >>> Pair 0 1 + Pair 2 3
@@ -61,15 +60,15 @@ import Text.Show
 --
 -- >>> Pair 1 2 .+ 3
 -- Pair 4 5
---
-newtype Pair a =
-  Pair' (a, a)
+newtype Pair a
+  = Pair' (a, a)
   deriving (Eq, Generic)
 
 -- | the preferred pattern
 pattern Pair :: a -> a -> Pair a
-pattern Pair a b = Pair' (a,b)
-{-# COMPLETE Pair#-}
+pattern Pair a b = Pair' (a, b)
+
+{-# COMPLETE Pair #-}
 
 instance (Show a) => Show (Pair a) where
   show (Pair a b) = "Pair " <> Text.Show.show a <> " " <> Text.Show.show b
@@ -145,8 +144,10 @@ instance (Signed a) => Signed (Pair a) where
   sign = unaryOp sign
   abs = unaryOp abs
 
-instance (ExpField a, Normed a a) =>
-         Normed (Pair a) a where
+instance
+  (ExpField a, Normed a a) =>
+  Normed (Pair a) a
+  where
   normL1 (Pair a b) = normL1 a + normL1 b
   normL2 (Pair a b) = sqrt (a ** (one + one) + b ** (one + one))
 
@@ -161,6 +162,7 @@ instance (ExpField a, Subtractive a, Normed a a) => Metric (Pair a) a where
 instance (Distributive a) => Distributive (Pair a)
 
 instance (Field a) => Field (Pair a)
+
 instance (IntegralDomain a) => IntegralDomain (Pair a)
 
 instance (ExpField a) => ExpField (Pair a) where
@@ -174,17 +176,20 @@ instance (LowerBoundedField a) => LowerBoundedField (Pair a)
 type instance Actor (Pair a) = a
 
 instance (Additive a) => AdditiveAction (Pair a) where
-    (.+) r s = fmap (s+) r
-    (+.) s r = fmap (s+) r
+  (.+) r s = fmap (s +) r
+  (+.) s r = fmap (s +) r
+
 instance (Subtractive a) => SubtractiveAction (Pair a) where
-    (.-) r s = fmap (\x -> x - s) r
-    (-.) s r = fmap (\x -> x - s) r
+  (.-) r s = fmap (\x -> x - s) r
+  (-.) s r = fmap (\x -> x - s) r
+
 instance (Multiplicative a) => MultiplicativeAction (Pair a) where
-    (.*) r s = fmap (s*) r
-    (*.) s r = fmap (s*) r
+  (.*) r s = fmap (s *) r
+  (*.) s r = fmap (s *) r
+
 instance (Divisive a) => DivisiveAction (Pair a) where
-    (./) r s = fmap (/ s) r
-    (/.) s r = fmap (/ s) r
+  (./) r s = fmap (/ s) r
+  (/.) s r = fmap (/ s) r
 
 instance (JoinSemiLattice a) => JoinSemiLattice (Pair a) where
   (\/) = binOp (\/)
@@ -204,12 +209,16 @@ instance (FromIntegral a b) => FromIntegral (Pair a) b where
 instance (FromRatio a b) => FromRatio (Pair a) b where
   fromRatio x = P.pure (fromRatio x)
 
-instance (Normed a a) =>
-  Normed (Pair a) (Pair a) where
+instance
+  (Normed a a) =>
+  Normed (Pair a) (Pair a)
+  where
   normL1 = fmap normL1
   normL2 = fmap normL2
 
-instance (Subtractive a, Normed a a) =>
-  Metric (Pair a) (Pair a) where
+instance
+  (Subtractive a, Normed a a) =>
+  Metric (Pair a) (Pair a)
+  where
   distanceL1 a b = normL1 (a - b)
   distanceL2 a b = normL2 (a - b)

@@ -9,32 +9,32 @@ module NumHask.Data.Positive where
 
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Exception
 import qualified Prelude as P
 
-newtype Positive a = Positive { unPositive :: a }
+newtype Positive a = Positive {unPositive :: a}
   deriving
-    ( P.Show
-    , P.Eq
-    , P.Ord
-    , Additive
-    , Multiplicative
-    , Divisive
-    , Distributive
-    , IntegralDomain
-    , Field
-    , ExpField
-    , TrigField
-    , Integral
-    , Signed
-    , JoinSemiLattice
-    , MeetSemiLattice
-    , Epsilon
+    ( P.Show,
+      P.Eq,
+      P.Ord,
+      Additive,
+      Multiplicative,
+      Divisive,
+      Distributive,
+      IntegralDomain,
+      Field,
+      ExpField,
+      TrigField,
+      Integral,
+      Signed,
+      JoinSemiLattice,
+      MeetSemiLattice,
+      Epsilon
     )
 
 -- not sure if this is correct or needed
@@ -59,12 +59,16 @@ instance (P.Ord a, Subtractive a) => Subtractive (Positive a) where
     | a P.>= b = Positive (a - b)
     | P.otherwise = throw (NumHaskException "subtracting a larger positive")
 
-instance (P.Ord a, QuotientField a P.Integer) =>
-  QuotientField (Positive a) (Positive P.Integer) where
-  properFraction (Positive a) = let (i,r) = properFraction a in (Positive i, Positive r)
+instance
+  (P.Ord a, QuotientField a P.Integer) =>
+  QuotientField (Positive a) (Positive P.Integer)
+  where
+  properFraction (Positive a) = let (i, r) = properFraction a in (Positive i, Positive r)
 
-instance (P.Ord a, UpperBoundedField a) =>
-  UpperBoundedField (Positive a) where
+instance
+  (P.Ord a, UpperBoundedField a) =>
+  UpperBoundedField (Positive a)
+  where
   infinity = Positive infinity
 
 instance (P.Ord a, UpperBoundedField a) => P.Bounded (Positive a) where
@@ -72,8 +76,10 @@ instance (P.Ord a, UpperBoundedField a) => P.Bounded (Positive a) where
   maxBound = infinity
 
 -- Metric
-instance (Normed a a) =>
-  Normed a (Positive a) where
+instance
+  (Normed a a) =>
+  Normed a (Positive a)
+  where
   normL1 a = Positive (normL1 a)
   normL2 a = Positive (normL2 a)
 

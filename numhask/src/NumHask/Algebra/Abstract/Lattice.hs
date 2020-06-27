@@ -4,10 +4,19 @@
 
 module NumHask.Algebra.Abstract.Lattice where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
 import NumHask.Algebra.Abstract.Field
+import Data.Bool
+import Data.Eq
+import GHC.Float (Float, Double)
+import GHC.Int (Int)
+import GHC.Num (Integer)
+import GHC.Word (Word)
+import Data.Ord (Ord(..))
+import GHC.Enum (Bounded(..))
+import Data.Function (const)
 
 -- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
 --
@@ -15,8 +24,8 @@ import NumHask.Algebra.Abstract.Field
 -- > Commutativity: x \/ y == y \/ x
 -- > Idempotency:   x \/ x == x
 class (Eq a) => JoinSemiLattice a where
-    infixr 5 \/
-    (\/) :: a -> a -> a
+  infixr 5 \/
+  (\/) :: a -> a -> a
 
 -- | The partial ordering induced by the join-semilattice structure
 joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
@@ -28,8 +37,8 @@ joinLeq x y = (x \/ y) == y
 -- > Commutativity: x /\ y == y /\ x
 -- > Idempotency:   x /\ x == x
 class (Eq a) => MeetSemiLattice a where
-    infixr 6 /\
-    (/\) :: a -> a -> a
+  infixr 6 /\
+  (/\) :: a -> a -> a
 
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
@@ -40,22 +49,24 @@ meetLeq x y = (x /\ y) == x
 --
 -- > Absorption: a \/ (a /\ b) == a /\ (a \/ b) == a
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
+
 instance (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
 
 -- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
 -- > Identity: x \/ bottom == x
 class JoinSemiLattice a => BoundedJoinSemiLattice a where
-    bottom :: a
+  bottom :: a
 
 -- | A meet-semilattice with an identity element 'top' for '/\'.
 --
 -- > Identity: x /\ top == x
 class MeetSemiLattice a => BoundedMeetSemiLattice a where
-    top :: a
+  top :: a
 
 -- | Lattices with both bounds
 class (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
+
 instance (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
 
 instance JoinSemiLattice Float where
@@ -149,10 +160,10 @@ instance MeetSemiLattice Word64 where
   (/\) = max
 
 instance (Eq (a -> b), JoinSemiLattice b) => JoinSemiLattice (a -> b) where
-  f \/ f' = \a -> f a \/ f' a 
+  f \/ f' = \a -> f a \/ f' a
 
 instance (Eq (a -> b), MeetSemiLattice b) => MeetSemiLattice (a -> b) where
-  f /\ f' = \a -> f a /\ f' a 
+  f /\ f' = \a -> f a /\ f' a
 
 -- from here
 
@@ -242,7 +253,3 @@ instance (Eq (a -> b), BoundedJoinSemiLattice b) => BoundedJoinSemiLattice (a ->
 
 instance (Eq (a -> b), BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (a -> b) where
   top = const top
-
-
-
-

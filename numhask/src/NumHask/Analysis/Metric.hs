@@ -4,35 +4,35 @@
 
 -- | Metric classes
 module NumHask.Analysis.Metric
-  ( Signed(..)
-  , Normed(..)
-  , Metric(..)
-  , Epsilon(..)
-  , (~=)
+  ( Signed (..),
+    Normed (..),
+    Metric (..),
+    Epsilon (..),
+    (~=),
   )
 where
 
-import qualified Prelude as P
-import Prelude
-  hiding ( Bounded(..)
-  , Integral(..)
-  , (-)
-  , negate
-  )
-
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
 import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Lattice
+import NumHask.Algebra.Abstract.Multiplicative
+import Prelude hiding
+  ( (-),
+    Bounded (..),
+    Integral (..),
+    negate,
+  )
+import qualified Prelude as P
 
 -- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' where there is a change in codomain
 --
 -- > abs a * sign a == a
 --
 -- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
-class (Multiplicative a) =>
+class
+  (Multiplicative a) =>
   Signed a where
   sign :: a -> a
   abs :: a -> a
@@ -137,7 +137,6 @@ instance Signed Word64 where
 -- > normLp p zero == zero
 --
 -- Note that the Normed codomain can be different to the domain.
---
 class (Additive a, Additive b) => Normed a b where
   normL1 :: a -> b
   normL2 :: a -> b
@@ -266,9 +265,9 @@ instance Metric Word64 Word64 where
   distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
   distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
 
-class (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
+class
+  (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
   Epsilon a where
-
   epsilon :: a
   epsilon = zero
 

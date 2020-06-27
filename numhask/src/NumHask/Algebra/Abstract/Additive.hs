@@ -2,16 +2,16 @@
 
 -- | Additive
 module NumHask.Algebra.Abstract.Additive
-  ( Additive(..)
-  , sum
-  , Subtractive(..)
+  ( Additive (..),
+    sum,
+    Subtractive (..),
   )
 where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
-import Prelude (Int, Integer, Float, Double, Bool)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
+import Prelude (Bool, Double, Float, Int, Integer)
 import qualified Prelude as P
 
 -- | For practical reasons, 'Additive' has no super classes. Using `Associative` and 'Unital' from this library, or using 'Semigroup' and 'Monoid' from base tends to complexify the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
@@ -149,9 +149,8 @@ instance Additive Word64 where
 instance Subtractive Word64 where
   negate = P.negate
 
-
 instance Additive b => Additive (a -> b) where
-  f + f' = \a -> f a + f' a 
+  f + f' = \a -> f a + f' a
   zero _ = zero
 
 instance Subtractive b => Subtractive (a -> b) where

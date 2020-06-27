@@ -10,35 +10,38 @@
 
 module NumHask.Data.LogField
   ( -- * @LogField@
-    LogField()
-  , logField
-  , fromLogField
+    LogField (),
+    logField,
+    fromLogField,
+
     -- ** Isomorphism to log-domain
-  , logToLogField
-  , logFromLogField
+    logToLogField,
+    logFromLogField,
+
     -- ** Additional operations
-  , accurateSum
-  , accurateProduct
-  , pow
+    accurateSum,
+    accurateProduct,
+    pow,
   )
 where
 
 import Data.Data (Data)
+import qualified Data.Foldable as F
 import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num(..), exp, log, negate)
-import qualified Data.Foldable as F
+import Prelude hiding (Num (..), exp, log, negate)
 
 -- LogField is adapted from LogFloat
 ----------------------------------------------------------------
 --                                                  ~ 2015.08.06
+
 -- |
 -- Module      :  Data.Number.LogFloat
 -- Copyright   :  Copyright (c) 2007--2015 wren gayle romano
@@ -50,6 +53,7 @@ import qualified Data.Foldable as F
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 --
+
 -- | A @LogField@ is just a 'Field' with a special interpretation.
 -- The 'LogField' function is presented instead of the constructor,
 -- in order to ensure semantic conversion. At present the 'Show'
@@ -89,18 +93,19 @@ import qualified Data.Foldable as F
 --
 -- [1] That is, true up-to underflow and floating point fuzziness.
 -- Which is, of course, the whole point of this module.
-newtype LogField a =
-  LogField a
-  deriving ( Eq
-           , Ord
-           , Read
-           , Data
-           , Generic
-           , Generic1
-           , Functor
-           , Foldable
-           , Traversable
-           )
+newtype LogField a
+  = LogField a
+  deriving
+    ( Eq,
+      Ord,
+      Read,
+      Data,
+      Generic,
+      Generic1,
+      Functor,
+      Foldable,
+      Traversable
+    )
 
 ----------------------------------------------------------------
 -- To show it, we want to show the normal-domain value rather than
@@ -114,9 +119,10 @@ newtype LogField a =
 instance (ExpField a, Show a) => Show (LogField a) where
   showsPrec p (LogField x) =
     let y = exp x
-    in y `seq` showParen (p > 9) (showString "LogField " . showsPrec 11 y)
+     in y `seq` showParen (p > 9) (showString "LogField " . showsPrec 11 y)
 
 ----------------------------------------------------------------
+
 -- | Constructor which does semantic conversion from normal-domain
 -- to log-domain. Throws errors on negative and NaN inputs. If @p@
 -- is non-negative, then following equivalence holds:
@@ -136,7 +142,6 @@ logToLogField = LogField
 -- equivalence holds (without qualification):
 --
 -- > fromLogField == exp . logFromLogField
---
 fromLogField :: ExpField a => LogField a -> a
 {-# INLINE [0] fromLogField #-}
 fromLogField (LogField x) = exp x
@@ -151,10 +156,11 @@ logFromLogField (LogField x) = x
 -- fire, we have to delay the inlining on two of the four
 -- con-\/destructors.
 {-# RULES
-"log/fromLogField" forall x . log (fromLogField x) =
-                   logFromLogField x
-"fromLogField/LogField" forall x . fromLogField (LogField x) = x
- #-}
+"log/fromLogField" forall x.
+  log (fromLogField x) =
+    logFromLogField x
+"fromLogField/LogField" forall x. fromLogField (LogField x) = x
+  #-}
 
 log1p :: ExpField a => a -> a
 {-# INLINE [0] log1p #-}
@@ -165,12 +171,14 @@ expm1 :: (ExpField a) => a -> a
 expm1 x = exp x - one
 
 {-# RULES
-"expm1/log1p" forall x . expm1 (log1p x) = x
-"log1p/expm1" forall x . log1p (expm1 x) = x
- #-}
+"expm1/log1p" forall x. expm1 (log1p x) = x
+"log1p/expm1" forall x. log1p (expm1 x) = x
+  #-}
 
-instance (ExpField a, LowerBoundedField a, Ord a) =>
-  Additive (LogField a) where
+instance
+  (ExpField a, LowerBoundedField a, Ord a) =>
+  Additive (LogField a)
+  where
   x@(LogField x') + y@(LogField y')
     | x == zero && y == zero = zero
     | x == zero = y
@@ -180,31 +188,38 @@ instance (ExpField a, LowerBoundedField a, Ord a) =>
 
   zero = LogField negInfinity
 
-instance (ExpField a, Ord a, LowerBoundedField a, UpperBoundedField a) =>
-  Subtractive (LogField a) where
+instance
+  (ExpField a, Ord a, LowerBoundedField a, UpperBoundedField a) =>
+  Subtractive (LogField a)
+  where
   negate x
     | x == zero = zero
     | otherwise = nan
 
-instance (LowerBoundedField a, Eq a) =>
-  Multiplicative (LogField a) where
+instance
+  (LowerBoundedField a, Eq a) =>
+  Multiplicative (LogField a)
+  where
   (LogField x) * (LogField y)
     | x == negInfinity || y == negInfinity = LogField negInfinity
     | otherwise = LogField (x + y)
 
   one = LogField zero
 
-instance (LowerBoundedField a, Eq a) =>
-  Divisive (LogField a) where
+instance
+  (LowerBoundedField a, Eq a) =>
+  Divisive (LogField a)
+  where
   recip (LogField x) = LogField $ negate x
 
-instance (Ord a, LowerBoundedField a, ExpField a) =>
+instance
+  (Ord a, LowerBoundedField a, ExpField a) =>
   Distributive (LogField a)
 
 instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpField (LogField a) where
-    exp (LogField x) = LogField $ exp x
-    log (LogField x) = LogField $ log x
-    (**) x (LogField y) = pow x $ exp y
+  exp (LogField x) = LogField $ exp x
+  log (LogField x) = LogField $ log x
+  (**) x (LogField y) = pow x $ exp y
 
 instance (FromIntegral a b, ExpField a) => FromIntegral (LogField a) b where
   fromIntegral_ = logField . fromIntegral_
@@ -224,31 +239,39 @@ instance (Ord a) => JoinSemiLattice (LogField a) where
 instance (Ord a) => MeetSemiLattice (LogField a) where
   (/\) = max
 
-instance (Epsilon a, ExpField a, LowerBoundedField a, UpperBoundedField a, Ord a) =>
-  Epsilon (LogField a) where
+instance
+  (Epsilon a, ExpField a, LowerBoundedField a, UpperBoundedField a, Ord a) =>
+  Epsilon (LogField a)
+  where
   epsilon = logField epsilon
   nearZero (LogField x) = nearZero $ exp x
   aboutEqual (LogField x) (LogField y) = aboutEqual (exp x) (exp y)
 
 instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) => Field (LogField a)
 
-instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
+instance
+  (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
   LowerBoundedField (LogField a)
 
-instance (Ord a, ExpField a, LowerBoundedField a) =>
-  IntegralDomain (LogField a) where
+instance
+  (Ord a, ExpField a, LowerBoundedField a) =>
+  IntegralDomain (LogField a)
 
-instance (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
+instance
+  (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
   UpperBoundedField (LogField a)
 
-instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
-  Signed (LogField a) where
+instance
+  (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
+  Signed (LogField a)
+  where
   sign a
     | a == negInfinity = zero
     | otherwise = one
   abs = id
 
 ----------------------------------------------------------------
+
 -- | /O(1)/. Compute powers in the log-domain; that is, the following
 -- equivalence holds (modulo underflow and all that):
 --
@@ -257,6 +280,7 @@ instance (Ord a, LowerBoundedField a, UpperBoundedField a, ExpField a) =>
 -- /Since: 0.13/
 pow :: (ExpField a, LowerBoundedField a, Ord a) => LogField a -> a -> LogField a
 {-# INLINE pow #-}
+
 infixr 8 `pow`
 
 pow x@(LogField x') m
@@ -271,6 +295,7 @@ pow x@(LogField x') m
 --     logsumexp[1000,1001,1000]   ~~ 1001.55 ==  1000 + 1.55
 --     logsumexp[-1000,-999,-1000] ~~ -998.45 == -1000 + 1.55
 --
+
 -- | /O(n)/. Compute the sum of a finite list of 'LogField's, being
 -- careful to avoid underflow issues. That is, the following
 -- equivalence holds (modulo underflow and all that):
@@ -283,10 +308,10 @@ pow x@(LogField x') m
 {-# INLINE accurateSum #-}
 accurateSum :: (ExpField a, Foldable f, Ord a) => f (LogField a) -> LogField a
 accurateSum xs = LogField (theMax + log theSum)
- where
-  LogField theMax = maximum xs
--- compute @\log \sum_{x \in xs} \exp(x - theMax)@
-  theSum = F.foldl' (\acc (LogField x) -> acc + exp (x - theMax)) zero xs
+  where
+    LogField theMax = maximum xs
+    -- compute @\log \sum_{x \in xs} \exp(x - theMax)@
+    theSum = F.foldl' (\acc (LogField x) -> acc + exp (x - theMax)) zero xs
 
 -- | /O(n)/. Compute the product of a finite list of 'LogField's,
 -- being careful to avoid numerical error due to loss of precision.
@@ -297,10 +322,9 @@ accurateSum xs = LogField (theMax + log theSum)
 {-# INLINE accurateProduct #-}
 accurateProduct :: (ExpField a, Foldable f) => f (LogField a) -> LogField a
 accurateProduct = LogField . fst . F.foldr kahanPlus (zero, zero)
- where
-  kahanPlus (LogField x) (t, c) =
-    let
-      y = x - c
-      t' = t + y
-      c' = (t' - t) - y
-    in (t', c')
+  where
+    kahanPlus (LogField x) (t, c) =
+      let y = x - c
+          t' = t + y
+          c' = (t' - t) - y
+       in (t', c')

@@ -1,6 +1,6 @@
 cabal-version: 2.4
 name: numhask-prelude
-version: 0.5.0
+version: 0.6.0
 synopsis:
   A numeric prelude
 description:
@@ -45,9 +45,13 @@ library
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
-    , numhask >=0.3 && <0.6
-    , protolude >=0.3 && <0.4
+    base >=4.7 && <5,
+    numhask >=0.3 && <0.7,
+    protolude >=0.3 && <0.4,
+    bifunctors >= 3.2,
+    mmorph >= 1.1,
+    transformers >= 0.5,
+    text >= 1.2
   exposed-modules:
     NumHask.Prelude
     NumHask.Examples
@@ -64,7 +68,13 @@ test-suite test
     NoImplicitPrelude
     OverloadedStrings
     UnicodeSyntax
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
   build-depends:
-      doctest >=0.13 && <0.17
-    , numhask-prelude
+    doctest >=0.13 && <0.17,
+    numhask-prelude
   default-language: Haskell2010

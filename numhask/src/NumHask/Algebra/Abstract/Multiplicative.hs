@@ -2,16 +2,16 @@
 
 -- | Multiplicative
 module NumHask.Algebra.Abstract.Multiplicative
-  ( Multiplicative(..)
-  , product
-  , Divisive(..)
+  ( Multiplicative (..),
+    product,
+    Divisive (..),
   )
 where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
-import GHC.Natural (Natural(..))
-import Prelude (Int, Integer, Float, Double)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
+import Prelude (Double, Float, Int, Integer)
 import qualified Prelude as P
 
 -- | For practical reasons, 'Multiplicative' has no super classes. Using 'Associative' and 'Unital' from this library, or using 'Semigroup' and 'Monoid' from base tends to complexify the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
@@ -23,7 +23,6 @@ import qualified Prelude as P
 --
 -- By convention, (*) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative multiplication seems a bit dogmatic.
 class Multiplicative a where
-
   infixl 7 *
   (*) :: a -> a -> a
 
@@ -83,6 +82,7 @@ instance Multiplicative Int8 where
 instance Multiplicative Int16 where
   (*) = (P.*)
   one = 1
+
 instance Multiplicative Int32 where
   (*) = (P.*)
   one = 1
@@ -112,7 +112,7 @@ instance Multiplicative Word64 where
   one = 1
 
 instance Multiplicative b => Multiplicative (a -> b) where
-  f * f' = \a -> f a * f' a 
+  f * f' = \a -> f a * f' a
   one _ = one
 
 instance Divisive b => Divisive (a -> b) where

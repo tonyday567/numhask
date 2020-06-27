@@ -1,30 +1,29 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | The abstract algebraic class structure of a number.
---
 module NumHask.Algebra.Abstract
   ( -- * Mapping from Num
     --
     -- $numMap
-    module NumHask.Algebra.Abstract.Group
-  , module NumHask.Algebra.Abstract.Additive
-  , module NumHask.Algebra.Abstract.Multiplicative
-  , module NumHask.Algebra.Abstract.Ring
-  , module NumHask.Algebra.Abstract.Field
-  , module NumHask.Algebra.Abstract.Module
-  , module NumHask.Algebra.Abstract.Action
-  , module NumHask.Algebra.Abstract.Lattice
+    module NumHask.Algebra.Abstract.Group,
+    module NumHask.Algebra.Abstract.Additive,
+    module NumHask.Algebra.Abstract.Multiplicative,
+    module NumHask.Algebra.Abstract.Ring,
+    module NumHask.Algebra.Abstract.Field,
+    module NumHask.Algebra.Abstract.Module,
+    module NumHask.Algebra.Abstract.Action,
+    module NumHask.Algebra.Abstract.Lattice,
   )
 where
 
-import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
+import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Lattice
+import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Module
-import NumHask.Algebra.Abstract.Action
-import NumHask.Algebra.Abstract.Lattice
 
 -- $numMap
 --
@@ -69,4 +68,3 @@ import NumHask.Algebra.Abstract.Lattice
 -- >    fromInteger         :: Integer -> a
 --
 -- `fromInteger` is given its own class `FromInteger`
---

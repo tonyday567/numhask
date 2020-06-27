@@ -1,20 +1,20 @@
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
 module NumHask.Algebra.Abstract.Field
-  ( Field
-  , ExpField(..)
-  , QuotientField(..)
-  , UpperBoundedField(..)
-  , LowerBoundedField(..)
-  , TrigField(..)
-  , half
+  ( Field,
+    ExpField (..),
+    QuotientField (..),
+    UpperBoundedField (..),
+    LowerBoundedField (..),
+    TrigField (..),
+    half,
   )
 where
 
@@ -23,8 +23,8 @@ import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
 import NumHask.Data.Integral
-import qualified Prelude as P
 import Prelude ((.))
+import qualified Prelude as P
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
@@ -51,8 +51,9 @@ import Prelude ((.))
 -- > recip a = one / a
 -- > recip a * a = one
 -- > a * recip a = one
-class (Distributive a, Subtractive a, Divisive a) =>
-      Field a
+class
+  (Distributive a, Subtractive a, Divisive a) =>
+  Field a
 
 instance Field P.Double
 
@@ -65,8 +66,9 @@ instance Field b => Field (a -> b)
 -- > sqrt . (**2) == identity
 -- > log . exp == identity
 -- > for +ive b, a != 0,1: a ** logBase a b ≈ b
-class (Field a) =>
-      ExpField a where
+class
+  (Field a) =>
+  ExpField a where
   exp :: a -> a
   log :: a -> a
   logBase :: a -> a -> a
@@ -100,29 +102,30 @@ class (Field a, Subtractive a, Multiplicative b, Additive b) => QuotientField a 
   properFraction :: a -> (b, a)
 
   round :: a -> b
-  default round ::(P.Ord a, P.Ord b, Subtractive b, Integral b) => a -> b
+  default round :: (P.Ord a, P.Ord b, Subtractive b, Integral b) => a -> b
   round x = case properFraction x of
-    (n,r) -> let
-      m         = bool (n+one) (n-one) (r P.< zero)
-      half_down = abs' r - (one/(one+one))
-      abs' a
-        | a P.< zero = negate a
-        | P.otherwise = a
-      in
-        case P.compare half_down zero of
-          P.LT -> n
-          P.EQ -> bool m n (even n)
-          P.GT -> m
+    (n, r) ->
+      let m = bool (n + one) (n - one) (r P.< zero)
+          half_down = abs' r - (one / (one + one))
+          abs' a
+            | a P.< zero = negate a
+            | P.otherwise = a
+       in case P.compare half_down zero of
+            P.LT -> n
+            P.EQ -> bool m n (even n)
+            P.GT -> m
 
   ceiling :: a -> b
   default ceiling :: (P.Ord a) => a -> b
-  ceiling x = bool n (n+one) (r P.>= zero)
-    where (n,r) = properFraction x
+  ceiling x = bool n (n + one) (r P.>= zero)
+    where
+      (n, r) = properFraction x
 
   floor :: a -> b
   default floor :: (P.Ord a, Subtractive b) => a -> b
-  floor x = bool n (n-one) (r P.< zero)
-    where (n,r) = properFraction x
+  floor x = bool n (n - one) (r P.< zero)
+    where
+      (n, r) = properFraction x
 
   truncate :: a -> b
   default truncate :: (P.Ord a) => a -> b
@@ -136,7 +139,7 @@ instance QuotientField P.Double P.Integer where
 
 instance QuotientField b c => QuotientField (a -> b) (a -> c) where
   properFraction f = (P.fst . frac, P.snd . frac)
-     where
+    where
       frac a = properFraction @b @c (f a)
 
   round f = round . f
@@ -154,9 +157,9 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
 -- > zero / zero != nan
 --
 -- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
-class (Field a) =>
-      UpperBoundedField a where
-
+class
+  (Field a) =>
+  UpperBoundedField a where
   infinity :: a
   infinity = one / zero
 
@@ -171,9 +174,9 @@ instance UpperBoundedField b => UpperBoundedField (a -> b) where
   infinity _ = infinity
   nan _ = nan
 
-class (Subtractive a, Field a) =>
-      LowerBoundedField a where
-
+class
+  (Subtractive a, Field a) =>
+  LowerBoundedField a where
   negInfinity :: a
   negInfinity = negate (one / zero)
 
@@ -185,8 +188,9 @@ instance LowerBoundedField b => LowerBoundedField (a -> b) where
   negInfinity _ = negInfinity
 
 -- | Trigonometric Field
-class (Field a) =>
-      TrigField a where
+class
+  (Field a) =>
+  TrigField a where
   pi :: a
   sin :: a -> a
   cos :: a -> a

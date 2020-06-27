@@ -7,4 +7,4 @@ packages:
 
 extra-deps:
   - git: https://github.com/tonyday567/numhask-space
-    commit: 74de4262c333568c53c57c991c9f581d1ff6d474
+    commit: 6525f5096525196fe367dabdfe596a7bd0c0aa6c

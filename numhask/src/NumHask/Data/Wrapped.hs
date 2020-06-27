@@ -9,49 +9,51 @@ module NumHask.Data.Wrapped where
 
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Group
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Group
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import qualified Prelude as P
 
-newtype Wrapped a = Wrapped { unWrapped :: a }
+newtype Wrapped a = Wrapped {unWrapped :: a}
   deriving
-    ( P.Show
-    , P.Eq
-    , P.Ord
-    , Magma
-    , Idempotent
-    , Additive
-    , Subtractive
-    , Multiplicative
-    , Divisive
-    , Distributive
-    , IntegralDomain
-    , InvolutiveRing
-    , StarSemiring
-    , KleeneAlgebra
-    , Field
-    , ExpField
-    , TrigField
-    , Integral
-    , Signed
-    , MeetSemiLattice
-    , JoinSemiLattice
-    , Epsilon
-    , UpperBoundedField
-    , LowerBoundedField
+    ( P.Show,
+      P.Eq,
+      P.Ord,
+      Magma,
+      Idempotent,
+      Additive,
+      Subtractive,
+      Multiplicative,
+      Divisive,
+      Distributive,
+      IntegralDomain,
+      InvolutiveRing,
+      StarSemiring,
+      KleeneAlgebra,
+      Field,
+      ExpField,
+      TrigField,
+      Integral,
+      Signed,
+      MeetSemiLattice,
+      JoinSemiLattice,
+      Epsilon,
+      UpperBoundedField,
+      LowerBoundedField
     )
 
 -- not sure if this is correct or needed
 type role Wrapped representational
 
-instance (P.Ord a, QuotientField a P.Integer) =>
-  QuotientField (Wrapped a) (Wrapped P.Integer) where
-  properFraction (Wrapped a) = let (i,r) = properFraction a in (Wrapped i, Wrapped r)
+instance
+  (P.Ord a, QuotientField a P.Integer) =>
+  QuotientField (Wrapped a) (Wrapped P.Integer)
+  where
+  properFraction (Wrapped a) = let (i, r) = properFraction a in (Wrapped i, Wrapped r)
 
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral_ a = Wrapped (fromIntegral_ a)

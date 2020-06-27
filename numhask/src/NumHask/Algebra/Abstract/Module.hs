@@ -4,11 +4,12 @@
 
 -- | Algebra for Modules
 module NumHask.Algebra.Abstract.Module
-  ( Module
-  ) where
+  ( Module,
+  )
+where
 
-import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Action
+import NumHask.Algebra.Abstract.Ring
 
 -- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module> over r a is
 --   a (Ring a), an abelian (Group r a) and a scalar multiplier (.*, *.) with the

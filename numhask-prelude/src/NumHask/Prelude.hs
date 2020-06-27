@@ -5,7 +5,6 @@
 module NumHask.Prelude
   ( -- * NumHask
     -- $instances
-
     module NumHask.Algebra.Abstract.Action,
     module NumHask.Algebra.Abstract.Additive,
     module NumHask.Algebra.Abstract.Field,
@@ -27,9 +26,13 @@ module NumHask.Prelude
 
     -- * Backend
     -- $backend
-
-    id,
+    Category (..),
     module Protolude,
+    module Data.Biapplicative,
+    module Control.Monad.Morph,
+    module Data.Functor.Constant,
+    pack,
+    unpack,
     -- | Using different types for numbers requires RebindableSyntax.  This then removes all sorts of base-level stuff that has to be put back in.
     fromString,
     fail,
@@ -39,8 +42,13 @@ module NumHask.Prelude
   )
 where
 
+import Control.Category (Category (..))
 import Control.Monad (fail)
+import Control.Monad.Morph
+import Data.Biapplicative
+import Data.Functor.Constant
 import Data.String
+import Data.Text (pack, unpack)
 import GHC.Exts
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Abstract.Action
@@ -60,8 +68,7 @@ import NumHask.Data.Pair
 import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception
-import Protolude hiding ((*), (**), (+), (-), (/), Complex (..), Integral (..), Product (..), Ratio, Rep, Semiring (..), Sum (..), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cis, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, imagPart, infinity, log, logBase, magnitude, mkPolar, negate, odd, phase, pi, polar, product, properFraction, realPart, recip, reduce, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, trans, truncate, zero)
-import Control.Category (id)
+import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Complex (..), Integral (..), Product (..), Ratio, Rep, Semiring (..), Sum (..), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cis, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, imagPart, infinity, log, logBase, magnitude, mkPolar, negate, odd, phase, pi, polar, product, properFraction, realPart, recip, reduce, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, trans, truncate, zero)
 
 -- $backend
 -- NumHask imports Protolude as a starting prelude.

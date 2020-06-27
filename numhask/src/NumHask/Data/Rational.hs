@@ -5,41 +5,41 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
 module NumHask.Data.Rational
-  ( Ratio(..)
-  , Rational
-  , ToRatio(..)
-  , ToRational
-  , toRational
-  , FromRatio(..)
-  , FromRational
-  , fromRational
-  , fromRational'
-  , fromBaseRational
-  -- * $integral_functionality
-  , reduce
-  , gcd
+  ( Ratio (..),
+    Rational,
+    ToRatio (..),
+    ToRational,
+    toRational,
+    FromRatio (..),
+    FromRational,
+    fromRational,
+    fromRational',
+    fromBaseRational,
+
+    -- * \$integral_functionality
+    reduce,
+    gcd,
   )
 where
 
-import Data.Int (Int8, Int16, Int32, Int64)
-import Data.Word (Word, Word8, Word16, Word32, Word64)
 import Data.Bool (bool)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Float
-import GHC.Natural (Natural(..))
+import GHC.Natural (Natural (..))
+import qualified GHC.Real
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Lattice
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
-import Prelude (Int, Integer, Rational, (.))
-import qualified GHC.Real
+import Prelude ((.), Int, Integer, Rational)
 import qualified Prelude as P
 
 data Ratio a = !a :% !a deriving (P.Show)
@@ -48,18 +48,18 @@ instance (P.Eq a, Additive a) => P.Eq (Ratio a) where
   a == b
     | isRNaN a P.|| isRNaN b = P.False
     | P.otherwise = (x P.== x') P.&& (y P.== y')
-      where
-        (x:%y) = a
-        (x':%y') = b
+    where
+      (x :% y) = a
+      (x' :% y') = b
 
 isRNaN :: (P.Eq a, Additive a) => Ratio a -> P.Bool
 isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
 
-instance  (P.Ord a, Multiplicative a, Additive a)  => P.Ord (Ratio a)  where
-  (x:%y) <= (x':%y')  =  x * y' P.<= x' * y
-  (x:%y) <  (x':%y')  =  x * y' P.<  x' * y
+instance (P.Ord a, Multiplicative a, Additive a) => P.Ord (Ratio a) where
+  (x :% y) <= (x' :% y') = x * y' P.<= x' * y
+  (x :% y) < (x' :% y') = x * y' P.< x' * y
 
 -- | These common constraints over the Ratio instances are due to the gcd algorithm. Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
 type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
@@ -77,26 +77,29 @@ instance (GCDConstraints a) => Subtractive (Ratio a) where
   negate (x :% y) = negate x :% y
 
 instance (GCDConstraints a) => Multiplicative (Ratio a) where
-  (x:%y) * (x':%y') = reduce (x * x') (y * y')
+  (x :% y) * (x' :% y') = reduce (x * x') (y * y')
 
   one = one :% one
 
-instance (GCDConstraints a) =>
-  Divisive (Ratio a) where
+instance
+  (GCDConstraints a) =>
+  Divisive (Ratio a)
+  where
   recip (x :% y)
     | sign x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
-instance (GCDConstraints a) => Distributive  (Ratio a)
+instance (GCDConstraints a) => Distributive (Ratio a)
 
 instance (GCDConstraints a) => IntegralDomain (Ratio a)
 
 instance (GCDConstraints a) => Field (Ratio a)
 
 instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
-  properFraction (n :% d) = let (w,r) = quotRem n d in (fromIntegral_ w,r:%d)
+  properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral_ w, r :% d)
 
-instance (GCDConstraints a, Distributive a, IntegralDomain a) =>
+instance
+  (GCDConstraints a, Distributive a, IntegralDomain a) =>
   UpperBoundedField (Ratio a)
 
 instance (GCDConstraints a, Field a) => LowerBoundedField (Ratio a)
@@ -194,13 +197,13 @@ fromBaseRational :: P.Rational -> Ratio Integer
 fromBaseRational (n GHC.Real.:% d) = n :% d
 
 instance FromRatio Double Integer where
-  fromRatio (n:%d)= rationalToDouble n d
+  fromRatio (n :% d) = rationalToDouble n d
 
 instance FromRatio Float Integer where
-  fromRatio (n:%d)= rationalToFloat n d
+  fromRatio (n :% d) = rationalToFloat n d
 
 instance FromRatio Rational Integer where
-  fromRatio (n:%d) = n GHC.Real.% d
+  fromRatio (n :% d) = n GHC.Real.% d
 
 instance FromRatio (Ratio Integer) Integer where
   fromRatio = P.id
@@ -212,7 +215,9 @@ class FromRational a where
   fromRational = fromRatio . fromBaseRational
 
 instance FromRational Double
+
 instance FromRational Float
+
 instance FromRational Rational
 
 -- | Given that fromRational is reserved, fromRational' provides general conversion between numhask rationals.
@@ -225,23 +230,24 @@ instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
 instance (GCDConstraints a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
--- * $integral_functions
+-- * \$integral_functions
 -- integral functionality is largely based on GHC.Real
 --
+
 -- | 'reduce' is a subsidiary function used only in this module.
 -- It normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
-reduce
-  :: (P.Eq a, Subtractive a, Signed a, Integral a) => a -> a -> Ratio a
+reduce ::
+  (P.Eq a, Subtractive a, Signed a, Integral a) => a -> a -> Ratio a
 reduce x y
   | x P.== zero P.&& y P.== zero = zero :% zero
   | z P.== zero = one :% zero
   | P.otherwise = (x `quot` z) % (y `quot` z)
- where
-  z = gcd x y
-  n % d
-    | sign d P.== negate one = negate n :% negate d
-    | P.otherwise = n :% d
+  where
+    z = gcd x y
+    n % d
+      | sign d P.== negate one = negate n :% negate d
+      | P.otherwise = n :% d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
 -- every common factor of @x@ and @y@ is also a factor; for example
@@ -254,7 +260,7 @@ reduce x y
 -- necessarily is if the other is @0@ or @'minBound'@) for such types.
 gcd :: (P.Eq a, Signed a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
- where
-  gcd' a b
-    | b P.== zero = a
-    | P.otherwise = gcd' b (a `rem` b)
+  where
+    gcd' a b
+      | b P.== zero = a
+      | P.otherwise = gcd' b (a `rem` b)

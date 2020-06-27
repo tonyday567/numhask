@@ -9,17 +9,13 @@
 
 -- | NumHask usage examples
 module NumHask.Examples
-  (
-    -- ** Imports and Pragmas
+  ( -- ** Imports and Pragmas
     -- $imports
-
     -- $setup
-    -- ** Basic Arithmetic
     -- $basic
 
     -- ** Complex numbers
     -- $complex
-
   )
 where
 
@@ -27,12 +23,12 @@ import NumHask.Prelude
 
 -- $imports
 -- NumHask.Prelude is a replacement for the standard prelude. 'RebindableSyntax' is necessary to read numbers and also implies 'NoImplicitPrelude'
---
+
 -- $setup
 -- >>> :set -XFlexibleContexts
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
---
+
 -- $basic
 -- 'Int', 'Integer', 'Double' and 'Float' are from base.  NumHask takes these classes and redefines the basic arithmetic operators.
 --
@@ -124,7 +120,7 @@ import NumHask.Prelude
 -- 7.38905609893065
 -- >>> log 2
 -- 0.6931471805599453
---
+
 -- $complex
 --
 -- >>> let a = 1 :+ 2
