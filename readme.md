@@ -8,26 +8,14 @@ A numeric class hierarchy, providing a structure for numbers and functions that 
 Field hierarchy
 ---
 
-[![Field Hierarchy](numhask/other/field.svg)](numhask/other/field.svg)
+[![Field Hierarchy](other/field.svg)](numhask/other/field.svg)
 
 
 NumHask class structure
 ---
 
-[![NumHask Hierarchy](numhask/other/numhask.svg)](numhask/other/numhask.svg)
+[![NumHask Hierarchy](other/numhask.svg)](numhask/other/numhask.svg)
 
-
-Libraries
----
-
-- `numhask` the core class hierarchy with just base as a dependency
-- `numhask-prelude` numhask + [protolude](https://hackage.haskell.org/package/protolude)
-- `numhask-hedgehog` testing of numhask
-
-numhask
----
-
-[![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask) [![lts](https://www.stackage.org/package/numhask/badge/lts)](http://stackage.org/lts/package/numhask) [![nightly](https://www.stackage.org/package/numhask/badge/nightly)](http://stackage.org/nightly/package/numhask)
 
 `numhask` begins with separately named magma-derived classes for addition and multiplication, and then being symetrical in the treatment of the two heirarchies.  A short magma structure is provided with the intention of supplying appropriate classes for operators that are neither addition nor multiplication, but this structure is not hooked up to the main classes.
 
@@ -41,10 +29,8 @@ The usual operators (+) and (*) operators are reserved for commutative relations
 
 In summary, the library doesn't do anything fancy. But if having to define `(*)` when you just want a `(+)` offends your sensibilities, it may bring some sanity.
 
-numhask-prelude
+NumHask.Prelude
 ---
-
-[![Hackage](https://img.shields.io/hackage/v/numhask-prelude.svg)](https://hackage.haskell.org/package/numhask-prelude) [![lts](https://www.stackage.org/package/numhask-prelude/badge/lts)](http://stackage.org/lts/package/numhask-prelude) [![nightly](https://www.stackage.org/package/numhask-prelude/badge/nightly)](http://stackage.org/nightly/package/numhask-prelude)
 
 ``` {.sourceCode .literate .haskell}
 {-# LANGUAGE NoImplicitPrelude #-}
@@ -53,12 +39,3 @@ import NumHask.Prelude
 
 'Numhask.Prelude' is designed as a drop-in replacement for Prelude and 'NoImplicitPrelude' is obligatory. Behind the scenes, the module wraps [protolude](https://www.stackage.org/package/protolude).
 
-See [Examples](numhask-prelude/src/NumHask/Examples.hs) for basic examples, or [numhask-range](https://www.stackage.org/package/numhask-range) for slightly heavier usage.
-
-
-numhask-hedgehog
----
-
-[![Hackage](https://img.shields.io/hackage/v/numhask-hedgehog.svg)](https://hackage.haskell.org/package/numhask-hedgehog) [![lts](https://www.stackage.org/package/numhask-test/badge/lts)](http://stackage.org/lts/package/numhask-hedgehog) [![nightly](https://www.stackage.org/package/numhask-hedgehog/badge/nightly)](http://stackage.org/nightly/package/numhask-hedgehog)
-
-Testing framework for numhask, based around hedgehog.
