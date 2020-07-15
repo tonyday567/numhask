@@ -25,7 +25,8 @@ build-type:
   Simple
 
 extra-doc-files:
-  other/*.svg
+  other/*.svg,
+  readme.md
 
 source-repository head
   type:

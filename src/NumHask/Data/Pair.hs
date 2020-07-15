@@ -148,16 +148,14 @@ instance
   (ExpField a, Normed a a) =>
   Normed (Pair a) a
   where
-  normL1 (Pair a b) = normL1 a + normL1 b
-  normL2 (Pair a b) = sqrt (a ** (one + one) + b ** (one + one))
+  norm (Pair a b) = norm a + norm b
 
 instance (Subtractive a, Epsilon a) => Epsilon (Pair a) where
   epsilon = Pair epsilon epsilon
   nearZero (Pair a b) = nearZero a && nearZero b
 
 instance (ExpField a, Subtractive a, Normed a a) => Metric (Pair a) a where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance (Distributive a) => Distributive (Pair a)
 
@@ -213,12 +211,10 @@ instance
   (Normed a a) =>
   Normed (Pair a) (Pair a)
   where
-  normL1 = fmap normL1
-  normL2 = fmap normL2
+  norm = fmap norm
 
 instance
   (Subtractive a, Normed a a) =>
   Metric (Pair a) (Pair a)
   where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
