@@ -2,9 +2,5 @@ resolver: nightly-2020-06-25
 
 packages:
   - numhask
-  - numhask-prelude
-  - numhask-hedgehog
 
-extra-deps:
-  - git: https://github.com/tonyday567/numhask-space
-    commit: 6525f5096525196fe367dabdfe596a7bd0c0aa6c
+extra-deps: []
