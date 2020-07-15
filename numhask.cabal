@@ -65,7 +65,6 @@ library
     NumHask.Algebra.Abstract.Module
     NumHask.Algebra.Abstract.Multiplicative
     NumHask.Algebra.Abstract.Ring
-    NumHask.Algebra.Linear.Hadamard
     NumHask.Analysis.Metric
     NumHask.Data.Complex
     NumHask.Data.Integral

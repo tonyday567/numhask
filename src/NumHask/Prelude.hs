@@ -13,7 +13,6 @@ module NumHask.Prelude
     module NumHask.Algebra.Abstract.Module,
     module NumHask.Algebra.Abstract.Multiplicative,
     module NumHask.Algebra.Abstract.Ring,
-    module NumHask.Algebra.Linear.Hadamard,
     module NumHask.Analysis.Metric,
     module NumHask.Data.Complex,
     module NumHask.Data.Integral,
@@ -59,7 +58,6 @@ import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Module
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Linear.Hadamard
 import NumHask.Analysis.Metric
 import NumHask.Data.Complex
 import NumHask.Data.Integral
