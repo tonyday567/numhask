@@ -113,18 +113,16 @@ instance
   fromIntegral_ x = fromIntegral_ x :+ zero
 
 instance
-  (Multiplicative a, ExpField a, Normed a a) =>
+  (ExpField a, Normed a a) =>
   Normed (Complex a) a
   where
-  normL1 (rx :+ ix) = normL1 rx + normL1 ix
-  normL2 (rx :+ ix) = sqrt (rx * rx + ix * ix)
+  norm (rx :+ ix) = norm rx + norm ix
 
 instance
-  (Multiplicative a, Subtractive a, ExpField a, Normed a a) =>
+  (Subtractive a, ExpField a, Normed a a) =>
   Metric (Complex a) a
   where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance
   (Ord a, Signed a, Subtractive a, Epsilon a) =>

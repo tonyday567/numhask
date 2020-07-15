@@ -129,141 +129,108 @@ instance Signed Word64 where
     | otherwise = one
   abs = P.abs
 
--- | L1 and L2 norms are provided for potential speedups, as well as the generalized p-norm.
+-- | Cab be Normed
 --
--- for p >= 1
---
--- > normLp p a >= zero
--- > normLp p zero == zero
+-- > norm a >= zero
+-- > norm zero == zero
 --
 -- Note that the Normed codomain can be different to the domain.
 class (Additive a, Additive b) => Normed a b where
-  normL1 :: a -> b
-  normL2 :: a -> b
+  norm :: a -> b
 
 instance Normed Double Double where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Float Float where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Int Int where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Integer Integer where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Natural Natural where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Int8 Int8 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Int16 Int16 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Int32 Int32 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Int64 Int64 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Word Word where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Word8 Word8 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Word16 Word16 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Word32 Word32 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
 instance Normed Word64 Word64 where
-  normL1 = P.abs
-  normL2 = P.abs
+  norm = P.abs
 
--- | distance between numbers using L1, L2 or Lp-norms
+-- | distance between numbers using L1 norm
 --
--- > distanceL2 a b >= zero
--- > distanceL2 a a == zero
--- > \a b c -> distanceL2 a c + distanceL2 b c - distanceL2 a b >= zero &&
--- >           distanceL2 a b + distanceL2 b c - distanceL2 a c >= zero &&
--- >           distanceL2 a b + distanceL2 a c - distanceL2 b c >= zero &&
+-- > distance a b >= zero
+-- > distance a a == zero
+--
 class Metric a b where
-  distanceL1 :: a -> a -> b
-  distanceL2 :: a -> a -> b
+  distance :: a -> a -> b
 
 instance Metric Double Double where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Float Float where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Int Int where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Integer Integer where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Natural Natural where
-  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
-  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
 instance Metric Int8 Int8 where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Int16 Int16 where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Int32 Int32 where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
 
 instance Metric Int64 Int64 where
-  distanceL1 a b = normL1 (a - b)
-  distanceL2 a b = normL2 (a - b)
+  distance a b = norm (a - b)
+
 
 -- fixme: circular distance may be more appropriate
 instance Metric Word Word where
-  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
-  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
 instance Metric Word8 Word8 where
-  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
-  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
 instance Metric Word16 Word16 where
-  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
-  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
 instance Metric Word32 Word32 where
-  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
-  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
 instance Metric Word64 Word64 where
-  distanceL1 a b = P.fromInteger $ normL1 (P.toInteger a - P.toInteger b)
-  distanceL2 a b = P.fromInteger $ normL2 (P.toInteger a - P.toInteger b)
+  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
 class
   (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>

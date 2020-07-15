@@ -1,10 +1,10 @@
 cabal-version: 2.4
-name: numhask-prelude
+name: numhask
 version: 0.6.0
 synopsis:
-  A numeric prelude
+  numeric classes
 description:
-  A numeric prelude, combining protolude and numhask.
+  A numeric class heirarchy.
 category:
   mathematics
 homepage:
@@ -23,19 +23,24 @@ license-file:
   LICENSE
 build-type:
   Simple
+
+extra-doc-files:
+  other/*.svg,
+  readme.md
+
 source-repository head
   type:
     git
   location:
     https://github.com/tonyday567/numhask
   subdir:
-    numhask-prelude
+    numhask
 library
   hs-source-dirs:
     src
   default-extensions:
-    NegativeLiterals
     NoImplicitPrelude
+    NegativeLiterals
     OverloadedStrings
     UnicodeSyntax
   ghc-options:
@@ -46,35 +51,30 @@ library
     -Wredundant-constraints
   build-depends:
     base >=4.7 && <5,
-    numhask >=0.3 && <0.7,
     protolude >=0.3 && <0.4,
     bifunctors >= 3.2,
     mmorph >= 1.1,
     transformers >= 0.5,
     text >= 1.2
   exposed-modules:
+    NumHask.Algebra.Abstract
+    NumHask.Algebra.Abstract.Action
+    NumHask.Algebra.Abstract.Additive
+    NumHask.Algebra.Abstract.Field
+    NumHask.Algebra.Abstract.Group
+    NumHask.Algebra.Abstract.Lattice
+    NumHask.Algebra.Abstract.Module
+    NumHask.Algebra.Abstract.Multiplicative
+    NumHask.Algebra.Abstract.Ring
+    NumHask.Analysis.Metric
+    NumHask.Data.Complex
+    NumHask.Data.Integral
+    NumHask.Data.LogField
+    NumHask.Data.Pair
+    NumHask.Data.Positive
+    NumHask.Data.Rational
+    NumHask.Data.Wrapped
+    NumHask.Exception
     NumHask.Prelude
-    NumHask.Examples
-  default-language: Haskell2010
-test-suite test
-  type:
-    exitcode-stdio-1.0
-  main-is:
-    test.hs
-  hs-source-dirs:
-    test
-  default-extensions:
-    NegativeLiterals
-    NoImplicitPrelude
-    OverloadedStrings
-    UnicodeSyntax
-  ghc-options:
-    -Wall
-    -Wcompat
-    -Wincomplete-record-updates
-    -Wincomplete-uni-patterns
-    -Wredundant-constraints
-  build-depends:
-    doctest >=0.13 && <0.17,
-    numhask-prelude
+  other-modules:
   default-language: Haskell2010

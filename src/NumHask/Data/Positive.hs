@@ -80,9 +80,7 @@ instance
   (Normed a a) =>
   Normed a (Positive a)
   where
-  normL1 a = Positive (normL1 a)
-  normL2 a = Positive (normL2 a)
+  norm a = Positive (norm a)
 
 instance (Subtractive a, Normed a a) => Metric a (Positive a) where
-  distanceL1 a b = Positive P.$ normL1 (a - b)
-  distanceL2 a b = Positive P.$ normL2 (a - b)
+  distance a b = Positive P.$ norm (a - b)

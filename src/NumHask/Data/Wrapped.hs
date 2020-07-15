@@ -68,9 +68,7 @@ instance (ToRatio a b) => ToRatio (Wrapped a) b where
   toRatio (Wrapped a) = toRatio a
 
 instance (Normed a b) => Normed (Wrapped a) (Wrapped b) where
-  normL1 (Wrapped a) = Wrapped (normL1 a)
-  normL2 (Wrapped a) = Wrapped (normL2 a)
+  norm (Wrapped a) = Wrapped (norm a)
 
 instance (Metric a b) => Metric (Wrapped a) (Wrapped b) where
-  distanceL1 (Wrapped a) (Wrapped b) = Wrapped (distanceL1 a b)
-  distanceL2 (Wrapped a) (Wrapped b) = Wrapped (distanceL2 a b)
+  distance (Wrapped a) (Wrapped b) = Wrapped (distance a b)
