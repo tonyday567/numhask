@@ -4,4 +4,4 @@
 :set -XExtendedDefaultRules
 :set -XFlexibleContexts
 :set -XTypeFamilies
-
+:set -Wno-type-defaults

@@ -137,6 +137,12 @@ instance QuotientField P.Float P.Integer where
 instance QuotientField P.Double P.Integer where
   properFraction = P.properFraction
 
+instance QuotientField Float Int where
+  properFraction = P.properFraction
+
+instance QuotientField Double Int where
+  properFraction = P.properFraction
+
 instance QuotientField b c => QuotientField (a -> b) (a -> c) where
   properFraction f = (P.fst . frac, P.snd . frac)
     where
