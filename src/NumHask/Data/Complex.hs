@@ -33,6 +33,7 @@ import Prelude hiding
   ( (/),
     Num (..),
     atan,
+    atan2,
     cos,
     exp,
     log,
@@ -168,8 +169,7 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
 instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
   top = top :+ top
 
--- * Helpers from Data.Complex
-
+-- * Polar conversions
 mkPolar :: TrigField a => a -> a -> Complex a
 mkPolar r theta = (r * cos theta) :+ (r * sin theta)
 
@@ -184,24 +184,16 @@ cis theta = cos theta :+ sin theta
 -- the magnitude is nonnegative, and the phase in the range @(-'pi', 'pi']@;
 -- if the magnitude is zero, then so is the phase.
 {-# SPECIALIZE polar :: Complex Double -> (Double, Double) #-}
-polar :: (RealFloat a, ExpField a) => Complex a -> (a, a)
+polar :: (TrigField a, ExpField a) => Complex a -> (a, a)
 polar z = (magnitude z, phase z)
 
 -- | The nonnegative magnitude of a complex number.
 {-# SPECIALIZE magnitude :: Complex Double -> Double #-}
-magnitude :: (ExpField a, RealFloat a) => Complex a -> a
-magnitude (x :+ y) =
-  scaleFloat
-    k
-    (sqrt (sqr (scaleFloat mk x) + sqr (scaleFloat mk y)))
-  where
-    k = max (exponent x) (exponent y)
-    mk = - k
-    sqr z = z * z
+magnitude :: (ExpField a) => Complex a -> a
+magnitude (x :+ y) = sqrt (x*x + y*y)
 
 -- | The phase of a complex number, in the range @(-'pi', 'pi']@.
 -- If the magnitude is zero, then so is the phase.
 {-# SPECIALIZE phase :: Complex Double -> Double #-}
-phase :: (RealFloat a) => Complex a -> a
-phase (0 :+ 0) = 0 -- SLPJ July 97 from John Peterson
+phase :: (TrigField a) => Complex a -> a
 phase (x :+ y) = atan2 y x

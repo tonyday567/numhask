@@ -205,6 +205,7 @@ class
   asin :: a -> a
   acos :: a -> a
   atan :: a -> a
+  atan2 :: a -> a -> a
   sinh :: a -> a
   cosh :: a -> a
   tanh :: a -> a
@@ -220,6 +221,7 @@ instance TrigField P.Double where
   asin = P.asin
   acos = P.acos
   atan = P.atan
+  atan2 = P.atan2
   sinh = P.sinh
   cosh = P.cosh
   asinh = P.sinh
@@ -233,6 +235,7 @@ instance TrigField P.Float where
   asin = P.asin
   acos = P.acos
   atan = P.atan
+  atan2 = P.atan2
   sinh = P.sinh
   cosh = P.cosh
   asinh = P.sinh
@@ -246,12 +249,13 @@ instance TrigField b => TrigField (a -> b) where
   asin f = asin . f
   acos f = acos . f
   atan f = atan . f
+  atan2 f g = \x -> atan2 (f x) (g x)
   sinh f = sinh . f
   cosh f = cosh . f
   asinh f = asinh . f
   acosh f = acosh . f
   atanh f = atanh . f
 
--- | A 'half' is a 'Field' because it requires addition, multiplication and division to be computed.
+-- | A 'half' is a 'Field' because it requires addition, multiplication and division.
 half :: (Field a) => a
 half = one / two
