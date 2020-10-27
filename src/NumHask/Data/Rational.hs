@@ -218,7 +218,7 @@ instance FromRational Float
 
 instance FromRational Rational
 
--- | Given that fromRational is reserved, fromRational' provides general conversion between numhask rationals.
+-- | FIXME: Given that fromRational is reserved, fromRational' provides general conversion between numhask rationals.
 fromRational' :: (FromRatio b Integer, ToRatio a Integer) => a -> b
 fromRational' a = fromRatio (toRatio a :: Ratio Integer)
 

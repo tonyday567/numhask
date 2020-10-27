@@ -118,7 +118,6 @@ class ToIntegral a b where
 
 type ToInteger a = ToIntegral a Integer
 
--- fitting in with legacy naming conventions.
 toInteger :: (ToInteger a) => a -> Integer
 toInteger = toIntegral
 

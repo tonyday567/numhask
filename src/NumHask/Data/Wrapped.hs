@@ -30,6 +30,8 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       Multiplicative,
       Divisive,
       Distributive,
+      Ring,
+      Semiring,
       IntegralDomain,
       InvolutiveRing,
       StarSemiring,
@@ -41,12 +43,16 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       Signed,
       MeetSemiLattice,
       JoinSemiLattice,
+      BoundedJoinSemiLattice,
+      BoundedMeetSemiLattice,
       Epsilon,
       UpperBoundedField,
-      LowerBoundedField
+      LowerBoundedField,
+      FromInteger,
+      FromRational
     )
 
--- not sure if this is correct or needed
+-- TODO: not sure if this is correct or needed
 type role Wrapped representational
 
 instance
@@ -72,3 +78,14 @@ instance (Normed a b) => Normed (Wrapped a) (Wrapped b) where
 
 instance (Metric a b) => Metric (Wrapped a) (Wrapped b) where
   distance (Wrapped a) (Wrapped b) = Wrapped (distance a b)
+
+{- FIXME: Actor, Actions and Module instances stuck on
+
+Illegal type synonym family application ‘Actor h’ in instance:
+  Additive (Wrapped (Actor h))
+  In the instance declaration for ‘Additive (Wrapped (Actor h))’
+instance (Additive (Actor h)) => Additive (Wrapped (Actor h)) where
+  (+) (Wrapped a) (Wrapped b) = Wrapped (a + b)
+
+-}
+

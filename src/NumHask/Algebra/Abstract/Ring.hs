@@ -165,6 +165,6 @@ instance InvolutiveRing Word64
 
 instance InvolutiveRing b => InvolutiveRing (a -> b)
 
--- | Defining 'two' requires adding the multiplicative unital to itself.
+-- | Defining 'two' requires adding the multiplicative unital to itself. In other words, the concept of 'two' is a Ring one.
 two :: (Multiplicative a, Additive a) => a
 two = one + one
