@@ -5,6 +5,7 @@
 {-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 
+-- | Wrapped numhask instances, useful for derivingvia situations to quickly specifiy a numhask friendly numerical type.
 module NumHask.Data.Wrapped where
 
 import NumHask.Algebra.Abstract.Additive
@@ -19,6 +20,7 @@ import NumHask.Data.Integral
 import NumHask.Data.Rational
 import qualified Prelude as P
 
+-- | Wrapped numeric instances
 newtype Wrapped a = Wrapped {unWrapped :: a}
   deriving
     ( P.Show,

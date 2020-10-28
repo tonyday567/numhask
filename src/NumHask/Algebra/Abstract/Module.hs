@@ -1,4 +1,6 @@
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -16,6 +18,20 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Multiplicative
 
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> :set -XFlexibleContexts
+-- >>> :set -XFlexibleInstances
+-- >>> :set -XScopedTypeVariables
+-- >>> :set -XMultiParamTypeClasses
+-- >>> import NumHask.Prelude
+-- >>> import Test.QuickCheck
+-- >>> import Prelude (Int, fmap)
+
+-- | Additive Action
+--
 class
   (Additive a) =>
   AdditiveAction m a where
@@ -25,6 +41,8 @@ class
   infixl 6 +.
   (+.) :: m -> a -> m
 
+-- | Subtractive Action
+--
 class
   (Subtractive a) =>
   SubtractiveAction m a where
@@ -34,6 +52,8 @@ class
   infixl 6 -.
   (-.) :: m -> a -> m
 
+-- | Multiplicative Action
+--
 class
   (Multiplicative a) =>
   MultiplicativeAction m a where
@@ -42,6 +62,8 @@ class
   infixl 7 *.
   (*.) :: m -> a -> m
 
+-- | Divisive Action
+--
 class
   (Divisive a) =>
   DivisiveAction m a where
@@ -51,7 +73,7 @@ class
   (/.) :: m -> a -> m
 
 -- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module> over r a is
---   a (Ring a), an abelian (Group r a) and a scalar multiplier (.*, *.) with the
+--   a (Ring a), an abelian (Group r a) and operators (.*, *.) with the
 --   laws:
 --
 -- > a .* one == a

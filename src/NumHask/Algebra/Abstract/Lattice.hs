@@ -1,7 +1,9 @@
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
+-- | <https://en.wikipedia.org/wiki/Lattice_(order)>
 module NumHask.Algebra.Abstract.Lattice
   ( JoinSemiLattice(..),
     joinLeq,
@@ -15,6 +17,7 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Abstract.Field
+import NumHask.Algebra.Abstract.Additive (zero)
 import Data.Bool
 import Data.Eq
 import GHC.Float (Float, Double)
@@ -199,7 +202,7 @@ instance BoundedMeetSemiLattice Bool where
   top = True
 
 instance BoundedJoinSemiLattice Natural where
-  bottom = 0
+  bottom = zero
 
 instance BoundedJoinSemiLattice Int8 where
   bottom = minBound

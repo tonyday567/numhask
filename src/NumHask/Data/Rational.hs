@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Integral classes
+-- | Rational classes
 module NumHask.Data.Rational
   ( Ratio (..),
     Rational,
@@ -17,6 +17,7 @@ module NumHask.Data.Rational
     fromRational,
     reduce,
     gcd,
+    GCDConstraints,
   )
 where
 
@@ -36,6 +37,7 @@ import NumHask.Data.Integral
 import Prelude ((.), Int, Integer, Rational)
 import qualified Prelude as P
 
+-- | A rational number
 data Ratio a = !a :% !a deriving (P.Show)
 
 instance (P.Eq a, Additive a) => P.Eq (Ratio a) where
@@ -46,6 +48,7 @@ instance (P.Eq a, Additive a) => P.Eq (Ratio a) where
       (x :% y) = a
       (x' :% y') = b
 
+-- | Has a zero denominator
 isRNaN :: (P.Eq a, Additive a) => Ratio a -> P.Bool
 isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
@@ -55,7 +58,7 @@ instance (P.Ord a, Multiplicative a, Additive a) => P.Ord (Ratio a) where
   (x :% y) <= (x' :% y') = x * y' P.<= x' * y
   (x :% y) < (x' :% y') = x * y' P.< x' * y
 
--- | These common constraints over the Ratio instances are due to the gcd algorithm. Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
+-- | These common constraints over the Ratio instances are due to the gcd algorithm. FIXME: Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
 type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
 
 instance (GCDConstraints a) => Additive (Ratio a) where
@@ -116,18 +119,11 @@ instance (GCDConstraints a, MeetSemiLattice a) => Epsilon (Ratio a)
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
   fromIntegral x = fromIntegral x :% one
 
--- | toRatio is equivalent to `Real` in base, but is polymorphic in the Integral type.
+-- | toRatio is equivalent to `GHC.Real.Real` in base, but is polymorphic in the Integral type.
 class ToRatio a b where
   toRatio :: a -> Ratio b
   default toRatio :: (Ratio c ~ a, FromIntegral b c, ToRatio (Ratio b) b) => a -> Ratio b
   toRatio (n :% d) = toRatio ((fromIntegral n :: b) :% fromIntegral d)
-{-
-type ToRational a = ToRatio a Integer
-
-toRational :: (ToRatio a Integer) => a -> Ratio Integer
-toRational = toRatio
-
--}
 
 instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
@@ -177,7 +173,7 @@ instance ToRatio Word32 Integer where
 instance ToRatio Word64 Integer where
   toRatio = fromBaseRational . P.toRational
 
--- | `Fractional` in base splits into fromRatio and Field
+-- | `GHC.Real.Fractional` in base splits into fromRatio and Field
 -- FIXME: work out why the default type isn't firing so that an explicit instance is needed
 -- for `FromRatio (Ratio Integer) Integer`
 class FromRatio a b where
@@ -202,6 +198,7 @@ instance FromRatio Rational Integer where
 instance FromRatio (Ratio Integer) Integer where
   fromRatio = P.id
 
+-- | type constraint for fromRational
 type FromRational a = FromRatio a Integer
 
 -- | with RebindableSyntax the literal '1.0' mean exactly `fromRational (1.0::GHC.Real.Rational)`.
@@ -234,9 +231,9 @@ reduce x y
 -- (That is, the common divisor that is \"greatest\" in the divisibility
 -- preordering.)
 --
--- Note: Since for signed fixed-width integer types, @'abs' 'minBound' < 0@,
--- the result may be negative if one of the arguments is @'minBound'@ (and
--- necessarily is if the other is @0@ or @'minBound'@) for such types.
+-- Note: Since for signed fixed-width integer types, @'abs' 'GHC.Enum.minBound' < 0@,
+-- the result may be negative if one of the arguments is @'GHC.Enum.minBound'@ (and
+-- necessarily is if the other is @0@ or @'GHC.Enum.minBound'@) for such types.
 gcd :: (P.Eq a, Signed a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
   where

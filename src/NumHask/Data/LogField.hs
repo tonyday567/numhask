@@ -8,6 +8,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
+-- | A 'Field' in the log domain.
 module NumHask.Data.LogField
   ( -- * @LogField@
     LogField (),
@@ -80,7 +81,7 @@ import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
 -- won't underflow; because that way you enter the log-domain only
 -- once, instead of twice. Also note that, for precision, if you're
 -- doing more than a few multiplications in the log-domain, you
--- should use 'product' rather than using '(*)' repeatedly.
+-- should use 'NumHask.Algebra.Abstract.Multiplication.product' rather than using '(*)' repeatedly.
 --
 -- Even more particularly, you should /avoid addition/ whenever
 -- possible. Addition is provided because sometimes we need it, and

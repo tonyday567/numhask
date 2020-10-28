@@ -9,6 +9,7 @@ module NumHask.Analysis.Metric
     Metric (..),
     Epsilon (..),
     (~=),
+    outBy,
   )
 where
 
@@ -23,10 +24,11 @@ import Prelude hiding
     Bounded (..),
     Integral (..),
     negate,
+    (*),
   )
 import qualified Prelude as P
 
--- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' where there is a change in codomain
+-- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Normed' where there is a change in codomain
 --
 -- > abs a * sign a == a
 --
@@ -232,6 +234,7 @@ instance Metric Word32 Word32 where
 instance Metric Word64 Word64 where
   distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
 
+-- | A small number, especially useful for approximate equality.
 class
   (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
   Epsilon a where
@@ -246,15 +249,25 @@ class
 
 infixl 4 ~=
 
+-- | About equal.
 (~=) :: (Epsilon a) => a -> a -> Bool
 (~=) = aboutEqual
 
+-- | Errors in proofs tend to accumulate, and grow beyond epsilon.
+--
+-- > outBy 1 == (~=)
+outBy :: (Epsilon a, Multiplicative a) => a -> a -> a -> Bool
+outBy x a b = ((x * epsilon) `meetLeq` (a - b) && (x * epsilon) `meetLeq` negate (a - b))
+
+-- | 1e-14
 instance Epsilon Double where
   epsilon = 1e-14
 
+-- | 1e-6
 instance Epsilon Float where
   epsilon = 1e-6
 
+-- | 0
 instance Epsilon Int
 
 instance Epsilon Integer

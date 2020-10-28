@@ -26,31 +26,40 @@ import NumHask.Data.Integral
 import Prelude ((.))
 import qualified Prelude as P
 
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> :set -XFlexibleContexts
+-- >>> :set -XScopedTypeVariables
+-- >>> import NumHask.Prelude
+-- >>> import Test.QuickCheck
+
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
 --
--- A summary of the rules thus inherited from super-classes of Field
+-- A summary of the rules thus inherited from super-classes of Field for a 'Double'. Floating point computation is a terrible, messy business and only rough approximation can be achieve for association and distribution.
 --
--- > zero + a == a
--- > a + zero == a
--- > (a + b) + c == a + (b + c)
--- > a + b == b + a
--- > a - a = zero
--- > negate a = zero - a
--- > negate a + a = zero
--- > a + negate a = zero
--- > one * a == a
--- > a * one == a
--- > (a * b) * c == a * (b * c)
--- > a * (b + c) == a * b + a * c
--- > (a + b) * c == a * c + b * c
--- > a * zero == zero
--- > zero * a == zero
--- > a * b == b * a
--- > a / a = one
--- > recip a = one / a
--- > recip a * a = one
--- > a * recip a = one
+-- prop> \(a :: Double) -> zero + a == a
+-- prop> \(a :: Double) -> a + zero == a
+-- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10 ((a + b) + c) (a + (b + c))
+-- prop> \(a :: Double) (b :: Double) -> a + b == b + a
+-- prop> \(a :: Double) -> a - a == zero
+-- prop> \(a :: Double) -> negate a == zero - a
+-- prop> \(a :: Double) -> negate a + a == zero
+-- prop> \(a :: Double) -> a + negate a == zero
+-- prop> \(a :: Double) -> one * a == a
+-- prop> \(a :: Double) -> a * one == a
+-- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10000 ((a * b) * c) (a * (b * c))
+-- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10000 (a * (b + c)) (a * b + a * c)
+-- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10000 ((a + b) * c) (a * c + b * c)
+-- prop> \(a :: Double) -> a * zero == zero
+-- prop> \(a :: Double) -> zero * a == zero
+-- prop> \(a :: Double) (b :: Double) -> a * b == b * a
+-- prop> \(a :: Double) -> a / a ~= one || a == zero
+-- prop> \(a :: Double) -> recip a ~= one / a || a == zero
+-- prop> \(a :: Double) -> recip a * a ~= one || a == zero
+-- prop> \(a :: Double) -> a * recip a ~= one || a == zero
 class
   (Distributive a, Subtractive a, Divisive a) =>
   Field a
@@ -95,6 +104,8 @@ instance ExpField b => ExpField (a -> b) where
   f ** f' = \a -> f a ** f' a
   sqrt f = sqrt . f
 
+-- |
+--
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + one/(one+one))
 --
@@ -180,6 +191,7 @@ instance UpperBoundedField b => UpperBoundedField (a -> b) where
   infinity _ = infinity
   nan _ = nan
 
+-- | Negative infinity.
 class
   (Subtractive a, Field a) =>
   LowerBoundedField a where

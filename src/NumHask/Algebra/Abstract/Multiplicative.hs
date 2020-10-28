@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Multiplicative
+-- | Multiplicative classes
 module NumHask.Algebra.Abstract.Multiplicative
   ( Multiplicative (..),
     product,
@@ -14,30 +14,52 @@ import GHC.Natural (Natural (..))
 import Prelude (Double, Float, Int, Integer)
 import qualified Prelude as P
 
--- | For practical reasons, 'Multiplicative' has no super classes. Using 'Associative' and 'Unital' from this library, or using 'Semigroup' and 'Monoid' from base tends to complexify the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+-- $setup
 --
--- > one * a == a
--- > a * one == a
--- > (a * b) * c == a * (b * c)
--- > a * b == b * a
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> :set -XFlexibleContexts
+-- >>> :set -XScopedTypeVariables
+-- >>> import NumHask.Prelude
+-- >>> import Test.QuickCheck
+
+-- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Abstract.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Abstract.Group.Associative' and 'NumHask.Algebra.Abstract.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
--- By convention, (*) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative multiplication seems a bit dogmatic.
+-- prop> \a -> one * a == a
+-- prop> \a -> a * one == a
+-- prop> \a b c -> (a * b) * c == a * (b * c)
+-- prop> \a b -> a * b == b * a
+--
+--
+-- >>> one * 2
+-- 2
+--
+-- >>> 2 * 3
+-- 6
+--
+-- By convention, (*) is regarded as commutative when we are referring to simple arithmetic but not necessarily commutative when specifying a 'NumHask.Algebra.Abstract.Ring.Ring'. The introduction of a separate symbol for non-commutative multiplication may be needed at some point in the future given haskell practices.
 class Multiplicative a where
   infixl 7 *
   (*) :: a -> a -> a
 
   one :: a
 
--- | Compute the product of a 'Foldable'.
+-- | Compute the product of a 'Data.Foldable.Foldable'.
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
--- |
+-- | Though unusual, "Divisive" fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
--- > a / a = one
--- > recip a = one / a
--- > recip a * a = one
--- > a * recip a = one
+-- prop> \(a :: Double) -> a / a ~= one || a == zero
+-- prop> \(a :: Double) -> recip a ~= one / a || a == zero
+-- prop> \(a :: Double) -> recip a * a ~= one || a == zero
+-- prop> \(a :: Double) -> a * recip a ~= one || a == zero
+--
+-- >>> recip 2.0
+-- 0.5
+--
+-- >>> 1 / 2
+-- 0.5
 class (Multiplicative a) => Divisive a where
   recip :: a -> a
 

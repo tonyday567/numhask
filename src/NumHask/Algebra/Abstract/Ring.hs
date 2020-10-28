@@ -23,14 +23,23 @@ import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Multiplicative
 import qualified Prelude as P
 
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> :set -XFlexibleContexts
+-- >>> :set -XScopedTypeVariables
+-- >>> import NumHask.Prelude
+-- >>> import Test.QuickCheck
+
 -- | <https://en.wikipedia.org/wiki/Distributive_property Distributive> laws
 --
--- > a * (b + c) == a * b + a * c
--- > (a * b) * c == a * c + b * c
--- > zero * a == zero
--- > a * zero == zero
+-- prop> \a b c -> a * (b + c) == a * b + a * c
+-- prop> \a b c -> (a + b) * c == a * c + b * c
+-- prop> \a -> zero * a == zero
+-- prop> \a -> a * zero == zero
 --
--- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element annihilation> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
+-- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element Absorption> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
 class
   (Additive a, Multiplicative a) =>
   Distributive a
@@ -67,7 +76,7 @@ instance Distributive P.Bool
 
 instance Distributive b => Distributive (a -> b)
 
--- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is commutative monoidal under addition, has a monoidal multiplication operator (not necessarily commutative), and where multiplication distributes over addition.
+-- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is commutative monoidal under addition ('Unital', 'Associative' & 'Commutative'), has a monoidal multiplication operator ('Unital', 'Associative'), and where multiplication distributes over addition.
 class
   (Distributive a) =>
   Semiring a
@@ -76,9 +85,23 @@ instance
   (Distributive a) =>
   Semiring a
 
--- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian
---   group under addition and monoidal under multiplication, and where multiplication
---   distributes over addition.
+-- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('Unital', 'Associative', 'Commutative', 'Invertible') and monoidal under multiplication ('Unital', 'Associative'), and where multiplication distributes over addition.
+--
+-- prop> \a -> zero + a == a
+-- prop> \a -> a + zero == a
+-- prop> \a b c -> (a + b) + c == a + (b + c)
+-- prop> \a b -> a + b == b + a
+-- prop> \a -> a - a == zero
+-- prop> \a -> negate a == zero - a
+-- prop> \a -> negate a + a == zero
+-- prop> \a -> a + negate a == zero
+-- prop> \a -> one * a == a
+-- prop> \a -> a * one == a
+-- prop> \a b c -> (a * b) * c == a * (b * c)
+-- prop> \a b c -> a * (b + c) == a * b + a * c
+-- prop> \a b c -> (a + b) * c == a * c + b * c
+-- prop> \a -> zero * a == zero
+-- prop> \a -> a * zero == zero
 class
   (Distributive a, Subtractive a) =>
   Ring a
@@ -87,10 +110,10 @@ instance
   (Distributive a, Subtractive a) =>
   Ring a
 
--- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain>
---   generalizes a ring of integers by requiring the product of any two nonzero
---   elements to be nonzero. This means that if a ≠ 0, an equality ab = ac
---   implies b = c.
+-- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain> generalizes a ring of integers by requiring the product of any two nonzero elements to be nonzero. This means that if a ≠ 0, an equality ab = ac implies b = c.
+--
+-- FIXME: Can this be expressed in Haskell?
+--
 class
   (Distributive a) =>
   IntegralDomain a
@@ -101,10 +124,9 @@ instance IntegralDomain P.Float
 
 instance IntegralDomain b => IntegralDomain (a -> b)
 
--- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring>
---   is a semiring with an additional unary operator star satisfying:
+-- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
 --
--- > star a = one + a `times` star a
+-- > \a -> star a = one + a `times` star a
 class (Distributive a) => StarSemiring a where
   star :: a -> a
   star a = one + plus a
@@ -114,8 +136,7 @@ class (Distributive a) => StarSemiring a where
 
 instance StarSemiring b => StarSemiring (a -> b)
 
--- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is
---   a Star Semiring with idempotent addition
+-- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
 --
 -- > a `times` x + x = a ==> star a `times` x + x = x
 -- > x `times` a + x = a ==> x `times` star a + x = x
@@ -166,5 +187,8 @@ instance InvolutiveRing Word64
 instance InvolutiveRing b => InvolutiveRing (a -> b)
 
 -- | Defining 'two' requires adding the multiplicative unital to itself. In other words, the concept of 'two' is a Ring one.
+--
+-- >>> two
+-- 2
 two :: (Multiplicative a, Additive a) => a
 two = one + one

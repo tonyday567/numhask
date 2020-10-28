@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Additive
+-- | Additive classes
 module NumHask.Algebra.Abstract.Additive
   ( Additive (..),
     sum,
@@ -14,29 +14,51 @@ import GHC.Natural (Natural (..))
 import Prelude (Bool, Double, Float, Int, Integer)
 import qualified Prelude as P
 
--- | For practical reasons, 'Additive' has no super classes. Using `Associative` and 'Unital' from this library, or using 'Semigroup' and 'Monoid' from base tends to complexify the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+-- $setup
 --
--- > zero + a == a
--- > a + zero == a
--- > (a + b) + c == a + (b + c)
--- > a + b == b + a
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> :set -XFlexibleContexts
+-- >>> import NumHask.Prelude
+-- >>> import Test.QuickCheck
+
+-- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Abstract.Additive.Additive'.  Starting with  'NumHask.Algebra.Abstract.Group.Associative' and 'NumHask.Algebra.Abstract.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
--- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative multiplication seems a bit dogmatic.
+-- prop> \a -> zero + a == a
+-- prop> \a -> a + zero == a
+-- prop> \a b c -> (a + b) + c == a + (b + c)
+-- prop> \a b -> a + b == b + a
+--
+-- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative multiplication might be a bit dogmatic.
+--
+-- >>> zero + 1
+-- 1
+--
+-- >>> 1 + 1
+-- 2
 class Additive a where
   infixl 6 +
   (+) :: a -> a -> a
 
   zero :: a
 
--- | Compute the sum of a 'Foldable'.
+-- | Compute the sum of a 'Data.Foldable.Foldable'.
 sum :: (Additive a, P.Foldable f) => f a -> a
 sum = P.foldr (+) zero
 
 -- |
--- > a - a = zero
--- > negate a = zero - a
--- > negate a + a = zero
--- > a + negate a = zero
+--
+-- prop> \a -> a - a == zero
+-- prop> \a -> negate a == zero - a
+-- prop> \a -> negate a + a == zero
+-- prop> \a -> a + negate a == zero
+--
+--
+-- >>> negate 1
+-- -1
+--
+-- >>> 1 - 2
+-- -1
 class (Additive a) => Subtractive a where
   negate :: a -> a
 

@@ -8,6 +8,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wall #-}
 
+-- | Complex numbers.
 module NumHask.Data.Complex
   ( Complex (..),
     realPart,
@@ -56,7 +57,7 @@ infix 6 :+
 -- but oriented in the positive real direction, whereas @'sign' z@
 -- has the phase of @z@, but unit magnitude.
 --
--- The 'Foldable' and 'Traversable' instances traverse the real part first.
+-- The 'Data.Foldable.Foldable' and 'Data.Traversable.Traversable' instances traverse the real part first.
 data Complex a
   = -- | forms a complex number from its real and imaginary
     -- rectangular components.
@@ -170,7 +171,7 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
 instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
   top = top :+ top
 
--- * Polar conversions
+-- | Convert from a magnitude and angle.
 mkPolar :: TrigField a => a -> a -> Complex a
 mkPolar r theta = (r * cos theta) :+ (r * sin theta)
 

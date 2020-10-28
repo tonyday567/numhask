@@ -341,17 +341,23 @@ instance FromIntegral Word32 Word32 where
 instance FromIntegral Word64 Word64 where
   fromIntegral = P.id
 
+-- | RebindableSyntax interprets "1" as exactly "fromInteger 1"
 fromInteger :: (FromIntegral a Integer) => Integer -> a
 fromInteger = fromIntegral
 
--- $operators
+-- |
+-- >>> even 2
+-- True
 even :: (P.Eq a, Integral a) => a -> P.Bool
 even n = n `rem` (one + one) P.== zero
 
+-- |
+-- >>> odd 3
+-- True
 odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
 
--- | raise a number to a non-negative integral power
+-- | raise a number to a non-negative 'Integral' power
 (^) ::
   (P.Ord b, Multiplicative a, Integral b) =>
   a ->
@@ -359,25 +365,19 @@ odd = P.not . even
   a
 x0 ^ y0
   | y0 P.< zero = P.undefined
-  | -- P.errorWithoutStackTrace "Negative exponent"
-    y0 P.== zero =
-    one
+  | y0 P.== zero = one
   | P.otherwise = f x0 y0
   where
-    -- f : x0 ^ y0 = x ^ y
     f x y
       | even y = f (x * x) (y `quot` two)
       | y P.== one = x
       | P.otherwise = g (x * x) (y `quot` two) x
-    -- See Note [Half of y - 1]
-    -- g : x0 ^ y0 = (x ^ y) * z
     g x y z
       | even y = g (x * x) (y `quot` two) z
       | y P.== one = x * z
       | P.otherwise = g (x * x) (y `quot` two) (x * z)
 
--- See Note [Half of y - 1]
-
+-- | raise a number to an 'Integral' power
 (^^) ::
   (Divisive a, Subtractive b, Integral b, P.Ord b) => a -> b -> a
 (^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)

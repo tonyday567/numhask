@@ -5,7 +5,14 @@
 {-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 
-module NumHask.Data.Positive where
+-- | Positive numbers.
+--
+-- Positivity is enforced via the positive constructor
+module NumHask.Data.Positive
+  ( Positive,
+    positive,
+    positive_,
+  ) where
 
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
@@ -17,6 +24,7 @@ import NumHask.Data.Integral
 import NumHask.Exception
 import qualified Prelude as P
 
+-- | Wrapper for positive numbers.  Note that the constructor is not exported.
 newtype Positive a = Positive {unPositive :: a}
   deriving
     ( P.Show,
@@ -40,13 +48,15 @@ newtype Positive a = Positive {unPositive :: a}
 -- not sure if this is correct or needed
 type role Positive representational
 
-positive :: (P.Ord a, Additive a) => a -> P.Maybe (Positive a)
-positive a
+-- | maybe construct a 'Positive'
+positive_ :: (P.Ord a, Additive a) => a -> P.Maybe (Positive a)
+positive_ a
   | a P.< zero = P.Nothing
   | P.otherwise = P.Just (Positive a)
 
-positive_ :: (P.Ord a, Additive a) => a -> Positive a
-positive_ a
+-- | Construct a Positive, throwing an error if the input is negative.
+positive :: (P.Ord a, Additive a) => a -> Positive a
+positive a
   | a P.< zero = throw (NumHaskException "positive number less than zero")
   | P.otherwise = Positive a
 
@@ -75,7 +85,6 @@ instance (P.Ord a, UpperBoundedField a) => P.Bounded (Positive a) where
   minBound = zero
   maxBound = infinity
 
--- Metric
 instance
   (Normed a a) =>
   Normed a (Positive a)
