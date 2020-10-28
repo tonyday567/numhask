@@ -12,15 +12,9 @@ module NumHask.Data.Rational
   ( Ratio (..),
     Rational,
     ToRatio (..),
-    ToRational,
-    toRational,
     FromRatio (..),
     FromRational,
     fromRational,
-    fromRational',
-    fromBaseRational,
-
-    -- * \$integral_functionality
     reduce,
     gcd,
   )
@@ -95,8 +89,8 @@ instance (GCDConstraints a) => IntegralDomain (Ratio a)
 
 instance (GCDConstraints a) => Field (Ratio a)
 
-instance (GCDConstraints a, GCDConstraints b, ToInteger a, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
-  properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral_ w, r :% d)
+instance (GCDConstraints a, GCDConstraints b, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
+  properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral w, r :% d)
 
 instance
   (GCDConstraints a, Distributive a, IntegralDomain a) =>
@@ -120,18 +114,20 @@ instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
 instance (GCDConstraints a, MeetSemiLattice a) => Epsilon (Ratio a)
 
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
-  fromIntegral_ x = fromIntegral_ x :% one
+  fromIntegral x = fromIntegral x :% one
 
 -- | toRatio is equivalent to `Real` in base, but is polymorphic in the Integral type.
 class ToRatio a b where
   toRatio :: a -> Ratio b
-  default toRatio :: (Ratio c ~ a, ToIntegral c Integer, ToRatio (Ratio b) b, FromInteger b) => a -> Ratio b
+  default toRatio :: (Ratio c ~ a, FromIntegral b c, ToRatio (Ratio b) b) => a -> Ratio b
   toRatio (n :% d) = toRatio ((fromIntegral n :: b) :% fromIntegral d)
-
+{-
 type ToRational a = ToRatio a Integer
 
 toRational :: (ToRatio a Integer) => a -> Ratio Integer
 toRational = toRatio
+
+-}
 
 instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
@@ -206,21 +202,11 @@ instance FromRatio Rational Integer where
 instance FromRatio (Ratio Integer) Integer where
   fromRatio = P.id
 
+type FromRational a = FromRatio a Integer
+
 -- | with RebindableSyntax the literal '1.0' mean exactly `fromRational (1.0::GHC.Real.Rational)`.
-class FromRational a where
-  fromRational :: P.Rational -> a
-  default fromRational :: (FromRatio a Integer) => P.Rational -> a
-  fromRational = fromRatio . fromBaseRational
-
-instance FromRational Double
-
-instance FromRational Float
-
-instance FromRational Rational
-
--- | FIXME: Given that fromRational is reserved, fromRational' provides general conversion between numhask rationals.
-fromRational' :: (FromRatio b Integer, ToRatio a Integer) => a -> b
-fromRational' a = fromRatio (toRatio a :: Ratio Integer)
+fromRational :: (FromRational a) => P.Rational -> a
+fromRational = fromRatio . fromBaseRational
 
 instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
@@ -228,12 +214,7 @@ instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
 instance (GCDConstraints a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
--- * \$integral_functions
--- integral functionality is largely based on GHC.Real
---
-
--- | 'reduce' is a subsidiary function used only in this module.
--- It normalises a ratio by dividing both numerator and denominator by
+-- | 'reduce' normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
 reduce ::
   (P.Eq a, Subtractive a, Signed a, Integral a) => a -> a -> Ratio a

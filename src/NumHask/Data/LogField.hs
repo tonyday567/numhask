@@ -36,7 +36,7 @@ import NumHask.Algebra.Abstract.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num (..), exp, log, negate)
+import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
 
 -- LogField is adapted from LogFloat
 ----------------------------------------------------------------
@@ -222,7 +222,7 @@ instance (Field (LogField a), ExpField a, LowerBoundedField a, Ord a) => ExpFiel
   (**) x (LogField y) = pow x $ exp y
 
 instance (FromIntegral a b, ExpField a) => FromIntegral (LogField a) b where
-  fromIntegral_ = logField . fromIntegral_
+  fromIntegral = logField . fromIntegral
 
 instance (ToIntegral a b, ExpField a) => ToIntegral (LogField a) b where
   toIntegral = toIntegral . fromLogField

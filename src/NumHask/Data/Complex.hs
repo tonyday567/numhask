@@ -42,6 +42,7 @@ import Prelude hiding
     recip,
     sin,
     sqrt,
+    fromIntegral,
   )
 import qualified Prelude as P ((&&), (<), (<=), (==), (>), Ord (..), otherwise)
 
@@ -111,7 +112,7 @@ instance
   (Additive a, FromIntegral a b) =>
   FromIntegral (Complex a) b
   where
-  fromIntegral_ x = fromIntegral_ x :+ zero
+  fromIntegral x = fromIntegral x :+ zero
 
 instance
   (ExpField a, Normed a a) =>

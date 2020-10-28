@@ -171,23 +171,21 @@ instance (UpperBoundedField a) => UpperBoundedField (Pair a)
 
 instance (LowerBoundedField a) => LowerBoundedField (Pair a)
 
-type instance Actor (Pair a) = a
+instance (Additive a) => AdditiveAction (Pair a) a where
+  (.+) s r = fmap (s +) r
+  (+.) r s = fmap (s +) r
 
-instance (Additive a) => AdditiveAction (Pair a) where
-  (.+) r s = fmap (s +) r
-  (+.) s r = fmap (s +) r
+instance (Subtractive a) => SubtractiveAction (Pair a) a where
+  (.-) s r = fmap (\x -> x - s) r
+  (-.) r s = fmap (\x -> x - s) r
 
-instance (Subtractive a) => SubtractiveAction (Pair a) where
-  (.-) r s = fmap (\x -> x - s) r
-  (-.) s r = fmap (\x -> x - s) r
+instance (Multiplicative a) => MultiplicativeAction (Pair a) a where
+  (.*) s r = fmap (s *) r
+  (*.) r s = fmap (s *) r
 
-instance (Multiplicative a) => MultiplicativeAction (Pair a) where
-  (.*) r s = fmap (s *) r
-  (*.) s r = fmap (s *) r
-
-instance (Divisive a) => DivisiveAction (Pair a) where
-  (./) r s = fmap (/ s) r
-  (/.) s r = fmap (/ s) r
+instance (Divisive a) => DivisiveAction (Pair a) a where
+  (./) s r = fmap (/ s) r
+  (/.) r s = fmap (/ s) r
 
 instance (JoinSemiLattice a) => JoinSemiLattice (Pair a) where
   (\/) = binOp (\/)
@@ -202,7 +200,7 @@ instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Pair a) where
   top = Pair top top
 
 instance (FromIntegral a b) => FromIntegral (Pair a) b where
-  fromIntegral_ x = P.pure (fromIntegral_ x)
+  fromIntegral x = P.pure (fromIntegral x)
 
 instance (FromRatio a b) => FromRatio (Pair a) b where
   fromRatio x = P.pure (fromRatio x)
