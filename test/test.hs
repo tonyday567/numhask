@@ -9,7 +9,8 @@ import Test.DocTest
 main :: IO ()
 main =
   doctest
-  [ "src/NumHask/Prelude.hs",
+  [ "src/NumHask.hs",
+    "src/NumHask/Prelude.hs",
     "src/NumHask/Algebra/Abstract/Additive.hs",
     "src/NumHask/Algebra/Abstract/Multiplicative.hs",
     "src/NumHask/Algebra/Abstract/Ring.hs",

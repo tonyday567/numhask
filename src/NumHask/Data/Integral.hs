@@ -12,7 +12,7 @@ module NumHask.Data.Integral
   ( Integral (..),
     ToIntegral (..),
     FromIntegral (..),
-    fromInteger,
+    FromInteger (..),
     even,
     odd,
     (^),
@@ -215,8 +215,7 @@ instance ToIntegral Word32 Word32 where
 instance ToIntegral Word64 Word64 where
   toIntegral = P.id
 
--- | fromIntegral is widely used as a general coercion of integral types, and means conversion to and from Integer.
--- FromIntegralF abstracts the codomain type, compared with the Prelude Integral type.
+-- | 
 -- > fromIntegral a == a
 --
 class FromIntegral a b where
@@ -341,9 +340,58 @@ instance FromIntegral Word32 Word32 where
 instance FromIntegral Word64 Word64 where
   fromIntegral = P.id
 
--- | RebindableSyntax interprets "1" as exactly "fromInteger 1"
-fromInteger :: (FromIntegral a Integer) => Integer -> a
-fromInteger = fromIntegral
+-- | fromInteger is special in two ways:
+--
+-- - numeric integral literals (like "42") are interpreted specifically as "fromInteger (42 :: GHC.Num.Integer)". The prelude version is used as default or whatever is on scope if RebindableSyntax is set.
+--
+-- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromInteger' need to be in a form C v, where v is a Num or a subclass of Num.
+--
+-- So a type synonym of `type FromInteger a = FromIntegral a Integer` doesn't work well with type defaulting, hence the need for a separate class.
+--
+class FromInteger a where
+  fromInteger :: Integer -> a
+
+instance FromInteger Double where
+  fromInteger = P.fromInteger
+
+instance FromInteger Float where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int where
+  fromInteger = P.fromInteger
+
+instance FromInteger Integer where
+  fromInteger = P.id
+
+instance FromInteger Natural where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int8 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int16 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int32 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int64 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word8 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word16 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word32 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word64 where
+  fromInteger = P.fromInteger
 
 -- |
 -- >>> even 2
