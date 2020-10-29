@@ -64,13 +64,13 @@ library
     text >= 1.2 && < 1.3,
   exposed-modules:
     NumHask
-    NumHask.Algebra.Abstract.Additive
-    NumHask.Algebra.Abstract.Field
-    NumHask.Algebra.Abstract.Group
-    NumHask.Algebra.Abstract.Lattice
-    NumHask.Algebra.Abstract.Module
-    NumHask.Algebra.Abstract.Multiplicative
-    NumHask.Algebra.Abstract.Ring
+    NumHask.Algebra.Additive
+    NumHask.Algebra.Field
+    NumHask.Algebra.Group
+    NumHask.Algebra.Lattice
+    NumHask.Algebra.Module
+    NumHask.Algebra.Multiplicative
+    NumHask.Algebra.Ring
     NumHask.Analysis.Metric
     NumHask.Data.Complex
     NumHask.Data.Integral

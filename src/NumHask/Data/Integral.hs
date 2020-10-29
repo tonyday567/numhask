@@ -23,9 +23,9 @@ where
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import Prelude ((.), Double, Float, Int, Integer, fst, snd)
 import qualified Prelude as P
 

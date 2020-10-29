@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Multiplicative classes
-module NumHask.Algebra.Abstract.Multiplicative
+module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
     product,
     Divisive (..),
@@ -23,7 +23,7 @@ import qualified Prelude as P
 -- >>> import NumHask.Prelude
 -- >>> import Test.QuickCheck
 
--- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Abstract.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Abstract.Group.Associative' and 'NumHask.Algebra.Abstract.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+-- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 -- prop> \a -> one * a == a
 -- prop> \a -> a * one == a
@@ -37,7 +37,7 @@ import qualified Prelude as P
 -- >>> 2 * 3
 -- 6
 --
--- By convention, (*) is regarded as commutative when we are referring to simple arithmetic but not necessarily commutative when specifying a 'NumHask.Algebra.Abstract.Ring.Ring'. The introduction of a separate symbol for non-commutative multiplication may be needed at some point in the future given haskell practices.
+-- By convention, (*) is regarded as commutative when we are referring to simple arithmetic but not necessarily commutative when specifying a 'NumHask.Algebra.Ring.Ring'. The introduction of a separate symbol for non-commutative multiplication may be needed at some point in the future given haskell practices.
 class Multiplicative a where
   infixl 7 *
   (*) :: a -> a -> a

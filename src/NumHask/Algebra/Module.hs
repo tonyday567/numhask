@@ -5,7 +5,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra for Modules
-module NumHask.Algebra.Abstract.Module
+module NumHask.Algebra.Module
   ( AdditiveAction (..),
     SubtractiveAction (..),
     MultiplicativeAction (..),
@@ -14,9 +14,9 @@ module NumHask.Algebra.Abstract.Module
   )
 where
 
-import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
 
 -- $setup
 --

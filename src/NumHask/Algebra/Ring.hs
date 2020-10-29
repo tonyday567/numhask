@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Ring
-module NumHask.Algebra.Abstract.Ring
+module NumHask.Algebra.Ring
   ( Distributive,
     Semiring,
     Ring,
@@ -18,9 +18,9 @@ where
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Group
+import NumHask.Algebra.Multiplicative
 import qualified Prelude as P
 
 -- $setup

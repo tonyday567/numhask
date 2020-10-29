@@ -8,13 +8,13 @@
 -- | Wrapped numhask instances, useful for derivingvia situations to quickly specifiy a numhask friendly numerical type.
 module NumHask.Data.Wrapped where
 
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
-import NumHask.Algebra.Abstract.Module
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Field
+import NumHask.Algebra.Group
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
+import NumHask.Algebra.Module
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational

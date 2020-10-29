@@ -11,9 +11,9 @@ main =
   doctest
   [ "src/NumHask.hs",
     "src/NumHask/Prelude.hs",
-    "src/NumHask/Algebra/Abstract/Additive.hs",
-    "src/NumHask/Algebra/Abstract/Multiplicative.hs",
-    "src/NumHask/Algebra/Abstract/Ring.hs",
-    "src/NumHask/Algebra/Abstract/Field.hs",
-    "src/NumHask/Algebra/Abstract/Module.hs"
+    "src/NumHask/Algebra/Additive.hs",
+    "src/NumHask/Algebra/Multiplicative.hs",
+    "src/NumHask/Algebra/Ring.hs",
+    "src/NumHask/Algebra/Field.hs",
+    "src/NumHask/Algebra/Module.hs"
   ]

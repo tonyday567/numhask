@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | The Group hierarchy
-module NumHask.Algebra.Abstract.Group
+module NumHask.Algebra.Group
   ( Magma (..),
     Unital (..),
     Associative,

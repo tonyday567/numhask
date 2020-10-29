@@ -4,7 +4,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | <https://en.wikipedia.org/wiki/Lattice_(order)>
-module NumHask.Algebra.Abstract.Lattice
+module NumHask.Algebra.Lattice
   ( JoinSemiLattice(..),
     joinLeq,
     MeetSemiLattice(..),
@@ -16,8 +16,8 @@ module NumHask.Algebra.Abstract.Lattice
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Additive (zero)
+import NumHask.Algebra.Field
+import NumHask.Algebra.Additive (zero)
 import Data.Bool
 import Data.Eq
 import GHC.Float (Float, Double)

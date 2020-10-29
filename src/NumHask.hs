@@ -21,13 +21,13 @@ module NumHask
 
     -- * Exports
     -- $instances
-    module NumHask.Algebra.Abstract.Additive,
-    module NumHask.Algebra.Abstract.Field,
-    module NumHask.Algebra.Abstract.Group,
-    module NumHask.Algebra.Abstract.Lattice,
-    module NumHask.Algebra.Abstract.Module,
-    module NumHask.Algebra.Abstract.Multiplicative,
-    module NumHask.Algebra.Abstract.Ring,
+    module NumHask.Algebra.Additive,
+    module NumHask.Algebra.Field,
+    module NumHask.Algebra.Group,
+    module NumHask.Algebra.Lattice,
+    module NumHask.Algebra.Module,
+    module NumHask.Algebra.Multiplicative,
+    module NumHask.Algebra.Ring,
     module NumHask.Analysis.Metric,
     module NumHask.Data.Complex,
     module NumHask.Data.Integral,
@@ -40,13 +40,13 @@ module NumHask
   )
 where
 
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Group
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Module
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Field
+import NumHask.Algebra.Group
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Module
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Complex
 import NumHask.Data.Integral

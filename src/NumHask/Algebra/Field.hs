@@ -7,7 +7,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
-module NumHask.Algebra.Abstract.Field
+module NumHask.Algebra.Field
   ( Field,
     ExpField (..),
     QuotientField (..),
@@ -19,9 +19,9 @@ module NumHask.Algebra.Abstract.Field
 where
 
 import Data.Bool (bool)
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import Prelude ((.))
 import qualified Prelude as P

@@ -26,11 +26,11 @@ import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Float
 import GHC.Natural (Natural (..))
 import qualified GHC.Real
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Field
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import Prelude ((.), Int, Integer, Rational)

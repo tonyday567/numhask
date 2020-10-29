@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Additive classes
-module NumHask.Algebra.Abstract.Additive
+module NumHask.Algebra.Additive
   ( Additive (..),
     sum,
     Subtractive (..),
@@ -22,7 +22,7 @@ import qualified Prelude as P
 -- >>> import NumHask.Prelude
 -- >>> import Test.QuickCheck
 
--- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Abstract.Additive.Additive'.  Starting with  'NumHask.Algebra.Abstract.Group.Associative' and 'NumHask.Algebra.Abstract.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+-- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 -- prop> \a -> zero + a == a
 -- prop> \a -> a + zero == a
