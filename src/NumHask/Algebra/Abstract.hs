@@ -11,12 +11,10 @@ module NumHask.Algebra.Abstract
     module NumHask.Algebra.Abstract.Ring,
     module NumHask.Algebra.Abstract.Field,
     module NumHask.Algebra.Abstract.Module,
-    module NumHask.Algebra.Abstract.Action,
     module NumHask.Algebra.Abstract.Lattice,
   )
 where
 
-import NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group

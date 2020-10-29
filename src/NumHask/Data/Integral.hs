@@ -11,11 +11,8 @@
 module NumHask.Data.Integral
   ( Integral (..),
     ToIntegral (..),
-    ToInteger,
-    toInteger,
     FromIntegral (..),
-    FromInteger (..),
-    fromIntegral,
+    fromInteger,
     even,
     odd,
     (^),
@@ -116,12 +113,6 @@ class ToIntegral a b where
   default toIntegral :: (a ~ b) => a -> b
   toIntegral = P.id
 
-type ToInteger a = ToIntegral a Integer
-
--- fitting in with legacy naming conventions.
-toInteger :: (ToInteger a) => a -> Integer
-toInteger = toIntegral
-
 instance ToIntegral Integer Integer where
   toIntegral = P.id
 
@@ -161,6 +152,39 @@ instance ToIntegral Word64 Integer where
 instance ToIntegral Int Int where
   toIntegral = P.id
 
+instance ToIntegral Integer Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Natural Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Int8 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Int16 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Int32 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Int64 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Word Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Word8 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Word16 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Word32 Int where
+  toIntegral = P.fromIntegral
+
+instance ToIntegral Word64 Int where
+  toIntegral = P.fromIntegral
+
 instance ToIntegral Natural Natural where
   toIntegral = P.id
 
@@ -191,140 +215,141 @@ instance ToIntegral Word32 Word32 where
 instance ToIntegral Word64 Word64 where
   toIntegral = P.id
 
--- | fromIntegral abstracts the codomain type, compared with the preludes Integral type.
--- > fromIntegral_ a == a
+-- | fromIntegral is widely used as a general coercion of integral types, and means conversion to and from Integer.
+-- FromIntegralF abstracts the codomain type, compared with the Prelude Integral type.
+-- > fromIntegral a == a
 --
--- fromIntegral is widely used as general coercion, hence the underscore for the operator.
 class FromIntegral a b where
-  fromIntegral_ :: b -> a
-  default fromIntegral_ :: (a ~ b) => b -> a
-  fromIntegral_ = P.id
-
--- | general coercion via Integer
-fromIntegral :: (FromInteger b, ToInteger a) => a -> b
-fromIntegral = fromInteger . toInteger
+  fromIntegral :: b -> a
+  default fromIntegral :: (a ~ b) => b -> a
+  fromIntegral = P.id
 
 instance (FromIntegral a b) => FromIntegral (c -> a) b where
-  fromIntegral_ i _ = fromIntegral_ i
+  fromIntegral i _ = fromIntegral i
 
 instance FromIntegral Double Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Float Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Integer Integer where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Natural Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int8 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int16 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int32 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int64 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Word Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Word8 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Word16 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Word32 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Word64 Integer where
-  fromIntegral_ = P.fromInteger
+  fromIntegral = P.fromInteger
+
+instance FromIntegral Double Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Float Int where
+  fromIntegral = P.fromIntegral
 
 instance FromIntegral Int Int where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
+
+instance FromIntegral Integer Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Natural Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Int8 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Int16 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Int32 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Int64 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Word Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Word8 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Word16 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Word32 Int where
+  fromIntegral = P.fromIntegral
+
+instance FromIntegral Word64 Int where
+  fromIntegral = P.fromIntegral
 
 instance FromIntegral Natural Natural where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Int8 Int8 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Int16 Int16 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Int32 Int32 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Int64 Int64 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Word Word where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Word8 Word8 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Word16 Word16 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Word32 Word32 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
 instance FromIntegral Word64 Word64 where
-  fromIntegral_ = P.id
+  fromIntegral = P.id
 
--- | ghc defaulting rules and, it seems, -XExtendedDefaultRules do not permit multiple parameter typeclasses to be in the mix when types are resolved, hence the simpler `type FromInteger a = FromIntegral a Integer` does not suffice.
-class FromInteger a where
-  fromInteger :: Integer -> a
-  default fromInteger :: (FromIntegral a Integer) => Integer -> a
-  fromInteger = fromIntegral_
-
-instance FromInteger Integer
-
-instance FromInteger Int
-
-instance FromInteger Double
-
-instance FromInteger Float
-
-instance FromInteger Natural
-
-instance FromInteger Int8
-
-instance FromInteger Int16
-
-instance FromInteger Int32
-
-instance FromInteger Int64
-
-instance FromInteger Word
-
-instance FromInteger Word8
-
-instance FromInteger Word16
-
-instance FromInteger Word32
-
-instance FromInteger Word64
+fromInteger :: (FromIntegral a Integer) => Integer -> a
+fromInteger = fromIntegral
 
 -- $operators
-
 even :: (P.Eq a, Integral a) => a -> P.Bool
 even n = n `rem` (one + one) P.== zero
 
 odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
-
--------------------------------------------------------
 
 -- | raise a number to a non-negative integral power
 (^) ::

@@ -3,9 +3,11 @@
 
 -- | Combines 'Protolude' and 'numhask'.
 module NumHask.Prelude
-  ( -- * NumHask
+  ( -- * Overview
+    -- $overview
+
+    -- * NumHask
     -- $instances
-    module NumHask.Algebra.Abstract.Action,
     module NumHask.Algebra.Abstract.Additive,
     module NumHask.Algebra.Abstract.Field,
     module NumHask.Algebra.Abstract.Group,
@@ -22,6 +24,9 @@ module NumHask.Prelude
     module NumHask.Data.Positive,
     Natural (..),
     module NumHask.Exception,
+
+    -- * Extensions
+    -- $extensions
 
     -- * Backend
     -- $backend
@@ -50,7 +55,6 @@ import Data.String
 import Data.Text (pack, unpack)
 import GHC.Exts
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Action
 import NumHask.Algebra.Abstract.Additive
 import NumHask.Algebra.Abstract.Field
 import NumHask.Algebra.Abstract.Group
@@ -68,6 +72,9 @@ import NumHask.Data.Rational
 import NumHask.Exception
 import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Complex (..), Integral (..), Product (..), Ratio, Rep, Semiring (..), Sum (..), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cis, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, imagPart, infinity, log, logBase, magnitude, mkPolar, negate, odd, phase, pi, polar, product, properFraction, realPart, recip, reduce, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, trans, truncate, zero)
 
+-- $overview
+-- TODO:
+
 -- $backend
 -- NumHask imports Protolude as a starting prelude.
 --
@@ -77,6 +84,24 @@ import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Comple
 -- NumHask replaces much of the 'Num' and 'Real' heirarchies in protolude & base.
 --
 -- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool', 'Complex' and 'Natural'are supplied.
+
+-- $extensions
+--
+-- RebindableSyntax
+-- Awaiting LexicalNegation
+-- NegativeLiterals
+-- > :set -XRebindableSyntax
+-- > \x -> x - 1
+-- > \x -> x - 1 :: (Subtractive a, FromIntegral a Integer) => a -> a
+--
+-- > \x -> x-1
+-- \x -> x-1 :: FromIntegral t1 Integer => (t1 -> t2) -> t2
+--
+-- > -1 `mod` 2
+-- 1
+--
+-- Default system gets turned off by RebindableSyntax
+
 
 -- | rebindable syntax splats this, and I'm not sure where it exists in GHC land
 ifThenElse :: Bool -> a -> a -> a

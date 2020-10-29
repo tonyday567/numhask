@@ -13,6 +13,7 @@ import NumHask.Algebra.Abstract.Group
 import NumHask.Algebra.Abstract.Lattice
 import NumHask.Algebra.Abstract.Multiplicative
 import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Abstract.Module
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
@@ -30,6 +31,8 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       Multiplicative,
       Divisive,
       Distributive,
+      Ring,
+      Semiring,
       IntegralDomain,
       InvolutiveRing,
       StarSemiring,
@@ -41,12 +44,14 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       Signed,
       MeetSemiLattice,
       JoinSemiLattice,
+      BoundedJoinSemiLattice,
+      BoundedMeetSemiLattice,
       Epsilon,
       UpperBoundedField,
       LowerBoundedField
     )
 
--- not sure if this is correct or needed
+-- TODO: not sure if this is correct or needed
 type role Wrapped representational
 
 instance
@@ -56,7 +61,7 @@ instance
   properFraction (Wrapped a) = let (i, r) = properFraction a in (Wrapped i, Wrapped r)
 
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
-  fromIntegral_ a = Wrapped (fromIntegral_ a)
+  fromIntegral a = Wrapped (fromIntegral a)
 
 instance (ToIntegral a b) => ToIntegral (Wrapped a) b where
   toIntegral (Wrapped a) = toIntegral a
@@ -72,3 +77,19 @@ instance (Normed a b) => Normed (Wrapped a) (Wrapped b) where
 
 instance (Metric a b) => Metric (Wrapped a) (Wrapped b) where
   distance (Wrapped a) (Wrapped b) = Wrapped (distance a b)
+
+instance (Additive a, AdditiveAction m a) => AdditiveAction m (Wrapped a) where
+  (.+) (Wrapped a) m = a .+ m
+  (+.) m (Wrapped a) = m +. a
+
+instance (Subtractive a, SubtractiveAction m a) => SubtractiveAction m (Wrapped a) where
+  (.-) (Wrapped a) m = a .- m
+  (-.) m (Wrapped a) = m -. a
+
+instance (Multiplicative a, MultiplicativeAction m a) => MultiplicativeAction m (Wrapped a) where
+  (.*) (Wrapped a) m = a .* m
+  (*.) m (Wrapped a) = m *. a
+
+instance (Divisive a, DivisiveAction m a) => DivisiveAction m (Wrapped a) where
+  (./) (Wrapped a) m = a ./ m
+  (/.) m (Wrapped a) = m /. a

@@ -1,6 +1,6 @@
 cabal-version: 2.4
 name: numhask
-version: 0.6.0.2
+version: 0.6.1.0
 synopsis:
   numeric classes
 description:
@@ -58,7 +58,6 @@ library
     text >= 1.2
   exposed-modules:
     NumHask.Algebra.Abstract
-    NumHask.Algebra.Abstract.Action
     NumHask.Algebra.Abstract.Additive
     NumHask.Algebra.Abstract.Field
     NumHask.Algebra.Abstract.Group
