@@ -8,19 +8,14 @@ description:
     .
     == Usage
     .
-    >>> import Chart
-    >>>
-    >>> let xs = [[(0.0, 1.0), (1.0, 1.0), (2.0, 5.0)], [(0.0, 0.0), (3.0, 3.0)], [(0.5, 4.0), (0.5, 0)]] :: [[(Double, Double)]]
-    >>> let ls = fmap (PointXY . uncurry Point) <$> xs
-    >>> let anns = zipWith (\w c -> LineA (LineStyle w c)) [0.015, 0.03, 0.01] palette1
-    >>> let lineChart = zipWith Chart anns ls
-    >>> writeChartSvgHud "other/lineshud.svg" lineChart
+    >>> {-# LANGUAGE NegativeLiterals #-}
+    >>> {-# LANGUAGE RebindableSyntax #-}
+    >>> import NumHask.Prelude
     .
-    ![main example](other/lineshud.svg)
+    ![field](other/field.svg)
     .
-    See "Chart" for a broad overview of concepts, and "Chart.Examples" for a variety of practical examples.
+    See "NumHask" for a detailed overview.
 
-  A numeric class heirarchy.
 category:
   mathematics
 homepage:

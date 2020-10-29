@@ -5,13 +5,21 @@
 
 -- | Numeric classes.
 module NumHask
-  ( -- * Overview
+  ( -- * Usage
+    -- $setup
+
+    -- * Overview
     -- $overview
+    -- $pictures
 
-    -- * Mappings
+    -- * Prelude Mappings
     -- $mapping
+    -- $backend
 
-    -- * NumHask
+    -- * Extensions
+    -- $extensions
+
+    -- * Exports
     -- $instances
     module NumHask.Algebra.Abstract.Additive,
     module NumHask.Algebra.Abstract.Field,
@@ -28,9 +36,6 @@ module NumHask
     module NumHask.Data.Pair,
     module NumHask.Data.Positive,
     module NumHask.Exception,
-
-    -- * Extensions
-    -- $extensions
 
   )
 where
@@ -58,18 +63,27 @@ import NumHask.Exception
 -- >>> import NumHask.Prelude
 -- >>> 1+1
 -- 2
+--
+-- See the extensions section for discussion on recommended extensions.
 
--- | $defaulting
+-- $extensions
+--
+-- [RebindableSyntax](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/rebindable_syntax.html) and [NegativeLiterals](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/negative_literals.html) are both recommended for use with numhask. [LexicalNegation](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/lexical_negation.html) also looks sweet when it arrives.
+--
+-- As a replacement for the numerical classes in prelude, numhask clashes significantly with @import Prelude@. Either numhask modules should be qualified, or prelude turned off with the NoImplicitPrelude extension.
+--
+-- == defaulting
 --
 -- Without RebindableSyntax, numeric literals default as follows:
 --
--- > :t 1
+-- >>> :set -XNoRebindableSyntax
+-- >>> :t 1
 -- 1 :: Num p => p
 --
--- > :t 1.0
+-- >>> :t 1.0
 -- 1.0 :: Fractional p => p
 --
--- With RebindableSyntax:
+-- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to numhask types:
 --
 -- >>> :set -XRebindableSyntax
 -- >>> :t 1
@@ -83,32 +97,61 @@ import NumHask.Exception
 --
 -- >>> 1.0
 -- 1.0
-
-
-
-
--- > :t Pair 1 -2
+--
+-- It is recommended to switch on RebindableSyntax to avoid Num constraints being introduced due to literal defaulting. The extension is a tradeoff, however, and usage comes attached with other non-numeric changes that "NumHask.Prelude" attempts to counteract.
+--
+-- See See [haskell2010 Section 4.3.4](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3) for the nuts and bolts to defaulting.
+--
+-- The effect of [ExtendedDefaultRules](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/ghci.html#extension-ExtendedDefaultRules) in ghci or switched on as an extension also need to be understood. It can lead to unusual interactions with numerics and strange error messages at times because it adds @()@ and @[]@ to the start of the type defaulting list.
+--
+-- == Negatives
+--
+-- Without [NegativeLiterals](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/negative_literals.html), GHC and Haskell often reads a negative as subtraction rather than a minus.
+--
+-- >>> :set -XNoNegativeLiterals
+-- >>> :t Pair 1 -2
 -- Pair 1 -2
---   :: (Subtractive a, FromInteger a, FromInteger (a -> Pair a)) =>
---     a -> Pair a
--- > :set -XNegativeLiterals
--- > :t Pair 1 -2
--- > Pair 1 -2 :: FromInteger a => Pair a
--- > Pair 1 -2
+--   :: (Subtractive (Pair a), FromInteger a,
+--       FromInteger (a -> Pair a)) =>
+--      a -> Pair a
+-- ...
+--
+-- >>> :set -XNegativeLiterals
+-- >>> :t Pair 1 -2
+-- Pair 1 -2 :: FromInteger a => Pair a
+--
+-- >>> Pair 1 -2
 -- Pair 1 -2
-
-
+--
+-- [LexicalNegation](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/lexical_negation.html) is coming soon as a valid replacement for NegativeLiterals and will tighten things up further.
+--
 
 -- $overview
--- <https://www.haskell.org/onlinereport/standard-prelude.html haskell98 prelude>
--- <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude>
+-- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents. Principles that have guided design include:
+--
+-- - _/middle-of-the-road class density/_. The numeric heirarchy begins with addition and multiplication, choosing not to build from a magma-base. Whilst not being as principled as other approaches, this circumvents the exponential instance growth problems of Haskell whilst maintaining clarity of class purpose.
+--
+-- - _/operator-first/_. In most cases, a class exists to define useful operators. There are exceptions, such as the 'Ring' class, that represent major conceptual domains.
+--
+-- - _/lawful/_. Most classes have laws associated with them that serve to relate class operators together in a meaningful way.
+--
+-- - _/low-impact/_. The library attempts to fit in with the rest of the Haskell ecosystem. It provides instances for common numbers: 'Int', 'Integer', 'Double', 'Float' and the Word number classes. It avoids name (or idea) clashes with other popular libraries and adopts conventions in the <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude> where they make sense.
+--
+-- - _/proof-of-concept/_. The library may be below industrial-strength depending on a definition of this term. At the same time, most correspondence around improving the library is most welcome.
+
+-- $pictures
+--
+-- The class heirarchy looks somewhat like this:
+-- ![field example](other/field.svg)
+--
+-- The first two levels, Magma and it's direct descendents are "moral-only" and not  used in the subsequent class definitions so as to avoid naming clashes with base (Semigroup and Monoid), and instance explosion.
+--
+
 -- $mapping
 --
--- 'GHC.Num' is a very old part of haskell, and a lot of different numeric concepts are tossed in there. The closest analogue in numhask is the 'Ring' class:
+-- 'GHC.Num' is a very old part of haskell, and is virtually unchanged since it's specification in [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
 --
--- ![ring example](other/ring.svg)
---
--- No attempt is made, however, to reconstruct the particular constellation of classes that represent the old 'Num'.  A rough mapping of to numhask classes follows:
+-- 'GHC.Num.Num' is (very roughly) 'Ring'. Operators are split into 'Additive', 'Subtractive', 'Multiplicative' and 'Signed'. 'Distributive' is also introduced to cover distribution and absorption laws.
 --
 -- > -- | Basic numeric class.
 -- > class  Num a  where
@@ -119,9 +162,8 @@ import NumHask.Exception
 -- >    negate              :: a -> a
 --
 -- + is a function of the 'Additive' class,
--- - is a function of the 'Subtractive' class, and
+-- - & negate are functions in the 'Subtractive' class, and
 -- * is a function of the 'Multiplicative' class.
--- negate is a unary function in the 'Subtractive' class.
 --
 -- >    -- | Absolute value.
 -- >    abs                 :: a -> a
@@ -134,7 +176,7 @@ import NumHask.Exception
 -- >    -- or @1@ (positive).
 -- >    signum              :: a -> a
 --
--- abs is a function in the 'NumHask.Analysis.Metric.Signed' class.  The concept of an absolute value of a number can include situations where the domain and codomain are different, and norm as a function in the 'NumHask.Analysis.Metric.Normed' class is supplied for these cases.
+-- abs is a function in the 'NumHask.Analysis.Metric.Signed' class.  The concept of an absolute value can also include situations where the domain and codomain are different, and 'norm' as a function in the 'NumHask.Analysis.Metric.Normed' class is supplied for these cases.
 --
 --  'NumHask.Analysis.Metric.sign' replaces 'signum', because signum is a heinous name.
 --
@@ -144,30 +186,13 @@ import NumHask.Exception
 -- >    -- so such literals have type @('Num' a) => a@.
 -- >    fromInteger         :: Integer -> a
 --
+-- 'FromInteger' becomes its own class and 'FromIntegral' polymorphising the covariant.
+--
+-- 'GHC.Real.Integral' becomes 'Integral' and a polymorphic 'ToIntegral'.
+-- 'GHC.Real.Fractional' becomes 'Field' and a polymorphic 'FromRatio'.
+-- 'GHC.Real.RealFrac' becomes the polymorphic 'QuotientField'
+-- 'GHC.Float.Floating' is split into 'ExpField' and 'TrigField'
+-- 'GHC.Float.RealFloat' is not attempted. Life is too short.
 
 -- $backend
--- NumHask imports Protolude as a starting prelude.
---
--- In addition, 'id' is imported (protolude uses 'identity')
-
--- $instances
--- NumHask replaces much of the 'Num' and 'Real' heirarchies in protolude & base.
---
--- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool', 'Complex' and 'Natural'are supplied.
-
--- $extensions
---
--- RebindableSyntax
--- Awaiting LexicalNegation
--- NegativeLiterals
--- > :set -XRebindableSyntax
--- > \x -> x - 1
--- > \x -> x - 1 :: (Subtractive a, FromIntegral a Integer) => a -> a
---
--- > \x -> x-1
--- \x -> x-1 :: FromIntegral t1 Integer => (t1 -> t2) -> t2
---
--- > -1 `mod` 2
--- 1
---
--- Default system gets turned off by RebindableSyntax
+-- NumHask imports Protolude as a starting prelude with some minor tweaks.
