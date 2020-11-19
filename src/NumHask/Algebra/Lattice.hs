@@ -1,31 +1,35 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
-module NumHask.Algebra.Abstract.Lattice
-  ( JoinSemiLattice(..),
+-- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
+module NumHask.Algebra.Lattice
+  ( JoinSemiLattice (..),
     joinLeq,
-    MeetSemiLattice(..),
+    MeetSemiLattice (..),
     meetLeq,
-    BoundedJoinSemiLattice(..),
-    BoundedMeetSemiLattice(..),
-  ) where
+    BoundedJoinSemiLattice (..),
+    BoundedMeetSemiLattice (..),
+  )
+where
 
-import Data.Int (Int16, Int32, Int64, Int8)
-import Data.Word (Word16, Word32, Word64, Word8)
-import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Field
 import Data.Bool
 import Data.Eq
-import GHC.Float (Float, Double)
+import Data.Function (const)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Ord (Ord (..))
+import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Enum (Bounded (..))
+import GHC.Float (Double, Float)
 import GHC.Int (Int)
+import GHC.Natural (Natural (..))
 import GHC.Num (Integer)
 import GHC.Word (Word)
-import Data.Ord (Ord(..))
-import GHC.Enum (Bounded(..))
-import Data.Function (const)
+import NumHask.Algebra.Additive (zero)
+import NumHask.Algebra.Field
 
--- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
+-- | A algebraic structure with element joins: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --
 -- > Associativity: x \/ (y \/ z) == (x \/ y) \/ z
 -- > Commutativity: x \/ y == y \/ x
@@ -38,7 +42,7 @@ class (Eq a) => JoinSemiLattice a where
 joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
--- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
+-- | A algebraic structure with element meets: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
 -- > Commutativity: x /\ y == y /\ x
@@ -52,7 +56,7 @@ meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
--- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
+-- see [Absorption Law](http://en.wikipedia.org/wiki/Absorption_law) and [Lattice](http://en.wikipedia.org/wiki/Lattice_(order\))
 --
 -- > Absorption: a \/ (a /\ b) == a /\ (a \/ b) == a
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
@@ -199,7 +203,7 @@ instance BoundedMeetSemiLattice Bool where
   top = True
 
 instance BoundedJoinSemiLattice Natural where
-  bottom = 0
+  bottom = zero
 
 instance BoundedJoinSemiLattice Int8 where
   bottom = minBound

@@ -7,7 +7,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
-module NumHask.Algebra.Abstract.Field
+module NumHask.Algebra.Field
   ( Field,
     ExpField (..),
     QuotientField (..),
@@ -19,38 +19,46 @@ module NumHask.Algebra.Abstract.Field
 where
 
 import Data.Bool (bool)
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import Prelude ((.))
 import qualified Prelude as P
 
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> :set -XFlexibleContexts
+-- >>> :set -XScopedTypeVariables
+-- >>> import NumHask.Prelude
+-- >>> import Test.QuickCheck
+
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
 --
--- A summary of the rules thus inherited from super-classes of Field
+-- A summary of the rules inherited from super-classes of Field. Floating point computation is a terrible, messy business and, in practice, only rough approximation can be achieve for association and distribution.
 --
 -- > zero + a == a
 -- > a + zero == a
--- > (a + b) + c == a + (b + c)
+-- > ((a + b) + c) (a + (b + c))
 -- > a + b == b + a
--- > a - a = zero
--- > negate a = zero - a
--- > negate a + a = zero
--- > a + negate a = zero
+-- > a - a == zero
+-- > negate a == zero - a
+-- > negate a + a == zero
+-- > a + negate a == zero
 -- > one * a == a
 -- > a * one == a
--- > (a * b) * c == a * (b * c)
--- > a * (b + c) == a * b + a * c
--- > (a + b) * c == a * c + b * c
+-- > ((a * b) * c) == (a * (b * c))
+-- > (a * (b + c)) == (a * b + a * c)
+-- > ((a + b) * c) == (a * c + b * c)
 -- > a * zero == zero
 -- > zero * a == zero
--- > a * b == b * a
--- > a / a = one
--- > recip a = one / a
--- > recip a * a = one
--- > a * recip a = one
+-- > a / a == one || a == zero
+-- > recip a == one / a || a == zero
+-- > recip a * a == one || a == zero
+-- > a * recip a == one || a == zero
 class
   (Distributive a, Subtractive a, Divisive a) =>
   Field a
@@ -63,8 +71,8 @@ instance Field b => Field (a -> b)
 
 -- | A hyperbolic field class
 --
--- > sqrt . (**2) == identity
--- > log . exp == identity
+-- > sqrt . (**2) == id
+-- > log . exp == id
 -- > for +ive b, a != 0,1: a ** logBase a b ≈ b
 class
   (Field a) =>
@@ -95,10 +103,13 @@ instance ExpField b => ExpField (a -> b) where
   f ** f' = \a -> f a ** f' a
   sqrt f = sqrt . f
 
--- > a - one < floor a <= a <= ceiling a < a + one
--- > round a == floor (a + one/(one+one))
+-- | Conversion from a 'Field' to a 'Ring'
 --
-class (Field a, Subtractive a, Multiplicative b, Additive b) => QuotientField a b where
+-- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
+--
+-- > a - one < floor a <= a <= ceiling a < a + one
+-- > round a == floor (a + half)
+class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
@@ -156,7 +167,7 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
 
   truncate f = truncate . f
 
--- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
+-- | A bounded field introduces the concepts of infinity and NaN.
 --
 -- > one / zero + infinity == infinity
 -- > infinity + a == infinity
@@ -180,6 +191,7 @@ instance UpperBoundedField b => UpperBoundedField (a -> b) where
   infinity _ = infinity
   nan _ = nan
 
+-- | Negative infinity.
 class
   (Subtractive a, Field a) =>
   LowerBoundedField a where
@@ -249,7 +261,7 @@ instance TrigField b => TrigField (a -> b) where
   asin f = asin . f
   acos f = acos . f
   atan f = atan . f
-  atan2 f g = \x -> atan2 (f x) (g x)
+  atan2 f g x = atan2 (f x) (g x)
   sinh f = sinh . f
   cosh f = cosh . f
   asinh f = asinh . f

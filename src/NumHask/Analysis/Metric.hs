@@ -1,12 +1,18 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FunctionalDependencies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
 module NumHask.Analysis.Metric
   ( Signed (..),
-    Normed (..),
-    Metric (..),
+    Norm (..),
+    distance,
+    Direction (..),
+    Polar (..),
+    polar,
+    coord,
     Epsilon (..),
     (~=),
   )
@@ -14,25 +20,26 @@ where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Multiplicative
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Module
+import NumHask.Algebra.Multiplicative
 import Prelude hiding
-  ( (-),
+  ( (*),
+    (-),
     Bounded (..),
     Integral (..),
     negate,
   )
 import qualified Prelude as P
 
--- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' where there is a change in codomain
+-- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain
 --
 -- > abs a * sign a == a
---
--- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
 class
-  (Multiplicative a) =>
+  (Additive a, Multiplicative a) =>
   Signed a where
   sign :: a -> a
   abs :: a -> a
@@ -129,109 +136,104 @@ instance Signed Word64 where
     | otherwise = one
   abs = P.abs
 
--- | Cab be Normed
+-- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
 --
 -- > norm a >= zero
 -- > norm zero == zero
---
--- Note that the Normed codomain can be different to the domain.
-class (Additive a, Additive b) => Normed a b where
+-- > a == norm a .* basis a
+-- > norm (basis a) == one
+class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
   norm :: a -> b
+  basis :: a -> a
 
-instance Normed Double Double where
+instance Norm Double Double where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Float Float where
+instance Norm Float Float where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Int Int where
+instance Norm Int Int where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Integer Integer where
+instance Norm Integer Integer where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Natural Natural where
+instance Norm Natural Natural where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Int8 Int8 where
+instance Norm Int8 Int8 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Int16 Int16 where
+instance Norm Int16 Int16 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Int32 Int32 where
+instance Norm Int32 Int32 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Int64 Int64 where
+instance Norm Int64 Int64 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Word Word where
+instance Norm Word Word where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Word8 Word8 where
+instance Norm Word8 Word8 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Word16 Word16 where
+instance Norm Word16 Word16 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Word32 Word32 where
+instance Norm Word32 Word32 where
   norm = P.abs
+  basis = P.signum
 
-instance Normed Word64 Word64 where
+instance Norm Word64 Word64 where
   norm = P.abs
+  basis = P.signum
 
--- | distance between numbers using L1 norm
+-- | Distance, which combines the Subtractive notion of difference, with Norm.
 --
 -- > distance a b >= zero
 -- > distance a a == zero
+-- > distance a b .* basis (a - b) == a - b
+distance :: (Norm a b, Subtractive a) => a -> a -> b
+distance a b = norm (a - b)
+
+-- | Convert between a "co-ordinated" or "higher-kinded" number and representations of an angle. Typically thought of as polar co-ordinate conversion.
 --
-class Metric a b where
-  distance :: a -> a -> b
+-- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
+--
+-- > ray . angle == basis
+-- > norm (ray x) == 1
+class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) => Direction coord dir | coord -> dir where
+  angle :: coord -> dir
+  ray :: dir -> coord
 
-instance Metric Double Double where
-  distance a b = norm (a - b)
+-- | Something that has a magnitude and a direction.
+data Polar mag dir
+  = Polar {magnitude :: mag, direction :: dir}
+  deriving (Eq, Show, Generic)
 
-instance Metric Float Float where
-  distance a b = norm (a - b)
+-- | Convert from a number to a Polar.
+polar :: (Norm coord mag, Direction coord dir) => coord -> Polar mag dir
+polar z = Polar (norm z) (angle z)
 
-instance Metric Int Int where
-  distance a b = norm (a - b)
+-- | Convert from a Polar to a (coordinated aka higher-kinded) number.
+coord :: (MultiplicativeAction coord mag, Direction coord dir) => Polar mag dir -> coord
+coord (Polar m d) = m .* ray d
 
-instance Metric Integer Integer where
-  distance a b = norm (a - b)
-
-instance Metric Natural Natural where
-  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
-
-instance Metric Int8 Int8 where
-  distance a b = norm (a - b)
-
-instance Metric Int16 Int16 where
-  distance a b = norm (a - b)
-
-instance Metric Int32 Int32 where
-  distance a b = norm (a - b)
-
-instance Metric Int64 Int64 where
-  distance a b = norm (a - b)
-
-
--- fixme: circular distance may be more appropriate
-instance Metric Word Word where
-  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
-
-instance Metric Word8 Word8 where
-  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
-
-instance Metric Word16 Word16 where
-  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
-
-instance Metric Word32 Word32 where
-  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
-
-instance Metric Word64 Word64 where
-  distance a b = P.fromInteger $ norm (P.toInteger a - P.toInteger b)
-
+-- | A small number, especially useful for approximate equality.
 class
   (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
   Epsilon a where
@@ -246,15 +248,19 @@ class
 
 infixl 4 ~=
 
+-- | About equal.
 (~=) :: (Epsilon a) => a -> a -> Bool
 (~=) = aboutEqual
 
+-- | 1e-14
 instance Epsilon Double where
   epsilon = 1e-14
 
+-- | 1e-6
 instance Epsilon Float where
   epsilon = 1e-6
 
+-- | 0
 instance Epsilon Int
 
 instance Epsilon Integer

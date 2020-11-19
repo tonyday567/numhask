@@ -8,6 +8,17 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
+-- Module      :  Data.Number.LogFloat
+-- Copyright   :  Copyright (c) 2007--2015 wren gayle romano
+-- License     :  BSD3
+-- Maintainer  :  wren@community.haskell.org
+-- Stability   :  stable
+-- Portability :  portable (with CPP, FFI)
+-- Link        :  https://hackage.haskell.org/package/logfloat
+
+-- | A 'Field' in the log domain.
+--
+-- LogField is adapted from [logfloat](https://hackage.haskell.org/package/logfloat)
 module NumHask.Data.LogField
   ( -- * @LogField@
     LogField (),
@@ -28,31 +39,15 @@ where
 import Data.Data (Data)
 import qualified Data.Foldable as F
 import GHC.Generics (Generic, Generic1)
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Field
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
-
--- LogField is adapted from LogFloat
-----------------------------------------------------------------
---                                                  ~ 2015.08.06
-
--- |
--- Module      :  Data.Number.LogFloat
--- Copyright   :  Copyright (c) 2007--2015 wren gayle romano
--- License     :  BSD3
--- Maintainer  :  wren@community.haskell.org
--- Stability   :  stable
--- Portability :  portable (with CPP, FFI)
--- Link        :  https://hackage.haskell.org/package/logfloat
-----------------------------------------------------------------
-----------------------------------------------------------------
---
+import Prelude hiding (Num (..), exp, fromIntegral, log, negate)
 
 -- | A @LogField@ is just a 'Field' with a special interpretation.
 -- The 'LogField' function is presented instead of the constructor,
@@ -69,7 +64,6 @@ import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
 -- > logField (p + q) == logField p + logField q
 -- > logField (p * q) == logField p * logField q
 --
---
 -- Performing operations in the log-domain is cheap, prevents
 -- underflow, and is otherwise very nice for dealing with miniscule
 -- probabilities. However, crossing into and out of the log-domain
@@ -80,7 +74,7 @@ import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
 -- won't underflow; because that way you enter the log-domain only
 -- once, instead of twice. Also note that, for precision, if you're
 -- doing more than a few multiplications in the log-domain, you
--- should use 'product' rather than using '(*)' repeatedly.
+-- should use 'NumHask.Algebra.Multiplication.product' rather than using '(*)' repeatedly.
 --
 -- Even more particularly, you should /avoid addition/ whenever
 -- possible. Addition is provided because sometimes we need it, and
@@ -254,10 +248,6 @@ instance
   LowerBoundedField (LogField a)
 
 instance
-  (Ord a, ExpField a, LowerBoundedField a) =>
-  IntegralDomain (LogField a)
-
-instance
   (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
   UpperBoundedField (LogField a)
 
@@ -276,8 +266,6 @@ instance
 -- equivalence holds (modulo underflow and all that):
 --
 -- > LogField (p ** m) == LogField p `pow` m
---
--- /Since: 0.13/
 pow :: (ExpField a, LowerBoundedField a, Ord a) => LogField a -> a -> LogField a
 {-# INLINE pow #-}
 

@@ -3,8 +3,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
@@ -12,24 +12,24 @@ module NumHask.Data.Integral
   ( Integral (..),
     ToIntegral (..),
     FromIntegral (..),
-    fromInteger,
+    FromInteger (..),
     even,
     odd,
-    (^),
     (^^),
+    (^),
   )
 where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import Prelude ((.), Double, Float, Int, Integer, fst, snd)
 import qualified Prelude as P
 
--- | Integral laws
+-- | An Integral is anything that satisfies the law:
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
 class
@@ -107,8 +107,11 @@ instance Integral b => Integral (a -> b) where
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
 
 -- | toIntegral is kept separate from Integral to help with compatability issues.
+--
 -- > toIntegral a == a
 class ToIntegral a b where
+  {-# MINIMAL toIntegral #-}
+
   toIntegral :: a -> b
   default toIntegral :: (a ~ b) => a -> b
   toIntegral = P.id
@@ -215,11 +218,12 @@ instance ToIntegral Word32 Word32 where
 instance ToIntegral Word64 Word64 where
   toIntegral = P.id
 
--- | fromIntegral is widely used as a general coercion of integral types, and means conversion to and from Integer.
--- FromIntegralF abstracts the codomain type, compared with the Prelude Integral type.
--- > fromIntegral a == a
+-- | Polymorphic version of fromInteger
 --
+-- > fromIntegral a == a
 class FromIntegral a b where
+  {-# MINIMAL fromIntegral #-}
+
   fromIntegral :: b -> a
   default fromIntegral :: (a ~ b) => b -> a
   fromIntegral = P.id
@@ -341,43 +345,93 @@ instance FromIntegral Word32 Word32 where
 instance FromIntegral Word64 Word64 where
   fromIntegral = P.id
 
-fromInteger :: (FromIntegral a Integer) => Integer -> a
-fromInteger = fromIntegral
+-- | fromInteger is special in two ways:
+--
+-- - numeric integral literals (like "42") are interpreted specifically as "fromInteger (42 :: GHC.Num.Integer)". The prelude version is used as default or whatever is on scope if RebindableSyntax is set.
+--
+-- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromInteger' need to be in a form C v, where v is a Num or a subclass of Num.
+--
+-- So a type synonym of `type FromInteger a = FromIntegral a Integer` doesn't work well with type defaulting, hence the need for a separate class.
+class FromInteger a where
+  fromInteger :: Integer -> a
 
--- $operators
+instance FromInteger Double where
+  fromInteger = P.fromInteger
+
+instance FromInteger Float where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int where
+  fromInteger = P.fromInteger
+
+instance FromInteger Integer where
+  fromInteger = P.id
+
+instance FromInteger Natural where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int8 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int16 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int32 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Int64 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word8 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word16 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word32 where
+  fromInteger = P.fromInteger
+
+instance FromInteger Word64 where
+  fromInteger = P.fromInteger
+
+-- |
+-- >>> even 2
+-- True
 even :: (P.Eq a, Integral a) => a -> P.Bool
 even n = n `rem` (one + one) P.== zero
 
+-- |
+-- >>> odd 3
+-- True
 odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
 
--- | raise a number to a non-negative integral power
-(^) ::
-  (P.Ord b, Multiplicative a, Integral b) =>
+-- | raise a number to an 'Integral' power
+(^^) ::
+  (P.Ord b, Divisive a, Subtractive b, Integral b) =>
   a ->
   b ->
   a
-x0 ^ y0
-  | y0 P.< zero = P.undefined
-  | -- P.errorWithoutStackTrace "Negative exponent"
-    y0 P.== zero =
-    one
+x0 ^^ y0
+  | y0 P.< zero = recip (x0 ^^ negate y0)
+  | y0 P.== zero = one
   | P.otherwise = f x0 y0
   where
-    -- f : x0 ^ y0 = x ^ y
     f x y
       | even y = f (x * x) (y `quot` two)
       | y P.== one = x
       | P.otherwise = g (x * x) (y `quot` two) x
-    -- See Note [Half of y - 1]
-    -- g : x0 ^ y0 = (x ^ y) * z
     g x y z
       | even y = g (x * x) (y `quot` two) z
       | y P.== one = x * z
       | P.otherwise = g (x * x) (y `quot` two) (x * z)
 
--- See Note [Half of y - 1]
-
-(^^) ::
-  (Divisive a, Subtractive b, Integral b, P.Ord b) => a -> b -> a
-(^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)
+-- | raise a number to an 'Int' power
+--
+-- Note: This differs from (^) found in prelude which is a partial function (errors on negative integrals). This monomorphic version is provided to help reduce ambiguous type noise in common usages of this sign.
+(^) ::
+  (Divisive a) => a -> Int -> a
+(^) x n = x ^^ n

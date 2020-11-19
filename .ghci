@@ -1,7 +1,4 @@
-:set -XNoImplicitPrelude
-:set -XDataKinds
-:set -XOverloadedLists
-:set -XExtendedDefaultRules
-:set -XFlexibleContexts
-:set -XTypeFamilies
+-- :set -XRebindableSyntax
+:set -XNegativeLiterals
+:set -XOverloadedStrings
 :set -Wno-type-defaults

@@ -5,28 +5,24 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
+-- | Complex numbers.
 module NumHask.Data.Complex
   ( Complex (..),
     realPart,
     imagPart,
-    mkPolar,
-    cis,
-    polar,
-    magnitude,
-    phase,
   )
 where
 
 import Data.Data (Data)
 import GHC.Generics (Generic, Generic1)
-import NumHask.Algebra.Abstract.Additive
-import NumHask.Algebra.Abstract.Field
-import NumHask.Algebra.Abstract.Lattice
-import NumHask.Algebra.Abstract.Multiplicative
-import NumHask.Algebra.Abstract.Ring
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Field
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import Prelude hiding
@@ -36,13 +32,13 @@ import Prelude hiding
     atan2,
     cos,
     exp,
+    fromIntegral,
     log,
     negate,
     pi,
     recip,
     sin,
     sqrt,
-    fromIntegral,
   )
 import qualified Prelude as P ((&&), (<), (<=), (==), (>), Ord (..), otherwise)
 
@@ -50,13 +46,9 @@ import qualified Prelude as P ((&&), (<), (<=), (==), (>), Ord (..), otherwise)
 -- The Complex type
 infix 6 :+
 
--- | Complex numbers are an algebraic type.
+-- | Complex numbers have real and imaginary parts.
 --
--- For a complex number @z@, @'abs' z@ is a number with the magnitude of @z@,
--- but oriented in the positive real direction, whereas @'sign' z@
--- has the phase of @z@, but unit magnitude.
---
--- The 'Foldable' and 'Traversable' instances traverse the real part first.
+-- The 'Data.Foldable.Foldable' and 'Data.Traversable.Traversable' instances traverse the real part first.
 data Complex a
   = -- | forms a complex number from its real and imaginary
     -- rectangular components.
@@ -114,17 +106,17 @@ instance
   where
   fromIntegral x = fromIntegral x :+ zero
 
+-- | A euclidean-style norm is strong convention for Complex.
 instance
-  (ExpField a, Normed a a) =>
-  Normed (Complex a) a
+  (ExpField a) =>
+  Norm (Complex a) a
   where
-  norm (rx :+ ix) = norm rx + norm ix
+  norm (rx :+ ix) = sqrt (rx * rx + ix * ix)
+  basis x@(rx :+ ix) = rx / norm x :+ ix / norm x
 
-instance
-  (Subtractive a, ExpField a, Normed a a) =>
-  Metric (Complex a) a
-  where
-  distance a b = norm (a - b)
+instance (TrigField a) => Direction (Complex a) a where
+  angle (x :+ y) = atan2 y x
+  ray x = cos x :+ sin x
 
 instance
   (Ord a, Signed a, Subtractive a, Epsilon a) =>
@@ -133,11 +125,9 @@ instance
   epsilon = epsilon :+ epsilon
   nearZero (a :+ b) = nearZero a && nearZero b
 
-instance (IntegralDomain a, Subtractive a) => IntegralDomain (Complex a)
+instance (Field a) => Field (Complex a)
 
-instance (Field a, Subtractive a) => Field (Complex a)
-
-instance (Ord a, TrigField a, ExpField a, Subtractive a) => ExpField (Complex a) where
+instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
   exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
   log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
     where
@@ -154,7 +144,7 @@ instance (Ord a, TrigField a, ExpField a, Subtractive a) => ExpField (Complex a)
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
 
-instance (UpperBoundedField a, IntegralDomain a, Subtractive a) => UpperBoundedField (Complex a)
+instance (UpperBoundedField a, Subtractive a) => UpperBoundedField (Complex a)
 
 instance (LowerBoundedField a) => LowerBoundedField (Complex a)
 
@@ -169,32 +159,3 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
 
 instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
   top = top :+ top
-
--- * Polar conversions
-mkPolar :: TrigField a => a -> a -> Complex a
-mkPolar r theta = (r * cos theta) :+ (r * sin theta)
-
--- | @'cis' t@ is a complex value with magnitude @1@
--- and phase @t@ (modulo @2*'pi'@).
-{-# SPECIALIZE cis :: Double -> Complex Double #-}
-cis :: TrigField a => a -> Complex a
-cis theta = cos theta :+ sin theta
-
--- | The function 'polar' takes a complex number and
--- returns a (magnitude, phase) pair in canonical form:
--- the magnitude is nonnegative, and the phase in the range @(-'pi', 'pi']@;
--- if the magnitude is zero, then so is the phase.
-{-# SPECIALIZE polar :: Complex Double -> (Double, Double) #-}
-polar :: (TrigField a, ExpField a) => Complex a -> (a, a)
-polar z = (magnitude z, phase z)
-
--- | The nonnegative magnitude of a complex number.
-{-# SPECIALIZE magnitude :: Complex Double -> Double #-}
-magnitude :: (ExpField a) => Complex a -> a
-magnitude (x :+ y) = sqrt (x*x + y*y)
-
--- | The phase of a complex number, in the range @(-'pi', 'pi']@.
--- If the magnitude is zero, then so is the phase.
-{-# SPECIALIZE phase :: Complex Double -> Double #-}
-phase :: (TrigField a) => Complex a -> a
-phase (x :+ y) = atan2 y x
