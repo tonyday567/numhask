@@ -3,8 +3,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Integral classes
@@ -221,7 +221,6 @@ instance ToIntegral Word64 Word64 where
 -- | Polymorphic version of fromInteger
 --
 -- > fromIntegral a == a
---
 class FromIntegral a b where
   {-# MINIMAL fromIntegral #-}
 
@@ -353,7 +352,6 @@ instance FromIntegral Word64 Word64 where
 -- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromInteger' need to be in a form C v, where v is a Num or a subclass of Num.
 --
 -- So a type synonym of `type FromInteger a = FromIntegral a Integer` doesn't work well with type defaulting, hence the need for a separate class.
---
 class FromInteger a where
   fromInteger :: Integer -> a
 
@@ -412,7 +410,6 @@ odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
 
 -- | raise a number to an 'Integral' power
---
 (^^) ::
   (P.Ord b, Divisive a, Subtractive b, Integral b) =>
   a ->

@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
@@ -21,25 +20,24 @@ where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Lattice
-import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Module
+import NumHask.Algebra.Multiplicative
 import Prelude hiding
-  ( (-),
+  ( (*),
+    (-),
     Bounded (..),
     Integral (..),
     negate,
-    (*),
   )
 import qualified Prelude as P
-import GHC.Generics (Generic)
 
 -- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain
 --
 -- > abs a * sign a == a
---
 class
   (Additive a, Multiplicative a) =>
   Signed a where
@@ -144,7 +142,6 @@ instance Signed Word64 where
 -- > norm zero == zero
 -- > a == norm a .* basis a
 -- > norm (basis a) == one
---
 class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
   norm :: a -> b
   basis :: a -> a
@@ -210,7 +207,6 @@ instance Norm Word64 Word64 where
 -- > distance a b >= zero
 -- > distance a a == zero
 -- > distance a b .* basis (a - b) == a - b
---
 distance :: (Norm a b, Subtractive a) => a -> a -> b
 distance a b = norm (a - b)
 
@@ -220,14 +216,14 @@ distance a b = norm (a - b)
 --
 -- > ray . angle == basis
 -- > norm (ray x) == 1
---
 class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) => Direction coord dir | coord -> dir where
   angle :: coord -> dir
   ray :: dir -> coord
 
 -- | Something that has a magnitude and a direction.
-data Polar mag dir =
-  Polar { magnitude :: mag, direction :: dir } deriving (Eq, Show, Generic)
+data Polar mag dir
+  = Polar {magnitude :: mag, direction :: dir}
+  deriving (Eq, Show, Generic)
 
 -- | Convert from a number to a Polar.
 polar :: (Norm coord mag, Direction coord dir) => coord -> Polar mag dir

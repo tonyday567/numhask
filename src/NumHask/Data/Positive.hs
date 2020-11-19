@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Positive numbers.
@@ -12,7 +11,8 @@ module NumHask.Data.Positive
   ( Positive,
     positive,
     positive_,
-  ) where
+  )
+where
 
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
@@ -43,9 +43,6 @@ newtype Positive a = Positive {unPositive :: a}
       MeetSemiLattice,
       Epsilon
     )
-
--- not sure if this is correct or needed
-type role Positive representational
 
 -- | maybe construct a 'Positive'
 positive_ :: (P.Ord a, Additive a) => a -> P.Maybe (Positive a)
@@ -83,4 +80,3 @@ instance
 instance (P.Ord a, UpperBoundedField a) => P.Bounded (Positive a) where
   minBound = zero
   maxBound = infinity
-

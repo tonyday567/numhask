@@ -39,7 +39,6 @@ import qualified Prelude as P
 --
 -- >>> 2 * 3
 -- 6
---
 class Multiplicative a where
   infixl 7 *
   (*) :: a -> a -> a

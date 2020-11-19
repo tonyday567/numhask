@@ -5,7 +5,7 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Complex numbers.
@@ -32,13 +32,13 @@ import Prelude hiding
     atan2,
     cos,
     exp,
+    fromIntegral,
     log,
     negate,
     pi,
     recip,
     sin,
     sqrt,
-    fromIntegral,
   )
 import qualified Prelude as P ((&&), (<), (<=), (==), (>), Ord (..), otherwise)
 
@@ -111,11 +111,10 @@ instance
   (ExpField a) =>
   Norm (Complex a) a
   where
-    norm (rx :+ ix) = sqrt (rx*rx + ix*ix)
-    basis x@(rx :+ ix) = rx / norm x :+ ix / norm x
+  norm (rx :+ ix) = sqrt (rx * rx + ix * ix)
+  basis x@(rx :+ ix) = rx / norm x :+ ix / norm x
 
 instance (TrigField a) => Direction (Complex a) a where
-  -- | often called phase for Complex
   angle (x :+ y) = atan2 y x
   ray x = cos x :+ sin x
 
@@ -160,4 +159,3 @@ instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
 
 instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
   top = top :+ top
-

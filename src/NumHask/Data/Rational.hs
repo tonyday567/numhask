@@ -81,7 +81,7 @@ instance (P.Ord a, Signed a, Integral a, Ring a, Multiplicative a) => Multiplica
   one = one :% one
 
 instance
-  (P.Ord a, Signed a, Integral a, Ring a ) =>
+  (P.Ord a, Signed a, Integral a, Ring a) =>
   Divisive (Ratio a)
   where
   recip (x :% y)
@@ -108,7 +108,7 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
     | P.otherwise = negate one
   abs (n :% d) = abs n :% abs d
 
-instance (P.Ord a, Signed a, Integral a, Ring a ) => Norm (Ratio a) (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) where
   norm = abs
   basis = sign
 
@@ -186,7 +186,6 @@ instance ToRatio Word64 Integer where
 -- 2.5
 class FromRatio a b where
   fromRatio :: Ratio b -> a
-
   default fromRatio :: (Ratio b ~ a) => Ratio b -> a
   fromRatio = P.id
 
@@ -209,7 +208,6 @@ instance FromRatio Rational Integer where
 -- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromRational' need to be in a form C v, where v is a Num or a subclass of Num.
 --
 -- So a type synonym of `type FromRational a = FromRatio a Integer` doesn't work well with type defaulting, hence the need for a separate class.
---
 class FromRational a where
   fromRational :: P.Rational -> a
 

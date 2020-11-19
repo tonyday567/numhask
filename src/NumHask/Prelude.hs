@@ -4,8 +4,6 @@
 {-# OPTIONS_HADDOCK prune #-}
 
 -- | A numeric prelude, composed by splicing numhask modules with [protolude](https://hackage.haskell.org/package/protolude) together with a few minor tweaks and additions.
---
---
 module NumHask.Prelude
   ( -- * numhask exports
     module NumHask.Algebra.Additive,
@@ -44,7 +42,6 @@ module NumHask.Prelude
     -- * protolude
     -- $protolude
     module Protolude,
-
   )
 where
 
@@ -106,4 +103,3 @@ ifThenElse False _ y = y
 
 -- $protolude
 -- It would be nice to just link straight through to the [protolude documentation](https://hackage.haskell.org/package/protolude), but, alas, at time of production, haddock insists on dumping everything here.
---

@@ -1,32 +1,33 @@
-{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
-  ( JoinSemiLattice(..),
+  ( JoinSemiLattice (..),
     joinLeq,
-    MeetSemiLattice(..),
+    MeetSemiLattice (..),
     meetLeq,
-    BoundedJoinSemiLattice(..),
-    BoundedMeetSemiLattice(..),
-  ) where
+    BoundedJoinSemiLattice (..),
+    BoundedMeetSemiLattice (..),
+  )
+where
 
-import Data.Int (Int16, Int32, Int64, Int8)
-import Data.Word (Word16, Word32, Word64, Word8)
-import GHC.Natural (Natural (..))
-import NumHask.Algebra.Field
-import NumHask.Algebra.Additive (zero)
 import Data.Bool
 import Data.Eq
-import GHC.Float (Float, Double)
+import Data.Function (const)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Ord (Ord (..))
+import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Enum (Bounded (..))
+import GHC.Float (Double, Float)
 import GHC.Int (Int)
+import GHC.Natural (Natural (..))
 import GHC.Num (Integer)
 import GHC.Word (Word)
-import Data.Ord (Ord(..))
-import GHC.Enum (Bounded(..))
-import Data.Function (const)
+import NumHask.Algebra.Additive (zero)
+import NumHask.Algebra.Field
 
 -- | A algebraic structure with element joins: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --

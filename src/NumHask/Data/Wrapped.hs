@@ -1,14 +1,16 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RoleAnnotations #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | Wrapped numhask instances, useful for derivingvia situations to quickly specifiy a numhask friendly numerical type.
-module NumHask.Data.Wrapped where
+module NumHask.Data.Wrapped
+  ( Wrapped (..),
+  )
+where
 
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field

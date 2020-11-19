@@ -59,7 +59,6 @@ import NumHask.Exception
 -- >>> import NumHask.Prelude
 -- >>> 1+1
 -- 2
---
 
 -- $extensions
 --
@@ -119,7 +118,6 @@ import NumHask.Exception
 -- Point 1 -2
 --
 -- [LexicalNegation](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/lexical_negation.html) is coming soon as a valid replacement for NegativeLiterals and will tighten things up further.
---
 
 -- $overview
 -- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents. Principles that have guided design include:
@@ -144,7 +142,6 @@ import NumHask.Exception
 -- ![magma classes](other/nhmagma.svg)
 --
 -- These first two levels, contained in 'NumHask.Algebra.Group' can be considered "morally" super-classes.
---
 
 -- $mapping
 --

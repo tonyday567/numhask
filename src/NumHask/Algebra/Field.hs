@@ -109,7 +109,6 @@ instance ExpField b => ExpField (a -> b) where
 --
 -- > a - one < floor a <= a <= ceiling a < a + one
 -- > round a == floor (a + half)
---
 class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
@@ -193,7 +192,6 @@ instance UpperBoundedField b => UpperBoundedField (a -> b) where
   nan _ = nan
 
 -- | Negative infinity.
---
 class
   (Subtractive a, Field a) =>
   LowerBoundedField a where
@@ -263,7 +261,7 @@ instance TrigField b => TrigField (a -> b) where
   asin f = asin . f
   acos f = acos . f
   atan f = atan . f
-  atan2 f g = \x -> atan2 (f x) (g x)
+  atan2 f g x = atan2 (f x) (g x)
   sinh f = sinh . f
   cosh f = cosh . f
   asinh f = asinh . f

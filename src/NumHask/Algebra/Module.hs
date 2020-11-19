@@ -1,8 +1,5 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra for Modules
@@ -15,9 +12,9 @@ module NumHask.Algebra.Module
   )
 where
 
-import NumHask.Algebra.Ring
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 
 -- $setup
 --
@@ -32,10 +29,10 @@ import NumHask.Algebra.Multiplicative
 -- >>> import Prelude (Int, fmap)
 
 -- | Additive Action
---
 class
   (Additive a) =>
-  AdditiveAction m a | m -> a where
+  AdditiveAction m a
+    | m -> a where
   infixl 6 .+
   (.+) :: a -> m -> m
 
@@ -43,10 +40,10 @@ class
   (+.) :: m -> a -> m
 
 -- | Subtractive Action
---
 class
   (Subtractive a) =>
-  SubtractiveAction m a | m -> a where
+  SubtractiveAction m a
+    | m -> a where
   infixl 6 .-
   (.-) :: a -> m -> m
 
@@ -54,20 +51,20 @@ class
   (-.) :: m -> a -> m
 
 -- | Multiplicative Action
---
 class
   (Multiplicative a) =>
-  MultiplicativeAction m a | m -> a where
+  MultiplicativeAction m a
+    | m -> a where
   infixl 7 .*
   (.*) :: a -> m -> m
   infixl 7 *.
   (*.) :: m -> a -> m
 
 -- | Divisive Action
---
 class
   (Divisive a) =>
-  DivisiveAction m a | m -> a where
+  DivisiveAction m a
+    | m -> a where
   infixl 7 ./
   (./) :: a -> m -> m
   infixl 7 /.

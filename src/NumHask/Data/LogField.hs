@@ -8,10 +8,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | A 'Field' in the log domain.
---
--- LogField is adapted from [logfloat](https://hackage.haskell.org/package/logfloat)
-
 -- Module      :  Data.Number.LogFloat
 -- Copyright   :  Copyright (c) 2007--2015 wren gayle romano
 -- License     :  BSD3
@@ -20,6 +16,9 @@
 -- Portability :  portable (with CPP, FFI)
 -- Link        :  https://hackage.haskell.org/package/logfloat
 
+-- | A 'Field' in the log domain.
+--
+-- LogField is adapted from [logfloat](https://hackage.haskell.org/package/logfloat)
 module NumHask.Data.LogField
   ( -- * @LogField@
     LogField (),
@@ -48,7 +47,7 @@ import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
+import Prelude hiding (Num (..), exp, fromIntegral, log, negate)
 
 -- | A @LogField@ is just a 'Field' with a special interpretation.
 -- The 'LogField' function is presented instead of the constructor,
@@ -267,7 +266,6 @@ instance
 -- equivalence holds (modulo underflow and all that):
 --
 -- > LogField (p ** m) == LogField p `pow` m
---
 pow :: (ExpField a, LowerBoundedField a, Ord a) => LogField a -> a -> LogField a
 {-# INLINE pow #-}
 
