@@ -23,13 +23,16 @@ import qualified Prelude as P
 -- >>> import NumHask.Prelude
 -- >>> import Test.QuickCheck
 
--- | For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+-- | or [Multiplication](https://en.wikipedia.org/wiki/Multiplication)
+--
+-- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
+--
 --
 -- prop> \a -> one * a == a
 -- prop> \a -> a * one == a
 -- prop> \a b c -> (a * b) * c == a * (b * c)
--- prop> \a b -> a * b == b * a
 --
+-- By convention, (*) is regarded as not necessarily commutative, but this is not universal, and the introduction of another symbol which means commutative multiplication seems a bit dogmatic.
 --
 -- >>> one * 2
 -- 2
@@ -37,7 +40,6 @@ import qualified Prelude as P
 -- >>> 2 * 3
 -- 6
 --
--- By convention, (*) is regarded as commutative when we are referring to simple arithmetic but not necessarily commutative when specifying a 'NumHask.Algebra.Ring.Ring'. The introduction of a separate symbol for non-commutative multiplication may be needed at some point in the future given haskell practices.
 class Multiplicative a where
   infixl 7 *
   (*) :: a -> a -> a
@@ -48,7 +50,9 @@ class Multiplicative a where
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
--- | Though unusual, "Divisive" fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
+-- | or [Division](https://en.wikipedia.org/wiki/Division_(mathematics\))
+--
+-- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
 -- prop> \(a :: Double) -> a / a ~= one || a == zero
 -- prop> \(a :: Double) -> recip a ~= one / a || a == zero

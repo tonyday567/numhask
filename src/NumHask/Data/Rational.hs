@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -16,7 +17,6 @@ module NumHask.Data.Rational
     FromRational (..),
     reduce,
     gcd,
-    GCDConstraints,
   )
 where
 
@@ -35,6 +35,12 @@ import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import Prelude ((.), Int, Integer, Rational)
 import qualified Prelude as P
+
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> :set -XNegativeLiterals
+-- >>> import NumHask.Prelude
 
 -- | A rational number
 data Ratio a = !a :% !a deriving (P.Show)
@@ -57,10 +63,7 @@ instance (P.Ord a, Multiplicative a, Additive a) => P.Ord (Ratio a) where
   (x :% y) <= (x' :% y') = x * y' P.<= x' * y
   (x :% y) < (x' :% y') = x * y' P.< x' * y
 
--- | These common constraints over the Ratio instances are due to the gcd algorithm. FIXME: Subtractive is somewhat problematic with obtaining a `Ratio (Positive Integer)` which should be made possible.
-type GCDConstraints a = (P.Ord a, Signed a, Integral a, Subtractive a)
-
-instance (GCDConstraints a) => Additive (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Additive (Ratio a) where
   (x :% y) + (x' :% y')
     | y P.== zero P.&& y' P.== zero = bool one (negate one) (x + x' P.< zero) :% zero
     | y P.== zero = x :% y
@@ -69,56 +72,61 @@ instance (GCDConstraints a) => Additive (Ratio a) where
 
   zero = zero :% one
 
-instance (GCDConstraints a) => Subtractive (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Subtractive (Ratio a) where
   negate (x :% y) = negate x :% y
 
-instance (GCDConstraints a) => Multiplicative (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a, Multiplicative a) => Multiplicative (Ratio a) where
   (x :% y) * (x' :% y') = reduce (x * x') (y * y')
 
   one = one :% one
 
 instance
-  (GCDConstraints a) =>
+  (P.Ord a, Signed a, Integral a, Ring a ) =>
   Divisive (Ratio a)
   where
   recip (x :% y)
     | sign x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
-instance (GCDConstraints a) => Distributive (Ratio a)
+instance (P.Ord a, Signed a, Integral a, Ring a) => Distributive (Ratio a)
 
-instance (GCDConstraints a) => IntegralDomain (Ratio a)
+instance (P.Ord a, Signed a, Integral a, Ring a) => Field (Ratio a)
 
-instance (GCDConstraints a) => Field (Ratio a)
-
-instance (GCDConstraints a, GCDConstraints b, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
+instance (P.Ord a, Signed a, Integral a, Ring a, P.Ord b, Signed b, Integral b, Ring b, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral w, r :% d)
 
 instance
-  (GCDConstraints a, Distributive a, IntegralDomain a) =>
+  (P.Ord a, Signed a, Integral a, Ring a, Distributive a) =>
   UpperBoundedField (Ratio a)
 
-instance (GCDConstraints a, Field a) => LowerBoundedField (Ratio a)
+instance (P.Ord a, Signed a, Integral a, Field a) => LowerBoundedField (Ratio a)
 
-instance (GCDConstraints a) => Signed (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
   sign (n :% _)
     | n P.== zero = zero
     | n P.> zero = one
     | P.otherwise = negate one
   abs (n :% d) = abs n :% abs d
 
-instance (GCDConstraints a) => Normed (Ratio a) (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a ) => Norm (Ratio a) (Ratio a) where
   norm = abs
+  basis = sign
 
-instance (GCDConstraints a) => Metric (Ratio a) (Ratio a) where
-  distance a b = norm (a - b)
+instance (P.Ord a, Signed a) => JoinSemiLattice (Ratio a) where
+  (\/) = P.min
 
-instance (GCDConstraints a, MeetSemiLattice a) => Epsilon (Ratio a)
+instance (P.Ord a, Signed a) => MeetSemiLattice (Ratio a) where
+  (/\) = P.max
+
+instance (P.Ord a, Signed a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
 
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
   fromIntegral x = fromIntegral x :% one
 
 -- | toRatio is equivalent to `GHC.Real.Real` in base, but is polymorphic in the Integral type.
+--
+-- > toRatio (3.1415927 :: Float) :: Ratio Integer
+-- 13176795 :% 4194304
 class ToRatio a b where
   toRatio :: a -> Ratio b
   default toRatio :: (Ratio c ~ a, FromIntegral b c, ToRatio (Ratio b) b) => a -> Ratio b
@@ -173,14 +181,14 @@ instance ToRatio Word64 Integer where
   toRatio = fromBaseRational . P.toRational
 
 -- | `GHC.Real.Fractional` in base splits into fromRatio and Field
--- FIXME: work out why the default type isn't firing so that an explicit instance is needed
--- for `FromRatio (Ratio Integer) Integer`
+--
+-- >>> fromRatio (5 :% 2 :: Ratio Integer) :: Double
+-- 2.5
 class FromRatio a b where
   fromRatio :: Ratio b -> a
-  -- default fromRatio :: (a ~ Ratio c, ToIntegral b c) => Ratio b -> a
-  -- fromRatio (n :% d) = toIntegral n :% toIntegral d
-  -- default fromRatio :: (Ratio b ~ a) => Ratio b -> a
-  -- fromRatio = P.id
+
+  default fromRatio :: (Ratio b ~ a) => Ratio b -> a
+  fromRatio = P.id
 
 fromBaseRational :: P.Rational -> Ratio Integer
 fromBaseRational (n GHC.Real.:% d) = n :% d
@@ -193,10 +201,6 @@ instance FromRatio Float Integer where
 
 instance FromRatio Rational Integer where
   fromRatio (n :% d) = n GHC.Real.% d
-
-instance FromRatio (Ratio Integer) Integer where
-  fromRatio = P.id
-
 
 -- | fromRational is special in two ways:
 --
@@ -217,12 +221,6 @@ instance FromRational Float where
 
 instance FromRational (Ratio Integer) where
   fromRational (n GHC.Real.:% d) = n :% d
-
-instance (GCDConstraints a) => JoinSemiLattice (Ratio a) where
-  (\/) = P.min
-
-instance (GCDConstraints a) => MeetSemiLattice (Ratio a) where
-  (/\) = P.max
 
 -- | 'reduce' normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.

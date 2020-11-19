@@ -4,15 +4,17 @@ version: 0.7.0.0
 synopsis:
   A numeric class heirarchy.
 description:
-    This package provides numeric classes as an alternative to the prelude specified in haskell98.
+    This package provides numeric classes alternate to the prelude specified in [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
+    .
+    The numeric class constellation looks somewhat like:
+    .
+    ![nh](other/nh.svg)
     .
     == Usage
     .
     >>> {-# LANGUAGE NegativeLiterals #-}
     >>> {-# LANGUAGE RebindableSyntax #-}
     >>> import NumHask.Prelude
-    .
-    ![field](other/field.svg)
     .
     See "NumHask" for a detailed overview.
 
@@ -75,7 +77,6 @@ library
     NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.LogField
-    NumHask.Data.Pair
     NumHask.Data.Positive
     NumHask.Data.Rational
     NumHask.Data.Wrapped

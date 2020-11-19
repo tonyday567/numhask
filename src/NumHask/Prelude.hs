@@ -3,11 +3,12 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_HADDOCK prune #-}
 
--- | A numeric prelude.
+-- | A numeric prelude, composed by splicing numhask modules with [protolude](https://hackage.haskell.org/package/protolude) together with a few minor tweaks and additions.
 --
--- 'NumHask.Prelude' is composed of 'NumHask' modules and "protolude" with a few monir changes.
+--
 module NumHask.Prelude
-  ( module NumHask.Algebra.Additive,
+  ( -- * numhask exports
+    module NumHask.Algebra.Additive,
     module NumHask.Algebra.Field,
     module NumHask.Algebra.Group,
     module NumHask.Algebra.Lattice,
@@ -19,26 +20,31 @@ module NumHask.Prelude
     module NumHask.Data.Integral,
     module NumHask.Data.LogField,
     module NumHask.Data.Rational,
-    module NumHask.Data.Pair,
     module NumHask.Data.Positive,
-    Natural (..),
     module NumHask.Exception,
 
-    Category (..),
-    module Protolude,
-    module Data.Biapplicative,
-    module Control.Monad.Morph,
-    module Data.Functor.Constant,
-    pack,
-    unpack,
-
     -- * rebindables
-    -- Using different types for numbers requires RebindableSyntax.  This then removes base-level stuff that has to be put back in.
+    -- $rebindables
     fromString,
     fail,
     ifThenElse,
     fromList,
     fromListN,
+
+    -- * extras
+    -- $extras
+    Category (..),
+    module Data.Biapplicative,
+    module Control.Monad.Morph,
+    module Data.Functor.Constant,
+    pack,
+    unpack,
+    Natural (..),
+
+    -- * protolude
+    -- $protolude
+    module Protolude,
+
   )
 where
 
@@ -62,7 +68,6 @@ import NumHask.Analysis.Metric
 import NumHask.Data.Complex
 import NumHask.Data.Integral
 import NumHask.Data.LogField
-import NumHask.Data.Pair
 import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception
@@ -76,7 +81,29 @@ import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Comple
 -- >>> 1+1
 -- 2
 
--- | FIXME: rebindable syntax splats this, and I'm not sure where it exists in GHC land
+-- $rebindables
+--
+-- Using different types for numbers requires RebindableSyntax.  This then removes base-level stuff that has to be put back in.
+
+-- | RebindableSyntax splats this, and I'm not sure where it exists in GHC land
 ifThenElse :: Bool -> a -> a -> a
 ifThenElse True x _ = x
 ifThenElse False _ y = y
+
+-- $extras
+--
+-- Bits and pieces different to protolude, including:
+--
+-- - re-inserting 'id' which should never be overwritten in haskell code.
+--
+-- - Data.Biapplicative which is a favorite style of the OA.
+--
+-- - 'Control.Monad.Morph', another essential, ubiquitous library.
+--
+-- - 'Data.Functor.Constant'
+--
+-- - 'pack' and 'unpack', which may encourage usage of 'String' but can also quickly escape from the same.
+
+-- $protolude
+-- It would be nice to just link straight through to the [protolude documentation](https://hackage.haskell.org/package/protolude), but, alas, at time of production, haddock insists on dumping everything here.
+--

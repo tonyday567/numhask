@@ -3,7 +3,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | <https://en.wikipedia.org/wiki/Lattice_(order)>
+-- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
   ( JoinSemiLattice(..),
     joinLeq,
@@ -28,7 +28,7 @@ import Data.Ord (Ord(..))
 import GHC.Enum (Bounded(..))
 import Data.Function (const)
 
--- | A algebraic structure with element joins: <http://en.wikipedia.org/wiki/Semilattice>
+-- | A algebraic structure with element joins: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --
 -- > Associativity: x \/ (y \/ z) == (x \/ y) \/ z
 -- > Commutativity: x \/ y == y \/ x
@@ -41,7 +41,7 @@ class (Eq a) => JoinSemiLattice a where
 joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
--- | A algebraic structure with element meets: <http://en.wikipedia.org/wiki/Semilattice>
+-- | A algebraic structure with element meets: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
 -- > Commutativity: x /\ y == y /\ x
@@ -55,7 +55,7 @@ meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
--- see <http://en.wikipedia.org/wiki/Absorption_law> and <http://en.wikipedia.org/wiki/Lattice_(order)>
+-- see [Absorption Law](http://en.wikipedia.org/wiki/Absorption_law) and [Lattice](http://en.wikipedia.org/wiki/Lattice_(order\))
 --
 -- > Absorption: a \/ (a /\ b) == a /\ (a \/ b) == a
 class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a

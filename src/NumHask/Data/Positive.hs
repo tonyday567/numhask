@@ -34,7 +34,6 @@ newtype Positive a = Positive {unPositive :: a}
       Multiplicative,
       Divisive,
       Distributive,
-      IntegralDomain,
       Field,
       ExpField,
       TrigField,
@@ -85,11 +84,3 @@ instance (P.Ord a, UpperBoundedField a) => P.Bounded (Positive a) where
   minBound = zero
   maxBound = infinity
 
-instance
-  (Normed a a) =>
-  Normed a (Positive a)
-  where
-  norm a = Positive (norm a)
-
-instance (Subtractive a, Normed a a) => Metric a (Positive a) where
-  distance a b = Positive P.$ norm (a - b)

@@ -1,5 +1,5 @@
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 module Main where
 
@@ -16,4 +16,6 @@ main =
     "src/NumHask/Algebra/Ring.hs",
     "src/NumHask/Algebra/Field.hs",
     "src/NumHask/Algebra/Module.hs"
+    -- FIXME: When doctest hits this module, it can't resolve even the simplest instances ...
+    -- "src/NumHask/Data/Rational.hs"
   ]

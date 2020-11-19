@@ -1,9 +1,11 @@
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RoleAnnotations #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | Wrapped numhask instances, useful for derivingvia situations to quickly specifiy a numhask friendly numerical type.
 module NumHask.Data.Wrapped where
@@ -14,7 +16,6 @@ import NumHask.Algebra.Group
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Module
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
@@ -34,8 +35,6 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       Divisive,
       Distributive,
       Ring,
-      Semiring,
-      IntegralDomain,
       InvolutiveRing,
       StarSemiring,
       KleeneAlgebra,
@@ -52,9 +51,6 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       UpperBoundedField,
       LowerBoundedField
     )
-
--- TODO: not sure if this is correct or needed
-type role Wrapped representational
 
 instance
   (P.Ord a, QuotientField a P.Integer) =>
@@ -73,25 +69,3 @@ instance (FromRatio a b) => FromRatio (Wrapped a) b where
 
 instance (ToRatio a b) => ToRatio (Wrapped a) b where
   toRatio (Wrapped a) = toRatio a
-
-instance (Normed a b) => Normed (Wrapped a) (Wrapped b) where
-  norm (Wrapped a) = Wrapped (norm a)
-
-instance (Metric a b) => Metric (Wrapped a) (Wrapped b) where
-  distance (Wrapped a) (Wrapped b) = Wrapped (distance a b)
-
-instance (Additive a, AdditiveAction m a) => AdditiveAction m (Wrapped a) where
-  (.+) (Wrapped a) m = a .+ m
-  (+.) m (Wrapped a) = m +. a
-
-instance (Subtractive a, SubtractiveAction m a) => SubtractiveAction m (Wrapped a) where
-  (.-) (Wrapped a) m = a .- m
-  (-.) m (Wrapped a) = m -. a
-
-instance (Multiplicative a, MultiplicativeAction m a) => MultiplicativeAction m (Wrapped a) where
-  (.*) (Wrapped a) m = a .* m
-  (*.) m (Wrapped a) = m *. a
-
-instance (Divisive a, DivisiveAction m a) => DivisiveAction m (Wrapped a) where
-  (./) (Wrapped a) m = a ./ m
-  (/.) m (Wrapped a) = m /. a

@@ -9,6 +9,17 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | A 'Field' in the log domain.
+--
+-- LogField is adapted from [logfloat](https://hackage.haskell.org/package/logfloat)
+
+-- Module      :  Data.Number.LogFloat
+-- Copyright   :  Copyright (c) 2007--2015 wren gayle romano
+-- License     :  BSD3
+-- Maintainer  :  wren@community.haskell.org
+-- Stability   :  stable
+-- Portability :  portable (with CPP, FFI)
+-- Link        :  https://hackage.haskell.org/package/logfloat
+
 module NumHask.Data.LogField
   ( -- * @LogField@
     LogField (),
@@ -39,22 +50,6 @@ import NumHask.Data.Integral
 import NumHask.Data.Rational
 import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
 
--- LogField is adapted from LogFloat
-----------------------------------------------------------------
---                                                  ~ 2015.08.06
-
--- |
--- Module      :  Data.Number.LogFloat
--- Copyright   :  Copyright (c) 2007--2015 wren gayle romano
--- License     :  BSD3
--- Maintainer  :  wren@community.haskell.org
--- Stability   :  stable
--- Portability :  portable (with CPP, FFI)
--- Link        :  https://hackage.haskell.org/package/logfloat
-----------------------------------------------------------------
-----------------------------------------------------------------
---
-
 -- | A @LogField@ is just a 'Field' with a special interpretation.
 -- The 'LogField' function is presented instead of the constructor,
 -- in order to ensure semantic conversion. At present the 'Show'
@@ -69,7 +64,6 @@ import Prelude hiding (Num (..), exp, log, negate, fromIntegral)
 --
 -- > logField (p + q) == logField p + logField q
 -- > logField (p * q) == logField p * logField q
---
 --
 -- Performing operations in the log-domain is cheap, prevents
 -- underflow, and is otherwise very nice for dealing with miniscule
@@ -255,10 +249,6 @@ instance
   LowerBoundedField (LogField a)
 
 instance
-  (Ord a, ExpField a, LowerBoundedField a) =>
-  IntegralDomain (LogField a)
-
-instance
   (Ord a, ExpField a, LowerBoundedField a, UpperBoundedField a) =>
   UpperBoundedField (LogField a)
 
@@ -278,7 +268,6 @@ instance
 --
 -- > LogField (p ** m) == LogField p `pow` m
 --
--- /Since: 0.13/
 pow :: (ExpField a, LowerBoundedField a, Ord a) => LogField a -> a -> LogField a
 {-# INLINE pow #-}
 

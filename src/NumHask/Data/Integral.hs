@@ -15,8 +15,8 @@ module NumHask.Data.Integral
     FromInteger (..),
     even,
     odd,
-    (^),
     (^^),
+    (^),
   )
 where
 
@@ -29,7 +29,7 @@ import NumHask.Algebra.Ring
 import Prelude ((.), Double, Float, Int, Integer, fst, snd)
 import qualified Prelude as P
 
--- | Integral laws
+-- | An Integral is anything that satisfies the law:
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
 class
@@ -107,8 +107,11 @@ instance Integral b => Integral (a -> b) where
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
 
 -- | toIntegral is kept separate from Integral to help with compatability issues.
+--
 -- > toIntegral a == a
 class ToIntegral a b where
+  {-# MINIMAL toIntegral #-}
+
   toIntegral :: a -> b
   default toIntegral :: (a ~ b) => a -> b
   toIntegral = P.id
@@ -215,10 +218,13 @@ instance ToIntegral Word32 Word32 where
 instance ToIntegral Word64 Word64 where
   toIntegral = P.id
 
--- | 
+-- | Polymorphic version of fromInteger
+--
 -- > fromIntegral a == a
 --
 class FromIntegral a b where
+  {-# MINIMAL fromIntegral #-}
+
   fromIntegral :: b -> a
   default fromIntegral :: (a ~ b) => b -> a
   fromIntegral = P.id
@@ -405,14 +411,15 @@ even n = n `rem` (one + one) P.== zero
 odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
 
--- | raise a number to a non-negative 'Integral' power
-(^) ::
-  (P.Ord b, Multiplicative a, Integral b) =>
+-- | raise a number to an 'Integral' power
+--
+(^^) ::
+  (P.Ord b, Divisive a, Subtractive b, Integral b) =>
   a ->
   b ->
   a
-x0 ^ y0
-  | y0 P.< zero = P.undefined
+x0 ^^ y0
+  | y0 P.< zero = recip (x0 ^^ negate y0)
   | y0 P.== zero = one
   | P.otherwise = f x0 y0
   where
@@ -425,7 +432,9 @@ x0 ^ y0
       | y P.== one = x * z
       | P.otherwise = g (x * x) (y `quot` two) (x * z)
 
--- | raise a number to an 'Integral' power
-(^^) ::
-  (Divisive a, Subtractive b, Integral b, P.Ord b) => a -> b -> a
-(^^) x n = if n P.>= zero then x ^ n else recip (x ^ negate n)
+-- | raise a number to an 'Int' power
+--
+-- Note: This differs from (^) found in prelude which is a partial function (errors on negative integrals). This monomorphic version is provided to help reduce ambiguous type noise in common usages of this sign.
+(^) ::
+  (Divisive a) => a -> Int -> a
+(^) x n = x ^^ n

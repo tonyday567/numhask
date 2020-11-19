@@ -1,3 +1,4 @@
+{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -34,7 +35,7 @@ import NumHask.Algebra.Multiplicative
 --
 class
   (Additive a) =>
-  AdditiveAction m a where
+  AdditiveAction m a | m -> a where
   infixl 6 .+
   (.+) :: a -> m -> m
 
@@ -45,7 +46,7 @@ class
 --
 class
   (Subtractive a) =>
-  SubtractiveAction m a where
+  SubtractiveAction m a | m -> a where
   infixl 6 .-
   (.-) :: a -> m -> m
 
@@ -56,7 +57,7 @@ class
 --
 class
   (Multiplicative a) =>
-  MultiplicativeAction m a where
+  MultiplicativeAction m a | m -> a where
   infixl 7 .*
   (.*) :: a -> m -> m
   infixl 7 *.
@@ -66,15 +67,13 @@ class
 --
 class
   (Divisive a) =>
-  DivisiveAction m a where
+  DivisiveAction m a | m -> a where
   infixl 7 ./
   (./) :: a -> m -> m
   infixl 7 /.
   (/.) :: m -> a -> m
 
--- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module> over r a is
---   a (Ring a), an abelian (Group r a) and operators (.*, *.) with the
---   laws:
+-- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module>
 --
 -- > a .* one == a
 -- > (a + b) .* c == (a .* c) + (b .* c)

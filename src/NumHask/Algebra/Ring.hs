@@ -2,12 +2,10 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Ring
+-- | Ring classes
 module NumHask.Algebra.Ring
   ( Distributive,
-    Semiring,
     Ring,
-    IntegralDomain,
     StarSemiring (..),
     KleeneAlgebra,
     InvolutiveRing (..),
@@ -32,7 +30,7 @@ import qualified Prelude as P
 -- >>> import NumHask.Prelude
 -- >>> import Test.QuickCheck
 
--- | <https://en.wikipedia.org/wiki/Distributive_property Distributive> laws
+-- | <https://en.wikipedia.org/wiki/Distributive_property Distributive>
 --
 -- prop> \a b c -> a * (b + c) == a * b + a * c
 -- prop> \a b c -> (a + b) * c == a * c + b * c
@@ -76,15 +74,6 @@ instance Distributive P.Bool
 
 instance Distributive b => Distributive (a -> b)
 
--- | A <https://en.wikipedia.org/wiki/Semiring Semiring> is commutative monoidal under addition ('Unital', 'Associative' & 'Commutative'), has a monoidal multiplication operator ('Unital', 'Associative'), and where multiplication distributes over addition.
-class
-  (Distributive a) =>
-  Semiring a
-
-instance
-  (Distributive a) =>
-  Semiring a
-
 -- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('Unital', 'Associative', 'Commutative', 'Invertible') and monoidal under multiplication ('Unital', 'Associative'), and where multiplication distributes over addition.
 --
 -- prop> \a -> zero + a == a
@@ -110,23 +99,9 @@ instance
   (Distributive a, Subtractive a) =>
   Ring a
 
--- | An <https://en.wikipedia.org/wiki/Integral_domain Integral Domain> generalizes a ring of integers by requiring the product of any two nonzero elements to be nonzero. This means that if a ≠ 0, an equality ab = ac implies b = c.
---
--- FIXME: Can this be expressed in Haskell?
---
-class
-  (Distributive a) =>
-  IntegralDomain a
-
-instance IntegralDomain P.Double
-
-instance IntegralDomain P.Float
-
-instance IntegralDomain b => IntegralDomain (a -> b)
-
 -- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
 --
--- > \a -> star a = one + a `times` star a
+-- > \a -> star a = one + a * star a
 class (Distributive a) => StarSemiring a where
   star :: a -> a
   star a = one + plus a
@@ -138,8 +113,8 @@ instance StarSemiring b => StarSemiring (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
 --
--- > a `times` x + x = a ==> star a `times` x + x = x
--- > x `times` a + x = a ==> x `times` star a + x = x
+-- > a * x + x = a ==> star a * x + x = x
+-- > x * a + x = a ==> x * star a + x = x
 class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 
 instance KleeneAlgebra b => KleeneAlgebra (a -> b)

@@ -38,28 +38,27 @@ import qualified Prelude as P
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
 --
--- A summary of the rules thus inherited from super-classes of Field for a 'Double'. Floating point computation is a terrible, messy business and only rough approximation can be achieve for association and distribution.
+-- A summary of the rules inherited from super-classes of Field. Floating point computation is a terrible, messy business and, in practice, only rough approximation can be achieve for association and distribution.
 --
--- prop> \(a :: Double) -> zero + a == a
--- prop> \(a :: Double) -> a + zero == a
--- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10 ((a + b) + c) (a + (b + c))
--- prop> \(a :: Double) (b :: Double) -> a + b == b + a
--- prop> \(a :: Double) -> a - a == zero
--- prop> \(a :: Double) -> negate a == zero - a
--- prop> \(a :: Double) -> negate a + a == zero
--- prop> \(a :: Double) -> a + negate a == zero
--- prop> \(a :: Double) -> one * a == a
--- prop> \(a :: Double) -> a * one == a
--- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10000 ((a * b) * c) (a * (b * c))
--- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10000 (a * (b + c)) (a * b + a * c)
--- prop> \(a :: Double) (b :: Double) (c :: Double) -> outBy 10000 ((a + b) * c) (a * c + b * c)
--- prop> \(a :: Double) -> a * zero == zero
--- prop> \(a :: Double) -> zero * a == zero
--- prop> \(a :: Double) (b :: Double) -> a * b == b * a
--- prop> \(a :: Double) -> a / a ~= one || a == zero
--- prop> \(a :: Double) -> recip a ~= one / a || a == zero
--- prop> \(a :: Double) -> recip a * a ~= one || a == zero
--- prop> \(a :: Double) -> a * recip a ~= one || a == zero
+-- > zero + a == a
+-- > a + zero == a
+-- > ((a + b) + c) (a + (b + c))
+-- > a + b == b + a
+-- > a - a == zero
+-- > negate a == zero - a
+-- > negate a + a == zero
+-- > a + negate a == zero
+-- > one * a == a
+-- > a * one == a
+-- > ((a * b) * c) == (a * (b * c))
+-- > (a * (b + c)) == (a * b + a * c)
+-- > ((a + b) * c) == (a * c + b * c)
+-- > a * zero == zero
+-- > zero * a == zero
+-- > a / a == one || a == zero
+-- > recip a == one / a || a == zero
+-- > recip a * a == one || a == zero
+-- > a * recip a == one || a == zero
 class
   (Distributive a, Subtractive a, Divisive a) =>
   Field a
@@ -72,8 +71,8 @@ instance Field b => Field (a -> b)
 
 -- | A hyperbolic field class
 --
--- > sqrt . (**2) == identity
--- > log . exp == identity
+-- > sqrt . (**2) == id
+-- > log . exp == id
 -- > for +ive b, a != 0,1: a ** logBase a b ≈ b
 class
   (Field a) =>
@@ -104,12 +103,14 @@ instance ExpField b => ExpField (a -> b) where
   f ** f' = \a -> f a ** f' a
   sqrt f = sqrt . f
 
--- |
+-- | Conversion from a 'Field' to a 'Ring'
+--
+-- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > a - one < floor a <= a <= ceiling a < a + one
--- > round a == floor (a + one/(one+one))
+-- > round a == floor (a + half)
 --
-class (Field a, Subtractive a, Multiplicative b, Additive b) => QuotientField a b where
+class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
   round :: a -> b
@@ -167,7 +168,7 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
 
   truncate f = truncate . f
 
--- | A bounded field includes the concepts of infinity and NaN, thus moving away from error throwing.
+-- | A bounded field introduces the concepts of infinity and NaN.
 --
 -- > one / zero + infinity == infinity
 -- > infinity + a == infinity
@@ -192,6 +193,7 @@ instance UpperBoundedField b => UpperBoundedField (a -> b) where
   nan _ = nan
 
 -- | Negative infinity.
+--
 class
   (Subtractive a, Field a) =>
   LowerBoundedField a where
