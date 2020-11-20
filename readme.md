@@ -19,17 +19,6 @@ import NumHask.Prelude
 ```
 See the documentation in the Numhask module for a detailed overview.
 
-A numeric class hierarchy, providing a structure for numbers and functions that combine them.
-
-Usage
-===
-
-``` haskell
-{-# LANGUAGE NegativeLiterals #-}
-{-# LANGUAGE RebindableSyntax #-}
-import NumHask.Prelude
-```
-
 Develop
 ===
 
