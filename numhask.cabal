@@ -36,10 +36,16 @@ license-file:
   LICENSE
 build-type:
   Simple
+tested-with:
+  GHC ==8.8.4
+   || ==8.10.2
 
 extra-doc-files:
-  other/*.svg,
+  other/*.svg
+
+extra-source-files:
   readme.md
+  ChangeLog.md
 
 source-repository head
   type:
