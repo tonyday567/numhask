@@ -32,13 +32,14 @@ module NumHask.Prelude
     -- * extras
     -- $extras
     Category (..),
+    pack,
+    unpack,
     module Data.Bifunctor,
     module Data.Biapplicative,
     module Control.Monad.Morph,
     module Data.Functor.Constant,
     module System.Random,
-    pack,
-    unpack,
+    module System.Random.Stateful,
     Natural (..),
 
     -- * protolude
@@ -73,6 +74,7 @@ import NumHask.Data.Rational
 import NumHask.Exception
 import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Complex (..), Integral (..), Ratio, Product (..), Rep, Semiring (..), Sum (..), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cis, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, imagPart, infinity, log, logBase, magnitude, mkPolar, negate, odd, phase, pi, polar, product, properFraction, realPart, recip, reduce, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, trans, truncate, zero)
 import System.Random
+import System.Random.Stateful
 
 -- $usage
 --
