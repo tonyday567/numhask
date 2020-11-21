@@ -32,9 +32,11 @@ module NumHask.Prelude
     -- * extras
     -- $extras
     Category (..),
+    module Data.Bifunctor,
     module Data.Biapplicative,
     module Control.Monad.Morph,
     module Data.Functor.Constant,
+    module System.Random,
     pack,
     unpack,
     Natural (..),
@@ -49,6 +51,7 @@ import Control.Category (Category (..))
 import Control.Monad (fail)
 import Control.Monad.Morph
 import Data.Biapplicative
+import Data.Bifunctor
 import Data.Functor.Constant
 import Data.String
 import Data.Text (pack, unpack)
@@ -69,6 +72,7 @@ import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception
 import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Complex (..), Integral (..), Ratio, Product (..), Rep, Semiring (..), Sum (..), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cis, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, imagPart, infinity, log, logBase, magnitude, mkPolar, negate, odd, phase, pi, polar, product, properFraction, realPart, recip, reduce, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, trans, truncate, zero)
+import System.Random
 
 -- $usage
 --
