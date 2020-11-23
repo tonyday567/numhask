@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_HADDOCK prune #-}
 
--- | A numeric prelude, composed by splicing numhask modules with [protolude](https://hackage.haskell.org/package/protolude) together with a few minor tweaks and additions.
+-- | A numeric prelude, composed by splicing numhask modules with [protolude](https://hackage.haskell.org/package/protolude), together with a few minor tweaks and additions.
 module NumHask.Prelude
   ( -- * numhask exports
     module NumHask.Algebra.Additive,
@@ -32,11 +32,14 @@ module NumHask.Prelude
     -- * extras
     -- $extras
     Category (..),
+    pack,
+    unpack,
+    module Data.Bifunctor,
     module Data.Biapplicative,
     module Control.Monad.Morph,
     module Data.Functor.Constant,
-    pack,
-    unpack,
+    module System.Random,
+    module System.Random.Stateful,
     Natural (..),
 
     -- * protolude
@@ -49,6 +52,7 @@ import Control.Category (Category (..))
 import Control.Monad (fail)
 import Control.Monad.Morph
 import Data.Biapplicative
+import Data.Bifunctor
 import Data.Functor.Constant
 import Data.String
 import Data.Text (pack, unpack)
@@ -69,6 +73,8 @@ import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception
 import Protolude hiding ((*), (**), (+), (-), (.), (/), (<<$>>), (<<*>>), Complex (..), Integral (..), Ratio, Product (..), Rep, Semiring (..), Sum (..), (^), (^^), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cis, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, imagPart, infinity, log, logBase, magnitude, mkPolar, negate, odd, phase, pi, polar, product, properFraction, realPart, recip, reduce, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, trans, truncate, zero)
+import System.Random
+import System.Random.Stateful
 
 -- $usage
 --
@@ -93,9 +99,9 @@ ifThenElse False _ y = y
 --
 -- - re-inserting 'id' which should never be overwritten in haskell code.
 --
--- - Data.Biapplicative which is a favorite style of the OA.
+-- - 'Data.Bifunctors' & 'Data.Biapplicative' which are favorites of the OA.
 --
--- - 'Control.Monad.Morph', another essential, ubiquitous library.
+-- - 'Control.Monad.Morph'; another essential, ubiquitous library.
 --
 -- - 'Data.Functor.Constant'
 --

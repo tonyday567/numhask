@@ -203,11 +203,11 @@ instance FromRatio Rational Integer where
 
 -- | fromRational is special in two ways:
 --
--- - numeric decimal literals (like "53.66") are interpreted as exactly "fromRational (53.66 :: GHC.Real.Ratio Integer)". The prelude version, GHC.Real.fromRational is used as default or whatever is on scope if RebindableSyntax is set.
+-- - numeric decimal literals (like "53.66") are interpreted as exactly "fromRational (53.66 :: GHC.Real.Ratio Integer)". The prelude version, GHC.Real.fromRational is used as default (or whatever is in scope if RebindableSyntax is set).
 --
--- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromRational' need to be in a form C v, where v is a Num or a subclass of Num.
+-- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromRational' need to be in a form @C v@, where v is a Num or a subclass of Num.
 --
--- So a type synonym of `type FromRational a = FromRatio a Integer` doesn't work well with type defaulting, hence the need for a separate class.
+-- So a type synonym of `type FromRational a = FromRatio a Integer` doesn't work well with type defaulting; hence the need for a separate class.
 class FromRational a where
   fromRational :: P.Rational -> a
 
