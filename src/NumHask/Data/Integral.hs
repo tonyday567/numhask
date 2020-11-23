@@ -345,13 +345,13 @@ instance FromIntegral Word32 Word32 where
 instance FromIntegral Word64 Word64 where
   fromIntegral = P.id
 
--- | fromInteger is special in two ways:
+-- | 'fromInteger' is special in two ways:
 --
--- - numeric integral literals (like "42") are interpreted specifically as "fromInteger (42 :: GHC.Num.Integer)". The prelude version is used as default or whatever is on scope if RebindableSyntax is set.
+-- - numeric integral literals (like "42") are interpreted specifically as "fromInteger (42 :: GHC.Num.Integer)". The prelude version is used as default (or whatever fromInteger is in scope if RebindableSyntax is set).
 --
--- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that contraints on 'fromInteger' need to be in a form C v, where v is a Num or a subclass of Num.
+-- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that constraints on 'fromInteger' need to be in a form @C v@, where v is a Num or a subclass of Num.
 --
--- So a type synonym of `type FromInteger a = FromIntegral a Integer` doesn't work well with type defaulting, hence the need for a separate class.
+-- So a type synonym of `type FromInteger a = FromIntegral a Integer` doesn't work well with type defaulting; hence the need for a separate class.
 class FromInteger a where
   fromInteger :: Integer -> a
 
@@ -431,7 +431,7 @@ x0 ^^ y0
 
 -- | raise a number to an 'Int' power
 --
--- Note: This differs from (^) found in prelude which is a partial function (errors on negative integrals). This monomorphic version is provided to help reduce ambiguous type noise in common usages of this sign.
+-- Note: This differs from (^) found in prelude which is a partial function (it errors on negative integrals). This monomorphic version is provided to help reduce ambiguous type noise in common usages of this sign.
 (^) ::
   (Divisive a) => a -> Int -> a
 (^) x n = x ^^ n

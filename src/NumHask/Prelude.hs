@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_HADDOCK prune #-}
 
--- | A numeric prelude, composed by splicing numhask modules with [protolude](https://hackage.haskell.org/package/protolude) together with a few minor tweaks and additions.
+-- | A numeric prelude, composed by splicing numhask modules with [protolude](https://hackage.haskell.org/package/protolude), together with a few minor tweaks and additions.
 module NumHask.Prelude
   ( -- * numhask exports
     module NumHask.Algebra.Additive,
@@ -99,9 +99,9 @@ ifThenElse False _ y = y
 --
 -- - re-inserting 'id' which should never be overwritten in haskell code.
 --
--- - Data.Biapplicative which is a favorite style of the OA.
+-- - 'Data.Bifunctors' & 'Data.Biapplicative' which are favorites of the OA.
 --
--- - 'Control.Monad.Morph', another essential, ubiquitous library.
+-- - 'Control.Monad.Morph'; another essential, ubiquitous library.
 --
 -- - 'Data.Functor.Constant'
 --

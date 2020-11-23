@@ -147,7 +147,7 @@ import NumHask.Exception
 --
 -- 'GHC.Num' is a very old part of haskell, and is virtually unchanged since it's specification in [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
 --
--- A deconstruction of 'GHC.Num.Num':
+-- A deconstruction of 'GHC.Num.Num' and mapping to numhask.
 --
 -- > -- | Basic numeric class.
 -- > class  Num a  where
@@ -178,7 +178,7 @@ import NumHask.Exception
 --
 -- 'abs' is a function in the 'NumHask.Analysis.Metric.Signed' class. The concept of an absolute value can also include situations where the domain and codomain are different, and 'norm' as a function in the 'NumHask.Analysis.Metric.Norm' class is supplied for these cases.
 --
---  'NumHask.Analysis.Metric.sign' replaces 'GHC.Num.signum', because signum is a heinous name. 'NumHask.Analysis.Metric.basis' can also be seen as a generalisation of sign.
+--  'NumHask.Analysis.Metric.sign' replaces 'GHC.Num.signum', because signum is simply a naming crime. 'NumHask.Analysis.Metric.basis' can also be seen as a generalisation of sign.
 --
 -- >    -- | Conversion from an 'Integer'.
 -- >    -- An integer literal represents the application of the function
@@ -188,11 +188,11 @@ import NumHask.Exception
 --
 -- 'FromInteger' becomes its own class and 'FromIntegral' is introduced to polymorphise the covariant.
 --
--- Deocnstructions of other areas of prelude include:\
+-- Mappings from other areas of prelude include:\
 --
--- 'GHC.Real.Integral' becomes 'Integral' and a polymorphic 'ToIntegral'.
+-- 'GHC.Real.Integral' becomes 'Integral' and a polymorphic 'ToIntegral' is introduced.
 --
--- 'GHC.Real.Fractional' is roughly synonymous to 'Field' with a polymorphic 'FromRatio'.
+-- 'GHC.Real.Fractional' is roughly synonymous to 'Field' together with a polymorphic 'FromRatio'.
 --
 -- 'GHC.Real.RealFrac' becomes the polymorphic 'QuotientField'
 --
@@ -201,4 +201,4 @@ import NumHask.Exception
 -- 'GHC.Float.RealFloat' is not attempted. Life is too short.
 
 -- $backend
--- NumHask imports Protolude as a starting prelude with some minor tweaks.
+-- NumHask imports [protolude](https://hackage.haskell.org/package/protolude) as a base prelude with some minor tweaks.
