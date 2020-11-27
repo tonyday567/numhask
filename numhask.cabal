@@ -2,13 +2,13 @@ cabal-version: 2.4
 name: numhask
 version: 0.7.0.0
 synopsis:
-  A numeric class heirarchy.
+  A numeric class hierarchy.
 description:
     This package provides numeric classes alternate to the prelude specified in [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
     .
     The numeric class constellation looks somewhat like:
     .
-    ![nh](other/nh.svg)
+    ![nh](docs/other/nh.svg)
     .
     == Usage
     .
