@@ -1,4 +1,4 @@
-resolver: nightly-2020-11-19 # lts-16.22
+resolver: nightly-2020-11-19
 
 packages:
   - .
@@ -8,4 +8,3 @@ extra-deps:
   - random-1.2.0
   - splitmix-0.1.0.3
 
-allow-newer: true

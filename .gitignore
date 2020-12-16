@@ -5,3 +5,6 @@ TAGS
 /numhask-hedgehog/.dir-locals.el
 /dist-newstyle
 /stack.yaml.lock
+.ghc.environment*
+/cabal.project.local
+/.hie/

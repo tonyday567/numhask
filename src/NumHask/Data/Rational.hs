@@ -33,7 +33,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
-import Prelude ((.), Int, Integer, Rational)
+import Prelude ((.), Int, Integer, Rational, Ord(..), Ordering(..))
 import qualified Prelude as P
 
 -- $setup
@@ -102,10 +102,11 @@ instance
 instance (P.Ord a, Signed a, Integral a, Field a) => LowerBoundedField (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
-  sign (n :% _)
-    | n P.== zero = zero
-    | n P.> zero = one
-    | P.otherwise = negate one
+  sign (n :% _) =
+    case compare n zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs (n :% d) = abs n :% abs d
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) where

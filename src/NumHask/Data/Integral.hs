@@ -21,6 +21,7 @@ module NumHask.Data.Integral
 where
 
 import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Ord
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive
@@ -28,6 +29,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import Prelude ((.), Double, Float, Int, Integer, fst, snd)
 import qualified Prelude as P
+import GHC.Num (naturalFromInteger)
 
 -- | An Integral is anything that satisfies the law:
 --
@@ -244,7 +246,7 @@ instance FromIntegral Integer Integer where
   fromIntegral = P.id
 
 instance FromIntegral Natural Integer where
-  fromIntegral = P.fromInteger
+  fromIntegral = naturalFromInteger
 
 instance FromIntegral Int8 Integer where
   fromIntegral = P.fromInteger
@@ -368,7 +370,7 @@ instance FromInteger Integer where
   fromInteger = P.id
 
 instance FromInteger Natural where
-  fromInteger = P.fromInteger
+  fromInteger = naturalFromInteger
 
 instance FromInteger Int8 where
   fromInteger = P.fromInteger
@@ -409,16 +411,19 @@ even n = n `rem` (one + one) P.== zero
 odd :: (P.Eq a, Integral a) => a -> P.Bool
 odd = P.not . even
 
+infixr 8 ^^
+
 -- | raise a number to an 'Integral' power
 (^^) ::
   (P.Ord b, Divisive a, Subtractive b, Integral b) =>
   a ->
   b ->
   a
-x0 ^^ y0
-  | y0 P.< zero = recip (x0 ^^ negate y0)
-  | y0 P.== zero = one
-  | P.otherwise = f x0 y0
+x0 ^^ y0 =
+  case compare y0 zero of
+    EQ -> one
+    GT -> f x0 y0
+    LT -> recip (x0 ^^ negate y0)
   where
     f x y
       | even y = f (x * x) (y `quot` two)
@@ -428,6 +433,8 @@ x0 ^^ y0
       | even y = g (x * x) (y `quot` two) z
       | y P.== one = x * z
       | P.otherwise = g (x * x) (y `quot` two) (x * z)
+
+infixr 8 ^
 
 -- | raise a number to an 'Int' power
 --
