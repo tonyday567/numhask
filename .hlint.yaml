@@ -3,8 +3,4 @@
 - ignore: {name: Use logBase, within: NumHask.Algebra.Field}
 - ignore: {name: Use -}
 - ignore: {name: Eta reduce}
-- ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop}
-- ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop}
-- ignore: {name: Redundant lambda, within: NumHask.Hedgehog.Prop.Space}
-- ignore: {name: Reduce duplication, within: NumHask.Hedgehog.Prop.Space}
 - ignore: {name: Redundant fromInteger}

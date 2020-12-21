@@ -18,6 +18,7 @@ module NumHask.Analysis.Metric
   )
 where
 
+import Data.Bool (bool)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics (Generic)
@@ -27,11 +28,11 @@ import NumHask.Algebra.Lattice
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import Prelude hiding
-  ( (*),
-    (-),
-    Bounded (..),
+  ( Bounded (..),
     Integral (..),
     negate,
+    (*),
+    (-),
   )
 import qualified Prelude as P
 
@@ -40,100 +41,101 @@ import qualified Prelude as P
 -- > abs a * sign a == a
 class
   (Additive a, Multiplicative a) =>
-  Signed a where
+  Signed a
+  where
   sign :: a -> a
   abs :: a -> a
 
 instance Signed Double where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Float where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Int where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Integer where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Natural where
-  sign a
-    | a == zero = zero
-    | otherwise = one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = id
 
 instance Signed Int8 where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Int16 where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Int32 where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Int64 where
-  sign a
-    | a == zero = zero
-    | a > zero = one
-    | otherwise = negate one
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Word where
-  sign a
-    | a == zero = zero
-    | otherwise = one
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word8 where
-  sign a
-    | a == zero = zero
-    | otherwise = one
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word16 where
-  sign a
-    | a == zero = zero
-    | otherwise = one
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word32 where
-  sign a
-    | a == zero = zero
-    | otherwise = one
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word64 where
-  sign a
-    | a == zero = zero
-    | otherwise = one
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 -- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
@@ -221,8 +223,7 @@ class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) =
   ray :: dir -> coord
 
 -- | Something that has a magnitude and a direction.
-data Polar mag dir
-  = Polar {magnitude :: mag, direction :: dir}
+data Polar mag dir = Polar {magnitude :: !mag, direction :: !dir}
   deriving (Eq, Show, Generic)
 
 -- | Convert from a number to a Polar.
@@ -236,7 +237,8 @@ coord (Polar m d) = m .* ray d
 -- | A small number, especially useful for approximate equality.
 class
   (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
-  Epsilon a where
+  Epsilon a
+  where
   epsilon :: a
   epsilon = zero
 

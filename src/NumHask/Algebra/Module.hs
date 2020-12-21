@@ -32,7 +32,8 @@ import NumHask.Algebra.Ring
 class
   (Additive a) =>
   AdditiveAction m a
-    | m -> a where
+    | m -> a
+  where
   infixl 6 .+
   (.+) :: a -> m -> m
 
@@ -43,7 +44,8 @@ class
 class
   (Subtractive a) =>
   SubtractiveAction m a
-    | m -> a where
+    | m -> a
+  where
   infixl 6 .-
   (.-) :: a -> m -> m
 
@@ -54,7 +56,8 @@ class
 class
   (Multiplicative a) =>
   MultiplicativeAction m a
-    | m -> a where
+    | m -> a
+  where
   infixl 7 .*
   (.*) :: a -> m -> m
   infixl 7 *.
@@ -64,7 +67,8 @@ class
 class
   (Divisive a) =>
   DivisiveAction m a
-    | m -> a where
+    | m -> a
+  where
   infixl 7 ./
   (./) :: a -> m -> m
   infixl 7 /.

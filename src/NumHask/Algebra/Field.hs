@@ -76,7 +76,8 @@ instance Field b => Field (a -> b)
 -- > for +ive b, a != 0,1: a ** logBase a b ≈ b
 class
   (Field a) =>
-  ExpField a where
+  ExpField a
+  where
   exp :: a -> a
   log :: a -> a
   logBase :: a -> a -> a
@@ -176,7 +177,8 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
 -- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
 class
   (Field a) =>
-  UpperBoundedField a where
+  UpperBoundedField a
+  where
   infinity :: a
   infinity = one / zero
 
@@ -194,7 +196,8 @@ instance UpperBoundedField b => UpperBoundedField (a -> b) where
 -- | Negative infinity.
 class
   (Subtractive a, Field a) =>
-  LowerBoundedField a where
+  LowerBoundedField a
+  where
   negInfinity :: a
   negInfinity = negate (one / zero)
 
@@ -208,7 +211,8 @@ instance LowerBoundedField b => LowerBoundedField (a -> b) where
 -- | Trigonometric Field
 class
   (Field a) =>
-  TrigField a where
+  TrigField a
+  where
   pi :: a
   sin :: a -> a
   cos :: a -> a

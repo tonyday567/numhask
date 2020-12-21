@@ -52,7 +52,8 @@ instance Magma b => Magma (a -> b) where
 -- > a ⊕ unit = a
 class
   Magma a =>
-  Unital a where
+  Unital a
+  where
   unit :: a
 
 instance Unital b => Unital (a -> b) where
@@ -83,7 +84,8 @@ instance Commutative b => Commutative (a -> b)
 -- > ∀ a,b ∈ T: inv a ⊕ (a ⊕ b) = b = (b ⊕ a) ⊕ inv a
 class
   Magma a =>
-  Invertible a where
+  Invertible a
+  where
   inv :: a -> a
 
 instance Invertible b => Invertible (a -> b) where
@@ -102,7 +104,8 @@ instance (Associative a, Unital a, Invertible a) => Group a
 -- > a ⊕ absorb = absorb
 class
   Magma a =>
-  Absorbing a where
+  Absorbing a
+  where
   absorb :: a
 
 instance Absorbing b => Absorbing (a -> b) where
