@@ -24,19 +24,20 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
+import GHC.Num (naturalFromInteger)
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude ((.), Double, Float, Int, Integer, fst, snd)
+import Prelude (Double, Float, Int, Integer, fst, snd, (.))
 import qualified Prelude as P
-import GHC.Num (naturalFromInteger)
 
 -- | An Integral is anything that satisfies the law:
 --
 -- > b == zero || b * (a `div` b) + (a `mod` b) == a
 class
   (Distributive a) =>
-  Integral a where
+  Integral a
+  where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
   div a1 a2 = fst (divMod a1 a2)

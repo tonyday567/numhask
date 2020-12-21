@@ -28,11 +28,11 @@ import NumHask.Algebra.Lattice
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import Prelude hiding
-  ( (*),
-    (-),
-    Bounded (..),
+  ( Bounded (..),
     Integral (..),
     negate,
+    (*),
+    (-),
   )
 import qualified Prelude as P
 
@@ -41,7 +41,8 @@ import qualified Prelude as P
 -- > abs a * sign a == a
 class
   (Additive a, Multiplicative a) =>
-  Signed a where
+  Signed a
+  where
   sign :: a -> a
   abs :: a -> a
 
@@ -118,23 +119,23 @@ instance Signed Int64 where
   abs = P.abs
 
 instance Signed Word where
-  sign a = bool one zero (a==zero)
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word8 where
-  sign a = bool one zero (a==zero)
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word16 where
-  sign a = bool one zero (a==zero)
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word32 where
-  sign a = bool one zero (a==zero)
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 instance Signed Word64 where
-  sign a = bool one zero (a==zero)
+  sign a = bool one zero (a == zero)
   abs = P.abs
 
 -- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
@@ -222,8 +223,7 @@ class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) =
   ray :: dir -> coord
 
 -- | Something that has a magnitude and a direction.
-data Polar mag dir
-  = Polar {magnitude :: !mag, direction :: !dir}
+data Polar mag dir = Polar {magnitude :: !mag, direction :: !dir}
   deriving (Eq, Show, Generic)
 
 -- | Convert from a number to a Polar.
@@ -237,7 +237,8 @@ coord (Polar m d) = m .* ray d
 -- | A small number, especially useful for approximate equality.
 class
   (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
-  Epsilon a where
+  Epsilon a
+  where
   epsilon :: a
   epsilon = zero
 

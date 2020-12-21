@@ -33,7 +33,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
-import Prelude ((.), Int, Integer, Rational, Ord(..), Ordering(..))
+import Prelude (Int, Integer, Ord (..), Ordering (..), Rational, (.))
 import qualified Prelude as P
 
 -- $setup

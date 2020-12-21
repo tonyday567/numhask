@@ -24,8 +24,7 @@ import NumHask.Algebra.Ring
 import NumHask.Analysis.Metric
 import NumHask.Data.Integral
 import Prelude hiding
-  ( (/),
-    Num (..),
+  ( Num (..),
     atan,
     atan2,
     cos,
@@ -37,8 +36,9 @@ import Prelude hiding
     recip,
     sin,
     sqrt,
+    (/),
   )
-import qualified Prelude as P ((&&), (<), (<=), (==), (>), Ord (..), otherwise)
+import qualified Prelude as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
