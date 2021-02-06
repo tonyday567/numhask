@@ -36,9 +36,13 @@ import Prelude hiding
   )
 import qualified Prelude as P
 
--- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain
+-- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain.
 --
 -- > abs a * sign a == a
+--
+-- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
+--
+-- > sign zero == zero
 class
   (Additive a, Multiplicative a) =>
   Signed a
@@ -145,7 +149,9 @@ instance Signed Word64 where
 -- > a == norm a .* basis a
 -- > norm (basis a) == one
 class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
+  -- | or length, or ||v||
   norm :: a -> b
+  -- | or direction, or v-hat
   basis :: a -> a
 
 instance Norm Double Double where
@@ -217,7 +223,7 @@ distance a b = norm (a - b)
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 --
 -- > ray . angle == basis
--- > norm (ray x) == 1
+-- > norm (ray x) == one
 class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) => Direction coord dir | coord -> dir where
   angle :: coord -> dir
   ray :: dir -> coord
