@@ -1,10 +1,10 @@
-resolver: nightly-2020-11-19
+resolver: nightly-2021-02-12
 
 packages:
   - .
 
 extra-deps:
-  - protolude-0.3.0
   - random-1.2.0
-  - splitmix-0.1.0.3
+
+allow-newer: true
 
