@@ -31,7 +31,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Analysis.Metric
+import NumHask.Algebra.Metric
 import NumHask.Data.Integral
 import Prelude (Int, Integer, Ord (..), Ordering (..), Rational, (.))
 import qualified Prelude as P

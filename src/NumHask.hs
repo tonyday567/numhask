@@ -27,12 +27,10 @@ module NumHask
     module NumHask.Algebra.Module,
     module NumHask.Algebra.Multiplicative,
     module NumHask.Algebra.Ring,
-    module NumHask.Analysis.Metric,
+    module NumHask.Algebra.Metric,
     module NumHask.Data.Complex,
     module NumHask.Data.Integral,
-    module NumHask.Data.LogField,
     module NumHask.Data.Rational,
-    module NumHask.Data.Positive,
     module NumHask.Exception,
   )
 where
@@ -44,18 +42,15 @@ import NumHask.Algebra.Lattice
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Analysis.Metric
+import NumHask.Algebra.Metric
 import NumHask.Data.Complex
 import NumHask.Data.Integral
-import NumHask.Data.LogField
-import NumHask.Data.Positive
 import NumHask.Data.Rational
 import NumHask.Exception
 
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XNegativeLiterals
 -- >>> import NumHask.Prelude
 -- >>> 1+1
 -- 2
@@ -98,26 +93,6 @@ import NumHask.Exception
 --
 -- The effect of [ExtendedDefaultRules](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/ghci.html#extension-ExtendedDefaultRules) in ghci or switched on as an extension also need to be understood. It can lead to unusual interactions with numerics and strange error messages at times because it adds @()@ and @[]@ to the start of the type defaulting list.
 --
--- == Negatives
---
--- Without [NegativeLiterals](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/negative_literals.html), GHC and Haskell often reads a negative as subtraction rather than a minus.
---
--- > :set -XNoNegativeLiterals
--- > :t Point 1 -2
--- Point 1 -2
---   :: (Subtractive (Point a), FromInteger a,
---       FromInteger (a -> Point a)) =>
---      a -> Pair a
--- ...
---
--- > :set -XNegativeLiterals
--- > :t Point 1 -2
--- Point 1 -2 :: FromInteger a => Point a
---
--- > Point 1 -2
--- Point 1 -2
---
--- [LexicalNegation](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/lexical_negation.html) is coming soon as a valid replacement for NegativeLiterals and will tighten things up further.
 
 -- $overview
 -- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents. Principles that have guided design include:
@@ -176,9 +151,9 @@ import NumHask.Exception
 -- >    -- or @1@ (positive).
 -- >    signum              :: a -> a
 --
--- 'abs' is a function in the 'NumHask.Analysis.Metric.Signed' class. The concept of an absolute value can also include situations where the domain and codomain are different, and 'norm' as a function in the 'NumHask.Analysis.Metric.Norm' class is supplied for these cases.
+-- 'abs' is a function in the 'NumHask.Algebra.Metric.Signed' class. The concept of an absolute value can also include situations where the domain and codomain are different, and 'norm' as a function in the 'NumHask.Algebra.Metric.Norm' class is supplied for these cases.
 --
---  'NumHask.Analysis.Metric.sign' replaces 'GHC.Num.signum', because signum is simply a naming crime. 'NumHask.Analysis.Metric.basis' can also be seen as a generalisation of sign.
+--  'NumHask.Algebra.Metric.sign' replaces 'GHC.Num.signum', because signum is simply a naming crime. 'NumHask.Algebra.Metric.basis' can also be seen as a generalisation of sign.
 --
 -- >    -- | Conversion from an 'Integer'.
 -- >    -- An integer literal represents the application of the function
@@ -199,6 +174,3 @@ import NumHask.Exception
 -- 'GHC.Float.Floating' is split into 'ExpField' and 'TrigField'
 --
 -- 'GHC.Float.RealFloat' is not attempted. Life is too short.
-
--- $backend
--- NumHask imports [protolude](https://hackage.haskell.org/package/protolude) as a base prelude with some minor tweaks.

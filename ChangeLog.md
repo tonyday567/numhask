@@ -1,3 +1,12 @@
+0.8.0
+=====
+
+* GHC 9.0.1 support
+* Removed protolude and replaced it with prelude
+* Removed NumHask.Data.Positive, NumHask.Data.LogFloat, NumHask.Data.Wrapper
+* modified project build to cabal
+* removed NegativeLiterals recommendation.
+
 0.7.0
 =====
 
@@ -14,7 +23,6 @@
 * Added doctests and laws
 * Improved haddocks
 * Made (^) a monomorphic `a -> Int -> a` and accept negative Ints
-
 
 
 0.6.0

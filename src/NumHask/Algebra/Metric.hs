@@ -5,7 +5,7 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
-module NumHask.Analysis.Metric
+module NumHask.Algebra.Metric
   ( Signed (..),
     Norm (..),
     distance,
