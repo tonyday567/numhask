@@ -1,10 +1,10 @@
 cabal-version: 2.4
 name: numhask
-version: 0.7.1.0
+version: 0.8.0.0
 synopsis:
   A numeric class hierarchy.
 description:
-    This package provides numeric classes alternate to the prelude specified in [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
+    This package provides alternative numeric classes over Prelude.
     .
     The numeric class constellation looks somewhat like:
     .
@@ -12,7 +12,6 @@ description:
     .
     == Usage
     .
-    >>> {-# LANGUAGE NegativeLiterals #-}
     >>> {-# LANGUAGE RebindableSyntax #-}
     >>> import NumHask.Prelude
     .
@@ -39,6 +38,8 @@ build-type:
 tested-with:
   GHC ==8.8.4
    || ==8.10.2
+   || ==8.10.4
+   || ==9.0.1
 
 extra-doc-files:
   other/*.svg
@@ -66,29 +67,20 @@ library
     -fwrite-ide-info
     -hiedir=.hie
   build-depends:
-    base >=4.7 && <5,
-    protolude >=0.3 && <0.4,
-    bifunctors >= 5.5 && < 5.6,
-    mmorph >= 1.1 && < 1.2,
-    random >= 1.2 && < 1.3,
-    transformers >= 0.5 && < 0.6,
-    text >= 1.2 && < 1.3,
+    base >=4.7 && <5
   exposed-modules:
     NumHask
     NumHask.Algebra.Additive
     NumHask.Algebra.Field
     NumHask.Algebra.Group
     NumHask.Algebra.Lattice
+    NumHask.Algebra.Metric
     NumHask.Algebra.Module
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
-    NumHask.Analysis.Metric
     NumHask.Data.Complex
     NumHask.Data.Integral
-    NumHask.Data.LogField
-    NumHask.Data.Positive
     NumHask.Data.Rational
-    NumHask.Data.Wrapped
     NumHask.Exception
     NumHask.Prelude
   other-modules:
@@ -102,8 +94,7 @@ test-suite test
   build-depends:
     QuickCheck >= 2.13 && < 2.15,
     base >=4.7 && <5,
-    doctest >= 0.16 && < 0.18,
-    numhask,
+    doctest >= 0.18 && < 0.19
   default-language: Haskell2010
   ghc-options:
     -Wall
