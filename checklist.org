@@ -119,8 +119,9 @@ which hlint
 ** haskell-ci
 
 #+begin_src
-haskell-ci dump-config > haskell-ci.yml
-haskell-ci github '--config=haskell-ci.yml' 'cabal.project' --output .github/workflows/haskell-ci.yml
+haskell-ci dump-config > haskell-ci.config
+{edit configuration}
+haskell-ci github '--config=haskell-ci.config' 'cabal.project' --output .github/workflows/haskell-ci.yml
 #+end_src
 
 ** cabal-docspec
