@@ -103,9 +103,10 @@ add `/Users/tonyday/.cabal/bin` to path
 - [[https://hackage.haskell.org/package/ormolu][ormolu]]
 - [[https://github.com/kowainik/stan#stan][stan]]
 - [[https://hackage.haskell.org/package/haddock][haddock]]
+- [[https://github.com/haskell-CI/haskell-ci][haskell-ci]]
 
 #+begin_src sh
-cabal install ormolu hlint stan ghcid
+cabal install ormolu hlint stan ghcid haskell-ci
 #+end_src
 
 #+begin_src sh
@@ -114,6 +115,21 @@ which hlint
 
 #+RESULTS:
 : /Users/tonyday/.cabal/bin/hlint
+
+** haskell-ci
+
+#+begin_src
+haskell-ci dump-config > haskell-ci.yml
+haskell-ci github '--config=haskell-ci.yml' 'cabal.project' --output .github/workflows/haskell-ci.yml
+#+end_src
+
+** cabal-docspec
+
+#+begin_src zsh
+git clone https://github.com/phadej/cabal-extras
+cd cabal-extras/cabal-docspec
+cabal install cabal-docspec:exe:cabal-docspec
+#+end_src
 
 * Checklist
 - [[https://www.haskell.org/cabal/][cabal]]

@@ -12,7 +12,8 @@
             "^NumHask.Algebra.Lattice.joinLeq$",
             "^NumHask.Data.Complex.imagPart$",
             "^NumHask.Data.Complex.realPart$",
-            "^NumHask.Data.Integral./^$",
+            "^NumHask.Data.Integral.\\^$",
+            "^NumHask.Data.Integral.\\^\\^$",
             "^NumHask.Data.Integral.odd$",
             "^NumHask.Prelude.ifThenElse$"
 ]
