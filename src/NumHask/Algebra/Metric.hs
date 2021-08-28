@@ -23,10 +23,10 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Lattice
-import NumHask.Algebra.Module
-import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Additive (Additive (zero), Subtractive (..))
+import NumHask.Algebra.Lattice (MeetSemiLattice, meetLeq)
+import NumHask.Algebra.Module (MultiplicativeAction ((.*)))
+import NumHask.Algebra.Multiplicative (Multiplicative (one))
 import Prelude hiding
   ( Bounded (..),
     Integral (..),
@@ -151,6 +151,7 @@ instance Signed Word64 where
 class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
   -- | or length, or ||v||
   norm :: a -> b
+
   -- | or direction, or v-hat
   basis :: a -> a
 

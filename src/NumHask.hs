@@ -1,4 +1,3 @@
-{-# LANGUAGE NegativeLiterals #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_HADDOCK prune #-}
@@ -36,17 +35,90 @@ module NumHask
 where
 
 import NumHask.Algebra.Additive
+  ( Additive (..),
+    Subtractive (..),
+    sum,
+  )
 import NumHask.Algebra.Field
+  ( ExpField (..),
+    Field,
+    LowerBoundedField (..),
+    QuotientField (..),
+    TrigField (..),
+    UpperBoundedField (..),
+    half,
+  )
 import NumHask.Algebra.Group
+  ( AbelianGroup,
+    Absorbing (..),
+    Associative,
+    Commutative,
+    Group,
+    Idempotent,
+    Invertible (..),
+    Magma (..),
+    Unital (..),
+  )
 import NumHask.Algebra.Lattice
-import NumHask.Algebra.Module
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ring
+  ( BoundedJoinSemiLattice (..),
+    BoundedMeetSemiLattice (..),
+    JoinSemiLattice (..),
+    MeetSemiLattice (..),
+    joinLeq,
+    meetLeq,
+  )
 import NumHask.Algebra.Metric
-import NumHask.Data.Complex
+  ( Direction (..),
+    Epsilon (..),
+    Norm (..),
+    Polar (..),
+    Signed (..),
+    coord,
+    distance,
+    polar,
+    (~=),
+  )
+import NumHask.Algebra.Module
+  ( AdditiveAction (..),
+    DivisiveAction (..),
+    Module,
+    MultiplicativeAction (..),
+    SubtractiveAction (..),
+  )
+import NumHask.Algebra.Multiplicative
+  ( Divisive (..),
+    Multiplicative (..),
+    product,
+  )
+import NumHask.Algebra.Ring
+  ( Distributive,
+    InvolutiveRing (..),
+    KleeneAlgebra,
+    Ring,
+    StarSemiring (..),
+    two,
+  )
+import NumHask.Data.Complex (Complex (..), imagPart, realPart)
 import NumHask.Data.Integral
+  ( FromInteger (..),
+    FromIntegral (..),
+    Integral (..),
+    ToIntegral (..),
+    even,
+    odd,
+    (^),
+    (^^),
+  )
 import NumHask.Data.Rational
-import NumHask.Exception
+  ( FromRatio (..),
+    FromRational (..),
+    Ratio (..),
+    Rational,
+    ToRatio (..),
+    gcd,
+    reduce,
+  )
+import NumHask.Exception (NumHaskException (..), throw)
 
 -- $setup
 --
@@ -57,9 +129,13 @@ import NumHask.Exception
 
 -- $extensions
 --
--- [RebindableSyntax](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/rebindable_syntax.html) and [NegativeLiterals](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/negative_literals.html) are both recommended for use with numhask. [LexicalNegation](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/lexical_negation.html) also looks sweet when it arrives.
+-- [RebindableSyntax](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/rebindable_syntax.html)
+-- is recommended for use with numhask.
 --
--- As a replacement for the numerical classes, numhask clashes significantly with an unqualified import of the @Prelude@. Either numhask modules should be qualified, or prelude turned off with the NoImplicitPrelude extension, or with RebindableSyntax, which implies NoImplicitPrelude.
+-- As a replacement for the numerical classes, numhask clashes significantly with an
+-- unqualified import of the @Prelude@. Either numhask modules should be qualified,
+-- or prelude turned off with the NoImplicitPrelude extension, or with RebindableSyntax,
+-- which implies NoImplicitPrelude.
 --
 -- == defaulting
 --
@@ -87,40 +163,55 @@ import NumHask.Exception
 -- >>> 1.0
 -- 1.0
 --
--- It is recommended to switch on RebindableSyntax to avoid Num constraints being introduced due to literal defaulting. The extension is a tradeoff, however, and usage comes attached with other non-numeric changes that "NumHask.Prelude" attempts to counteract.
+-- RebindableSyntax is a tradeoff, however, and usage comes attached with other non-numeric changes
+-- that "NumHask.Prelude" attempts to counteract.
 --
--- See See [haskell2010 Section 4.3.4](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3) for the nuts and bolts to defaulting.
+-- See [haskell2010 Section 4.3.4](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3) for the nuts and bolts to defaulting.
 --
--- The effect of [ExtendedDefaultRules](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/ghci.html#extension-ExtendedDefaultRules) in ghci or switched on as an extension also need to be understood. It can lead to unusual interactions with numerics and strange error messages at times because it adds @()@ and @[]@ to the start of the type defaulting list.
---
+-- The effect of [ExtendedDefaultRules](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/ghci.html#extension-ExtendedDefaultRules)
+-- in ghci or switched on as an extension also need to be understood.
+-- It can lead to unusual interactions with numerics and strange error messages at times because
+-- it adds @()@ and @[]@ to the start of the type defaulting list.
 
 -- $overview
--- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents. Principles that have guided design include:
+-- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents.
+-- Principles that have guided design include:
 --
--- - __/balanced class density/__. The numeric heirarchy begins with addition and multiplication, choosing not to build from a 'Magma' base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
+-- - __/balanced class density/__. The numeric heirarchy begins with addition and multiplication,
+--   choosing not to build from a 'Magma' base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
 --
--- - __/operator-first/__. In most cases, a class exists to define useful operators. The exceptions are 'Distributive', 'Ring' and 'Field', which are collections of operators representing major teleological fault lines.
+-- - __/operator-first/__. In most cases, a class exists to define useful operators.
+--   The exceptions are 'Distributive', 'Ring' and 'Field', which are collections of operators
+--   representing major teleological fault lines.
 --
--- - __/lawful/__. Most classes have laws associated with them that serve to relate class operators together in a meaningful way.
+-- - __/lawful/__. Most classes have laws associated with them that serve to relate class operators
+--   together in a meaningful way.
 --
--- - __/low-impact/__. The library attempts to fit in with the rest of the Haskell ecosystem. It provides instances for common numbers: 'GHC.Num.Int', 'GHC.Num.Integer', 'GHC.Float.Double', 'GHC.Float.Float' and the Word classes. It avoids name (or idea) clashes with other popular libraries and adopts conventions in the <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude> where they make sense.
+-- - __/low-impact/__. The library attempts to fit in with the rest of the Haskell ecosystem.
+--   It provides instances for common numbers: 'GHC.Num.Int', 'GHC.Num.Integer', 'GHC.Float.Double',
+--   'GHC.Float.Float' and the Word classes. It avoids name (or idea) clashes with other popular libraries
+--   and adopts conventions in the <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude>
+--   where they make sense.
 --
--- - __/proof-of-concept/__. The library may be below industrial-strength depending on a definition of this term. At the same time, correspondence around improving the library is most welcome.
+-- - __/proof-of-concept/__. The library may be below industrial-strength depending on a definition
+--   of this term. At the same time, correspondence around improving the library is most welcome.
 
 -- $pictures
 --
 -- The class heirarchy looks somewhat like this:
 -- ![classes](other/nh.svg)
 --
--- If the base started with magma, and the library tolerated clashing with 'Data.Semigroup' and 'Data.Monoid' in base, it would look like:
+-- If the base started with magma, and the library tolerated clashing with 'Data.Semigroup'
+-- and 'Data.Monoid' in base, it would look like:
 --
 -- ![magma classes](other/nhmagma.svg)
 --
--- These first two levels, contained in 'NumHask.Algebra.Group' can be considered "morally" super-classes.
+-- These first two levels, contained in 'NumHask.Algebra.Group' are moral super-classes.
 
 -- $mapping
 --
--- 'GHC.Num' is a very old part of haskell, and is virtually unchanged since it's specification in [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
+-- 'GHC.Num' is a very old part of haskell, and is virtually unchanged since it's specification in
+-- [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
 --
 -- A deconstruction of 'GHC.Num.Num' and mapping to numhask.
 --
@@ -151,9 +242,13 @@ import NumHask.Exception
 -- >    -- or @1@ (positive).
 -- >    signum              :: a -> a
 --
--- 'abs' is a function in the 'NumHask.Algebra.Metric.Signed' class. The concept of an absolute value can also include situations where the domain and codomain are different, and 'norm' as a function in the 'NumHask.Algebra.Metric.Norm' class is supplied for these cases.
+-- 'abs' is a function in the 'NumHask.Algebra.Metric.Signed' class.
+-- The concept of an absolute value can also include situations where the domain and codomain
+-- are different, and 'norm' as a function in the 'NumHask.Algebra.Metric.Norm' class is supplied
+-- for these cases.
 --
---  'NumHask.Algebra.Metric.sign' replaces 'GHC.Num.signum', because signum is simply a naming crime. 'NumHask.Algebra.Metric.basis' can also be seen as a generalisation of sign.
+-- 'NumHask.Algebra.Metric.sign' replaces 'GHC.Num.signum', because signum is simply a naming crime.
+-- 'NumHask.Algebra.Metric.basis' can also be seen as a generalisation of sign.
 --
 -- >    -- | Conversion from an 'Integer'.
 -- >    -- An integer literal represents the application of the function

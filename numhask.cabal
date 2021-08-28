@@ -45,7 +45,6 @@ extra-doc-files:
   other/*.svg
 
 extra-source-files:
-  readme.md
   ChangeLog.md
 
 source-repository head
@@ -92,7 +91,6 @@ test-suite test
   hs-source-dirs:
     test
   build-depends:
-    QuickCheck >= 2.13 && < 2.15,
     base >=4.7 && <5,
     doctest >= 0.18 && < 0.19
   default-language: Haskell2010

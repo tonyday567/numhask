@@ -12,20 +12,18 @@ module NumHask.Algebra.Module
   )
 where
 
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ring
+import NumHask.Algebra.Additive (Additive, Subtractive)
+import NumHask.Algebra.Multiplicative (Divisive, Multiplicative)
+import NumHask.Algebra.Ring (Distributive)
 
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XNegativeLiterals
 -- >>> :set -XFlexibleContexts
 -- >>> :set -XFlexibleInstances
 -- >>> :set -XScopedTypeVariables
 -- >>> :set -XMultiParamTypeClasses
 -- >>> import NumHask.Prelude
--- >>> import Test.QuickCheck
 -- >>> import Prelude (Int, fmap)
 
 -- | Additive Action

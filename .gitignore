@@ -8,3 +8,4 @@ TAGS
 .ghc.environment*
 /cabal.project.local
 /.hie/
+/cabal.project.local~

@@ -29,9 +29,9 @@ import qualified GHC.Real
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
+import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Metric
 import NumHask.Data.Integral
 import Prelude (Int, Integer, Ord (..), Ordering (..), Rational, (.))
 import qualified Prelude as P
@@ -39,7 +39,6 @@ import qualified Prelude as P
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XNegativeLiterals
 -- >>> import NumHask.Prelude
 
 -- | A rational number

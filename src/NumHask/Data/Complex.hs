@@ -19,9 +19,9 @@ import GHC.Generics (Generic, Generic1)
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
+import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Metric
 import NumHask.Data.Integral
 import Prelude hiding
   ( Num (..),
