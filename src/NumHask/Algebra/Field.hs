@@ -19,21 +19,22 @@ module NumHask.Algebra.Field
 where
 
 import Data.Bool (bool)
-import NumHask.Algebra.Additive
+import NumHask.Algebra.Additive (Additive (..), Subtractive (..))
 import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ring
-import NumHask.Data.Integral
+  ( Divisive ((/)),
+    Multiplicative (..),
+  )
+import NumHask.Algebra.Ring (Distributive, two)
+import NumHask.Data.Integral (Integral, even)
 import Prelude ((.))
 import qualified Prelude as P
 
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XNegativeLiterals
 -- >>> :set -XFlexibleContexts
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
--- >>> import Test.QuickCheck
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.

@@ -1,6 +1,8 @@
 packages: numhask.cabal
 
--- package-id numhask-0.7.0.1-inplace
+package *
+  ghc-options: -fwrite-ide-info
+
 -- https://github.com/haskell/cabal/issues/6087
 write-ghc-environment-files: always
 

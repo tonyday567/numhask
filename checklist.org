@@ -1,0 +1,163 @@
+#+TITLE: Haskell Project Checklist
+* Haskell tooling
+** [[https://www.haskell.org/ghcup/][ghcup]]
+
+#+begin_src
+  curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+#+end_src
+
+#+begin_src zsh :results output
+which cabal
+#+end_src
+
+#+RESULTS:
+: /Users/tonyday/.ghcup/bin/cabal
+
+#+begin_src zsh :results output
+cabal --version
+#+end_src
+
+#+RESULTS:
+: cabal-install version 3.4.0.0
+: compiled using version 3.4.0.0 of the Cabal library
+
+#+begin_src zsh :results output
+ghc --version
+#+end_src
+
+#+RESULTS:
+: The Glorious Glasgow Haskell Compilation System, version 8.10.4
+
+#+begin_src zsh :results output
+stack --version
+#+end_src
+
+#+RESULTS:
+: Version 2.7.3, Git revision 7927a3aec32e2b2e5e4fb5be76d0d50eddcc197f x86_64 hpack-0.34.4
+
+#+begin_src zsh :results output
+haddock --version
+#+end_src
+
+#+RESULTS:
+: Haddock version 2.24.0, (c) Simon Marlow 2006
+: Ported to use the GHC API by David Waern 2006-2008
+
+#+begin_src zsh :results output
+haskell-language-server --version
+#+end_src
+
+#+RESULTS:
+: haskell-language-server version: 1.3.0.0 (GHC: 9.0.1) (PATH: /Users/tonyday/.ghcup/bin/haskell-language-server-9.0.1~1.3.0) (GIT hash: e7c5e90b6df5dff2760d76169eddaea3bdd6a831)
+
+#+begin_src zsh :results output
+ghcup list
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[92m[0m   Tool  Version        Tags                      Notes
+[91m✗ [0m ghc   7.10.3         base-4.8.2.0
+[91m✗ [0m ghc   8.0.2          base-4.9.1.0
+[91m✗ [0m ghc   8.2.2          base-4.10.1.0
+[91m✗ [0m ghc   8.4.1          base-4.11.0.0
+[91m✗ [0m ghc   8.4.2          base-4.11.1.0
+[91m✗ [0m ghc   8.4.3          base-4.11.1.0
+[91m✗ [0m ghc   8.4.4          base-4.11.1.0
+[91m✗ [0m ghc   8.6.1          base-4.12.0.0
+[91m✗ [0m ghc   8.6.2          base-4.12.0.0
+[91m✗ [0m ghc   8.6.3          base-4.12.0.0
+[91m✗ [0m ghc   8.6.4          base-4.12.0.0             [92mhls-powered[0m
+[91m✗ [0m ghc   8.6.5          base-4.12.0.0             [92mhls-powered[0m
+[91m✗ [0m ghc   8.8.1          base-4.13.0.0
+[91m✗ [0m ghc   8.8.2          base-4.13.0.0
+[91m✗ [0m ghc   8.8.3          base-4.13.0.0             [92mhls-powered[0m
+[92m✓ [0m ghc   8.8.4          base-4.13.0.0             [92mhls-powered[0m
+[91m✗ [0m ghc   8.10.1         base-4.14.0.0
+[91m✗ [0m ghc   8.10.2         base-4.14.1.0             [92mhls-powered[0m
+[91m✗ [0m ghc   8.10.3         base-4.14.1.0             [92mhls-powered[0m
+[92m✔✔[0m ghc   8.10.4         base-4.14.1.0             [92mhls-powered[0m
+[91m✗ [0m ghc   8.10.5         base-4.14.2.0             [92mhls-powered[0m
+[92m✓ [0m ghc   8.10.6         base-4.14.3.0
+[91m✗ [0m ghc   8.10.7         [92mrecommended[0m,base-4.14.3.0
+[92m✓ [0m ghc   9.0.1          [93mlatest[0m,base-4.15.0.0      [92mhls-powered[0m
+[92m✓ [0m ghc   9.2.0.20210821 [91mprerelease[0m,base-4.16.0.0
+[91m✗ [0m cabal 2.4.1.0
+[91m✗ [0m cabal 3.0.0.0
+[91m✗ [0m cabal 3.2.0.0
+[92m✔✔[0m cabal 3.4.0.0        [93mlatest[0m,[92mrecommended[0m
+[92m✓ [0m hls   1.1.0
+[92m✓ [0m hls   1.2.0
+[92m✔✔[0m hls   1.3.0          [93mlatest[0m,[92mrecommended[0m
+[91m✗ [0m stack 2.5.1
+[92m✓ [0m stack 2.7.1
+[92m✔✔[0m stack 2.7.3          [93mlatest[0m,[92mrecommended[0m
+[92m✔✔[0m ghcup 0.1.16.2       [93mlatest[0m,[92mrecommended[0m
+#+end_example
+
+** tools
+
+add `/Users/tonyday/.cabal/bin` to path
+
+- [[https://hackage.haskell.org/package/hlint][hlint]]
+- [[https://hackage.haskell.org/package/ormolu][ormolu]]
+- [[https://github.com/kowainik/stan#stan][stan]]
+- [[https://hackage.haskell.org/package/haddock][haddock]]
+- [[https://github.com/haskell-CI/haskell-ci][haskell-ci]]
+
+#+begin_src sh
+cabal install ormolu hlint stan ghcid haskell-ci
+#+end_src
+
+#+begin_src sh
+which hlint
+#+end_src
+
+#+RESULTS:
+: /Users/tonyday/.cabal/bin/hlint
+
+** haskell-ci
+
+#+begin_src
+haskell-ci dump-config > haskell-ci.config
+{edit configuration}
+haskell-ci github '--config=haskell-ci.config' 'cabal.project' --output .github/workflows/haskell-ci.yml
+#+end_src
+
+** cabal-docspec
+
+#+begin_src zsh
+git clone https://github.com/phadej/cabal-extras
+cd cabal-extras/cabal-docspec
+cabal install cabal-docspec:exe:cabal-docspec
+#+end_src
+
+* Checklist
+- [[https://www.haskell.org/cabal/][cabal]]
+  #+begin_src zsh results: output
+  cabal clean && cabal configure && cabal build && cabal test
+  #+end_src
+- [[https://docs.haskellstack.org/en/stable/README/][stack]]
+
+  #+begin_src zsh :results output
+  stack build --test --haddock --no-haddock-deps --ghc-options -Werror --ghc-options -Wcompat --ghc-options -Wincomplete-record-updates --ghc-options -Wincomplete-uni-patterns --ghc-options -Wredundant-constraints
+  #+end_src
+- [[https://hackage.haskell.org/package/hlint][hlint]]
+  #+begin_src zsh :results output
+  hlint .
+  #+end_src
+- [[https://hackage.haskell.org/package/ormolu][ormolu]]
+
+  (`--mode inplace` to actually change haskell files)
+
+  #+begin_src zsh :results output
+  ormolu --mode check $(git ls-files '*.hs')
+  #+end_src
+- [[https://github.com/kowainik/stan#stan][stan]]
+  #+begin_src zsh :results output
+  stan
+  #+end_src
+- [[https://hackage.haskell.org/package/haddock][haddock]]
+  #+begin_src zsh :results output
+  cabal haddock
+  #+end_src

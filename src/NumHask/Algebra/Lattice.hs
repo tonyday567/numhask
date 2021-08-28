@@ -14,8 +14,8 @@ module NumHask.Algebra.Lattice
   )
 where
 
-import Data.Bool
-import Data.Eq
+import Data.Bool (Bool (..), (&&), (||))
+import Data.Eq (Eq ((==)))
 import Data.Function (const)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord (Ord (..))
@@ -28,6 +28,9 @@ import GHC.Num (Integer)
 import GHC.Word (Word)
 import NumHask.Algebra.Additive (zero)
 import NumHask.Algebra.Field
+  ( LowerBoundedField (negInfinity),
+    UpperBoundedField (infinity),
+  )
 
 -- | A algebraic structure with element joins: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --

@@ -16,26 +16,24 @@ where
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Group
-import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
+import NumHask.Algebra.Group (Idempotent)
+import NumHask.Algebra.Multiplicative (Multiplicative (..))
 import qualified Prelude as P
 
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XNegativeLiterals
 -- >>> :set -XFlexibleContexts
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
--- >>> import Test.QuickCheck
 
 -- | <https://en.wikipedia.org/wiki/Distributive_property Distributive>
 --
--- prop> \a b c -> a * (b + c) == a * b + a * c
--- prop> \a b c -> (a + b) * c == a * c + b * c
--- prop> \a -> zero * a == zero
--- prop> \a -> a * zero == zero
+-- > \a b c -> a * (b + c) == a * b + a * c
+-- > \a b c -> (a + b) * c == a * c + b * c
+-- > \a -> zero * a == zero
+-- > \a -> a * zero == zero
 --
 -- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element Absorption> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
 class
@@ -76,21 +74,21 @@ instance Distributive b => Distributive (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('Unital', 'Associative', 'Commutative', 'Invertible') and monoidal under multiplication ('Unital', 'Associative'), and where multiplication distributes over addition.
 --
--- prop> \a -> zero + a == a
--- prop> \a -> a + zero == a
--- prop> \a b c -> (a + b) + c == a + (b + c)
--- prop> \a b -> a + b == b + a
--- prop> \a -> a - a == zero
--- prop> \a -> negate a == zero - a
--- prop> \a -> negate a + a == zero
--- prop> \a -> a + negate a == zero
--- prop> \a -> one * a == a
--- prop> \a -> a * one == a
--- prop> \a b c -> (a * b) * c == a * (b * c)
--- prop> \a b c -> a * (b + c) == a * b + a * c
--- prop> \a b c -> (a + b) * c == a * c + b * c
--- prop> \a -> zero * a == zero
--- prop> \a -> a * zero == zero
+-- > \a -> zero + a == a
+-- > \a -> a + zero == a
+-- > \a b c -> (a + b) + c == a + (b + c)
+-- > \a b -> a + b == b + a
+-- > \a -> a - a == zero
+-- > \a -> negate a == zero - a
+-- > \a -> negate a + a == zero
+-- > \a -> a + negate a == zero
+-- > \a -> one * a == a
+-- > \a -> a * one == a
+-- > \a b c -> (a * b) * c == a * (b * c)
+-- > \a b c -> a * (b + c) == a * b + a * c
+-- > \a b c -> (a + b) * c == a * c + b * c
+-- > \a -> zero * a == zero
+-- > \a -> a * zero == zero
 class
   (Distributive a, Subtractive a) =>
   Ring a
