@@ -26,6 +26,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - compiler: ghc-head
+            allow-failure: true
           - compiler: ghc-9.0.1
             allow-failure: false
           - compiler: ghc-8.10.4
