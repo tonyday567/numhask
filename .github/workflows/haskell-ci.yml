@@ -36,11 +36,6 @@ jobs:
             compilerVersion: 9.0.1
             setup-method: ghcup
             allow-failure: false
-          - compiler: ghc-8.10.4
-            compilerKind: ghc
-            compilerVersion: 8.10.4
-            setup-method: hvr-ppa
-            allow-failure: false
       fail-fast: false
     steps:
       - name: apt
@@ -211,8 +206,8 @@ jobs:
           $CABAL v2-build $ARG_COMPILER $ARG_TESTS $ARG_BENCH all --write-ghc-environment-files=always
       - name: docspec
         run: |
-          $CABAL v2-build $ARG_COMPILER $ARG_TESTS $ARG_BENCH all
-          cabal-docspec $ARG_COMPILER --verbose --timeout 2
+          if [ $((HCNUMVER >= 90200)) -ne 0 ] ; then $CABAL v2-build $ARG_COMPILER $ARG_TESTS $ARG_BENCH all ; fi
+          if [ $((HCNUMVER >= 90200)) -ne 0 ] ; then cabal-docspec $ARG_COMPILER --verbose --timeout 2 ; fi
       - name: cabal check
         run: |
           cd ${PKGDIR_numhask} || false
