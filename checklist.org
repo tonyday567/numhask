@@ -129,7 +129,7 @@ haskell-ci github '--config=haskell-ci.config' 'cabal.project' --output .github/
 #+begin_src zsh
 git clone https://github.com/phadej/cabal-extras
 cd cabal-extras/cabal-docspec
-cabal install cabal-docspec:exe:cabal-docspec
+cabal install cabal-docspec:exe:cabal-docspec --allow-newer --overwrite-policy=always
 #+end_src
 
 * Checklist
