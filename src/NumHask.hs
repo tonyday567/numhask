@@ -13,20 +13,19 @@ module NumHask
 
     -- * Prelude Mappings
     -- $mapping
-    -- $backend
 
     -- * Extensions
     -- $extensions
 
     -- * Exports
     module NumHask.Algebra.Additive,
-    module NumHask.Algebra.Field,
-    module NumHask.Algebra.Group,
-    module NumHask.Algebra.Lattice,
-    module NumHask.Algebra.Module,
     module NumHask.Algebra.Multiplicative,
     module NumHask.Algebra.Ring,
+    module NumHask.Algebra.Field,
+    module NumHask.Algebra.Lattice,
+    module NumHask.Algebra.Module,
     module NumHask.Algebra.Metric,
+    module NumHask.Algebra.Group,
     module NumHask.Data.Complex,
     module NumHask.Data.Integral,
     module NumHask.Data.Rational,
@@ -143,10 +142,10 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- >>> :set -XNoRebindableSyntax
 -- >>> :t 1
--- 1 :: Num p => p
+-- 1 :: Num a => a
 --
 -- >>> :t 1.0
--- 1.0 :: Fractional p => p
+-- 1.0 :: Fractional a => a
 --
 -- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to the numhask types, 'FromInteger' and 'FromRational':
 --

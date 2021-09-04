@@ -105,7 +105,7 @@ instance ExpField b => ExpField (a -> b) where
   f ** f' = \a -> f a ** f' a
   sqrt f = sqrt . f
 
--- | Conversion from a 'Field' to a 'Ring'
+-- | Conversion from a 'Field' to a 'NumHask.Algebra.Ring'
 --
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
