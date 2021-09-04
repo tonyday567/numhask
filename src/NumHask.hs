@@ -13,7 +13,6 @@ module NumHask
 
     -- * Prelude Mappings
     -- $mapping
-    -- $backend
 
     -- * Extensions
     -- $extensions

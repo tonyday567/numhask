@@ -72,7 +72,7 @@ instance Distributive P.Bool
 
 instance Distributive b => Distributive (a -> b)
 
--- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('Unital', 'Associative', 'Commutative', 'Invertible') and monoidal under multiplication ('Unital', 'Associative'), and where multiplication distributes over addition.
+-- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('NumHask.Algebra.Unital', 'NumHask.Algebra.Associative', 'NumHask.Algebra.Commutative', 'NumHask.Algebra.Invertible') and monoidal under multiplication ('NumHask.Algebra.Unital', 'NumHask.Algebra.Associative'), and where multiplication distributes over addition.
 --
 -- > \a -> zero + a == a
 -- > \a -> a + zero == a
