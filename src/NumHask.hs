@@ -19,13 +19,13 @@ module NumHask
 
     -- * Exports
     module NumHask.Algebra.Additive,
-    module NumHask.Algebra.Field,
-    module NumHask.Algebra.Group,
-    module NumHask.Algebra.Lattice,
-    module NumHask.Algebra.Module,
     module NumHask.Algebra.Multiplicative,
     module NumHask.Algebra.Ring,
+    module NumHask.Algebra.Field,
+    module NumHask.Algebra.Lattice,
+    module NumHask.Algebra.Module,
     module NumHask.Algebra.Metric,
+    module NumHask.Algebra.Group,
     module NumHask.Data.Complex,
     module NumHask.Data.Integral,
     module NumHask.Data.Rational,
