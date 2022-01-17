@@ -140,7 +140,8 @@ jobs:
           rm -f cabal-plan.xz
           chmod a+x $HOME/.cabal/bin/cabal-plan
           cabal-plan --version
-      - name: install cabal-docspec
+      - if: ${{ matrix.os == 'ubuntu-latest'}} && ${{ matrix.ghc == '9.2.1'}}
+        name: install cabal-docspec
         run: |
           mkdir -p $HOME/.cabal/bin
           curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20210111/cabal-docspec-0.0.0.20210111.xz > cabal-docspec.xz
@@ -148,7 +149,10 @@ jobs:
           xz -d < cabal-docspec.xz > $HOME/.cabal/bin/cabal-docspec
           rm -f cabal-docspec.xz
           chmod a+x $HOME/.cabal/bin/cabal-docspec
+          ls -la $HOME/.cabal/bin
+          echo $PATH
           cabal-docspec --version
+          $HOME/.caba/bin/cabal-docspec --version
       - name: checkout
         uses: actions/checkout@v2
         with:
