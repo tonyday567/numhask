@@ -5,6 +5,7 @@ module NumHask.Algebra.Additive
   ( Additive (..),
     sum,
     Subtractive (..),
+    (-),
   )
 where
 
@@ -62,9 +63,9 @@ sum = P.foldr (+) zero
 class (Additive a) => Subtractive a where
   negate :: a -> a
 
-  infixl 6 -
-  (-) :: a -> a -> a
-  (-) a b = a + negate b
+infixl 6 -
+(-) :: (Subtractive a) => a -> a -> a
+(-) a b = a + negate b
 
 instance Additive Double where
   (+) = (P.+)

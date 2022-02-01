@@ -5,6 +5,7 @@ module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
     product,
     Divisive (..),
+    (/),
   )
 where
 
@@ -64,9 +65,9 @@ product = P.foldr (*) one
 class (Multiplicative a) => Divisive a where
   recip :: a -> a
 
-  infixl 7 /
-  (/) :: a -> a -> a
-  (/) a b = a * recip b
+infixl 7 /
+(/) :: (Divisive a) => a -> a -> a
+(/) a b = a * recip b
 
 instance Multiplicative Double where
   (*) = (P.*)

@@ -29,8 +29,8 @@ import GHC.Num (Integer)
 import GHC.Word (Word)
 import NumHask.Algebra.Additive (zero)
 import NumHask.Algebra.Field
-  ( LowerBoundedField (negInfinity),
-    UpperBoundedField (infinity),
+  ( negInfinity,
+    infinity,
   )
 
 -- | A algebraic structure with element joins: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)

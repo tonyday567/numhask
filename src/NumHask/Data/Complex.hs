@@ -121,7 +121,6 @@ instance
   Epsilon (Complex a)
   where
   epsilon = epsilon :+ epsilon
-  nearZero (a :+ b) = nearZero a && nearZero b
 
 instance (Field a) => Field (Complex a)
 
@@ -141,10 +140,6 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
 
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (a :+ b) = a :+ negate b
-
-instance (UpperBoundedField a, Subtractive a) => UpperBoundedField (Complex a)
-
-instance (LowerBoundedField a) => LowerBoundedField (Complex a)
 
 instance (JoinSemiLattice a) => JoinSemiLattice (Complex a) where
   (\/) (ar :+ ai) (br :+ bi) = (ar \/ br) :+ (ai \/ bi)

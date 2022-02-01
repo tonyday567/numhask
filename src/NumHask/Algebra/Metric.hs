@@ -14,6 +14,8 @@ module NumHask.Algebra.Metric
     polar,
     coord,
     Epsilon (..),
+    nearZero,
+    aboutEqual,
     (~=),
   )
 where
@@ -23,7 +25,7 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Additive (Additive (zero), Subtractive (..))
+import NumHask.Algebra.Additive (Additive (zero), Subtractive (..), (-))
 import NumHask.Algebra.Lattice (MeetSemiLattice, meetLeq)
 import NumHask.Algebra.Module (MultiplicativeAction ((.*)))
 import NumHask.Algebra.Multiplicative (Multiplicative (one))
@@ -249,11 +251,11 @@ class
   epsilon :: a
   epsilon = zero
 
-  nearZero :: a -> Bool
-  nearZero a = epsilon `meetLeq` a && epsilon `meetLeq` negate a
+nearZero :: (Epsilon a) => a -> Bool
+nearZero a = epsilon `meetLeq` a && epsilon `meetLeq` negate a
 
-  aboutEqual :: a -> a -> Bool
-  aboutEqual a b = nearZero $ a - b
+aboutEqual :: (Epsilon a) => a -> a -> Bool
+aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=
 

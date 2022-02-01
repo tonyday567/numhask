@@ -37,14 +37,16 @@ import NumHask.Algebra.Additive
   ( Additive (..),
     Subtractive (..),
     sum,
+    (-),
   )
 import NumHask.Algebra.Field
   ( ExpField (..),
     Field,
-    LowerBoundedField (..),
     QuotientField (..),
     TrigField (..),
-    UpperBoundedField (..),
+    infinity,
+    negInfinity,
+    nan,
     half,
   )
 import NumHask.Algebra.Group
@@ -79,15 +81,20 @@ import NumHask.Algebra.Metric
   )
 import NumHask.Algebra.Module
   ( AdditiveAction (..),
+    (+.),
     DivisiveAction (..),
+    (/.),
     Module,
     MultiplicativeAction (..),
+    (*.),
     SubtractiveAction (..),
+    (-.)
   )
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     product,
+    (/),
   )
 import NumHask.Algebra.Ring
   ( Distributive,
@@ -142,10 +149,10 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- >>> :set -XNoRebindableSyntax
 -- >>> :t 1
--- 1 :: Num a => a
+-- 1 :: Num p => p
 --
 -- >>> :t 1.0
--- 1.0 :: Fractional a => a
+-- 1.0 :: Fractional p => p
 --
 -- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to the numhask types, 'FromInteger' and 'FromRational':
 --
