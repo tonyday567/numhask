@@ -1,0 +1,5 @@
+# used for ci testing only
+resolver: lts-18.23
+
+packages:
+  - .

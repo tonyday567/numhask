@@ -75,7 +75,7 @@ jobs:
         if: (matrix.manager == 'stack')
         run: |
           stack update
-          stack build --test --no-install-ghc --system-ghc
+          STACK_YAML=stack-ci.yaml stack build --test --no-install-ghc --system-ghc
       - if: matrix.docspec
         name: run cabal-docspec
         run: cabal-docspec
