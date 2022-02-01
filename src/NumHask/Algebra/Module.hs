@@ -5,26 +5,21 @@
 -- | Algebra for Modules
 module NumHask.Algebra.Module
   ( AdditiveAction (..),
+    (+.),
     SubtractiveAction (..),
+    (-.),
     MultiplicativeAction (..),
+    (*.),
     DivisiveAction (..),
+    (/.),
     Module,
   )
 where
 
-import NumHask.Algebra.Additive (Additive, Subtractive)
-import NumHask.Algebra.Multiplicative (Divisive, Multiplicative)
+import Prelude (flip)
+import NumHask.Algebra.Additive (Additive, Subtractive, negate)
+import NumHask.Algebra.Multiplicative (Divisive, Multiplicative, recip)
 import NumHask.Algebra.Ring (Distributive)
-
--- $setup
---
--- >>> :set -XRebindableSyntax
--- >>> :set -XFlexibleContexts
--- >>> :set -XFlexibleInstances
--- >>> :set -XScopedTypeVariables
--- >>> :set -XMultiParamTypeClasses
--- >>> import NumHask.Prelude
--- >>> import Prelude (Int, fmap)
 
 -- | Additive Action
 class
@@ -35,8 +30,9 @@ class
   infixl 6 .+
   (.+) :: a -> m -> m
 
-  infixl 6 +.
-  (+.) :: m -> a -> m
+infixl 6 +.
+(+.) :: (AdditiveAction m a) => m -> a -> m
+(+.) = flip (.+)
 
 -- | Subtractive Action
 class
@@ -47,8 +43,9 @@ class
   infixl 6 .-
   (.-) :: a -> m -> m
 
-  infixl 6 -.
-  (-.) :: m -> a -> m
+infixl 6 -.
+(-.) :: (AdditiveAction m a, Subtractive a) => m -> a -> m
+a -. b = a +. negate b
 
 -- | Multiplicative Action
 class
@@ -58,8 +55,10 @@ class
   where
   infixl 7 .*
   (.*) :: a -> m -> m
-  infixl 7 *.
-  (*.) :: m -> a -> m
+
+infixl 7 *.
+(*.) :: (MultiplicativeAction m a) => m -> a -> m
+(*.) = flip (.*)
 
 -- | Divisive Action
 class
@@ -69,8 +68,9 @@ class
   where
   infixl 7 ./
   (./) :: a -> m -> m
-  infixl 7 /.
-  (/.) :: m -> a -> m
+
+(/.) :: (MultiplicativeAction m a, Divisive a) => m -> a -> m
+a /. b = a *. recip b
 
 -- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module>
 --
