@@ -4,7 +4,7 @@ numhask
 [![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask)
 [![Build Status](https://github.com/tonyday567/numhask/workflows/haskell-ci/badge.svg)](https://github.com/tonyday567/numhask/actions?query=workflow%3Ahaskell-ci) [![Hackage Deps](https://img.shields.io/hackage-deps/v/numhask.svg)](http://packdeps.haskellers.com/reverse/numhask)
 
-This package provides numeric classes alternate to the prelude specified in haskell98.
+This package provides numeric classes alternate to the prelude as specified in haskell98.
 
 The numeric class constellation looks somewhat like:
 

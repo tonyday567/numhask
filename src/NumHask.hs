@@ -17,18 +17,56 @@ module NumHask
     -- * Extensions
     -- $extensions
 
-    -- * Exports
-    module NumHask.Algebra.Additive,
-    module NumHask.Algebra.Multiplicative,
+    -- * Additive
+    Additive (..),
+    sum,
+    Subtractive (..),
+    (-),
+
+    -- * Multiplicative
+    Multiplicative (..),
+    product,
+    Divisive (..),
+    (/),
+
+    -- * Ring
     module NumHask.Algebra.Ring,
-    module NumHask.Algebra.Field,
+
+    -- * Field
+    ExpField (..),
+    logBase,
+    sqrt,
+    Field,
+    QuotientField (..),
+    round,
+    ceiling,
+    floor,
+    truncate,
+    TrigField (..),
+    infinity,
+    negInfinity,
+    nan,
+    half,
+
+    -- * Lattice
     module NumHask.Algebra.Lattice,
+
+    -- * Module
     module NumHask.Algebra.Module,
+
+    -- * Metric
     module NumHask.Algebra.Metric,
-    module NumHask.Algebra.Group,
+
+    -- * Complex
     module NumHask.Data.Complex,
+
+    -- * Integral
     module NumHask.Data.Integral,
+
+    -- * Rational
     module NumHask.Data.Rational,
+
+    -- * Exceptions
     module NumHask.Exception,
   )
 where
@@ -37,26 +75,23 @@ import NumHask.Algebra.Additive
   ( Additive (..),
     Subtractive (..),
     sum,
+    (-),
   )
 import NumHask.Algebra.Field
   ( ExpField (..),
     Field,
-    LowerBoundedField (..),
     QuotientField (..),
     TrigField (..),
-    UpperBoundedField (..),
+    ceiling,
+    floor,
     half,
-  )
-import NumHask.Algebra.Group
-  ( AbelianGroup,
-    Absorbing (..),
-    Associative,
-    Commutative,
-    Group,
-    Idempotent,
-    Invertible (..),
-    Magma (..),
-    Unital (..),
+    infinity,
+    logBase,
+    nan,
+    negInfinity,
+    round,
+    sqrt,
+    truncate,
   )
 import NumHask.Algebra.Lattice
   ( BoundedJoinSemiLattice (..),
@@ -83,11 +118,16 @@ import NumHask.Algebra.Module
     Module,
     MultiplicativeAction (..),
     SubtractiveAction (..),
+    (*.),
+    (+.),
+    (-.),
+    (/.),
   )
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     product,
+    (/),
   )
 import NumHask.Algebra.Ring
   ( Distributive,
@@ -142,10 +182,10 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- >>> :set -XNoRebindableSyntax
 -- >>> :t 1
--- 1 :: Num a => a
+-- 1 :: Num p => p
 --
 -- >>> :t 1.0
--- 1.0 :: Fractional a => a
+-- 1.0 :: Fractional p => p
 --
 -- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to the numhask types, 'FromInteger' and 'FromRational':
 --
@@ -177,7 +217,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- Principles that have guided design include:
 --
 -- - __/balanced class density/__. The numeric heirarchy begins with addition and multiplication,
---   choosing not to build from a 'Magma' base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
+--   choosing not to build from a Magma base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
 --
 -- - __/operator-first/__. In most cases, a class exists to define useful operators.
 --   The exceptions are 'Distributive', 'Ring' and 'Field', which are collections of operators

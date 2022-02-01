@@ -91,14 +91,8 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Distributive (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Field (Ratio a)
 
-instance (P.Ord a, Signed a, Integral a, Ring a, P.Ord b, Signed b, Integral b, Ring b, Field a, FromIntegral b a) => QuotientField (Ratio a) b where
+instance (P.Ord a, Signed a, Integral a, Ring a, Signed b, FromIntegral b a) => QuotientField (Ratio a) b where
   properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral w, r :% d)
-
-instance
-  (P.Ord a, Signed a, Integral a, Ring a, Distributive a) =>
-  UpperBoundedField (Ratio a)
-
-instance (P.Ord a, Signed a, Integral a, Field a) => LowerBoundedField (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
   sign (n :% _) =

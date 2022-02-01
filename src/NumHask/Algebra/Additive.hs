@@ -1,17 +1,19 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
     sum,
     Subtractive (..),
+    (-),
   )
 where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import Prelude (Bool, Double, Float, Int, Integer)
+import Prelude (Bool, Double, Float, Int, Integer, fromInteger)
 import qualified Prelude as P
 
 -- $setup
@@ -56,15 +58,17 @@ sum = P.foldr (+) zero
 --
 -- >>> negate 1
 -- -1
---
--- >>> 1 - 2
--- -1
 class (Additive a) => Subtractive a where
   negate :: a -> a
 
-  infixl 6 -
-  (-) :: a -> a -> a
-  (-) a b = a + negate b
+infixl 6 -
+
+-- | minus
+--
+-- >>> 1 - 2
+-- -1
+(-) :: (Subtractive a) => a -> a -> a
+(-) a b = a + negate b
 
 instance Additive Double where
   (+) = (P.+)

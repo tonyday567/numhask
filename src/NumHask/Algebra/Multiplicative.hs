@@ -1,17 +1,19 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 
 -- | Multiplicative classes
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
     product,
     Divisive (..),
+    (/),
   )
 where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import Prelude (Double, Float, Int, Integer)
+import Prelude (Double, Float, Int, Integer, fromInteger, fromRational)
 import qualified Prelude as P
 
 -- $setup
@@ -58,15 +60,17 @@ product = P.foldr (*) one
 --
 -- >>> recip 2.0
 -- 0.5
---
--- >>> 1 / 2
--- 0.5
 class (Multiplicative a) => Divisive a where
   recip :: a -> a
 
-  infixl 7 /
-  (/) :: a -> a -> a
-  (/) a b = a * recip b
+infixl 7 /
+
+-- | divide
+--
+-- >>> 1 / 2
+-- 0.5
+(/) :: (Divisive a) => a -> a -> a
+(/) a b = a * recip b
 
 instance Multiplicative Double where
   (*) = (P.*)

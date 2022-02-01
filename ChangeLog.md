@@ -1,3 +1,8 @@
+0.9.0
+===
+* Removed bounded classes.
+* Moved operators outside of class definitions where possible. 
+
 0.8.0
 =====
 
