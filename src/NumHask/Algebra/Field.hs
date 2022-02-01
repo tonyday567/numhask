@@ -25,14 +25,14 @@ module NumHask.Algebra.Field
 where
 
 import Data.Bool (bool)
-import NumHask.Algebra.Additive ((-), Additive (..), Subtractive (..))
+import NumHask.Algebra.Additive (Additive (..), Subtractive (..), (-))
 import NumHask.Algebra.Multiplicative
-  ( (/),
+  ( Divisive (..),
     Multiplicative (..),
-    Divisive(..),
+    (/),
   )
 import NumHask.Algebra.Ring (Distributive, two)
-import NumHask.Data.Integral (even, Integral)
+import NumHask.Data.Integral (Integral, even)
 import Prelude ((.))
 import qualified Prelude as P
 
@@ -139,16 +139,16 @@ class (Field a, Multiplicative b, Additive b) => QuotientField a b where
 -- 2
 round :: (P.Ord a, P.Ord b, QuotientField a b, Subtractive b, Integral b) => a -> b
 round x = case properFraction x of
-    (n, r) ->
-      let m = bool (n + one) (n - one) (r P.< zero)
-          half_down = abs' r - (one / (one + one))
-          abs' a
-            | a P.< zero = negate a
-            | P.otherwise = a
-       in case P.compare half_down zero of
-            P.LT -> n
-            P.EQ -> bool m n (even n)
-            P.GT -> m
+  (n, r) ->
+    let m = bool (n + one) (n - one) (r P.< zero)
+        half_down = abs' r - (one / (one + one))
+        abs' a
+          | a P.< zero = negate a
+          | P.otherwise = a
+     in case P.compare half_down zero of
+          P.LT -> n
+          P.EQ -> bool m n (even n)
+          P.GT -> m
 
 -- | supply the next upper whole component
 --
@@ -156,8 +156,8 @@ round x = case properFraction x of
 -- 2
 ceiling :: (P.Ord a, QuotientField a b) => a -> b
 ceiling x = bool n (n + one) (r P.>= zero)
-    where
-      (n, r) = properFraction x
+  where
+    (n, r) = properFraction x
 
 -- | supply the previous lower whole component
 --
@@ -165,8 +165,8 @@ ceiling x = bool n (n + one) (r P.>= zero)
 -- 1
 floor :: (P.Ord a, QuotientField a b, Subtractive b) => a -> b
 floor x = bool n (n - one) (r P.< zero)
-    where
-      (n, r) = properFraction x
+  where
+    (n, r) = properFraction x
 
 -- | supply the whole component closest to zero
 --

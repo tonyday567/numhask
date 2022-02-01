@@ -64,6 +64,7 @@ class (Multiplicative a) => Divisive a where
   recip :: a -> a
 
 infixl 7 /
+
 -- | divide
 --
 -- >>> 1 / 2

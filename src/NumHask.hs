@@ -77,24 +77,22 @@ import NumHask.Algebra.Additive
     sum,
     (-),
   )
-
 import NumHask.Algebra.Field
   ( ExpField (..),
-    logBase,
-    sqrt,
     Field,
     QuotientField (..),
-    round,
+    TrigField (..),
     ceiling,
     floor,
-    truncate,
-    TrigField (..),
-    infinity,
-    negInfinity,
-    nan,
     half,
+    infinity,
+    logBase,
+    nan,
+    negInfinity,
+    round,
+    sqrt,
+    truncate,
   )
-
 import NumHask.Algebra.Lattice
   ( BoundedJoinSemiLattice (..),
     BoundedMeetSemiLattice (..),
@@ -103,7 +101,6 @@ import NumHask.Algebra.Lattice
     joinLeq,
     meetLeq,
   )
-
 import NumHask.Algebra.Metric
   ( Direction (..),
     Epsilon (..),
@@ -115,26 +112,23 @@ import NumHask.Algebra.Metric
     polar,
     (~=),
   )
-
 import NumHask.Algebra.Module
   ( AdditiveAction (..),
-    (+.),
     DivisiveAction (..),
-    (/.),
     Module,
     MultiplicativeAction (..),
-    (*.),
     SubtractiveAction (..),
-    (-.)
+    (*.),
+    (+.),
+    (-.),
+    (/.),
   )
-
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     product,
     (/),
   )
-
 import NumHask.Algebra.Ring
   ( Distributive,
     InvolutiveRing (..),
@@ -143,9 +137,7 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-
 import NumHask.Data.Complex (Complex (..), imagPart, realPart)
-
 import NumHask.Data.Integral
   ( FromInteger (..),
     FromIntegral (..),
@@ -156,7 +148,6 @@ import NumHask.Data.Integral
     (^),
     (^^),
   )
-
 import NumHask.Data.Rational
   ( FromRatio (..),
     FromRational (..),
@@ -166,7 +157,6 @@ import NumHask.Data.Rational
     gcd,
     reduce,
   )
-
 import NumHask.Exception (NumHaskException (..), throw)
 
 -- $setup

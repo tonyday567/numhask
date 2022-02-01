@@ -264,7 +264,6 @@ nearZero :: (Epsilon a) => a -> Bool
 nearZero a = epsilon `meetLeq` a && epsilon `meetLeq` negate a
 
 -- | Approximate equality
---
 aboutEqual :: (Epsilon a) => a -> a -> Bool
 aboutEqual a b = nearZero $ a - b
 

@@ -16,10 +16,10 @@ module NumHask.Algebra.Module
   )
 where
 
-import Prelude (flip)
 import NumHask.Algebra.Additive (Additive, Subtractive, negate)
 import NumHask.Algebra.Multiplicative (Divisive, Multiplicative, recip)
 import NumHask.Algebra.Ring (Distributive)
+import Prelude (flip)
 
 -- | Additive Action
 class
@@ -48,10 +48,10 @@ class
   (.-) :: a -> m -> m
 
 infixl 6 -.
+
 -- | right scalar subtraction
 --
 -- > (-.) == (+.) . negate
---
 (-.) :: (AdditiveAction m a, Subtractive a) => m -> a -> m
 a -. b = a +. negate b
 
@@ -84,7 +84,6 @@ class
 -- | right scalar division
 --
 -- > (/.) == (*.) . recip
---
 (/.) :: (MultiplicativeAction m a, Divisive a) => m -> a -> m
 a /. b = a *. recip b
 
