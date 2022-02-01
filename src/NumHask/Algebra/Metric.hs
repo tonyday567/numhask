@@ -38,6 +38,11 @@ import Prelude hiding
   )
 import qualified Prelude as P
 
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
+
 -- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain.
 --
 -- > abs a * sign a == a
@@ -251,15 +256,24 @@ class
   epsilon :: a
   epsilon = zero
 
+-- | are we near zero?
+--
+-- >>> nearZero (epsilon :: Double)
+-- True
 nearZero :: (Epsilon a) => a -> Bool
 nearZero a = epsilon `meetLeq` a && epsilon `meetLeq` negate a
 
+-- | Approximate equality
+--
 aboutEqual :: (Epsilon a) => a -> a -> Bool
 aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=
 
--- | About equal.
+-- | About equal operator.
+--
+-- >>> (1.0 + epsilon) ~= (1.0 :: Double)
+-- True
 (~=) :: (Epsilon a) => a -> a -> Bool
 (~=) = aboutEqual
 

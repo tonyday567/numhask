@@ -91,9 +91,17 @@ class
   (**) :: a -> a -> a
   (**) a b = exp (log a * b)
 
+-- | log to the base of
+--
+-- >>> logBase 2 8
+-- 2.9999999999999996
 logBase :: (ExpField a) => a -> a -> a
 logBase a b = log b / log a
 
+-- | square root
+--
+-- >>> sqrt 4
+-- 2.0
 sqrt :: (ExpField a) => a -> a
 sqrt a = a ** (one / (one + one))
 
@@ -120,6 +128,15 @@ instance ExpField b => ExpField (a -> b) where
 class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
+-- | round to the nearest integral
+--
+-- Exact ties are managed by rounding down ties if the whole component is even.
+--
+-- >>> round (1.5 :: Double) :: Int
+-- 2
+--
+-- >>> round (2.5 :: Double) :: Int
+-- 2
 round :: (P.Ord a, P.Ord b, QuotientField a b, Subtractive b, Integral b) => a -> b
 round x = case properFraction x of
     (n, r) ->
@@ -133,16 +150,31 @@ round x = case properFraction x of
             P.EQ -> bool m n (even n)
             P.GT -> m
 
+-- | supply the next upper whole component
+--
+-- >>> ceiling (1.001 :: Double) :: Int
+-- 2
 ceiling :: (P.Ord a, QuotientField a b) => a -> b
 ceiling x = bool n (n + one) (r P.>= zero)
     where
       (n, r) = properFraction x
 
+-- | supply the previous lower whole component
+--
+-- >>> floor (1.001 :: Double) :: Int
+-- 1
 floor :: (P.Ord a, QuotientField a b, Subtractive b) => a -> b
 floor x = bool n (n - one) (r P.< zero)
     where
       (n, r) = properFraction x
 
+-- | supply the whole component closest to zero
+--
+-- >>> floor (-1.001 :: Double) :: Int
+-- -2
+--
+-- >>> truncate (-1.001 :: Double) :: Int
+-- -1
 truncate :: (P.Ord a, QuotientField a b, Subtractive b) => a -> b
 truncate x = bool (ceiling x) (floor x) (x P.> zero)
 

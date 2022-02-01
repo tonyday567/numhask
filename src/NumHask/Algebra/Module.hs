@@ -31,6 +31,10 @@ class
   (.+) :: a -> m -> m
 
 infixl 6 +.
+
+-- | flipped additive action
+--
+-- > (+.) == flip (.+)
 (+.) :: (AdditiveAction m a) => m -> a -> m
 (+.) = flip (.+)
 
@@ -44,6 +48,10 @@ class
   (.-) :: a -> m -> m
 
 infixl 6 -.
+-- | right scalar subtraction
+--
+-- > (-.) == (+.) . negate
+--
 (-.) :: (AdditiveAction m a, Subtractive a) => m -> a -> m
 a -. b = a +. negate b
 
@@ -57,6 +65,10 @@ class
   (.*) :: a -> m -> m
 
 infixl 7 *.
+
+-- | flipped multiplicative action
+--
+-- > (*.) == flip (.*)
 (*.) :: (MultiplicativeAction m a) => m -> a -> m
 (*.) = flip (.*)
 
@@ -69,6 +81,10 @@ class
   infixl 7 ./
   (./) :: a -> m -> m
 
+-- | right scalar division
+--
+-- > (/.) == (*.) . recip
+--
 (/.) :: (MultiplicativeAction m a, Divisive a) => m -> a -> m
 a /. b = a *. recip b
 
