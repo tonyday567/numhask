@@ -5,12 +5,13 @@
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
     product,
+    accproduct,
     Divisive (..),
-    (/),
   )
 where
 
 import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
 import Prelude (Double, Float, Int, Integer, fromInteger, fromRational)
@@ -49,6 +50,10 @@ class Multiplicative a where
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
+-- | Compute the accumulating product of a 'Data.Traversable.Traversable'.
+accproduct :: (Multiplicative a, P.Traversable f) => f a -> f a
+accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
+
 -- | or [Division](https://en.wikipedia.org/wiki/Division_(mathematics\))
 --
 -- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
@@ -60,17 +65,17 @@ product = P.foldr (*) one
 --
 -- >>> recip 2.0
 -- 0.5
-class (Multiplicative a) => Divisive a where
-  recip :: a -> a
-
-infixl 7 /
-
--- | divide
 --
 -- >>> 1 / 2
 -- 0.5
-(/) :: (Divisive a) => a -> a -> a
-(/) a b = a * recip b
+class (Multiplicative a) => Divisive a where
+  recip :: a -> a
+  recip a = one / a
+
+  infixl 7 /
+
+  (/) :: a -> a -> a
+  (/) a b = a * recip b
 
 instance Multiplicative Double where
   (*) = (P.*)

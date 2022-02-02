@@ -1,3 +1,4 @@
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -9,13 +10,7 @@
 module NumHask.Algebra.Field
   ( Field,
     ExpField (..),
-    logBase,
-    sqrt,
     QuotientField (..),
-    round,
-    ceiling,
-    floor,
-    truncate,
     infinity,
     negInfinity,
     nan,
@@ -91,19 +86,19 @@ class
   (**) :: a -> a -> a
   (**) a b = exp (log a * b)
 
--- | log to the base of
---
--- >>> logBase 2 8
--- 2.9999999999999996
-logBase :: (ExpField a) => a -> a -> a
-logBase a b = log b / log a
+  -- | log to the base of
+  --
+  -- >>> logBase 2 8
+  -- 2.9999999999999996
+  logBase :: a -> a -> a
+  logBase a b = log b / log a
 
--- | square root
---
--- >>> sqrt 4
--- 2.0
-sqrt :: (ExpField a) => a -> a
-sqrt a = a ** (one / (one + one))
+  -- | square root
+  --
+  -- >>> sqrt 4
+  -- 2.0
+  sqrt :: a -> a
+  sqrt a = a ** (one / (one + one))
 
 instance ExpField P.Double where
   exp = P.exp
@@ -128,55 +123,59 @@ instance ExpField b => ExpField (a -> b) where
 class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
--- | round to the nearest integral
---
--- Exact ties are managed by rounding down ties if the whole component is even.
---
--- >>> round (1.5 :: Double) :: Int
--- 2
---
--- >>> round (2.5 :: Double) :: Int
--- 2
-round :: (P.Ord a, P.Ord b, QuotientField a b, Subtractive b, Integral b) => a -> b
-round x = case properFraction x of
-  (n, r) ->
-    let m = bool (n + one) (n - one) (r P.< zero)
-        half_down = abs' r - (one / (one + one))
-        abs' a
-          | a P.< zero = negate a
-          | P.otherwise = a
-     in case P.compare half_down zero of
-          P.LT -> n
-          P.EQ -> bool m n (even n)
-          P.GT -> m
+  -- | round to the nearest integral
+  --
+  -- Exact ties are managed by rounding down ties if the whole component is even.
+  --
+  -- >>> round (1.5 :: Double) :: Int
+  -- 2
+  --
+  -- >>> round (2.5 :: Double) :: Int
+  -- 2
+  round :: a -> b
+  default round :: (P.Ord a, P.Ord b, Subtractive b, Integral b) => a -> b
+  round x = case properFraction x of
+    (n, r) ->
+      let m = bool (n + one) (n - one) (r P.< zero)
+          half_down = abs' r - (one / (one + one))
+          abs' a
+            | a P.< zero = negate a
+            | P.otherwise = a
+       in case P.compare half_down zero of
+            P.LT -> n
+            P.EQ -> bool m n (even n)
+            P.GT -> m
 
--- | supply the next upper whole component
---
--- >>> ceiling (1.001 :: Double) :: Int
--- 2
-ceiling :: (P.Ord a, QuotientField a b) => a -> b
-ceiling x = bool n (n + one) (r P.>= zero)
-  where
-    (n, r) = properFraction x
+  -- | supply the next upper whole component
+  --
+  -- >>> ceiling (1.001 :: Double) :: Int
+  -- 2
+  ceiling :: a -> b
+  default ceiling :: (P.Ord a) => a -> b
+  ceiling x = bool n (n + one) (r P.>= zero)
+    where
+      (n, r) = properFraction x
 
--- | supply the previous lower whole component
---
--- >>> floor (1.001 :: Double) :: Int
--- 1
-floor :: (P.Ord a, QuotientField a b, Subtractive b) => a -> b
-floor x = bool n (n - one) (r P.< zero)
-  where
-    (n, r) = properFraction x
+  -- | supply the previous lower whole component
+  --
+  -- >>> floor (1.001 :: Double) :: Int
+  -- 1
+  floor :: a -> b
+  default floor :: (P.Ord a, Subtractive b) => a -> b
+  floor x = bool n (n - one) (r P.< zero)
+    where
+      (n, r) = properFraction x
 
--- | supply the whole component closest to zero
---
--- >>> floor (-1.001 :: Double) :: Int
--- -2
---
--- >>> truncate (-1.001 :: Double) :: Int
--- -1
-truncate :: (P.Ord a, QuotientField a b, Subtractive b) => a -> b
-truncate x = bool (ceiling x) (floor x) (x P.> zero)
+  -- | supply the whole component closest to zero
+  --
+  -- >>> floor (-1.001 :: Double) :: Int
+  -- -2
+  --
+  -- >>> truncate (-1.001 :: Double) :: Int
+  -- -1
+  truncate :: a -> b
+  default truncate :: (P.Ord a) => a -> b
+  truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
 instance QuotientField P.Float P.Integer where
   properFraction = P.properFraction
@@ -194,25 +193,34 @@ instance QuotientField b c => QuotientField (a -> b) (a -> c) where
   properFraction f = (P.fst . frac, P.snd . frac)
     where
       frac a = properFraction @b @c (f a)
+  round f = round . f
+  ceiling f = ceiling . f
+  floor f = floor . f
+  truncate f = truncate . f
 
--- | A field introduces the concept of infinity.
+-- | infinity is defined for any 'Field'.
 --
--- > one / zero + infinity == infinity
--- > infinity + a == infinity
--- > zero / zero != nan
+-- >>> one / zero + infinity
+-- Infinity
 --
--- Note the tricky law that, although nan is assigned to zero/zero, they are never-the-less not equal. A committee decided this.
+-- >>> infinity + 1
+-- Infinity
 infinity :: (Field a) => a
 infinity = one / zero
 
--- |
+-- | nan is defined as zero/zero
 --
--- Note the law:
--- -- > zero / zero != nan
+-- but note the (social) law:
+--
+-- >>> nan == zero / zero
+-- False
 nan :: (Field a) => a
 nan = zero / zero
 
 -- | negative infinity
+--
+-- >>> negInfinity + infinity
+-- NaN
 negInfinity :: (Field a) => a
 negInfinity = negate infinity
 

@@ -20,28 +20,27 @@ module NumHask
     -- * Additive
     Additive (..),
     sum,
+    accsum,
     Subtractive (..),
-    (-),
 
     -- * Multiplicative
     Multiplicative (..),
     product,
+    accproduct,
     Divisive (..),
-    (/),
 
     -- * Ring
-    module NumHask.Algebra.Ring,
+    Distributive,
+    Ring,
+    StarSemiring (..),
+    KleeneAlgebra,
+    InvolutiveRing (..),
+    two,
 
     -- * Field
     ExpField (..),
-    logBase,
-    sqrt,
     Field,
     QuotientField (..),
-    round,
-    ceiling,
-    floor,
-    truncate,
     TrigField (..),
     infinity,
     negInfinity,
@@ -49,49 +48,82 @@ module NumHask
     half,
 
     -- * Lattice
-    module NumHask.Algebra.Lattice,
+    JoinSemiLattice (..),
+    joinLeq,
+    (<\),
+    MeetSemiLattice (..),
+    meetLeq,
+    (</),
+    BoundedJoinSemiLattice (..),
+    BoundedMeetSemiLattice (..),
 
     -- * Module
-    module NumHask.Algebra.Module,
+    AdditiveAction (..),
+    (+.),
+    SubtractiveAction (..),
+    (-.),
+    MultiplicativeAction (..),
+    (*.),
+    DivisiveAction (..),
+    (/.),
+    Module,
 
     -- * Metric
-    module NumHask.Algebra.Metric,
+    Signed (..),
+    Norm (..),
+    distance,
+    Direction (..),
+    Polar (..),
+    polar,
+    coord,
+    Epsilon (..),
+    (~=),
 
     -- * Complex
-    module NumHask.Data.Complex,
+    Complex (..),
+    realPart,
+    imagPart,
 
     -- * Integral
-    module NumHask.Data.Integral,
+    Integral (..),
+    ToIntegral (..),
+    FromIntegral (..),
+    FromInteger (..),
+    even,
+    odd,
+    (^^),
+    (^),
 
     -- * Rational
-    module NumHask.Data.Rational,
+    Ratio (..),
+    Rational,
+    ToRatio (..),
+    FromRatio (..),
+    FromRational (..),
+    reduce,
+    gcd,
 
     -- * Exceptions
-    module NumHask.Exception,
+    NumHaskException (..),
+    throw,
   )
 where
 
 import NumHask.Algebra.Additive
   ( Additive (..),
     Subtractive (..),
+    accsum,
     sum,
-    (-),
   )
 import NumHask.Algebra.Field
   ( ExpField (..),
     Field,
     QuotientField (..),
     TrigField (..),
-    ceiling,
-    floor,
     half,
     infinity,
-    logBase,
     nan,
     negInfinity,
-    round,
-    sqrt,
-    truncate,
   )
 import NumHask.Algebra.Lattice
   ( BoundedJoinSemiLattice (..),
@@ -100,6 +132,8 @@ import NumHask.Algebra.Lattice
     MeetSemiLattice (..),
     joinLeq,
     meetLeq,
+    (</),
+    (<\),
   )
 import NumHask.Algebra.Metric
   ( Direction (..),
@@ -107,8 +141,10 @@ import NumHask.Algebra.Metric
     Norm (..),
     Polar (..),
     Signed (..),
+    aboutEqual,
     coord,
     distance,
+    nearZero,
     polar,
     (~=),
   )
@@ -126,8 +162,8 @@ import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
+    accproduct,
     product,
-    (/),
   )
 import NumHask.Algebra.Ring
   ( Distributive,

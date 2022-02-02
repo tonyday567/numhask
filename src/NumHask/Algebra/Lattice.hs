@@ -8,8 +8,10 @@
 module NumHask.Algebra.Lattice
   ( JoinSemiLattice (..),
     joinLeq,
+    (<\),
     MeetSemiLattice (..),
     meetLeq,
+    (</),
     BoundedJoinSemiLattice (..),
     BoundedMeetSemiLattice (..),
   )
@@ -46,6 +48,12 @@ class (Eq a) => JoinSemiLattice a where
 joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
+infixr 6 <\
+
+-- | The partial ordering induced by the join-semilattice structure
+(<\) :: (JoinSemiLattice a) => a -> a -> Bool
+(<\) = joinLeq
+
 -- | A algebraic structure with element meets: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
 --
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
@@ -58,6 +66,12 @@ class (Eq a) => MeetSemiLattice a where
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
+
+infixr 6 </
+
+-- | The partial ordering induced by the meet-semilattice structure
+(</) :: (MeetSemiLattice a) => a -> a -> Bool
+(</) = meetLeq
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:
 -- see [Absorption Law](http://en.wikipedia.org/wiki/Absorption_law) and [Lattice](http://en.wikipedia.org/wiki/Lattice_(order\))
