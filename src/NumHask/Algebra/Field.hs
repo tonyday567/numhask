@@ -34,14 +34,13 @@ import qualified Prelude as P
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XFlexibleContexts
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
 --
--- A summary of the rules inherited from super-classes of Field. Floating point computation is a terrible, messy business and, in practice, only rough approximation can be achieve for association and distribution.
+-- A summary of the rules inherited from super-classes of Field:
 --
 -- > zero + a == a
 -- > a + zero == a
@@ -74,9 +73,9 @@ instance Field b => Field (a -> b)
 
 -- | A hyperbolic field class
 --
--- > sqrt . (**2) == id
--- > log . exp == id
--- > for +ive b, a != 0,1: a ** logBase a b ≈ b
+-- prop> \a -> a < zero || (sqrt . (**2)) a == a
+-- prop> \a -> a < zero || (log . exp) a ~= a
+-- prop> \a b -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
 class
   (Field a) =>
   ExpField a
@@ -118,8 +117,9 @@ instance ExpField b => ExpField (a -> b) where
 --
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
--- > a - one < floor a <= a <= ceiling a < a + one
--- > round a == floor (a + half)
+-- > \a -> a - one < floor a <= a <= ceiling a < a + one
+-- prop> (\a -> a - one < fromIntegral (floor a :: Int) && fromIntegral (floor a :: Int) <= a && a <= fromIntegral (ceiling a :: Int) && fromIntegral (ceiling a :: Int) <= a + one) :: Double -> Bool
+-- prop> \a -> (round a :: Int) ~= (floor (a + half) :: Int)
 class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   properFraction :: a -> (b, a)
 
@@ -225,6 +225,8 @@ negInfinity :: (Field a) => a
 negInfinity = negate infinity
 
 -- | Trigonometric Field
+--
+-- The list of laws is quite long: <https://en.wikipedia.org/wiki/List_of_trigonometric_identities trigonometric identities>
 class
   (Field a) =>
   TrigField a
@@ -289,5 +291,8 @@ instance TrigField b => TrigField (a -> b) where
   atanh f = atanh . f
 
 -- | A 'half' is a 'Field' because it requires addition, multiplication and division.
+--
+-- >>> half :: Double
+-- 0.5
 half :: (Field a) => a
 half = one / two

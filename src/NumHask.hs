@@ -38,8 +38,8 @@ module NumHask
     two,
 
     -- * Field
-    ExpField (..),
     Field,
+    ExpField (..),
     QuotientField (..),
     TrigField (..),
     infinity,

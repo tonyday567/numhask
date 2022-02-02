@@ -43,11 +43,18 @@ import qualified Prelude as P
 
 -- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain.
 --
--- >> abs a * sign a == a
+-- prop> \a -> abs a * sign a ~= a
 --
 -- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
 --
--- > sign zero == zero
+-- >>> sign zero == zero
+-- True
+--
+-- >>> abs (-1)
+-- 1
+--
+-- >>> sign (-1)
+-- -1
 class
   (Additive a, Multiplicative a) =>
   Signed a
@@ -149,10 +156,16 @@ instance Signed Word64 where
 
 -- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
 --
--- > norm a >= zero
--- > norm zero == zero
--- > a == norm a .* basis a
--- > norm (basis a) == one
+-- > \a -> norm a >= zero
+-- > \a -> norm zero == zero
+-- > \a -> a == norm a .* basis a
+-- > \a -> norm (basis a) == one
+--
+-- >>> norm (-0.5 :: Double) :: Double
+-- 0.5
+--
+-- >>> basis (-0.5 :: Double) :: Double
+-- -1.0
 class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
   -- | or length, or ||v||
   norm :: a -> b

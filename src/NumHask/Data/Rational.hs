@@ -33,7 +33,7 @@ import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
-import Prelude (Int, Integer, Ord (..), Ordering (..), Rational, (.))
+import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), Rational, (.))
 import qualified Prelude as P
 
 -- $setup
@@ -44,13 +44,14 @@ import qualified Prelude as P
 -- | A rational number
 data Ratio a = !a :% !a deriving (P.Show)
 
-instance (P.Eq a, Additive a) => P.Eq (Ratio a) where
-  a == b
+instance (P.Eq a, Subtractive a, Signed a, Integral a) => P.Eq (Ratio a) where
+  a@(xa :% ya) == b@(xb :% yb)
     | isRNaN a P.|| isRNaN b = P.False
-    | P.otherwise = (x P.== x') P.&& (y P.== y')
-    where
-      (x :% y) = a
-      (x' :% y') = b
+    | xa == zero P.&& xb == zero = P.True
+    | xa == zero P.|| xb == zero = P.False
+    | P.otherwise =
+      let (xa' :% ya', xb' :% yb') = (reduce xa ya, reduce xb yb)
+       in (xa' P.== xb') P.&& (ya' P.== yb')
 
 -- | Has a zero denominator
 isRNaN :: (P.Eq a, Additive a) => Ratio a -> P.Bool
@@ -58,7 +59,7 @@ isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
 
-instance (P.Ord a, Multiplicative a, Additive a) => P.Ord (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => P.Ord (Ratio a) where
   (x :% y) <= (x' :% y') = x * y' P.<= x' * y
   (x :% y) < (x' :% y') = x * y' P.< x' * y
 
@@ -106,10 +107,10 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) whe
   norm = abs
   basis = sign
 
-instance (P.Ord a, Signed a) => JoinSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
 
-instance (P.Ord a, Signed a) => MeetSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
 instance (P.Ord a, Signed a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
@@ -119,7 +120,7 @@ instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
 
 -- | toRatio is equivalent to `GHC.Real.Real` in base, but is polymorphic in the Integral type.
 --
--- > toRatio (3.1415927 :: Float) :: Ratio Integer
+-- >>> toRatio (3.1415927 :: Float) :: Ratio Integer
 -- 13176795 :% 4194304
 class ToRatio a b where
   toRatio :: a -> Ratio b
@@ -216,6 +217,11 @@ instance FromRational (Ratio Integer) where
 
 -- | 'reduce' normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
+--
+-- >>> reduce 72 60
+-- 6 :% 5
+--
+-- prop> \a b -> reduce a b == a :% b || b == zero
 reduce ::
   (P.Eq a, Subtractive a, Signed a, Integral a) => a -> a -> Ratio a
 reduce x y
@@ -237,6 +243,9 @@ reduce x y
 -- Note: Since for signed fixed-width integer types, @'abs' 'GHC.Enum.minBound' < 0@,
 -- the result may be negative if one of the arguments is @'GHC.Enum.minBound'@ (and
 -- necessarily is if the other is @0@ or @'GHC.Enum.minBound'@) for such types.
+--
+-- >>> gcd 72 60
+-- 12
 gcd :: (P.Eq a, Signed a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
   where

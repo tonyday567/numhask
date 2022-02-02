@@ -22,7 +22,6 @@ import qualified Prelude as P
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XFlexibleContexts
 -- >>> import NumHask.Prelude
 
 -- | or [Addition](https://en.wikipedia.org/wiki/Addition)
@@ -30,9 +29,9 @@ import qualified Prelude as P
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 -- prop> \a -> zero + a == a
--- > \a -> a + zero == a
--- > \a b c -> (a + b) + c == a + (b + c)
--- > \a b -> a + b == b + a
+-- prop> \a -> a + zero == a
+-- prop> \a b c -> (a + b) + c == a + (b + c)
+-- prop> \a b -> a + b == b + a
 --
 -- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative addition seems a bit dogmatic.
 --
@@ -48,19 +47,25 @@ class Additive a where
   zero :: a
 
 -- | Compute the sum of a 'Data.Foldable.Foldable'.
+--
+-- >>> sum [0..10]
+-- 55
 sum :: (Additive a, P.Foldable f) => f a -> a
 sum = foldl' (+) zero
 
 -- | Compute the accumulating sum of a 'Data.Traversable.Traversable'.
+--
+-- >>> accsum [0..10]
+-- [0,1,3,6,10,15,21,28,36,45,55]
 accsum :: (Additive a, P.Traversable f) => f a -> f a
 accsum = P.snd P.. mapAccumL (\a b -> (a + b, a + b)) zero
 
 -- | or [Subtraction](https://en.wikipedia.org/wiki/Subtraction)
 --
--- > \a -> a - a == zero
--- > \a -> negate a == zero - a
--- > \a -> negate a + a == zero
--- > \a -> a + negate a == zero
+-- prop> \a -> a - a == zero
+-- prop> \a -> negate a == zero - a
+-- prop> \a -> negate a + a == zero
+-- prop> \a -> a + negate a == zero
 --
 --
 -- >>> negate 1

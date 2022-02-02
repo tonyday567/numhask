@@ -20,8 +20,6 @@ import qualified Prelude as P
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XFlexibleContexts
--- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 
 -- | or [Multiplication](https://en.wikipedia.org/wiki/Multiplication)
@@ -29,9 +27,9 @@ import qualified Prelude as P
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 --
--- > \a -> one * a == a
--- > \a -> a * one == a
--- > \a b c -> (a * b) * c == a * (b * c)
+-- prop> \a -> one * a == a
+-- prop> \a -> a * one == a
+-- prop> \a b c -> (a * b) * c == a * (b * c)
 --
 -- By convention, (*) is regarded as not necessarily commutative, but this is not universal, and the introduction of another symbol which means commutative multiplication seems a bit dogmatic.
 --
@@ -47,10 +45,16 @@ class Multiplicative a where
   one :: a
 
 -- | Compute the product of a 'Data.Foldable.Foldable'.
+--
+-- >>> product [1..5]
+-- 120
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
 -- | Compute the accumulating product of a 'Data.Traversable.Traversable'.
+--
+-- >>> accproduct [1..5]
+-- [1,2,6,24,120]
 accproduct :: (Multiplicative a, P.Traversable f) => f a -> f a
 accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 
@@ -58,10 +62,10 @@ accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 --
 -- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
--- > \(a :: Double) -> a / a ~= one || a == zero
--- > \(a :: Double) -> recip a ~= one / a || a == zero
--- > \(a :: Double) -> recip a * a ~= one || a == zero
--- > \(a :: Double) -> a * recip a ~= one || a == zero
+-- prop> \(a :: Double) -> a / a ~= one || a == zero
+-- prop> \(a :: Double) -> recip a ~= one / a || a == zero
+-- prop> \(a :: Double) -> recip a * a ~= one || a == zero
+-- prop> \(a :: Double) -> a * recip a ~= one || a == zero
 --
 -- >>> recip 2.0
 -- 0.5

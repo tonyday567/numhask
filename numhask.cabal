@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               numhask
-version:            0.9.0.0
+version:            0.10.0.0
 synopsis:           A numeric class hierarchy.
 description:
   This package provides alternative numeric classes over Prelude.
@@ -35,13 +35,14 @@ source-repository head
   subdir:   numhask
 
 library
-  hs-source-dirs:   src
+  hs-source-dirs:           src
   ghc-options:
     -Wall -Wcompat -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wredundant-constraints -fwrite-ide-info
     -hiedir=.hie
+
   x-docspec-extra-packages: QuickCheck
-  build-depends:    base >=4.7 && <5
+  build-depends:            base >=4.7 && <5
   exposed-modules:
     NumHask
     NumHask.Algebra.Additive
@@ -59,11 +60,13 @@ library
     NumHask.Prelude
 
   other-modules:
-  default-language: Haskell2010
+  default-language:         Haskell2010
 
 test-suite doctests
-    type:             exitcode-stdio-1.0
-    main-is:          doctests.hs
-    hs-source-dirs:   test
-    default-language: Haskell2010
-    build-depends:    base, QuickCheck
+  type:             exitcode-stdio-1.0
+  main-is:          doctests.hs
+  hs-source-dirs:   test
+  default-language: Haskell2010
+  build-depends:
+    , base
+    , QuickCheck
