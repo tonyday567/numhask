@@ -117,10 +117,12 @@ instance (TrigField a) => Direction (Complex a) a where
   ray x = cos x :+ sin x
 
 instance
-  (Ord a, Signed a, Subtractive a, Epsilon a) =>
+  (Ord a, Signed a, Epsilon a, Subtractive a) =>
   Epsilon (Complex a)
   where
   epsilon = epsilon :+ epsilon
+
+  nearZero (ar :+ ai) = ar <= epsilon && ai <= epsilon
 
 instance (Field a) => Field (Complex a)
 

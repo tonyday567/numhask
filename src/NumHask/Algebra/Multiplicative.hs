@@ -5,12 +5,13 @@
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
     product,
+    accproduct,
     Divisive (..),
-    (/),
   )
 where
 
 import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
 import Prelude (Double, Float, Int, Integer, fromInteger, fromRational)
@@ -19,8 +20,6 @@ import qualified Prelude as P
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XFlexibleContexts
--- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 
 -- | or [Multiplication](https://en.wikipedia.org/wiki/Multiplication)
@@ -28,9 +27,9 @@ import qualified Prelude as P
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 --
--- > \a -> one * a == a
--- > \a -> a * one == a
--- > \a b c -> (a * b) * c == a * (b * c)
+-- prop> \a -> one * a == a
+-- prop> \a -> a * one == a
+-- prop> \a b c -> (a * b) * c == a * (b * c)
 --
 -- By convention, (*) is regarded as not necessarily commutative, but this is not universal, and the introduction of another symbol which means commutative multiplication seems a bit dogmatic.
 --
@@ -46,31 +45,41 @@ class Multiplicative a where
   one :: a
 
 -- | Compute the product of a 'Data.Foldable.Foldable'.
+--
+-- >>> product [1..5]
+-- 120
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
+
+-- | Compute the accumulating product of a 'Data.Traversable.Traversable'.
+--
+-- >>> accproduct [1..5]
+-- [1,2,6,24,120]
+accproduct :: (Multiplicative a, P.Traversable f) => f a -> f a
+accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 
 -- | or [Division](https://en.wikipedia.org/wiki/Division_(mathematics\))
 --
 -- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
--- > \(a :: Double) -> a / a ~= one || a == zero
--- > \(a :: Double) -> recip a ~= one / a || a == zero
--- > \(a :: Double) -> recip a * a ~= one || a == zero
--- > \(a :: Double) -> a * recip a ~= one || a == zero
+-- prop> \(a :: Double) -> a / a ~= one || a == zero
+-- prop> \(a :: Double) -> recip a ~= one / a || a == zero
+-- prop> \(a :: Double) -> recip a * a ~= one || a == zero
+-- prop> \(a :: Double) -> a * recip a ~= one || a == zero
 --
 -- >>> recip 2.0
 -- 0.5
-class (Multiplicative a) => Divisive a where
-  recip :: a -> a
-
-infixl 7 /
-
--- | divide
 --
 -- >>> 1 / 2
 -- 0.5
-(/) :: (Divisive a) => a -> a -> a
-(/) a b = a * recip b
+class (Multiplicative a) => Divisive a where
+  recip :: a -> a
+  recip a = one / a
+
+  infixl 7 /
+
+  (/) :: a -> a -> a
+  (/) a b = a * recip b
 
 instance Multiplicative Double where
   (*) = (P.*)

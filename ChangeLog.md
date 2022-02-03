@@ -1,3 +1,10 @@
+0.10.0
+===
+* Moved operators back in.
+* added doctests and properties
+* added accsum & accproduct
+* fixed Ratio Eq instance
+
 0.9.0
 ===
 * Removed bounded classes.

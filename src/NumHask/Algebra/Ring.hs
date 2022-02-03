@@ -24,16 +24,14 @@ import qualified Prelude as P
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
--- >>> :set -XFlexibleContexts
--- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 
 -- | <https://en.wikipedia.org/wiki/Distributive_property Distributive>
 --
--- > \a b c -> a * (b + c) == a * b + a * c
--- > \a b c -> (a + b) * c == a * c + b * c
--- > \a -> zero * a == zero
--- > \a -> a * zero == zero
+-- prop> \a b c -> a * (b + c) == a * b + a * c
+-- prop> \a b c -> (a + b) * c == a * c + b * c
+-- prop> \a -> zero * a == zero
+-- prop> \a -> a * zero == zero
 --
 -- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element Absorption> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
 class
@@ -99,7 +97,7 @@ instance
 
 -- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
 --
--- > \a -> star a = one + a * star a
+-- > \a -> star a == one + a * star a
 class (Distributive a) => StarSemiring a where
   star :: a -> a
   star a = one + plus a

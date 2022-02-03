@@ -1,4 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -14,8 +15,6 @@ module NumHask.Algebra.Metric
     polar,
     coord,
     Epsilon (..),
-    nearZero,
-    aboutEqual,
     (~=),
   )
 where
@@ -26,7 +25,6 @@ import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive (Additive (zero), Subtractive (..), (-))
-import NumHask.Algebra.Lattice (MeetSemiLattice, meetLeq)
 import NumHask.Algebra.Module (MultiplicativeAction ((.*)))
 import NumHask.Algebra.Multiplicative (Multiplicative (one))
 import Prelude hiding
@@ -45,11 +43,18 @@ import qualified Prelude as P
 
 -- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain.
 --
--- > abs a * sign a == a
+-- prop> \a -> abs a * sign a ~= a
 --
 -- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
 --
--- > sign zero == zero
+-- >>> sign zero == zero
+-- True
+--
+-- >>> abs (-1)
+-- 1
+--
+-- >>> sign (-1)
+-- -1
 class
   (Additive a, Multiplicative a) =>
   Signed a
@@ -151,10 +156,16 @@ instance Signed Word64 where
 
 -- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
 --
--- > norm a >= zero
--- > norm zero == zero
--- > a == norm a .* basis a
--- > norm (basis a) == one
+-- > \a -> norm a >= zero
+-- > \a -> norm zero == zero
+-- > \a -> a == norm a .* basis a
+-- > \a -> norm (basis a) == one
+--
+-- >>> norm (-0.5 :: Double) :: Double
+-- 0.5
+--
+-- >>> basis (-0.5 :: Double) :: Double
+-- -1.0
 class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
   -- | or length, or ||v||
   norm :: a -> b
@@ -250,22 +261,27 @@ coord (Polar m d) = m .* ray d
 
 -- | A small number, especially useful for approximate equality.
 class
-  (Eq a, Additive a, Subtractive a, MeetSemiLattice a) =>
+  (Eq a, Additive a) =>
   Epsilon a
   where
   epsilon :: a
   epsilon = zero
 
--- | are we near zero?
---
--- >>> nearZero (epsilon :: Double)
--- True
-nearZero :: (Epsilon a) => a -> Bool
-nearZero a = epsilon `meetLeq` a && epsilon `meetLeq` negate a
+  -- | are we near enough?
+  --
+  -- >>> nearZero (epsilon :: Double)
+  -- True
+  nearZero :: a -> Bool
+  default nearZero :: (Ord a, Subtractive a) => a -> Bool
+  nearZero a = epsilon >= a && epsilon >= negate a
 
--- | Approximate equality
-aboutEqual :: (Epsilon a) => a -> a -> Bool
-aboutEqual a b = nearZero $ a - b
+  -- | Approximate equality
+  --
+  -- >>> aboutEqual zero (epsilon :: Double)
+  -- True
+  aboutEqual :: a -> a -> Bool
+  default aboutEqual :: (Subtractive a) => a -> a -> Bool
+  aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=
 

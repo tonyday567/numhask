@@ -30,9 +30,23 @@ import NumHask.Algebra.Ring
 import Prelude (Double, Float, Int, Integer, fst, snd, (.))
 import qualified Prelude as P
 
+-- $setup
+--
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
+
 -- | An Integral is anything that satisfies the law:
 --
--- > b == zero || b * (a `div` b) + (a `mod` b) == a
+-- prop> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
+--
+-- >>> 3 `divMod` 2
+-- (1,1)
+--
+-- >>> (-3) `divMod` 2
+-- (-2,1)
+--
+-- >>> (-3) `quotRem` 2
+-- (-1,-1)
 class
   (Distributive a) =>
   Integral a
@@ -414,6 +428,12 @@ odd = P.not . even
 infixr 8 ^^
 
 -- | raise a number to an 'Integral' power
+--
+-- >>> 2 ^^ 3
+-- 8.0
+--
+-- >>> 2 ^^ (-2)
+-- 0.25
 (^^) ::
   (P.Ord b, Divisive a, Subtractive b, Integral b) =>
   a ->
@@ -439,6 +459,12 @@ infixr 8 ^
 -- | raise a number to an 'Int' power
 --
 -- Note: This differs from (^) found in prelude which is a partial function (it errors on negative integrals). This monomorphic version is provided to help reduce ambiguous type noise in common usages of this sign.
+--
+-- >>> 2 ^ 3
+-- 8.0
+--
+-- >>> 2 ^ (-2)
+-- 0.25
 (^) ::
   (Divisive a) => a -> Int -> a
 (^) x n = x ^^ n
