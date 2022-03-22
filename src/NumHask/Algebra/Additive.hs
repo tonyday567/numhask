@@ -1,214 +1,194 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 
--- | A magma heirarchy for addition. The basic magma structure is repeated and prefixed with 'Additive-'.
+-- | Additive classes
 module NumHask.Algebra.Additive
-  ( AdditiveMagma(..)
-  , AdditiveUnital(..)
-  , AdditiveAssociative
-  , AdditiveCommutative
-  , AdditiveInvertible(..)
-  , AdditiveIdempotent
-  , sum
-  , Additive(..)
-  , AdditiveRightCancellative(..)
-  , AdditiveLeftCancellative(..)
-  , AdditiveGroup(..)
-  ) where
+  ( Additive (..),
+    sum,
+    accsum,
+    Subtractive (..),
+  )
+where
 
-import Data.Complex (Complex(..))
-import qualified Protolude as P
-import Protolude (Bool(..), Double, Float, Int, Integer)
+import Control.Applicative
+import Data.Foldable (foldl')
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Traversable (mapAccumL)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
+import Prelude (Applicative, Bool, Double, Float, Functor, Int, Integer, fromInteger, ($))
+import qualified Prelude as P
 
--- | 'plus' is used as the operator for the additive magma to distinguish from '+' which, by convention, implies commutativity
+-- $setup
 --
--- > ∀ a,b ∈ A: a `plus` b ∈ A
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
+
+-- | or [Addition](https://en.wikipedia.org/wiki/Addition)
 --
--- law is true by construction in Haskell
-class AdditiveMagma a where
-  plus :: a -> a -> a
-
-instance AdditiveMagma Double where
-  plus = (P.+)
-
-instance AdditiveMagma Float where
-  plus = (P.+)
-
-instance AdditiveMagma Int where
-  plus = (P.+)
-
-instance AdditiveMagma Integer where
-  plus = (P.+)
-
-instance AdditiveMagma Bool where
-  plus = (P.||)
-
-instance (AdditiveMagma a) => AdditiveMagma (Complex a) where
-  (rx :+ ix) `plus` (ry :+ iy) = (rx `plus` ry) :+ (ix `plus` iy)
-
--- | Unital magma for addition.
+-- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
--- > zero `plus` a == a
--- > a `plus` zero == a
-class AdditiveMagma a =>
-      AdditiveUnital a where
-  zero :: a
-
-instance AdditiveUnital Double where
-  zero = 0
-
-instance AdditiveUnital Float where
-  zero = 0
-
-instance AdditiveUnital Int where
-  zero = 0
-
-instance AdditiveUnital Integer where
-  zero = 0
-
-instance AdditiveUnital Bool where
-  zero = False
-
-instance (AdditiveUnital a) => AdditiveUnital (Complex a) where
-  zero = zero :+ zero
-
--- | Associative magma for addition.
+-- prop> \a -> zero + a == a
+-- prop> \a -> a + zero == a
+-- prop> \a b c -> (a + b) + c == a + (b + c)
+-- prop> \a b -> a + b == b + a
 --
--- > (a `plus` b) `plus` c == a `plus` (b `plus` c)
-class AdditiveMagma a =>
-      AdditiveAssociative a
-
-instance AdditiveAssociative Double
-
-instance AdditiveAssociative Float
-
-instance AdditiveAssociative Int
-
-instance AdditiveAssociative Integer
-
-instance AdditiveAssociative Bool
-
-instance (AdditiveAssociative a) => AdditiveAssociative (Complex a)
-
--- | Commutative magma for addition.
+-- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative addition seems a bit dogmatic.
 --
--- > a `plus` b == b `plus` a
-class AdditiveMagma a =>
-      AdditiveCommutative a
-
-instance AdditiveCommutative Double
-
-instance AdditiveCommutative Float
-
-instance AdditiveCommutative Int
-
-instance AdditiveCommutative Integer
-
-instance AdditiveCommutative Bool
-
-instance (AdditiveCommutative a) => AdditiveCommutative (Complex a)
-
--- | Invertible magma for addition.
+-- >>> zero + 1
+-- 1
 --
--- > ∀ a ∈ A: negate a ∈ A
---
--- law is true by construction in Haskell
-class AdditiveMagma a =>
-      AdditiveInvertible a where
-  negate :: a -> a
-
-instance AdditiveInvertible Double where
-  negate = P.negate
-
-instance AdditiveInvertible Float where
-  negate = P.negate
-
-instance AdditiveInvertible Int where
-  negate = P.negate
-
-instance AdditiveInvertible Integer where
-  negate = P.negate
-
-instance AdditiveInvertible Bool where
-  negate = P.not
-
-instance (AdditiveInvertible a) => AdditiveInvertible (Complex a) where
-  negate (rx :+ ix) = negate rx :+ negate ix
-
--- | Idempotent magma for addition.
---
--- > a `plus` a == a
-class AdditiveMagma a =>
-      AdditiveIdempotent a
-
-instance AdditiveIdempotent Bool
-
--- | sum definition avoiding a clash with the Sum monoid in base
---
-sum :: (Additive a, P.Foldable f) => f a -> a
-sum = P.foldr (+) zero
-
--- | Additive is commutative, unital and associative under addition
---
--- > zero + a == a
--- > a + zero == a
--- > (a + b) + c == a + (b + c)
--- > a + b == b + a
-class (AdditiveCommutative a, AdditiveUnital a, AdditiveAssociative a) =>
-      Additive a where
+-- >>> 1 + 1
+-- 2
+class Additive a where
   infixl 6 +
   (+) :: a -> a -> a
-  a + b = plus a b
 
-instance Additive Double
+  zero :: a
 
-instance Additive Float
-
-instance Additive Int
-
-instance Additive Integer
-
-instance Additive Bool
-
-instance (Additive a) => Additive (Complex a)
-
--- | Non-commutative left minus
+-- | Compute the sum of a 'Data.Foldable.Foldable'.
 --
--- > negate a `plus` a = zero
-class (AdditiveUnital a, AdditiveAssociative a, AdditiveInvertible a) =>
-      AdditiveLeftCancellative a where
-  infixl 6 ~-
-  (~-) :: a -> a -> a
-  (~-) a b = negate b `plus` a
+-- >>> sum [0..10]
+-- 55
+sum :: (Additive a, P.Foldable f) => f a -> a
+sum = foldl' (+) zero
 
--- | Non-commutative right minus
+-- | Compute the accumulating sum of a 'Data.Traversable.Traversable'.
 --
--- > a `plus` negate a = zero
-class (AdditiveUnital a, AdditiveAssociative a, AdditiveInvertible a) =>
-      AdditiveRightCancellative a where
-  infixl 6 -~
-  (-~) :: a -> a -> a
-  (-~) a b = a `plus` negate b
+-- >>> accsum [0..10]
+-- [0,1,3,6,10,15,21,28,36,45,55]
+accsum :: (Additive a, P.Traversable f) => f a -> f a
+accsum = P.snd P.. mapAccumL (\a b -> (a + b, a + b)) zero
 
--- | Minus ('-') is reserved for where both the left and right cancellative laws hold.  This then implies that the AdditiveGroup is also Abelian.
+-- | or [Subtraction](https://en.wikipedia.org/wiki/Subtraction)
 --
--- Syntactic unary negation - substituting "negate a" for "-a" in code - is hard-coded in the language to assume a Num instance.  So, for example, using ''-a = zero - a' for the second rule below doesn't work.
+-- prop> \a -> a - a == zero
+-- prop> \a -> negate a == zero - a
+-- prop> \a -> negate a + a == zero
+-- prop> \a -> a + negate a == zero
 --
--- > a - a = zero
--- > negate a = zero - a
--- > negate a + a = zero
--- > a + negate a = zero
-class (Additive a, AdditiveInvertible a) =>
-      AdditiveGroup a where
+--
+-- >>> negate 1
+-- -1
+--
+-- >>> 1 - 2
+-- -1
+class (Additive a) => Subtractive a where
+  negate :: a -> a
+  negate a = zero - a
+
   infixl 6 -
   (-) :: a -> a -> a
-  (-) a b = a `plus` negate b
+  a - b = a + negate b
 
-instance AdditiveGroup Double
+instance Additive Double where
+  (+) = (P.+)
+  zero = 0
 
-instance AdditiveGroup Float
+instance Subtractive Double where
+  negate = P.negate
 
-instance AdditiveGroup Int
+instance Additive Float where
+  (+) = (P.+)
+  zero = 0
 
-instance AdditiveGroup Integer
+instance Subtractive Float where
+  negate = P.negate
 
-instance (AdditiveGroup a) => AdditiveGroup (Complex a)
+instance Additive Int where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Int where
+  negate = P.negate
+
+instance Additive Integer where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Integer where
+  negate = P.negate
+
+instance Additive Bool where
+  (+) = (P.||)
+  zero = P.False
+
+instance Subtractive Bool where
+  negate = P.not
+
+instance Additive Natural where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Natural where
+  negate = P.negate
+
+instance Additive Int8 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Int8 where
+  negate = P.negate
+
+instance Additive Int16 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Int16 where
+  negate = P.negate
+
+instance Additive Int32 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Int32 where
+  negate = P.negate
+
+instance Additive Int64 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Int64 where
+  negate = P.negate
+
+instance Additive Word where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Word where
+  negate = P.negate
+
+instance Additive Word8 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Word8 where
+  negate = P.negate
+
+instance Additive Word16 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Word16 where
+  negate = P.negate
+
+instance Additive Word32 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Word32 where
+  negate = P.negate
+
+instance Additive Word64 where
+  (+) = (P.+)
+  zero = 0
+
+instance Subtractive Word64 where
+  negate = P.negate
+
+instance Additive b => Additive (a -> b) where
+  f + f' = \a -> f a + f' a
+  zero _ = zero
+
+instance Subtractive b => Subtractive (a -> b) where
+  negate f = negate P.. f

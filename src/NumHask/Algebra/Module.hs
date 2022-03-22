@@ -1,135 +1,97 @@
-{-# LANGUAGE ExplicitNamespaces #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Algebra for Representable numbers
+-- | Algebra for Modules
 module NumHask.Algebra.Module
-  ( AdditiveModule(..)
-  , AdditiveGroupModule(..)
-  , MultiplicativeModule(..)
-  , MultiplicativeGroupModule(..)
-  , Banach(..)
-  , Hilbert(..)
-  , type (><)
-  , TensorProduct(..)
-  ) where
+  ( AdditiveAction (..),
+    (+.),
+    SubtractiveAction (..),
+    (-.),
+    MultiplicativeAction (..),
+    (*.),
+    DivisiveAction (..),
+    (/.),
+    Module,
+  )
+where
 
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Field
-import NumHask.Algebra.Metric
-import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Ring
-import Protolude
-       (Double, Float, Int, Integer)
+import NumHask.Algebra.Additive (Additive, Subtractive, negate)
+import NumHask.Algebra.Multiplicative (Divisive, Multiplicative, recip)
+import NumHask.Algebra.Ring (Distributive)
+import Prelude (flip)
 
--- | Additive Module Laws
---
--- > (a + b) .+ c == a + (b .+ c)
--- > (a + b) .+ c == (a .+ c) + b
--- > a .+ zero == a
--- > a .+ b == b +. a
-class (Additive a) =>
-      AdditiveModule r a where
+-- | Additive Action
+class
+  (Additive a) =>
+  AdditiveAction m a
+    | m -> a
+  where
   infixl 6 .+
-  (.+) :: r a -> a -> r a
+  (.+) :: a -> m -> m
 
-  infixl 6 +.
-  (+.) :: a -> r a -> r a
+infixl 6 +.
 
--- | Subtraction Module Laws
+-- | flipped additive action
 --
--- > (a + b) .- c == a + (b .- c)
--- > (a + b) .- c == (a .- c) + b
--- > a .- zero == a
--- > a .- b == negate b +. a
-class (AdditiveGroup a, AdditiveModule r a) =>
-      AdditiveGroupModule r a where
+-- > (+.) == flip (.+)
+(+.) :: (AdditiveAction m a) => m -> a -> m
+(+.) = flip (.+)
+
+-- | Subtractive Action
+class
+  (Subtractive a) =>
+  SubtractiveAction m a
+    | m -> a
+  where
   infixl 6 .-
-  (.-) :: r a -> a -> r a
+  (.-) :: a -> m -> m
 
-  infixl 6 -.
-  (-.) :: a -> r a -> r a
+infixl 6 -.
 
--- | Multiplicative Module Laws
+-- | right scalar subtraction
+--
+-- > (-.) == (+.) . negate
+(-.) :: (AdditiveAction m a, Subtractive a) => m -> a -> m
+a -. b = a +. negate b
+
+-- | Multiplicative Action
+class
+  (Multiplicative a) =>
+  MultiplicativeAction m a
+    | m -> a
+  where
+  infixl 7 .*
+  (.*) :: a -> m -> m
+
+infixl 7 *.
+
+-- | flipped multiplicative action
+--
+-- > (*.) == flip (.*)
+(*.) :: (MultiplicativeAction m a) => m -> a -> m
+(*.) = flip (.*)
+
+-- | Divisive Action
+class
+  (Divisive a) =>
+  DivisiveAction m a
+    | m -> a
+  where
+  infixl 7 ./
+  (./) :: a -> m -> m
+
+-- | right scalar division
+--
+-- > (/.) == (*.) . recip
+(/.) :: (MultiplicativeAction m a, Divisive a) => m -> a -> m
+a /. b = a *. recip b
+
+-- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module>
 --
 -- > a .* one == a
 -- > (a + b) .* c == (a .* c) + (b .* c)
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Multiplicative a) =>
-      MultiplicativeModule r a where
-  infixl 7 .*
-  (.*) :: r a -> a -> r a
-  infixl 7 *.
-  (*.) :: a -> r a -> r a
-
--- | Division Module Laws
---
--- > nearZero a || a ./ one == a
--- > b == zero || a ./ b == recip b *. a
-class (MultiplicativeGroup a, MultiplicativeModule r a) =>
-      MultiplicativeGroupModule r a where
-  infixl 7 ./
-  (./) :: r a -> a -> r a
-  infixl 7 /.
-  (/.) :: a -> r a -> r a
-
--- | Banach (with Norm) laws form rules around size and direction of a number, with a potential crossing into another codomain.
---
--- > a == singleton zero || normalize a *. size a == a
-class (ExpField a, Normed (r a) a, MultiplicativeGroupModule r a) =>
-      Banach r a where
-  normalize :: r a -> r a
-  normalize a = a ./ size a
-
--- | the inner product of a representable over a semiring
---
--- > a <.> b == b <.> a
--- > a <.> (b +c) == a <.> b + a <.> c
--- > a <.> (s *. b + c) == s * (a <.> b) + a <.> c
--- (s0 *. a) <.> (s1 *. b) == s0 * s1 * (a <.> b)
-class (Semiring a) =>
-      Hilbert r a where
-  infix 8 <.>
-  (<.>) :: r a -> r a -> a
-
--- | tensorial type
-type family (><) (a :: k1) (b :: k2) :: *
-
-type instance Int >< Int = Int
-
-type instance Integer >< Integer = Integer
-
-type instance Double >< Double = Double
-
-type instance Float >< Float = Float
-
--- | representation synthesis
-type family TensorRep k1 k2 where
-  TensorRep (r a) (r a) = r (r a)
-  TensorRep (r a) (s a) = r (s a)
-  TensorRep (r a) a = r a
-
-type instance r a >< b = TensorRep (r a) b
-
--- | generalised outer product
---
--- > a><b + c><b == (a+c) >< b
--- > a><b + a><c == a >< (b+c)
---
--- todo: work out why these laws down't apply
--- > a *. (b><c) == (a><b) .* c
--- > (a><b) .* c == a *. (b><c)
-class TensorProduct a where
-  infix 8 ><
-  (><) :: a -> a -> (a >< a)
-  outer :: a -> a -> (a >< a)
-  outer = (><)
-  timesleft :: a -> (a >< a) -> a
-  timesright :: (a >< a) -> a -> a
+class (Distributive a, MultiplicativeAction m a) => Module m a

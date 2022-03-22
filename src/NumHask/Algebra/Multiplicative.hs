@@ -1,217 +1,155 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 
--- | A magma heirarchy for multiplication. The basic magma structure is repeated and prefixed with 'Multiplicative-'.
+-- | Multiplicative classes
 module NumHask.Algebra.Multiplicative
-  ( MultiplicativeMagma(..)
-  , MultiplicativeUnital(..)
-  , MultiplicativeAssociative
-  , MultiplicativeCommutative
-  , MultiplicativeInvertible(..)
-  , product
-  , Multiplicative(..)
-  , MultiplicativeRightCancellative(..)
-  , MultiplicativeLeftCancellative(..)
-  , MultiplicativeGroup(..)
-  ) where
+  ( Multiplicative (..),
+    product,
+    accproduct,
+    Divisive (..),
+  )
+where
 
-import Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
-import qualified Protolude as P
-import Protolude (Bool(..), Double, Float, Int, Integer)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Traversable (mapAccumL)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
+import Prelude (Double, Float, Int, Integer, fromInteger, fromRational)
+import qualified Prelude as P
 
--- | 'times' is used as the operator for the multiplicative magam to distinguish from '*' which, by convention, implies commutativity
+-- $setup
 --
--- > ∀ a,b ∈ A: a `times` b ∈ A
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
+
+-- | or [Multiplication](https://en.wikipedia.org/wiki/Multiplication)
 --
--- law is true by construction in Haskell
-class MultiplicativeMagma a where
-  times :: a -> a -> a
-
-instance MultiplicativeMagma Double where
-  times = (P.*)
-
-instance MultiplicativeMagma Float where
-  times = (P.*)
-
-instance MultiplicativeMagma Int where
-  times = (P.*)
-
-instance MultiplicativeMagma Integer where
-  times = (P.*)
-
-instance MultiplicativeMagma Bool where
-  times = (P.&&)
-
-instance (MultiplicativeMagma a, AdditiveGroup a) =>
-         MultiplicativeMagma (Complex a) where
-  (rx :+ ix) `times` (ry :+ iy) =
-    (rx `times` ry - ix `times` iy) :+ (ix `times` ry + iy `times` rx)
-
--- | Unital magma for multiplication.
+-- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
--- > one `times` a == a
--- > a `times` one == a
-class MultiplicativeMagma a =>
-      MultiplicativeUnital a where
+--
+-- prop> \a -> one * a == a
+-- prop> \a -> a * one == a
+-- prop> \a b c -> (a * b) * c == a * (b * c)
+--
+-- By convention, (*) is regarded as not necessarily commutative, but this is not universal, and the introduction of another symbol which means commutative multiplication seems a bit dogmatic.
+--
+-- >>> one * 2
+-- 2
+--
+-- >>> 2 * 3
+-- 6
+class Multiplicative a where
+  infixl 7 *
+  (*) :: a -> a -> a
+
   one :: a
 
-instance MultiplicativeUnital Double where
-  one = 1
-
-instance MultiplicativeUnital Float where
-  one = 1
-
-instance MultiplicativeUnital Int where
-  one = 1
-
-instance MultiplicativeUnital Integer where
-  one = 1
-
-instance MultiplicativeUnital Bool where
-  one = True
-
-instance (AdditiveUnital a, AdditiveGroup a, MultiplicativeUnital a) =>
-         MultiplicativeUnital (Complex a) where
-  one = one :+ zero
-
--- | Associative magma for multiplication.
+-- | Compute the product of a 'Data.Foldable.Foldable'.
 --
--- > (a `times` b) `times` c == a `times` (b `times` c)
-class MultiplicativeMagma a =>
-      MultiplicativeAssociative a
-
-instance MultiplicativeAssociative Double
-
-instance MultiplicativeAssociative Float
-
-instance MultiplicativeAssociative Int
-
-instance MultiplicativeAssociative Integer
-
-instance MultiplicativeAssociative Bool
-
-instance (AdditiveGroup a, MultiplicativeAssociative a) =>
-         MultiplicativeAssociative (Complex a)
-
--- | Commutative magma for multiplication.
---
--- > a `times` b == b `times` a
-class MultiplicativeMagma a =>
-      MultiplicativeCommutative a
-
-instance MultiplicativeCommutative Double
-
-instance MultiplicativeCommutative Float
-
-instance MultiplicativeCommutative Int
-
-instance MultiplicativeCommutative Integer
-
-instance MultiplicativeCommutative Bool
-
-instance (AdditiveGroup a, MultiplicativeCommutative a) =>
-         MultiplicativeCommutative (Complex a)
-
--- | Invertible magma for multiplication.
---
--- > ∀ a ∈ A: recip a ∈ A
---
--- law is true by construction in Haskell
-class MultiplicativeMagma a =>
-      MultiplicativeInvertible a where
-  recip :: a -> a
-
-instance MultiplicativeInvertible Double where
-  recip = P.recip
-
-instance MultiplicativeInvertible Float where
-  recip = P.recip
-
-instance (AdditiveGroup a, MultiplicativeInvertible a) =>
-         MultiplicativeInvertible (Complex a) where
-  recip (rx :+ ix) = (rx `times` d) :+ (negate ix `times` d)
-    where
-      d = recip ((rx `times` rx) `plus` (ix `times` ix))
-
--- | Idempotent magma for multiplication.
---
--- > a `times` a == a
-class MultiplicativeMagma a =>
-      MultiplicativeIdempotent a
-
-instance MultiplicativeIdempotent Bool
-
--- | product definition avoiding a clash with the Product monoid in base
---
+-- >>> product [1..5]
+-- 120
 product :: (Multiplicative a, P.Foldable f) => f a -> a
 product = P.foldr (*) one
 
--- | Multiplicative is commutative, associative and unital under multiplication
+-- | Compute the accumulating product of a 'Data.Traversable.Traversable'.
 --
--- > one * a == a
--- > a * one == a
--- > (a * b) * c == a * (b * c)
--- > a * b == b * a
-class ( MultiplicativeCommutative a
-      , MultiplicativeUnital a
-      , MultiplicativeAssociative a
-      ) =>
-      Multiplicative a where
-  infixl 7 *
-  (*) :: a -> a -> a
-  a * b = times a b
+-- >>> accproduct [1..5]
+-- [1,2,6,24,120]
+accproduct :: (Multiplicative a, P.Traversable f) => f a -> f a
+accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 
-instance Multiplicative Double
-
-instance Multiplicative Float
-
-instance Multiplicative Int
-
-instance Multiplicative Integer
-
-instance Multiplicative Bool
-
-instance (AdditiveGroup a, Multiplicative a) => Multiplicative (Complex a)
-
--- | Non-commutative left divide
+-- | or [Division](https://en.wikipedia.org/wiki/Division_(mathematics\))
 --
--- > recip a `times` a = one
-class ( MultiplicativeUnital a
-      , MultiplicativeAssociative a
-      , MultiplicativeInvertible a
-      ) =>
-      MultiplicativeLeftCancellative a where
-  infixl 7 ~/
-  (~/) :: a -> a -> a
-  a ~/ b = recip b `times` a
-
--- | Non-commutative right divide
+-- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
--- > a `times` recip a = one
-class ( MultiplicativeUnital a
-      , MultiplicativeAssociative a
-      , MultiplicativeInvertible a
-      ) =>
-      MultiplicativeRightCancellative a where
-  infixl 7 /~
-  (/~) :: a -> a -> a
-  a /~ b = a `times` recip b
-
--- | Divide ('/') is reserved for where both the left and right cancellative laws hold.  This then implies that the MultiplicativeGroup is also Abelian.
+-- prop> \(a :: Double) -> a / a ~= one || a == zero
+-- prop> \(a :: Double) -> recip a ~= one / a || a == zero
+-- prop> \(a :: Double) -> recip a * a ~= one || a == zero
+-- prop> \(a :: Double) -> a * recip a ~= one || a == zero
 --
--- > a / a = one
--- > recip a = one / a
--- > recip a * a = one
--- > a * recip a = one
-class (Multiplicative a, MultiplicativeInvertible a) =>
-      MultiplicativeGroup a where
+-- >>> recip 2.0
+-- 0.5
+--
+-- >>> 1 / 2
+-- 0.5
+class (Multiplicative a) => Divisive a where
+  recip :: a -> a
+  recip a = one / a
+
   infixl 7 /
+
   (/) :: a -> a -> a
-  (/) a b = a `times` recip b
+  (/) a b = a * recip b
 
-instance MultiplicativeGroup Double
+instance Multiplicative Double where
+  (*) = (P.*)
+  one = 1.0
 
-instance MultiplicativeGroup Float
+instance Divisive Double where
+  recip = P.recip
 
-instance (AdditiveGroup a, MultiplicativeGroup a) =>
-         MultiplicativeGroup (Complex a)
+instance Multiplicative Float where
+  (*) = (P.*)
+  one = 1.0
+
+instance Divisive Float where
+  recip = P.recip
+
+instance Multiplicative Int where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Integer where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative P.Bool where
+  (*) = (P.&&)
+  one = P.True
+
+instance Multiplicative Natural where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Int8 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Int16 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Int32 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Int64 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Word where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Word8 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Word16 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Word32 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative Word64 where
+  (*) = (P.*)
+  one = 1
+
+instance Multiplicative b => Multiplicative (a -> b) where
+  f * f' = \a -> f a * f' a
+  one _ = one
+
+instance Divisive b => Divisive (a -> b) where
+  recip f = recip P.. f

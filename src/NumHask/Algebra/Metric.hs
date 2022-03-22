@@ -1,142 +1,324 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FunctionalDependencies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
 module NumHask.Algebra.Metric
-  ( Signed(..)
-  , Normed(..)
-  , Metric(..)
-  , Epsilon(..)
-  , (≈)
-  ) where
+  ( Signed (..),
+    Norm (..),
+    distance,
+    Direction (..),
+    Polar (..),
+    polar,
+    coord,
+    Epsilon (..),
+    (~=),
+  )
+where
 
-import Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Field
-import NumHask.Algebra.Multiplicative
-import qualified Protolude as P
-import Protolude
-       (Bool(..), Double, Eq(..), Float, Int, Integer, Ord(..), ($), (&&))
+import Data.Bool (bool)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word16, Word32, Word64, Word8)
+import GHC.Generics (Generic)
+import GHC.Natural (Natural (..))
+import NumHask.Algebra.Additive (Additive (zero), Subtractive (..), (-))
+import NumHask.Algebra.Module (MultiplicativeAction ((.*)))
+import NumHask.Algebra.Multiplicative (Multiplicative (one))
+import Prelude hiding
+  ( Bounded (..),
+    Integral (..),
+    negate,
+    (*),
+    (-),
+  )
+import qualified Prelude as P
 
--- | 'signum' from base is not an operator replicated in numhask, being such a very silly name, and preferred is the much more obvious 'sign'.  Compare with 'Norm' and 'Banach' where there is a change in codomain
+-- $setup
 --
--- > abs a * sign a == a
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
+
+-- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain.
 --
--- Generalising this class tends towards size and direction (abs is the size on the one-dim number line of a vector with its tail at zero, and sign is the direction, right?).
-class (MultiplicativeUnital a) =>
-      Signed a where
+-- prop> \a -> abs a * sign a ~= a
+--
+-- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
+--
+-- >>> sign zero == zero
+-- True
+--
+-- >>> abs (-1)
+-- 1
+--
+-- >>> sign (-1)
+-- -1
+class
+  (Additive a, Multiplicative a) =>
+  Signed a
+  where
   sign :: a -> a
   abs :: a -> a
 
 instance Signed Double where
   sign a =
-    if a >= zero
-      then one
-      else negate one
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Float where
   sign a =
-    if a >= zero
-      then one
-      else negate one
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Int where
   sign a =
-    if a >= zero
-      then one
-      else negate one
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
 instance Signed Integer where
   sign a =
-    if a >= zero
-      then one
-      else negate one
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
   abs = P.abs
 
--- | Like Signed, except the codomain can be different to the domain.
-class Normed a b where
-  size :: a -> b
+instance Signed Natural where
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
+  abs = id
 
-instance Normed Double Double where
-  size = P.abs
+instance Signed Int8 where
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
+  abs = P.abs
 
-instance Normed Float Float where
-  size = P.abs
+instance Signed Int16 where
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
+  abs = P.abs
 
-instance Normed Int Int where
-  size = P.abs
+instance Signed Int32 where
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
+  abs = P.abs
 
-instance Normed Integer Integer where
-  size = P.abs
+instance Signed Int64 where
+  sign a =
+    case compare a zero of
+      EQ -> zero
+      GT -> one
+      LT -> negate one
+  abs = P.abs
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
-         Normed (Complex a) a where
-  size (rx :+ ix) = sqrt (rx * rx + ix * ix)
+instance Signed Word where
+  sign a = bool one zero (a == zero)
+  abs = P.abs
 
--- | distance between numbers
+instance Signed Word8 where
+  sign a = bool one zero (a == zero)
+  abs = P.abs
+
+instance Signed Word16 where
+  sign a = bool one zero (a == zero)
+  abs = P.abs
+
+instance Signed Word32 where
+  sign a = bool one zero (a == zero)
+  abs = P.abs
+
+instance Signed Word64 where
+  sign a = bool one zero (a == zero)
+  abs = P.abs
+
+-- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
+--
+-- > \a -> norm a >= zero
+-- > \a -> norm zero == zero
+-- > \a -> a == norm a .* basis a
+-- > \a -> norm (basis a) == one
+--
+-- >>> norm (-0.5 :: Double) :: Double
+-- 0.5
+--
+-- >>> basis (-0.5 :: Double) :: Double
+-- -1.0
+class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
+  -- | or length, or ||v||
+  norm :: a -> b
+
+  -- | or direction, or v-hat
+  basis :: a -> a
+
+instance Norm Double Double where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Float Float where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Int Int where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Integer Integer where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Natural Natural where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Int8 Int8 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Int16 Int16 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Int32 Int32 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Int64 Int64 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Word Word where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Word8 Word8 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Word16 Word16 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Word32 Word32 where
+  norm = P.abs
+  basis = P.signum
+
+instance Norm Word64 Word64 where
+  norm = P.abs
+  basis = P.signum
+
+-- | Distance, which combines the Subtractive notion of difference, with Norm.
 --
 -- > distance a b >= zero
 -- > distance a a == zero
--- > \a b c -> distance a c + distance b c - distance a b >= zero &&
--- >           distance a b + distance b c - distance a c >= zero &&
--- >           distance a b + distance a c - distance b c >= zero &&
-class Metric a b where
-  distance :: a -> a -> b
+-- > distance a b .* basis (a - b) == a - b
+distance :: (Norm a b, Subtractive a) => a -> a -> b
+distance a b = norm (a - b)
 
-instance Metric Double Double where
-  distance a b = abs (a - b)
+-- | Convert between a "co-ordinated" or "higher-kinded" number and representations of an angle. Typically thought of as polar co-ordinate conversion.
+--
+-- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
+--
+-- > ray . angle == basis
+-- > norm (ray x) == one
+class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) => Direction coord dir | coord -> dir where
+  angle :: coord -> dir
+  ray :: dir -> coord
 
-instance Metric Float Float where
-  distance a b = abs (a - b)
+-- | Something that has a magnitude and a direction.
+data Polar mag dir = Polar {magnitude :: !mag, direction :: !dir}
+  deriving (Eq, Show, Generic)
 
-instance Metric Int Int where
-  distance a b = abs (a - b)
+-- | Convert from a number to a Polar.
+polar :: (Norm coord mag, Direction coord dir) => coord -> Polar mag dir
+polar z = Polar (norm z) (angle z)
 
-instance Metric Integer Integer where
-  distance a b = abs (a - b)
+-- | Convert from a Polar to a (coordinated aka higher-kinded) number.
+coord :: (MultiplicativeAction coord mag, Direction coord dir) => Polar mag dir -> coord
+coord (Polar m d) = m .* ray d
 
-instance (Multiplicative a, ExpField a, Normed a a) =>
-         Metric (Complex a) a where
-  distance a b = size (a - b)
+-- | A small number, especially useful for approximate equality.
+class
+  (Eq a, Additive a) =>
+  Epsilon a
+  where
+  epsilon :: a
+  epsilon = zero
 
--- | todo: This should probably be split off into some sort of alternative Equality logic, but to what end?
-class (AdditiveGroup a) =>
-      Epsilon a where
+  -- | are we near enough?
+  --
+  -- >>> nearZero (epsilon :: Double)
+  -- True
   nearZero :: a -> Bool
+  default nearZero :: (Ord a, Subtractive a) => a -> Bool
+  nearZero a = epsilon >= a && epsilon >= negate a
+
+  -- | Approximate equality
+  --
+  -- >>> aboutEqual zero (epsilon :: Double)
+  -- True
   aboutEqual :: a -> a -> Bool
-  positive :: (Eq a, Signed a) => a -> Bool
-  positive a = a == abs a
-  veryPositive :: (Eq a, Signed a) => a -> Bool
-  veryPositive a = P.not (nearZero a) && positive a
-  veryNegative :: (Eq a, Signed a) => a -> Bool
-  veryNegative a = P.not (nearZero a P.|| positive a)
+  default aboutEqual :: (Subtractive a) => a -> a -> Bool
+  aboutEqual a b = nearZero $ a - b
 
-infixl 4 ≈
+infixl 4 ~=
 
--- | todo: is utf perfectly acceptable these days?
-(≈) :: (Epsilon a) => a -> a -> Bool
-(≈) = aboutEqual
+-- | About equal operator.
+--
+-- >>> (1.0 + epsilon) ~= (1.0 :: Double)
+-- True
+(~=) :: (Epsilon a) => a -> a -> Bool
+(~=) = aboutEqual
 
+-- | 1e-14
 instance Epsilon Double where
-  nearZero a = abs a <= (1e-12 :: Double)
-  aboutEqual a b = nearZero $ a - b
+  epsilon = 1e-14
 
+-- | 1e-6
 instance Epsilon Float where
-  nearZero a = abs a <= (1e-6 :: Float)
-  aboutEqual a b = nearZero $ a - b
+  epsilon = 1e-6
 
-instance Epsilon Int where
-  nearZero a = a == zero
-  aboutEqual a b = nearZero $ a - b
+-- | 0
+instance Epsilon Int
 
-instance Epsilon Integer where
-  nearZero a = a == zero
-  aboutEqual a b = nearZero $ a - b
+instance Epsilon Integer
 
-instance (Epsilon a) => Epsilon (Complex a) where
-  nearZero (rx :+ ix) = nearZero rx && nearZero ix
-  aboutEqual a b = nearZero $ a - b
+instance Epsilon Int8
+
+instance Epsilon Int16
+
+instance Epsilon Int32
+
+instance Epsilon Int64
+
+instance Epsilon Word
+
+instance Epsilon Word8
+
+instance Epsilon Word16
+
+instance Epsilon Word32
+
+instance Epsilon Word64

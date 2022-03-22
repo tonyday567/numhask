@@ -1,8 +1,0 @@
-# Weeder configuration file
-# https://github.com/ndmitchell/weeder
-##########################
-
-- message:
-  - name: Unused import
-  - module:
-    - name: NumHask.Examples

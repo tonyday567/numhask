@@ -1,77 +1,165 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
--- | Ring classes. A distinguishment is made between Rings and Commutative Rings.
+-- | Ring classes
 module NumHask.Algebra.Ring
-  ( Semiring
-  , Ring
-  , CRing
-  ) where
+  ( Distributive,
+    Ring,
+    StarSemiring (..),
+    KleeneAlgebra,
+    InvolutiveRing (..),
+    two,
+  )
+where
 
-import Data.Complex (Complex(..))
-import NumHask.Algebra.Additive
-import NumHask.Algebra.Distribution
-import NumHask.Algebra.Multiplicative
-import Protolude (Bool(..), Double, Float, Int, Integer)
+import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Word (Word, Word16, Word32, Word64, Word8)
+import GHC.Natural (Natural (..))
+import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
+import NumHask.Algebra.Group (Idempotent)
+import NumHask.Algebra.Multiplicative (Multiplicative (..))
+import qualified Prelude as P
 
--- | Semiring
-class (MultiplicativeAssociative a, MultiplicativeUnital a, Distribution a) =>
-      Semiring a
-
-instance Semiring Double
-
-instance Semiring Float
-
-instance Semiring Int
-
-instance Semiring Integer
-
-instance Semiring Bool
-
-instance (AdditiveGroup a, Semiring a) => Semiring (Complex a)
-
--- | Ring
--- a summary of the laws inherited from the ring super-classes
+-- $setup
 --
--- > zero + a == a
--- > a + zero == a
--- > (a + b) + c == a + (b + c)
--- > a + b == b + a
--- > a - a = zero
--- > negate a = zero - a
--- > negate a + a = zero
--- > a + negate a = zero
--- > one `times` a == a
--- > a `times` one == a
--- > (a `times` b) `times` c == a `times` (b `times` c)
--- > a `times` (b + c) == a `times` b + a `times` c
--- > (a + b) `times` c == a `times` c + b `times` c
--- > a `times` zero == zero
--- > zero `times` a == zero
-class ( Semiring a
-      , AdditiveGroup a
-      ) =>
-      Ring a
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
 
-instance Ring Double
+-- | <https://en.wikipedia.org/wiki/Distributive_property Distributive>
+--
+-- prop> \a b c -> a * (b + c) == a * b + a * c
+-- prop> \a b c -> (a + b) * c == a * c + b * c
+-- prop> \a -> zero * a == zero
+-- prop> \a -> a * zero == zero
+--
+-- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element Absorption> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
+class
+  (Additive a, Multiplicative a) =>
+  Distributive a
 
-instance Ring Float
+instance Distributive P.Double
 
-instance Ring Int
+instance Distributive P.Float
 
-instance Ring Integer
+instance Distributive P.Int
 
-instance (Ring a) => Ring (Complex a)
+instance Distributive P.Integer
 
--- | CRing is a Ring with Multiplicative Commutation.  It arises often due to '*' being defined as a multiplicative commutative operation.
-class (Multiplicative a, Ring a) =>
-      CRing a
+instance Distributive Natural
 
-instance CRing Double
+instance Distributive Int8
 
-instance CRing Float
+instance Distributive Int16
 
-instance CRing Int
+instance Distributive Int32
 
-instance CRing Integer
+instance Distributive Int64
 
-instance (CRing a) => CRing (Complex a)
+instance Distributive Word
+
+instance Distributive Word8
+
+instance Distributive Word16
+
+instance Distributive Word32
+
+instance Distributive Word64
+
+instance Distributive P.Bool
+
+instance Distributive b => Distributive (a -> b)
+
+-- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('NumHask.Algebra.Unital', 'NumHask.Algebra.Associative', 'NumHask.Algebra.Commutative', 'NumHask.Algebra.Invertible') and monoidal under multiplication ('NumHask.Algebra.Unital', 'NumHask.Algebra.Associative'), and where multiplication distributes over addition.
+--
+-- > \a -> zero + a == a
+-- > \a -> a + zero == a
+-- > \a b c -> (a + b) + c == a + (b + c)
+-- > \a b -> a + b == b + a
+-- > \a -> a - a == zero
+-- > \a -> negate a == zero - a
+-- > \a -> negate a + a == zero
+-- > \a -> a + negate a == zero
+-- > \a -> one * a == a
+-- > \a -> a * one == a
+-- > \a b c -> (a * b) * c == a * (b * c)
+-- > \a b c -> a * (b + c) == a * b + a * c
+-- > \a b c -> (a + b) * c == a * c + b * c
+-- > \a -> zero * a == zero
+-- > \a -> a * zero == zero
+class
+  (Distributive a, Subtractive a) =>
+  Ring a
+
+instance
+  (Distributive a, Subtractive a) =>
+  Ring a
+
+-- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
+--
+-- > \a -> star a == one + a * star a
+class (Distributive a) => StarSemiring a where
+  star :: a -> a
+  star a = one + plus a
+
+  plus :: a -> a
+  plus a = a * star a
+
+instance StarSemiring b => StarSemiring (a -> b)
+
+-- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
+--
+-- > a * x + x = a ==> star a * x + x = x
+-- > x * a + x = a ==> x * star a + x = x
+class (StarSemiring a, Idempotent a) => KleeneAlgebra a
+
+instance KleeneAlgebra b => KleeneAlgebra (a -> b)
+
+-- | Involutive Ring
+--
+-- > adj (a + b) ==> adj a + adj b
+-- > adj (a * b) ==> adj a * adj b
+-- > adj one ==> one
+-- > adj (adj a) ==> a
+--
+-- Note: elements for which @adj a == a@ are called "self-adjoint".
+class (Distributive a) => InvolutiveRing a where
+  adj :: a -> a
+  adj x = x
+
+instance InvolutiveRing P.Double
+
+instance InvolutiveRing P.Float
+
+instance InvolutiveRing P.Integer
+
+instance InvolutiveRing P.Int
+
+instance InvolutiveRing Natural
+
+instance InvolutiveRing Int8
+
+instance InvolutiveRing Int16
+
+instance InvolutiveRing Int32
+
+instance InvolutiveRing Int64
+
+instance InvolutiveRing Word
+
+instance InvolutiveRing Word8
+
+instance InvolutiveRing Word16
+
+instance InvolutiveRing Word32
+
+instance InvolutiveRing Word64
+
+instance InvolutiveRing b => InvolutiveRing (a -> b)
+
+-- | Defining 'two' requires adding the multiplicative unital to itself. In other words, the concept of 'two' is a Ring one.
+--
+-- >>> two
+-- 2
+two :: (Multiplicative a, Additive a) => a
+two = one + one

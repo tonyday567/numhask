@@ -1,76 +1,72 @@
--- This file has been generated from package.yaml by hpack version 0.18.1.
---
--- see: https://github.com/sol/hpack
+cabal-version:      2.4
+name:               numhask
+version:            0.10.0.0
+synopsis:           A numeric class hierarchy.
+description:
+  This package provides alternative numeric classes over Prelude.
+  .
+  The numeric class constellation looks somewhat like:
+  .
+  ![nh](docs/other/nh.svg)
+  .
+  == Usage
+  .
+  >>> {-# LANGUAGE RebindableSyntax #-}
+  >>> import NumHask.Prelude
+  .
+  See "NumHask" for a detailed overview.
 
-name:           numhask
-version:        0.1.3
-synopsis:       A numeric prelude
-description:    A numeric prelude, providing a clean structure for numbers and operations that combine them.
-category:       mathematics
-homepage:       https://github.com/tonyday567/numhask#readme
-bug-reports:    https://github.com/tonyday567/numhask/issues
-license:        BSD3
-license-file:   LICENSE
-author:         Tony Day
-maintainer:     tonyday567@gmail.com
-copyright:      Tony Day
-build-type:     Simple
-cabal-version:  >= 1.10
-
-extra-source-files:
-  readme.md
-  stack.yaml
+category:           mathematics
+homepage:           https://github.com/tonyday567/numhask#readme
+bug-reports:        https://github.com/tonyday567/numhask/issues
+author:             Tony Day
+maintainer:         tonyday567@gmail.com
+copyright:          Tony Day
+license:            BSD-3-Clause
+license-file:       LICENSE
+build-type:         Simple
+tested-with:        GHC ==8.8.4 || ==8.10.7 || ==9.2.1
+extra-doc-files:    other/*.svg
+extra-source-files: ChangeLog.md
 
 source-repository head
-  type: git
+  type:     git
   location: https://github.com/tonyday567/numhask
+  subdir:   numhask
 
 library
-  default-language: Haskell2010
-  ghc-options: -Wall
-  hs-source-dirs:
-    src
+  hs-source-dirs:           src
+  ghc-options:
+    -Wall -Wcompat -Wincomplete-record-updates
+    -Wincomplete-uni-patterns -Wredundant-constraints -fwrite-ide-info
+    -hiedir=.hie
+
+  x-docspec-extra-packages: QuickCheck
+  build-depends:            base >=4.7 && <5
   exposed-modules:
-    NumHask.Prelude
-    NumHask.Examples
-    NumHask.Algebra
+    NumHask
     NumHask.Algebra.Additive
-    NumHask.Algebra.Basis
-    NumHask.Algebra.Distribution
-    NumHask.Algebra.Ring
     NumHask.Algebra.Field
-    NumHask.Algebra.Integral
-    NumHask.Algebra.Magma
+    NumHask.Algebra.Group
+    NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
     NumHask.Algebra.Module
     NumHask.Algebra.Multiplicative
-    NumHask.Algebra.Singleton
-    NumHask.Laws
-  other-modules:
-    Paths_numhask
-  build-depends:
-    QuickCheck >=2.8 && <3,
-    protolude >=0.1 && <0.3,
-    tasty,
-    tasty-quickcheck,
-    base >=4.7 && <4.11
-  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+    NumHask.Algebra.Ring
+    NumHask.Data.Complex
+    NumHask.Data.Integral
+    NumHask.Data.Rational
+    NumHask.Exception
+    NumHask.Prelude
 
-test-suite test
+  other-modules:
+  default-language:         Haskell2010
+
+test-suite doctests
+  type:             exitcode-stdio-1.0
+  main-is:          doctests.hs
+  hs-source-dirs:   test
   default-language: Haskell2010
-  type: exitcode-stdio-1.0
-  hs-source-dirs:
-    test
-  main-is: test.hs
   build-depends:
-    QuickCheck >=2.8 && <3,
-    protolude >=0.1 && <0.3,
-    tasty,
-    tasty-quickcheck,
-    base >=4.7 && <5,
-    QuickCheck >=2.8 && <3,
-    doctest,
-    numhask,
-    tasty,
-    tasty-quickcheck
-  default-extensions: NegativeLiterals NoImplicitPrelude OverloadedStrings UnicodeSyntax
+    , base
+    , QuickCheck

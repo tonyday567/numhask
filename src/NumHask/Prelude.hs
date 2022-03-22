@@ -1,52 +1,78 @@
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_HADDOCK prune #-}
 
--- | A prelude for NumHask
+-- | A prelude composed by overlaying numhask on Prelude, together with a few minor tweaks needed for RebindableSyntax.
 module NumHask.Prelude
-  ( -- * Backend
-    -- $backend
-    module Protolude
+  ( -- * numhask exports
+    module NumHask.Algebra.Additive,
+    module NumHask.Algebra.Field,
+    module NumHask.Algebra.Group,
+    module NumHask.Algebra.Lattice,
+    module NumHask.Algebra.Module,
+    module NumHask.Algebra.Multiplicative,
+    module NumHask.Algebra.Ring,
+    module NumHask.Algebra.Metric,
+    module NumHask.Data.Complex,
+    module NumHask.Data.Integral,
+    module NumHask.Data.Rational,
+    module NumHask.Exception,
 
-    -- * Algebraic Heirarchy
-    -- $instances
-  , module NumHask.Algebra.Additive
-  , module NumHask.Algebra.Basis
-  , module NumHask.Algebra.Distribution
-  , module NumHask.Algebra.Field
-  , module NumHask.Algebra.Integral
-  , module NumHask.Algebra.Magma
-  , module NumHask.Algebra.Metric
-  , module NumHask.Algebra.Module
-  , module NumHask.Algebra.Multiplicative
-  , module NumHask.Algebra.Ring
-  , module NumHask.Algebra.Singleton
+    -- * rebindables
+    -- $rebindables
+    fromString,
+    ifThenElse,
+    fromList,
+    fromListN,
+    Natural (..),
 
-  ) where
+    -- * Modules you can't live without
+    module Data.Bool,
+    module Data.Kind,
+    module GHC.Generics,
+    module Prelude,
+    module Data.Foldable,
+    module Data.Traversable,
+    module Data.Semigroup,
+    module Data.Maybe,
+  )
+where
 
-import Protolude
-       hiding (Bounded(..), Integral(..), Rep, Semiring(..), (*), (**),
-               (+), (-), (/), (^), (^^), abs, acos, acosh, asin, asinh, atan,
-               atan2, atanh, ceiling, cos, cosh, exp, floor, fromInteger,
-               fromIntegral, infinity, isNaN, log, logBase, negate, pi, product,
-               recip, round, sin, sinh, sqrt, sum, tan, tanh, toInteger, trans,
-               zero)
-
+import Data.Bool
+import Data.Foldable hiding (product, sum)
+import Data.Kind
+import Data.Maybe
+import Data.Semigroup
+import Data.Traversable
+import GHC.Exts
+import GHC.Generics
+import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive
-import NumHask.Algebra.Basis
-import NumHask.Algebra.Distribution
 import NumHask.Algebra.Field
-import NumHask.Algebra.Integral
-import NumHask.Algebra.Magma
+import NumHask.Algebra.Group
+import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Singleton
+import NumHask.Data.Complex
+import NumHask.Data.Integral
+import NumHask.Data.Rational
+import NumHask.Exception
+import Prelude hiding (Integral (..), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, log, logBase, negate, odd, pi, product, properFraction, recip, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (/), (^), (^^))
 
--- $backend
--- NumHask imports Protolude as the prelude and replaces much of the 'Num' heirarchy in base.
--- Usage of 'Semigroup' and 'Monoid' has been avoided to retain basic compatability.
--- $instances
--- Re-defines the numeric tower.
+-- $usage
 --
--- Instances for 'Int', 'Integer', 'Float', 'Double', 'Bool' and 'Complex' are supplied.
+-- >>> :set -XRebindableSyntax
+-- >>> import NumHask.Prelude
+-- >>> 1+1
+-- 2
+
+-- $rebindables
 --
+-- Using different types for numbers requires RebindableSyntax.  This then removes base-level stuff that has to be put back in.
+
+-- | RebindableSyntax splats this, and I'm not sure where it exists in GHC land
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse True x _ = x
+ifThenElse False _ y = y
