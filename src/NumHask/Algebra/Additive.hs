@@ -113,9 +113,6 @@ instance Additive Bool where
   (+) = (P.||)
   zero = P.False
 
-instance Subtractive Bool where
-  negate = P.not
-
 instance Additive Natural where
   (+) = (P.+)
   zero = 0
