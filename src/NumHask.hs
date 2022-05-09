@@ -276,12 +276,6 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- The class heirarchy looks somewhat like this:
 -- ![classes](other/nh.svg)
 --
--- If the base started with magma, and the library tolerated clashing with 'Data.Semigroup'
--- and 'Data.Monoid' in base, it would look like:
---
--- ![magma classes](other/nhmagma.svg)
---
--- These first two levels, contained in 'NumHask.Algebra.Group' are moral super-classes.
 
 -- $mapping
 --
