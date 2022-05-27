@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               numhask
-version:            0.10.0.0
+version:            0.10.1.0
 synopsis:           A numeric class hierarchy.
 description:
   This package provides alternative numeric classes over Prelude.
