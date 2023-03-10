@@ -23,15 +23,12 @@ jobs:
     continue-on-error: true
     name: ghc ${{ matrix.ghc }} ${{ matrix.os }}
     steps:
-      - name: clone project
-        uses: actions/checkout@v2
-      - name: setup stanza
-        uses: haskell/actions/setup@v1
+      - uses: actions/checkout@v3
+      - uses: haskell/actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           enable-stack: false
-      - name: cabal cache
-        uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           key: ${{ runner.os }}-${{ matrix.ghc }}-${{ github.sha }}
           path: ~/.cabal/store
