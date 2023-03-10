@@ -59,7 +59,7 @@ isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
 
-instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => P.Ord (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Subtractive a) => P.Ord (Ratio a) where
   (x :% y) <= (x' :% y') = x * y' P.<= x' * y
   (x :% y) < (x' :% y') = x * y' P.< x' * y
 
@@ -75,7 +75,7 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Additive (Ratio a) where
 instance (P.Ord a, Signed a, Integral a, Ring a) => Subtractive (Ratio a) where
   negate (x :% y) = negate x :% y
 
-instance (P.Ord a, Signed a, Integral a, Ring a, Multiplicative a) => Multiplicative (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Multiplicative (Ratio a) where
   (x :% y) * (x' :% y') = reduce (x * x') (y * y')
 
   one = one :% one
@@ -107,10 +107,10 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) whe
   norm = abs
   basis = sign
 
-instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => JoinSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Subtractive a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
 
-instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => MeetSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Subtractive a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
 instance (P.Ord a, Signed a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
