@@ -275,7 +275,6 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- The class heirarchy looks somewhat like this:
 -- ![classes](other/nh.svg)
---
 
 -- $mapping
 --

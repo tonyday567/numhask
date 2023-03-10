@@ -68,7 +68,7 @@ instance Distributive Word64
 
 instance Distributive P.Bool
 
-instance Distributive b => Distributive (a -> b)
+instance (Distributive b) => Distributive (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Ring_(mathematics) Ring> is an abelian group under addition ('NumHask.Algebra.Unital', 'NumHask.Algebra.Associative', 'NumHask.Algebra.Commutative', 'NumHask.Algebra.Invertible') and monoidal under multiplication ('NumHask.Algebra.Unital', 'NumHask.Algebra.Associative'), and where multiplication distributes over addition.
 --
@@ -105,7 +105,7 @@ class (Distributive a) => StarSemiring a where
   plus :: a -> a
   plus a = a * star a
 
-instance StarSemiring b => StarSemiring (a -> b)
+instance (StarSemiring b) => StarSemiring (a -> b)
 
 -- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
 --
@@ -113,7 +113,7 @@ instance StarSemiring b => StarSemiring (a -> b)
 -- > x * a + x = a ==> x * star a + x = x
 class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 
-instance KleeneAlgebra b => KleeneAlgebra (a -> b)
+instance (KleeneAlgebra b) => KleeneAlgebra (a -> b)
 
 -- | Involutive Ring
 --
@@ -155,7 +155,7 @@ instance InvolutiveRing Word32
 
 instance InvolutiveRing Word64
 
-instance InvolutiveRing b => InvolutiveRing (a -> b)
+instance (InvolutiveRing b) => InvolutiveRing (a -> b)
 
 -- | Defining 'two' requires adding the multiplicative unital to itself. In other words, the concept of 'two' is a Ring one.
 --

@@ -41,7 +41,7 @@ class Magma a where
   infix 3 ⊕
   (⊕) :: a -> a -> a
 
-instance Magma b => Magma (a -> b) where
+instance (Magma b) => Magma (a -> b) where
   f ⊕ g = \a -> f a ⊕ g a
 
 -- | A Unital Magma is a magma with an
@@ -51,12 +51,12 @@ instance Magma b => Magma (a -> b) where
 -- > unit ⊕ a = a
 -- > a ⊕ unit = a
 class
-  Magma a =>
+  (Magma a) =>
   Unital a
   where
   unit :: a
 
-instance Unital b => Unital (a -> b) where
+instance (Unital b) => Unital (a -> b) where
   {-# INLINE unit #-}
   unit _ = unit
 
@@ -64,31 +64,31 @@ instance Unital b => Unital (a -> b) where
 --
 -- > (a ⊕ b) ⊕ c = a ⊕ (b ⊕ c)
 class
-  Magma a =>
+  (Magma a) =>
   Associative a
 
-instance Associative b => Associative (a -> b)
+instance (Associative b) => Associative (a -> b)
 
 -- | A Commutative Magma is a Magma where the binary operation is
 -- <https://en.wikipedia.org/wiki/Commutative_property commutative>.
 --
 -- > a ⊕ b = b ⊕ a
 class
-  Magma a =>
+  (Magma a) =>
   Commutative a
 
-instance Commutative b => Commutative (a -> b)
+instance (Commutative b) => Commutative (a -> b)
 
 -- | An Invertible Magma
 --
 -- > ∀ a,b ∈ T: inv a ⊕ (a ⊕ b) = b = (b ⊕ a) ⊕ inv a
 class
-  Magma a =>
+  (Magma a) =>
   Invertible a
   where
   inv :: a -> a
 
-instance Invertible b => Invertible (a -> b) where
+instance (Invertible b) => Invertible (a -> b) where
   {-# INLINE inv #-}
   inv f = inv . f
 
@@ -103,12 +103,12 @@ instance (Associative a, Unital a, Invertible a) => Group a
 --
 -- > a ⊕ absorb = absorb
 class
-  Magma a =>
+  (Magma a) =>
   Absorbing a
   where
   absorb :: a
 
-instance Absorbing b => Absorbing (a -> b) where
+instance (Absorbing b) => Absorbing (a -> b) where
   {-# INLINE absorb #-}
   absorb _ = absorb
 
@@ -117,10 +117,10 @@ instance Absorbing b => Absorbing (a -> b) where
 --
 -- > a ⊕ a = a
 class
-  Magma a =>
+  (Magma a) =>
   Idempotent a
 
-instance Idempotent b => Idempotent (a -> b)
+instance (Idempotent b) => Idempotent (a -> b)
 
 -- | An <https://en.wikipedia.org/wiki/Abelian_group Abelian Group> is an
 --   Associative, Unital, Invertible and Commutative Magma . In other words, it

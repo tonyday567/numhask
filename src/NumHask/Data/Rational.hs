@@ -50,8 +50,8 @@ instance (P.Eq a, Subtractive a, Signed a, Integral a) => P.Eq (Ratio a) where
     | xa == zero P.&& xb == zero = P.True
     | xa == zero P.|| xb == zero = P.False
     | P.otherwise =
-      let (xa' :% ya', xb' :% yb') = (reduce xa ya, reduce xb yb)
-       in (xa' P.== xb') P.&& (ya' P.== yb')
+        let (xa' :% ya', xb' :% yb') = (reduce xa ya, reduce xb yb)
+         in (xa' P.== xb') P.&& (ya' P.== yb')
 
 -- | Has a zero denominator
 isRNaN :: (P.Eq a, Additive a) => Ratio a -> P.Bool

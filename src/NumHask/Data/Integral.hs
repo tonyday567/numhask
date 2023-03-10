@@ -114,7 +114,7 @@ instance Integral Word64 where
   divMod = P.divMod
   quotRem = P.quotRem
 
-instance Integral b => Integral (a -> b) where
+instance (Integral b) => Integral (a -> b) where
   div f f' a = f a `div` f' a
   mod f f' a = f a `mod` f' a
   divMod f f' = (\a -> fst (f a `divMod` f' a), \a -> snd (f a `divMod` f' a))
