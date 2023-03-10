@@ -5,43 +5,30 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.2.2']
+        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.2.5', '9.4.4']
         os: [ubuntu-latest]
-        manager: ['cabal']
         docspec: [false]
         experimental: [false]
         include:
           - os: windows-latest
-            ghc: '8.10.7'
+            ghc: '9.4.3'
             experimental: true
-            manager: 'cabal'
           - os: macOS-latest
-            ghc: '8.10.7'
+            ghc: '9.2.5'
             experimental: true
-            manager: 'cabal'
           - os: ubuntu-latest
-            ghc: '8.10.7'
+            ghc: '9.2.5'
             experimental: true
-            manager: 'stack'
-          - os: ubuntu-latest
-            ghc: '8.10.7'
-            experimental: true
-            manager: 'cabal'
             docspec: true
     continue-on-error: true
-    name: ghc ${{ matrix.ghc }} ${{ matrix.os }} ${{ matrix.manager }}
+    name: ghc ${{ matrix.ghc }} ${{ matrix.os }}
     steps:
-      - name: clone project
-        uses: actions/checkout@v2
-      - name: setup stanza
-        uses: haskell/actions/setup@v1
+      - uses: actions/checkout@v3
+      - uses: haskell/actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
-          enable-stack: ${{ matrix.manager == 'stack' }}
-          stack-version: 'latest'
-      - name: cabal cache
-        if: (matrix.manager == 'cabal')
-        uses: actions/cache@v2
+          enable-stack: false
+      - uses: actions/cache@v3
         with:
           key: ${{ runner.os }}-${{ matrix.ghc }}-${{ github.sha }}
           path: ~/.cabal/store
@@ -58,24 +45,11 @@ jobs:
           chmod a+x $HOME/.cabal/bin/cabal-docspec
           $HOME/.cabal/bin/cabal-docspec --version
       - name: cabal build
-        if: (matrix.manager == 'cabal')
         run: |
           cabal update
           cabal configure --enable-tests
           cabal build
           cabal test
-      - name: stack cache
-        if: (matrix.manager == 'stack')
-        uses: actions/cache@v1
-        with:
-          path: ~/.stack
-          key: ${{ runner.os }}-${{ hashFiles('stack.yaml') }}
-          restore-keys: ${{ runner.os }}-
-      - name: stack build
-        if: (matrix.manager == 'stack')
-        run: |
-          stack update
-          stack build --test --no-install-ghc --system-ghc
       - if: matrix.docspec
         name: run cabal-docspec
         run: cabal-docspec --check-properties

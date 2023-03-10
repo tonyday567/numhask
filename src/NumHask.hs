@@ -218,10 +218,10 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- >>> :set -XNoRebindableSyntax
 -- >>> :t 1
--- 1 :: Num p => p
+-- 1 :: Num a => a
 --
 -- >>> :t 1.0
--- 1.0 :: Fractional p => p
+-- 1.0 :: Fractional a => a
 --
 -- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to the numhask types, 'FromInteger' and 'FromRational':
 --
@@ -275,7 +275,6 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- The class heirarchy looks somewhat like this:
 -- ![classes](other/nh.svg)
---
 
 -- $mapping
 --

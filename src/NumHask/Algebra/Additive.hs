@@ -183,9 +183,9 @@ instance Additive Word64 where
 instance Subtractive Word64 where
   negate = P.negate
 
-instance Additive b => Additive (a -> b) where
+instance (Additive b) => Additive (a -> b) where
   f + f' = \a -> f a + f' a
   zero _ = zero
 
-instance Subtractive b => Subtractive (a -> b) where
+instance (Subtractive b) => Subtractive (a -> b) where
   negate f = negate P.. f

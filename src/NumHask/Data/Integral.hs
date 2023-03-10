@@ -114,7 +114,7 @@ instance Integral Word64 where
   divMod = P.divMod
   quotRem = P.quotRem
 
-instance Integral b => Integral (a -> b) where
+instance (Integral b) => Integral (a -> b) where
   div f f' a = f a `div` f' a
   mod f f' a = f a `mod` f' a
   divMod f f' = (\a -> fst (f a `divMod` f' a), \a -> snd (f a `divMod` f' a))
@@ -129,8 +129,6 @@ class ToIntegral a b where
   {-# MINIMAL toIntegral #-}
 
   toIntegral :: a -> b
-  default toIntegral :: (a ~ b) => a -> b
-  toIntegral = P.id
 
 instance ToIntegral Integer Integer where
   toIntegral = P.id
@@ -241,8 +239,6 @@ class FromIntegral a b where
   {-# MINIMAL fromIntegral #-}
 
   fromIntegral :: b -> a
-  default fromIntegral :: (a ~ b) => b -> a
-  fromIntegral = P.id
 
 instance (FromIntegral a b) => FromIntegral (c -> a) b where
   fromIntegral i _ = fromIntegral i

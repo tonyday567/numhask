@@ -3,6 +3,7 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
@@ -84,13 +85,13 @@ instance (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
 -- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
 -- > Identity: x \/ bottom == x
-class JoinSemiLattice a => BoundedJoinSemiLattice a where
+class (JoinSemiLattice a) => BoundedJoinSemiLattice a where
   bottom :: a
 
 -- | A meet-semilattice with an identity element 'top' for '/\'.
 --
 -- > Identity: x /\ top == x
-class MeetSemiLattice a => BoundedMeetSemiLattice a where
+class (MeetSemiLattice a) => BoundedMeetSemiLattice a where
   top :: a
 
 -- | Lattices with both bounds

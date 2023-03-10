@@ -1,5 +1,4 @@
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -50,8 +49,8 @@ instance (P.Eq a, Subtractive a, Signed a, Integral a) => P.Eq (Ratio a) where
     | xa == zero P.&& xb == zero = P.True
     | xa == zero P.|| xb == zero = P.False
     | P.otherwise =
-      let (xa' :% ya', xb' :% yb') = (reduce xa ya, reduce xb yb)
-       in (xa' P.== xb') P.&& (ya' P.== yb')
+        let (xa' :% ya', xb' :% yb') = (reduce xa ya, reduce xb yb)
+         in (xa' P.== xb') P.&& (ya' P.== yb')
 
 -- | Has a zero denominator
 isRNaN :: (P.Eq a, Additive a) => Ratio a -> P.Bool
@@ -59,7 +58,7 @@ isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
 
-instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => P.Ord (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Subtractive a) => P.Ord (Ratio a) where
   (x :% y) <= (x' :% y') = x * y' P.<= x' * y
   (x :% y) < (x' :% y') = x * y' P.< x' * y
 
@@ -75,7 +74,7 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Additive (Ratio a) where
 instance (P.Ord a, Signed a, Integral a, Ring a) => Subtractive (Ratio a) where
   negate (x :% y) = negate x :% y
 
-instance (P.Ord a, Signed a, Integral a, Ring a, Multiplicative a) => Multiplicative (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Multiplicative (Ratio a) where
   (x :% y) * (x' :% y') = reduce (x * x') (y * y')
 
   one = one :% one
@@ -107,10 +106,10 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) whe
   norm = abs
   basis = sign
 
-instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => JoinSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Subtractive a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
 
-instance (P.Ord a, Integral a, Signed a, Multiplicative a, Subtractive a) => MeetSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, Signed a, Subtractive a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
 instance (P.Ord a, Signed a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
@@ -124,8 +123,6 @@ instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
 -- 13176795 :% 4194304
 class ToRatio a b where
   toRatio :: a -> Ratio b
-  default toRatio :: (Ratio c ~ a, FromIntegral b c, ToRatio (Ratio b) b) => a -> Ratio b
-  toRatio (n :% d) = toRatio ((fromIntegral n :: b) :% fromIntegral d)
 
 instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
@@ -181,8 +178,6 @@ instance ToRatio Word64 Integer where
 -- 2.5
 class FromRatio a b where
   fromRatio :: Ratio b -> a
-  default fromRatio :: (Ratio b ~ a) => Ratio b -> a
-  fromRatio = P.id
 
 fromBaseRational :: P.Rational -> Ratio Integer
 fromBaseRational (n GHC.Real.:% d) = n :% d

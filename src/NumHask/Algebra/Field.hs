@@ -69,7 +69,7 @@ instance Field P.Double
 
 instance Field P.Float
 
-instance Field b => Field (a -> b)
+instance (Field b) => Field (a -> b)
 
 -- | A hyperbolic field class
 --
@@ -109,7 +109,7 @@ instance ExpField P.Float where
   log = P.log
   (**) = (P.**)
 
-instance ExpField b => ExpField (a -> b) where
+instance (ExpField b) => ExpField (a -> b) where
   exp f = exp . f
   log f = log . f
 
@@ -189,7 +189,7 @@ instance QuotientField P.Float P.Int where
 instance QuotientField P.Double P.Int where
   properFraction = P.properFraction
 
-instance QuotientField b c => QuotientField (a -> b) (a -> c) where
+instance (QuotientField b c) => QuotientField (a -> b) (a -> c) where
   properFraction f = (P.fst . frac, P.snd . frac)
     where
       frac a = properFraction @b @c (f a)
@@ -276,7 +276,7 @@ instance TrigField P.Float where
   acosh = P.acosh
   atanh = P.atanh
 
-instance TrigField b => TrigField (a -> b) where
+instance (TrigField b) => TrigField (a -> b) where
   pi _ = pi
   sin f = sin . f
   cos f = cos . f

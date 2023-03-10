@@ -147,9 +147,9 @@ instance Multiplicative Word64 where
   (*) = (P.*)
   one = 1
 
-instance Multiplicative b => Multiplicative (a -> b) where
+instance (Multiplicative b) => Multiplicative (a -> b) where
   f * f' = \a -> f a * f' a
   one _ = one
 
-instance Divisive b => Divisive (a -> b) where
+instance (Divisive b) => Divisive (a -> b) where
   recip f = recip P.. f
