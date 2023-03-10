@@ -1,5 +1,4 @@
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -124,8 +123,6 @@ instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
 -- 13176795 :% 4194304
 class ToRatio a b where
   toRatio :: a -> Ratio b
-  default toRatio :: (Ratio c ~ a, FromIntegral b c, ToRatio (Ratio b) b) => a -> Ratio b
-  toRatio (n :% d) = toRatio ((fromIntegral n :: b) :% fromIntegral d)
 
 instance ToRatio Double Integer where
   toRatio = fromBaseRational . P.toRational
@@ -181,8 +178,6 @@ instance ToRatio Word64 Integer where
 -- 2.5
 class FromRatio a b where
   fromRatio :: Ratio b -> a
-  default fromRatio :: (Ratio b ~ a) => Ratio b -> a
-  fromRatio = P.id
 
 fromBaseRational :: P.Rational -> Ratio Integer
 fromBaseRational (n GHC.Real.:% d) = n :% d

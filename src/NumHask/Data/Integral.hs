@@ -129,8 +129,6 @@ class ToIntegral a b where
   {-# MINIMAL toIntegral #-}
 
   toIntegral :: a -> b
-  default toIntegral :: (a ~ b) => a -> b
-  toIntegral = P.id
 
 instance ToIntegral Integer Integer where
   toIntegral = P.id
@@ -241,8 +239,6 @@ class FromIntegral a b where
   {-# MINIMAL fromIntegral #-}
 
   fromIntegral :: b -> a
-  default fromIntegral :: (a ~ b) => b -> a
-  fromIntegral = P.id
 
 instance (FromIntegral a b) => FromIntegral (c -> a) b where
   fromIntegral i _ = fromIntegral i
