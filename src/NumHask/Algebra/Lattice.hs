@@ -3,6 +3,7 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
@@ -96,7 +97,7 @@ class MeetSemiLattice a => BoundedMeetSemiLattice a where
 -- | Lattices with both bounds
 class (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
 
-instance (BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
+instance (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
 
 instance JoinSemiLattice Float where
   (\/) = min
