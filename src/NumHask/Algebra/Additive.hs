@@ -4,6 +4,7 @@
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
+    Sum (..),
     sum,
     accsum,
     Subtractive (..),
@@ -46,12 +47,23 @@ class Additive a where
 
   zero :: a
 
+-- | A wrapper for an Additive which distinguishes the additive structure
+newtype Sum a = Sum {
+  getSum :: a
+}
+
+instance Additive a => P.Semigroup (Sum a) where
+  Sum a <> Sum b = Sum (a + b)
+
+instance Additive a => P.Monoid (Sum a) where
+  mempty = Sum zero
+
 -- | Compute the sum of a 'Data.Foldable.Foldable'.
 --
 -- >>> sum [0..10]
 -- 55
 sum :: (Additive a, P.Foldable f) => f a -> a
-sum = foldl' (+) zero
+sum = getSum P.. P.foldMap Sum
 
 -- | Compute the accumulating sum of a 'Data.Traversable.Traversable'.
 --

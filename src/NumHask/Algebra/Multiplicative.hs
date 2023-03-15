@@ -4,6 +4,7 @@
 -- | Multiplicative classes
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
+    Product (..),
     product,
     accproduct,
     Divisive (..),
@@ -44,12 +45,23 @@ class Multiplicative a where
 
   one :: a
 
+-- | A wrapper for an Multiplicative which distinguishes the multiplicative structure
+newtype Product a = Product {
+  getProduct :: a
+}
+
+instance Multiplicative a => P.Semigroup (Product a) where
+  Product a <> Product b = Product (a * b)
+
+instance Multiplicative a => P.Monoid (Product a) where
+  mempty = Product one
+
 -- | Compute the product of a 'Data.Foldable.Foldable'.
 --
 -- >>> product [1..5]
 -- 120
 product :: (Multiplicative a, P.Foldable f) => f a -> a
-product = P.foldr (*) one
+product = getProduct P.. P.foldMap Product
 
 -- | Compute the accumulating product of a 'Data.Traversable.Traversable'.
 --
