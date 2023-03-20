@@ -252,7 +252,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents.
 -- Principles that have guided design include:
 --
--- - __/balanced class density/__. The numeric heirarchy begins with addition and multiplication,
+-- - __/balanced class density/__. The numeric hierarchy begins with addition and multiplication,
 --   choosing not to build from a Magma base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
 --
 -- - __/operator-first/__. In most cases, a class exists to define useful operators.
@@ -273,12 +273,12 @@ import NumHask.Exception (NumHaskException (..), throw)
 
 -- $pictures
 --
--- The class heirarchy looks somewhat like this:
+-- The class hierarchy looks somewhat like this:
 -- ![classes](other/nh.svg)
 
 -- $mapping
 --
--- 'GHC.Num' is a very old part of haskell, and is virtually unchanged since it's specification in
+-- 'GHC.Num' is a very old part of haskell, and is virtually unchanged since its specification in
 -- [haskell98](https://www.haskell.org/onlinereport/standard-prelude.html).
 --
 -- A deconstruction of 'GHC.Num.Num' and mapping to numhask.
@@ -297,7 +297,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- '(*)' is an operator of the 'Multiplicative' class.
 --
--- 'zero' and 'one' are also introduced to the numeric heirarchy.
+-- 'zero' and 'one' are also introduced to the numeric hierarchy.
 --
 -- >    -- | Absolute value.
 -- >    abs                 :: a -> a
