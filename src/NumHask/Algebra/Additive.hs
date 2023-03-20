@@ -14,10 +14,11 @@ where
 import Control.Applicative
 import Data.Foldable (foldl')
 import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Semigroup (Semigroup (..))
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import Prelude (Applicative, Bool, Double, Float, Functor, Int, Integer, fromInteger, ($))
+import Prelude (Applicative, Bool, Double, Eq, Float, Functor, Int, Integer, Ord, Show, fromInteger, ($))
 import qualified Prelude as P
 
 -- $setup
@@ -50,7 +51,7 @@ class Additive a where
 -- | A wrapper for an Additive which distinguishes the additive structure
 newtype Sum a = Sum {
   getSum :: a
-}
+} deriving (Eq, Ord, Show)
 
 instance Additive a => P.Semigroup (Sum a) where
   Sum a <> Sum b = Sum (a + b)

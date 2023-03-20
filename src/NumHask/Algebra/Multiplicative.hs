@@ -15,7 +15,7 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import Prelude (Double, Float, Int, Integer, fromInteger, fromRational)
+import Prelude (Double, Eq, Float, Int, Integer, Ord, Show, fromInteger, fromRational)
 import qualified Prelude as P
 
 -- $setup
@@ -48,7 +48,7 @@ class Multiplicative a where
 -- | A wrapper for an Multiplicative which distinguishes the multiplicative structure
 newtype Product a = Product {
   getProduct :: a
-}
+} deriving (Eq, Ord, Show)
 
 instance Multiplicative a => P.Semigroup (Product a) where
   Product a <> Product b = Product (a * b)
