@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Ring classes
@@ -19,7 +17,7 @@ import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
 import NumHask.Algebra.Group (Idempotent)
 import NumHask.Algebra.Multiplicative (Multiplicative (..))
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --
@@ -87,13 +85,7 @@ instance (Distributive b) => Distributive (a -> b)
 -- > \a b c -> (a + b) * c == a * c + b * c
 -- > \a -> zero * a == zero
 -- > \a -> a * zero == zero
-class
-  (Distributive a, Subtractive a) =>
-  Ring a
-
-instance
-  (Distributive a, Subtractive a) =>
-  Ring a
+type Ring a = (Distributive a, Subtractive a)
 
 -- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
 --

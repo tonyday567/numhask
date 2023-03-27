@@ -1,10 +1,3 @@
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Rational classes
@@ -24,7 +17,7 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Float
 import GHC.Natural (Natural (..))
-import qualified GHC.Real
+import GHC.Real qualified
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
@@ -33,7 +26,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), Rational, (.))
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --

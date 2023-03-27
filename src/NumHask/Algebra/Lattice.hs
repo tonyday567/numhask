@@ -1,7 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
@@ -15,12 +11,13 @@ module NumHask.Algebra.Lattice
     (</),
     BoundedJoinSemiLattice (..),
     BoundedMeetSemiLattice (..),
+    Lattice,
+    BoundedLattice,
   )
 where
 
 import Data.Bool (Bool (..), (&&), (||))
 import Data.Eq (Eq ((==)))
-import Data.Function (const)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord (Ord (..))
 import Data.Word (Word16, Word32, Word64, Word8)
@@ -78,9 +75,7 @@ infixr 6 </
 -- see [Absorption Law](http://en.wikipedia.org/wiki/Absorption_law) and [Lattice](http://en.wikipedia.org/wiki/Lattice_(order\))
 --
 -- > Absorption: a \/ (a /\ b) == a /\ (a \/ b) == a
-class (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
-
-instance (JoinSemiLattice a, MeetSemiLattice a) => Lattice a
+type Lattice a = (JoinSemiLattice a, MeetSemiLattice a)
 
 -- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
@@ -95,9 +90,7 @@ class (MeetSemiLattice a) => BoundedMeetSemiLattice a where
   top :: a
 
 -- | Lattices with both bounds
-class (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
-
-instance (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a) => BoundedLattice a
+type BoundedLattice a = (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a)
 
 instance JoinSemiLattice Float where
   (\/) = min
@@ -189,14 +182,6 @@ instance JoinSemiLattice Word64 where
 instance MeetSemiLattice Word64 where
   (/\) = max
 
-instance (Eq (a -> b), JoinSemiLattice b) => JoinSemiLattice (a -> b) where
-  f \/ f' = \a -> f a \/ f' a
-
-instance (Eq (a -> b), MeetSemiLattice b) => MeetSemiLattice (a -> b) where
-  f /\ f' = \a -> f a /\ f' a
-
--- from here
-
 instance BoundedJoinSemiLattice Float where
   bottom = negInfinity
 
@@ -277,9 +262,3 @@ instance BoundedJoinSemiLattice Word64 where
 
 instance BoundedMeetSemiLattice Word64 where
   top = maxBound
-
-instance (Eq (a -> b), BoundedJoinSemiLattice b) => BoundedJoinSemiLattice (a -> b) where
-  bottom = const bottom
-
-instance (Eq (a -> b), BoundedMeetSemiLattice b) => BoundedMeetSemiLattice (a -> b) where
-  top = const top

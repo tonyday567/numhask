@@ -1,9 +1,3 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveTraversable #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Complex numbers.
@@ -38,7 +32,7 @@ import Prelude hiding
     sqrt,
     (/),
   )
-import qualified Prelude as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
+import Prelude qualified as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
 
 -- -----------------------------------------------------------------------------
 -- The Complex type

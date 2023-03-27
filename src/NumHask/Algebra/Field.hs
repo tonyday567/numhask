@@ -1,9 +1,4 @@
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
@@ -29,7 +24,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring (Distributive, two)
 import NumHask.Data.Integral (Integral, even)
 import Prelude ((.))
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --

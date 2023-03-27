@@ -1,7 +1,4 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -34,7 +31,7 @@ import Prelude hiding
     (*),
     (-),
   )
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --

@@ -1,4 +1,4 @@
-cabal-version:      2.4
+cabal-version:      3.4
 name:               numhask
 version:            0.10.1.1
 synopsis:           A numeric class hierarchy.
@@ -37,7 +37,9 @@ source-repository head
   subdir:   numhask
 
 library
-  hs-source-dirs:           src
+  hs-source-dirs: src
+  default-language: GHC2021
+  default-extensions: RebindableSyntax
   ghc-options:
     -Wall -Wcompat -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wredundant-constraints
@@ -64,13 +66,12 @@ library
     NumHask.Prelude
 
   other-modules:
-  default-language:         Haskell2010
 
 test-suite doctests
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
   hs-source-dirs:   test
-  default-language: Haskell2010
+  default-language: GHC2021
   build-depends:
     , base
     , QuickCheck
