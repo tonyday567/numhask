@@ -26,7 +26,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), Rational, (.))
-import Prelude qualified as P
+import qualified Prelude as P
 
 -- $setup
 --

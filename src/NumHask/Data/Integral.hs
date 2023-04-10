@@ -21,7 +21,7 @@ import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import Prelude (Double, Float, Int, Integer, fst, snd, (.))
-import Prelude qualified as P
+import qualified Prelude as P
 
 -- $setup
 --

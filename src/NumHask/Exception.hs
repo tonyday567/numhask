@@ -9,7 +9,7 @@ where
 
 import Control.Exception
 import Data.Typeable (Typeable)
-import Prelude qualified as P
+import qualified Prelude as P
 
 -- | A numhask exception.
 newtype NumHaskException = NumHaskException {errorMessage :: P.String}

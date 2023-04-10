@@ -31,7 +31,7 @@ import Prelude hiding
     (*),
     (-),
   )
-import Prelude qualified as P
+import qualified Prelude as P
 
 -- $setup
 --

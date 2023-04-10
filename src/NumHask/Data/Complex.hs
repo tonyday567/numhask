@@ -32,7 +32,7 @@ import Prelude hiding
     sqrt,
     (/),
   )
-import Prelude qualified as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
+import qualified Prelude as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
 
 -- -----------------------------------------------------------------------------
 -- The Complex type
