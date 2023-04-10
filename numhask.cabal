@@ -88,7 +88,7 @@ common ghc2021-stanza
       TypeApplications
       TypeOperators
       TypeSynonymInstances
-  if impl(ghc <9.2) && (ghc >=8.10)
+  if impl(ghc <9.2) && impl(ghc >=8.10)
     default-extensions:
       ImportQualifiedPost
 
@@ -107,8 +107,10 @@ library
   import: ghc-options-stanza
   hs-source-dirs: src
   default-extensions: RebindableSyntax
-  x-docspec-extra-packages: QuickCheck
-  build-depends:            base >=4.7 && <5
+  -- x-docspec-extra-packages: QuickCheck
+  build-depends:
+    base >=4.7 && <5,
+    QuickCheck >=2.14 && <2.15
   exposed-modules:
     NumHask
     NumHask.Algebra.Additive
