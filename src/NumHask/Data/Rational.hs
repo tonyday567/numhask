@@ -17,7 +17,7 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Float
 import GHC.Natural (Natural (..))
-import GHC.Real qualified
+import qualified GHC.Real
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
