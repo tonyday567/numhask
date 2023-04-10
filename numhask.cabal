@@ -67,7 +67,6 @@ common ghc2021-stanza
       GeneralisedNewtypeDeriving
       HexFloatLiterals
       ImplicitPrelude
-      ImportQualifiedPost
       InstanceSigs
       KindSignatures
       MonomorphismRestriction
@@ -89,6 +88,9 @@ common ghc2021-stanza
       TypeApplications
       TypeOperators
       TypeSynonymInstances
+  if impl(ghc <9.2) && (ghc >=8.10)
+    default-extensions:
+      ImportQualifiedPost
 
 common ghc-options-stanza
   ghc-options:
