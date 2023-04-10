@@ -4,4 +4,4 @@ packages: numhask.cabal
 write-ghc-environment-files: always
 
 -- Might be helpful when hackage doesn't build properly...
-keep-going: True
+-- keep-going: True

@@ -26,7 +26,7 @@ license:            BSD-3-Clause
 license-file:       LICENSE
 build-type:         Simple
 tested-with:
-  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.2.5 || ==9.4.4
+  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
 
 extra-doc-files:    other/*.svg
 extra-source-files: ChangeLog.md
@@ -36,17 +36,75 @@ source-repository head
   location: https://github.com/tonyday567/numhask
   subdir:   numhask
 
-library
-  hs-source-dirs: src
-  default-language: GHC2021
-  default-extensions: RebindableSyntax
-  ghc-options:
-    -Wall -Wcompat -Wincomplete-record-updates
-    -Wincomplete-uni-patterns -Wredundant-constraints
+common ghc2021-stanza
+  if impl(ghc >=9.2)
+    default-language:
+      GHC2021
+  if impl(ghc <9.2)
+    default-language:
+      Haskell2010
+    default-extensions:
+      BangPatterns
+      BinaryLiterals
+      ConstrainedClassMethods
+      ConstraintKinds
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      DoAndIfThenElse
+      EmptyCase
+      EmptyDataDecls
+      EmptyDataDeriving
+      ExistentialQuantification
+      ExplicitForAll
+      FlexibleContexts
+      FlexibleInstances
+      ForeignFunctionInterface
+      GADTSyntax
+      GeneralisedNewtypeDeriving
+      HexFloatLiterals
+      ImplicitPrelude
+      ImportQualifiedPost
+      InstanceSigs
+      KindSignatures
+      MonomorphismRestriction
+      MultiParamTypeClasses
+      NamedFieldPuns
+      NamedWildCards
+      NumericUnderscores
+      PatternGuards
+      PolyKinds
+      PostfixOperators
+      RankNTypes
+      RelaxedPolyRec
+      ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      StarIsType
+      TraditionalRecordSyntax
+      TupleSections
+      TypeApplications
+      TypeOperators
+      TypeSynonymInstances
 
+common ghc-options-stanza
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
   if impl(ghc >=8.8)
     ghc-options: -fwrite-ide-info -hiedir=.hie
 
+library
+  import: ghc2021-stanza
+  import: ghc-options-stanza
+  hs-source-dirs: src
+  default-extensions: RebindableSyntax
   x-docspec-extra-packages: QuickCheck
   build-depends:            base >=4.7 && <5
   exposed-modules:
