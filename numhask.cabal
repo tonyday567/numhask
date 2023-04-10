@@ -129,7 +129,9 @@ test-suite doctests
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
   hs-source-dirs:   test
-  default-language: GHC2021
+  import: ghc2021-stanza
+  import: ghc-options-stanza
+  default-extensions: RebindableSyntax
   build-depends:
     , base
     , QuickCheck
