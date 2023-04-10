@@ -126,11 +126,11 @@ library
   other-modules:
 
 test-suite doctests
+  import: ghc2021-stanza
+  import: ghc-options-stanza
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
   hs-source-dirs:   test
-  import: ghc2021-stanza
-  import: ghc-options-stanza
   default-extensions: RebindableSyntax
   build-depends:
     , base

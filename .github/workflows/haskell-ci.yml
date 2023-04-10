@@ -17,7 +17,7 @@ jobs:
             ghc: '9.6.1'
             experimental: true
           - os: ubuntu-latest
-            ghc: '9.2.7'
+            ghc: '9.4.4'
             experimental: true
             docspec: true
     continue-on-error: true
