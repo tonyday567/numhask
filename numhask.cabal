@@ -11,6 +11,7 @@ description:
   .
   == Usage
   .
+  >>> {-# LANGUAGE GHC2021 #-}
   >>> {-# LANGUAGE RebindableSyntax #-}
   >>> import NumHask.Prelude
   .
@@ -100,17 +101,20 @@ common ghc-options-stanza
     -Wincomplete-uni-patterns
     -Wredundant-constraints
   if impl(ghc >=8.8)
-    ghc-options: -fwrite-ide-info -hiedir=.hie
+    ghc-options:
+      -fwrite-ide-info
+      -hiedir=.hie
 
 library
   import: ghc2021-stanza
   import: ghc-options-stanza
   hs-source-dirs: src
-  default-extensions: RebindableSyntax
-  -- x-docspec-extra-packages: QuickCheck
+  default-extensions:
+    RebindableSyntax
   build-depends:
     base >=4.7 && <5,
-    QuickCheck >=2.14 && <2.15
+    -- just here for cabal-docspec
+    QuickCheck >=2.14 && <3
   exposed-modules:
     NumHask
     NumHask.Algebra.Additive

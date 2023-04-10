@@ -17,7 +17,7 @@ import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
 import Prelude (Applicative, Bool, Double, Float, Functor, Int, Integer, fromInteger, ($))
-import Prelude qualified as P
+import qualified Prelude as P
 
 -- $setup
 --
