@@ -81,7 +81,6 @@ common ghc2021-stanza
       RelaxedPolyRec
       ScopedTypeVariables
       StandaloneDeriving
-      StandaloneKindSignatures
       StarIsType
       TraditionalRecordSyntax
       TupleSections
@@ -91,6 +90,7 @@ common ghc2021-stanza
   if impl(ghc <9.2) && impl(ghc >=8.10)
     default-extensions:
       ImportQualifiedPost
+      StandaloneKindSignatures
 
 common ghc-options-stanza
   ghc-options:
