@@ -1,5 +1,4 @@
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Algebra for Modules
@@ -94,4 +93,4 @@ a /. b = a *. recip b
 -- > c *. (a + b) == (c *. a) + (c *. b)
 -- > a .* zero == zero
 -- > a .* b == b *. a
-class (Distributive a, MultiplicativeAction m a) => Module m a
+type Module m a = (Distributive a, MultiplicativeAction m a)

@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Ring classes
@@ -87,13 +85,7 @@ instance (Distributive b) => Distributive (a -> b)
 -- > \a b c -> (a + b) * c == a * c + b * c
 -- > \a -> zero * a == zero
 -- > \a -> a * zero == zero
-class
-  (Distributive a, Subtractive a) =>
-  Ring a
-
-instance
-  (Distributive a, Subtractive a) =>
-  Ring a
+type Ring a = (Distributive a, Subtractive a)
 
 -- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
 --
