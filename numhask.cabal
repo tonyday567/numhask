@@ -111,9 +111,10 @@ library
   hs-source-dirs: src
   default-extensions:
     RebindableSyntax
+    NoImportQualifiedPost
   build-depends:
     base >=4.7 && <5,
-    -- just here for cabal-docspec
+    -- just for cabal-docspec
     QuickCheck >=2.14 && <3
   exposed-modules:
     NumHask
