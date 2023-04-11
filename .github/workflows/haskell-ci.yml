@@ -49,7 +49,7 @@ jobs:
           rm -f cabal-docspec.xz
           chmod a+x $HOME/.cabal/bin/cabal-docspec
           $HOME/.cabal/bin/cabal-docspec --version
-      - if: matrix-ormolu
+      - if: matrix.ormolu
         name: ormolu
         uses: haskell-actions/run-ormolu@v11
       - name: cabal build
