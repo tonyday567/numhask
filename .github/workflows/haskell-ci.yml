@@ -33,6 +33,7 @@ jobs:
     continue-on-error: true
     name: ghc ${{ matrix.ghc }} ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/checkout@v3
       - uses: haskell/actions/setup@v2
         with:
@@ -59,7 +60,6 @@ jobs:
         uses: haskell-actions/run-ormolu@v11
       - if: matrix.hlint
         name: hlint
-        uses: actions/checkout@v2
         uses: rwe/actions-hlint-run@v2
         with:
           path: .
