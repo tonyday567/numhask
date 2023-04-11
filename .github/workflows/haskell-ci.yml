@@ -9,6 +9,7 @@ jobs:
         os: [ubuntu-latest]
         docspec: [false]
         ormolu: [false]
+        hlint: [false]
         experimental: [false]
         include:
           - os: windows-latest
@@ -25,6 +26,10 @@ jobs:
             ghc: '9.6.1'
             experimental: true
             ormolu: true
+          - os: ubuntu-latest
+            ghc: '9.6.1'
+            experimental: true
+            ormolu: hlint
     continue-on-error: true
     name: ghc ${{ matrix.ghc }} ${{ matrix.os }}
     steps:
@@ -52,6 +57,13 @@ jobs:
       - if: matrix.ormolu
         name: ormolu
         uses: haskell-actions/run-ormolu@v11
+      - if: matrix.hlint
+        name: hlint
+        uses: actions/checkout@v2
+        uses: rwe/actions-hlint-run@v2
+        with:
+          path: .
+          fail-on: warning
       - name: cabal build
         run: |
           cabal update
