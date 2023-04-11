@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# OPTIONS_GHC -Wall #-}
 
@@ -115,8 +116,9 @@ instance (ExpField b) => ExpField (a -> b) where
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
 -- prop> (\a -> a - one < fromIntegral (floor a :: Int) && fromIntegral (floor a :: Int) <= a && a <= fromIntegral (ceiling a :: Int) && fromIntegral (ceiling a :: Int) <= a + one) :: Double -> Bool
 -- prop> \a -> (round a :: Int) ~= (floor (a + half) :: Int)
-class (Field a, Multiplicative b, Additive b) => QuotientField a b where
-  properFraction :: a -> (b, a)
+class (Field a) => QuotientField a where
+
+  properFraction :: (Integral b) => a -> (b, a)
 
   -- | round to the nearest integral
   --
@@ -127,8 +129,8 @@ class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   --
   -- >>> round (2.5 :: Double) :: Int
   -- 2
-  round :: a -> b
-  default round :: (P.Ord a, P.Ord b, Subtractive b, Integral b) => a -> b
+  round :: (Integral b) => a -> b
+  default round :: (P.Ord a, P.Eq b, Subtractive b, Integral b) => a -> b
   round x = case properFraction x of
     (n, r) ->
       let m = bool (n + one) (n - one) (r P.< zero)
@@ -145,8 +147,8 @@ class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   --
   -- >>> ceiling (1.001 :: Double) :: Int
   -- 2
-  ceiling :: a -> b
-  default ceiling :: (P.Ord a) => a -> b
+  ceiling :: (Integral b) => a -> b
+  default ceiling :: (P.Ord a, Integral b) => a -> b
   ceiling x = bool n (n + one) (r P.>= zero)
     where
       (n, r) = properFraction x
@@ -155,8 +157,8 @@ class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   --
   -- >>> floor (1.001 :: Double) :: Int
   -- 1
-  floor :: a -> b
-  default floor :: (P.Ord a, Subtractive b) => a -> b
+  floor :: (Integral b) => a -> b
+  default floor :: (P.Ord a, Subtractive b, Integral b) => a -> b
   floor x = bool n (n - one) (r P.< zero)
     where
       (n, r) = properFraction x
@@ -168,30 +170,32 @@ class (Field a, Multiplicative b, Additive b) => QuotientField a b where
   --
   -- >>> truncate (-1.001 :: Double) :: Int
   -- -1
-  truncate :: a -> b
-  default truncate :: (P.Ord a) => a -> b
+  truncate :: (Integral b) => a -> b
+  default truncate :: (P.Ord a, Integral b) => a -> b
   truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
-instance QuotientField P.Float P.Integer where
+{-
+instance QuotientField P.Float where
   properFraction = P.properFraction
 
-instance QuotientField P.Double P.Integer where
+instance QuotientField P.Double where
   properFraction = P.properFraction
 
-instance QuotientField P.Float P.Int where
-  properFraction = P.properFraction
+-}
 
-instance QuotientField P.Double P.Int where
-  properFraction = P.properFraction
+{-
+FIXME:
 
-instance (QuotientField b c) => QuotientField (a -> b) (a -> c) where
+instance (QuotientField b) => QuotientField (a -> b) where
   properFraction f = (P.fst . frac, P.snd . frac)
     where
-      frac a = properFraction @b @c (f a)
+      frac a = properFraction @b @(Whole b) (f a)
   round f = round . f
   ceiling f = ceiling . f
   floor f = floor . f
   truncate f = truncate . f
+
+-}
 
 -- | infinity is defined for any 'Field'.
 --

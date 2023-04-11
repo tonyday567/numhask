@@ -1,5 +1,5 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE FunctionalDependencies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
@@ -16,13 +16,14 @@ module NumHask.Algebra.Metric
   )
 where
 
+import Data.Kind
 import Data.Bool (bool)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive (Additive (zero), Subtractive (..), (-))
-import NumHask.Algebra.Module (MultiplicativeAction ((.*)))
+import NumHask.Algebra.Module (MultiplicativeAction (..))
 import NumHask.Algebra.Multiplicative (Multiplicative (one))
 import Prelude hiding
   ( Bounded (..),
@@ -158,71 +159,87 @@ instance Signed Word64 where
 -- > \a -> a == norm a .* basis a
 -- > \a -> norm (basis a) == one
 --
--- >>> norm (-0.5 :: Double) :: Double
+-- >>> norm (-0.5 :: Double)
 -- 0.5
 --
--- >>> basis (-0.5 :: Double) :: Double
+-- >>> basis (-0.5 :: Double)
 -- -1.0
-class (Additive a, Multiplicative b, Additive b) => Norm a b | a -> b where
+class (Additive a, Multiplicative (Normed a), Additive (Normed a)) => Norm a where
+  type Normed a :: Type
+
   -- | or length, or ||v||
-  norm :: a -> b
+  norm :: a -> Normed a
 
   -- | or direction, or v-hat
   basis :: a -> a
 
-instance Norm Double Double where
+instance Norm Double where
+  type instance Normed Double = Double
   norm = P.abs
   basis = P.signum
 
-instance Norm Float Float where
+instance Norm Float where
+  type instance Normed Float = Float
   norm = P.abs
   basis = P.signum
 
-instance Norm Int Int where
+instance Norm Int where
+  type instance Normed Int = Int
   norm = P.abs
   basis = P.signum
 
-instance Norm Integer Integer where
+instance Norm Integer where
+  type instance Normed Integer = Integer
   norm = P.abs
   basis = P.signum
 
-instance Norm Natural Natural where
+instance Norm Natural where
+  type instance Normed Natural = Natural
   norm = P.abs
   basis = P.signum
 
-instance Norm Int8 Int8 where
+instance Norm Int8 where
+  type instance Normed Int8 = Int8
   norm = P.abs
   basis = P.signum
 
-instance Norm Int16 Int16 where
+instance Norm Int16 where
+  type instance Normed Int16 = Int16
   norm = P.abs
   basis = P.signum
 
-instance Norm Int32 Int32 where
+instance Norm Int32 where
+  type instance Normed Int32 = Int32
   norm = P.abs
   basis = P.signum
 
-instance Norm Int64 Int64 where
+instance Norm Int64 where
+  type instance Normed Int64 = Int64
   norm = P.abs
   basis = P.signum
 
-instance Norm Word Word where
+instance Norm Word where
+  type instance Normed Word = Word
   norm = P.abs
   basis = P.signum
 
-instance Norm Word8 Word8 where
+instance Norm Word8 where
+  type instance Normed Word8 = Word8
   norm = P.abs
   basis = P.signum
 
-instance Norm Word16 Word16 where
+instance Norm Word16 where
+  type instance Normed Word16 = Word16
   norm = P.abs
   basis = P.signum
 
-instance Norm Word32 Word32 where
+instance Norm Word32 where
+  type instance Normed Word32 = Word32
   norm = P.abs
   basis = P.signum
 
-instance Norm Word64 Word64 where
+instance Norm Word64 where
+  type instance Normed Word64 = Word64
   norm = P.abs
   basis = P.signum
 
@@ -231,7 +248,7 @@ instance Norm Word64 Word64 where
 -- > distance a b >= zero
 -- > distance a a == zero
 -- > distance a b .* basis (a - b) == a - b
-distance :: (Norm a b, Subtractive a) => a -> a -> b
+distance :: (Norm a, Subtractive a) => a -> a -> Normed a
 distance a b = norm (a - b)
 
 -- | Convert between a "co-ordinated" or "higher-kinded" number and representations of an angle. Typically thought of as polar co-ordinate conversion.
@@ -240,20 +257,21 @@ distance a b = norm (a - b)
 --
 -- > ray . angle == basis
 -- > norm (ray x) == one
-class (Additive coord, Multiplicative coord, Additive dir, Multiplicative dir) => Direction coord dir | coord -> dir where
-  angle :: coord -> dir
-  ray :: dir -> coord
+class (Additive coord, Multiplicative coord, Additive (Dir coord), Multiplicative (Dir coord)) => Direction coord where
+  type Dir coord :: Type
+  angle :: coord -> Dir coord
+  ray :: Dir coord -> coord
 
 -- | Something that has a magnitude and a direction.
-data Polar mag dir = Polar {magnitude :: !mag, direction :: !dir}
-  deriving (Eq, Show, Generic)
+data Polar a = Polar {magnitude :: !(Normed a), direction :: !(Dir a)}
+  deriving (Generic)
 
 -- | Convert from a number to a Polar.
-polar :: (Norm coord mag, Direction coord dir) => coord -> Polar mag dir
+polar :: (Norm coord, Direction coord) => coord -> Polar coord
 polar z = Polar (norm z) (angle z)
 
 -- | Convert from a Polar to a (coordinated aka higher-kinded) number.
-coord :: (MultiplicativeAction coord mag, Direction coord dir) => Polar mag dir -> coord
+coord :: (Normed coord ~ Scalar coord, MultiplicativeAction coord, Direction coord) => Polar coord -> coord
 coord (Polar m d) = m .* ray d
 
 -- | A small number, especially useful for approximate equality.

@@ -1,4 +1,6 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Rational classes
 module NumHask.Data.Rational
@@ -84,8 +86,12 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Distributive (Ratio a)
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Field (Ratio a)
 
-instance (P.Ord a, P.Ord b, Signed a, Integral a, Ring a, Signed b, Subtractive b, Integral b, FromIntegral b a) => QuotientField (Ratio a) b where
-  properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral w, r :% d)
+{-
+FIXME:
+instance (P.Ord a, Signed a, Integral a, Ring a) => QuotientField (Ratio a) where
+  properFraction (n :% d) = let (w, r) = quotRem n d in (w, r :% d)
+
+-}
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
   sign (n :% _) =
@@ -95,7 +101,8 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
       LT -> negate one
   abs (n :% d) = abs n :% abs d
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) where
+instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) where
+  type instance Normed (Ratio a) = Ratio a
   norm = abs
   basis = sign
 
