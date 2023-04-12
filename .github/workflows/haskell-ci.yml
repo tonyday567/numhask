@@ -1,40 +1,102 @@
 on: [push]
 name: haskell-ci
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.7', '9.4.4', '9.6.1']
-        os: [ubuntu-latest]
-        docspec: [false]
-        experimental: [false]
-        include:
-          - os: windows-latest
-            ghc: '9.4.3'
-            experimental: true
-          - os: macOS-latest
-            ghc: '9.6.1'
-            experimental: true
-          - os: ubuntu-latest
-            ghc: '9.4.4'
-            experimental: true
-            docspec: true
-    continue-on-error: true
-    name: ghc ${{ matrix.ghc }} ${{ matrix.os }}
+  hlint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: haskell/actions/hlint-setup@v2
+    - uses: haskell/actions/hlint-run@v2
+      with:
+        path: .
+        fail-on: warning
+  ormolu:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: haskell/actions/setup@v2
+      - uses: haskell-actions/run-ormolu@v11
+  stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: freckle/stack-action@v4
+  cabal:
+    name: GHC ${{ matrix.ghc-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        ghc-version: ['9.6', '9.4', '9.2', '9.0', '8.10', '8.8', '8.6']
+        docspec: [false]
+        experimental: [false]
+
+        include:
+          - os: windows-latest
+            ghc-version: '9.6'
+          - os: macos-latest
+            ghc-version: '9.6'
+          - os: ubuntu-latest
+            ghc-version: '9.6'
+            docspec: true
+            experimental: true
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up GHC ${{ matrix.ghc-version }}
+        uses: haskell/actions/setup@v2
+        id: setup
         with:
-          ghc-version: ${{ matrix.ghc }}
-          enable-stack: false
-      - uses: actions/cache@v3
+          ghc-version: ${{ matrix.ghc-version }}
+
+      - name: Installed minor versions of GHC and Cabal
+        shell: bash
+        run: |
+          GHC_VERSION=$(ghc --numeric-version)
+          CABAL_VERSION=$(cabal --numeric-version)
+          echo "GHC_VERSION=${GHC_VERSION}"     >> "${GITHUB_ENV}"
+          echo "CABAL_VERSION=${CABAL_VERSION}" >> "${GITHUB_ENV}"
+
+      - name: Configure the build
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build --dry-run
+        # The last step generates dist-newstyle/cache/plan.json for the cache key.
+
+      - name: Restore cached dependencies
+        uses: actions/cache/restore@v3
+        id: cache
         with:
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ github.sha }}
-          path: ~/.cabal/store
-          restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ runner.os }}-ghc-${{ env.GHC_VERSION }}-cabal-${{ env.CABAL_VERSION }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: |
+            ${{ runner.os }}-ghc-${{ env.GHC_VERSION }}-cabal-${{ env.CABAL_VERSION }}-
+
+      - name: Install dependencies
+        run: cabal build all --only-dependencies
+
+      # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
+      - name: Save cached dependencies
+        uses: actions/cache/save@v3
+        # Caches are immutable, trying to save with the same key would error.
+        if: ${{ !steps.cache.outputs.cache-hit
+          || steps.cache.outputs.cache-primary-key != steps.cache.outputs.cache-matched-key }}
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+      - name: Build
+        run: cabal build all
+
+      - name: Run tests
+        run: cabal test all
+
+      - name: Check cabal file
+        run: cabal check
+
       - if: matrix.docspec
-        name: install cabal-docspec
+        name: cabal-docspec
         run: |
           mkdir -p $HOME/.cabal/bin
           echo "$HOME/.cabal/bin" >> $GITHUB_PATH
@@ -44,12 +106,4 @@ jobs:
           rm -f cabal-docspec.xz
           chmod a+x $HOME/.cabal/bin/cabal-docspec
           $HOME/.cabal/bin/cabal-docspec --version
-      - name: cabal build
-        run: |
-          cabal update
-          cabal configure --enable-tests
-          cabal build
-          cabal test
-      - if: matrix.docspec
-        name: run cabal-docspec
-        run: cabal-docspec --check-properties
+          cabal-docspec --check-properties

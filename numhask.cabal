@@ -29,8 +29,8 @@ build-type:         Simple
 tested-with:
   GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
 
-extra-doc-files:    other/*.svg
-extra-source-files: ChangeLog.md
+extra-doc-files:    other/*.svg,
+                    ChangeLog.md
 
 source-repository head
   type:     git
@@ -111,9 +111,13 @@ library
   hs-source-dirs: src
   default-extensions:
     RebindableSyntax
+  -- keeping ormolu happy
+  if impl(ghc >=8.10)
+    default-extensions:
+      NoImportQualifiedPost
   build-depends:
     base >=4.7 && <5,
-    -- just here for cabal-docspec
+    -- keeping cabal-docspec happy
     QuickCheck >=2.14 && <3
   exposed-modules:
     NumHask
