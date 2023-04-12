@@ -1,7 +1,4 @@
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
-
 -- | Rational classes
 module NumHask.Data.Rational
   ( Ratio (..),

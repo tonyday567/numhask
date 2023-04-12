@@ -1,6 +1,5 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wall #-}
 
 -- | Field classes
 module NumHask.Algebra.Field
@@ -15,15 +14,15 @@ module NumHask.Algebra.Field
   )
 where
 
-import Data.Kind
 import Data.Bool (bool)
+import Data.Kind
 import NumHask.Algebra.Additive (Additive (..), Subtractive (..), (-))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     (/),
   )
-import NumHask.Algebra.Ring (Ring, Distributive, two)
+import NumHask.Algebra.Ring (Distributive, Ring, two)
 import NumHask.Data.Integral (Integral, even)
 import Prelude ((.))
 import qualified Prelude as P
@@ -109,10 +108,6 @@ instance ExpField P.Float where
 instance (ExpField b) => ExpField (a -> b) where
   exp f = exp . f
   log f = log . f
-
-
-
-
 
 -- | Conversion from a 'Field' to a 'NumHask.Algebra.Ring'
 --

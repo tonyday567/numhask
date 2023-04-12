@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
-
 -- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
   ( JoinSemiLattice (..),

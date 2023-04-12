@@ -1,5 +1,4 @@
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wall #-}
 
 -- | Complex numbers.
 module NumHask.Data.Complex

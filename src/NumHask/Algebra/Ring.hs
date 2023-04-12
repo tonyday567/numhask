@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-
 -- | Ring classes
 module NumHask.Algebra.Ring
   ( Distributive,

@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-
 -- | Multiplicative classes
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),

@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
@@ -10,13 +7,12 @@ module NumHask.Algebra.Additive
   )
 where
 
-import Control.Applicative
 import Data.Foldable (foldl')
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import Prelude (Applicative, Bool, Double, Float, Functor, Int, Integer, fromInteger, ($))
+import Prelude (Bool, Double, Float, Int, Integer, fromInteger)
 import qualified Prelude as P
 
 -- $setup

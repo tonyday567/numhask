@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral (..),
