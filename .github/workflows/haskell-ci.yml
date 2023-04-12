@@ -3,7 +3,6 @@ name: haskell-ci
 jobs:
   hlint:
     runs-on: ubuntu-latest
-    experimental: true
     steps:
     - uses: actions/checkout@v3
     - uses: haskell/actions/hlint-setup@v2
@@ -13,13 +12,11 @@ jobs:
         fail-on: warning
   ormolu:
     runs-on: ubuntu-latest
-    experimental: true
     steps:
       - uses: actions/checkout@v3
       - uses: haskell-actions/run-ormolu@v11
   stack:
     runs-on: ubuntu-latest
-    experimental: true
     steps:
       - uses: actions/checkout@v3
       - uses: freckle/stack-action@v4
