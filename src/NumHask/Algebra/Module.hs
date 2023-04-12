@@ -15,21 +15,21 @@ module NumHask.Algebra.Module
   )
 where
 
+import Data.Kind (Type)
 import NumHask.Algebra.Additive (Additive, Subtractive, negate)
 import NumHask.Algebra.Multiplicative (Divisive, Multiplicative, recip)
 import NumHask.Algebra.Ring (Distributive)
 import Prelude (flip)
-import Data.Kind (Type)
 
 -- | Additive Action
 class
   (Additive (AdditiveScalar m)) =>
   AdditiveAction m
   where
-    type AdditiveScalar m :: Type
+  type AdditiveScalar m :: Type
 
-    infixl 6 .+
-    (.+) :: a -> m -> m
+  infixl 6 .+
+  (.+) :: a -> m -> m
 
 infixl 6 +.
 
@@ -60,10 +60,10 @@ class
   (Multiplicative (Scalar m)) =>
   MultiplicativeAction m
   where
-    type Scalar m :: Type
+  type Scalar m :: Type
 
-    infixl 7 .*
-    (.*) :: Scalar m -> m -> m
+  infixl 7 .*
+  (.*) :: Scalar m -> m -> m
 
 infixl 7 *.
 

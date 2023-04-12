@@ -102,7 +102,7 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
   abs (n :% d) = abs n :% abs d
 
 instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) where
-  type instance Normed (Ratio a) = Ratio a
+  type Normed (Ratio a) = Ratio a
   norm = abs
   basis = sign
 

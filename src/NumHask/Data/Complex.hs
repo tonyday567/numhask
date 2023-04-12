@@ -104,12 +104,12 @@ instance
   (ExpField a) =>
   Norm (Complex a)
   where
-  type instance Normed (Complex a) = a
+  type Normed (Complex a) = a
   norm (rx :+ ix) = sqrt (rx * rx + ix * ix)
   basis x@(rx :+ ix) = rx / norm x :+ ix / norm x
 
 instance (TrigField a) => Direction (Complex a) where
-  type instance Dir (Complex a) = a
+  type Dir (Complex a) = a
   angle (x :+ y) = atan2 y x
   ray x = cos x :+ sin x
 

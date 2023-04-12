@@ -1,5 +1,5 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 
 -- | Metric classes
@@ -16,9 +16,9 @@ module NumHask.Algebra.Metric
   )
 where
 
-import Data.Kind
 import Data.Bool (bool)
 import Data.Int (Int16, Int32, Int64, Int8)
+import Data.Kind
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural (..))
@@ -174,72 +174,72 @@ class (Additive a, Multiplicative (Normed a), Additive (Normed a)) => Norm a whe
   basis :: a -> a
 
 instance Norm Double where
-  type instance Normed Double = Double
+  type Normed Double = Double
   norm = P.abs
   basis = P.signum
 
 instance Norm Float where
-  type instance Normed Float = Float
+  type Normed Float = Float
   norm = P.abs
   basis = P.signum
 
 instance Norm Int where
-  type instance Normed Int = Int
+  type Normed Int = Int
   norm = P.abs
   basis = P.signum
 
 instance Norm Integer where
-  type instance Normed Integer = Integer
+  type Normed Integer = Integer
   norm = P.abs
   basis = P.signum
 
 instance Norm Natural where
-  type instance Normed Natural = Natural
+  type Normed Natural = Natural
   norm = P.abs
   basis = P.signum
 
 instance Norm Int8 where
-  type instance Normed Int8 = Int8
+  type Normed Int8 = Int8
   norm = P.abs
   basis = P.signum
 
 instance Norm Int16 where
-  type instance Normed Int16 = Int16
+  type Normed Int16 = Int16
   norm = P.abs
   basis = P.signum
 
 instance Norm Int32 where
-  type instance Normed Int32 = Int32
+  type Normed Int32 = Int32
   norm = P.abs
   basis = P.signum
 
 instance Norm Int64 where
-  type instance Normed Int64 = Int64
+  type Normed Int64 = Int64
   norm = P.abs
   basis = P.signum
 
 instance Norm Word where
-  type instance Normed Word = Word
+  type Normed Word = Word
   norm = P.abs
   basis = P.signum
 
 instance Norm Word8 where
-  type instance Normed Word8 = Word8
+  type Normed Word8 = Word8
   norm = P.abs
   basis = P.signum
 
 instance Norm Word16 where
-  type instance Normed Word16 = Word16
+  type Normed Word16 = Word16
   norm = P.abs
   basis = P.signum
 
 instance Norm Word32 where
-  type instance Normed Word32 = Word32
+  type Normed Word32 = Word32
   norm = P.abs
   basis = P.signum
 
 instance Norm Word64 where
-  type instance Normed Word64 = Word64
+  type Normed Word64 = Word64
   norm = P.abs
   basis = P.signum
 
