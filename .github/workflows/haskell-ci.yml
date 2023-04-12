@@ -90,9 +90,6 @@ jobs:
       - name: Check cabal file
         run: cabal check
 
-      - name: Build documentation
-        run: cabal haddock all
-
       - if: matrix.docspec
         name: cabal-docspec
         run: |

@@ -29,8 +29,8 @@ build-type:         Simple
 tested-with:
   GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
 
-extra-doc-files:    other/*.svg
-extra-source-files: ChangeLog.md
+extra-doc-files:    other/*.svg,
+                    ChangeLog.md
 
 source-repository head
   type:     git
