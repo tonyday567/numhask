@@ -10,6 +10,11 @@ jobs:
       with:
         path: .
         fail-on: warning
+  ormolu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: haskell-actions/run-ormolu@v11
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -17,8 +22,6 @@ jobs:
         ghc: ['8.6.5', '8.8.4', '8.10.7', '9.0.2', '9.2.7', '9.4.4', '9.6.1']
         os: [ubuntu-latest]
         docspec: [false]
-        ormolu: [false]
-        hlint: [false]
         experimental: [false]
         include:
           - os: windows-latest
@@ -31,10 +34,6 @@ jobs:
             ghc: '9.6.1'
             experimental: true
             docspec: true
-          - os: ubuntu-latest
-            ghc: '9.6.1'
-            experimental: true
-            ormolu: true
     continue-on-error: true
     name: ghc ${{ matrix.ghc }} ${{ matrix.os }}
     steps:
@@ -60,9 +59,6 @@ jobs:
           rm -f cabal-docspec.xz
           chmod a+x $HOME/.cabal/bin/cabal-docspec
           $HOME/.cabal/bin/cabal-docspec --version
-      - if: matrix.ormolu
-        name: ormolu
-        uses: haskell-actions/run-ormolu@v11
       - name: cabal build
         run: |
           cabal update
