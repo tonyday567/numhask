@@ -1,4 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
@@ -161,7 +160,7 @@ class (Field a) => QuotientField a where
 
   -- | supply the previous lower whole component
   --
-  -- >>> floor (1.001 :: Double) :: Int
+  -- >>> floor (1.001 :: Double)
   -- 1
   floor :: (Ring (Whole a)) => a -> Whole a
   default floor :: (P.Ord a, Ring (Whole a)) => a -> Whole a
@@ -187,16 +186,6 @@ instance QuotientField P.Float where
 instance QuotientField P.Double where
   type Whole P.Double = P.Int
   properFraction = P.properFraction
-
-instance (P.Eq (Whole b), Ring (Whole b), QuotientField b) => QuotientField (a -> b) where
-  type Whole (a -> b) = a -> Whole b
-  properFraction f = (P.fst . frac, P.snd . frac)
-    where
-      frac a = properFraction (f a)
-  round f = round . f
-  ceiling f = ceiling . f
-  floor f = floor . f
-  truncate f = truncate . f
 
 -- | infinity is defined for any 'Field'.
 --
