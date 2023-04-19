@@ -1,10 +1,17 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- | Metric classes
 module NumHask.Algebra.Metric
-  ( Signed (..),
-    Norm (..),
+  ( Basis (..),
+    Absolute,
+    Sign,
+    HomoBased,
+    abs,
+    signum,
     distance,
     Direction (..),
     Polar (..),
@@ -12,266 +19,223 @@ module NumHask.Algebra.Metric
     coord,
     Epsilon (..),
     (~=),
+    Euclid (..),
+    EuclidPair (..),
   )
 where
 
-import Data.Bool (bool)
+import Data.Bool
+import Data.Type.Equality
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
 import Data.Word (Word16, Word32, Word64, Word8)
-import GHC.Generics (Generic)
+import GHC.Generics
 import GHC.Natural (Natural (..))
-import NumHask.Algebra.Additive (Additive (zero), Subtractive (..), (-))
-import NumHask.Algebra.Module (MultiplicativeAction (..))
-import NumHask.Algebra.Multiplicative (Multiplicative (one))
+import NumHask.Algebra.Additive
+import NumHask.Algebra.Multiplicative
 import Prelude hiding
   ( Bounded (..),
     Integral (..),
     negate,
     (*),
     (-),
+    (+),
+    (/),
+    recip,
+    abs,
+    signum,
+    sqrt,
+    sin,
+    cos,
+    atan,
+    atan2
   )
 import qualified Prelude as P
+import NumHask.Algebra.Module
+import NumHask.Algebra.Field
+import NumHask.Algebra.Lattice
+import Control.Applicative
 
 -- $setup
 --
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
--- | 'signum' from base is not an operator name in numhask and is replaced by 'sign'.  Compare with 'Norm' where there is a change in codomain.
+-- | 'Basis' encapsulates the intuitive notions of magnitude (the reduction of a higher-kinded number to a scalar one intuitive appeal) and the basis of which the magnitude reduction occurs. An instance needs to satisfy these laws:
 --
--- prop> \a -> abs a * sign a ~= a
+-- > \a -> magnitude a >= zero
+-- > \a -> magnitude zero == zero
+-- > \a -> a == magnitude a .* basis a
+-- > \a -> magnitude (basis a) == one
 --
--- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
+-- The names chosen are meant to represent the spiritual idea of a basis rather than a specific mathematics. See https://en.wikipedia.org/wiki/Basis_(linear_algebra) & https://en.wikipedia.org/wiki/Norm_(mathematics) for some mathematical motivations.
 --
--- >>> sign zero == zero
--- True
 --
--- >>> abs (-1)
--- 1
---
--- >>> sign (-1)
--- -1
-class
-  (Additive a, Multiplicative a) =>
-  Signed a
-  where
-  sign :: a -> a
-  abs :: a -> a
-
-instance Signed Double where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Float where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Int where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Integer where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Natural where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = id
-
-instance Signed Int8 where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Int16 where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Int32 where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Int64 where
-  sign a =
-    case compare a zero of
-      EQ -> zero
-      GT -> one
-      LT -> negate one
-  abs = P.abs
-
-instance Signed Word where
-  sign a = bool one zero (a == zero)
-  abs = P.abs
-
-instance Signed Word8 where
-  sign a = bool one zero (a == zero)
-  abs = P.abs
-
-instance Signed Word16 where
-  sign a = bool one zero (a == zero)
-  abs = P.abs
-
-instance Signed Word32 where
-  sign a = bool one zero (a == zero)
-  abs = P.abs
-
-instance Signed Word64 where
-  sign a = bool one zero (a == zero)
-  abs = P.abs
-
--- | Norm is a slight generalisation of Signed. The class has the same shape but allows the codomain to be different to the domain.
---
--- > \a -> norm a >= zero
--- > \a -> norm zero == zero
--- > \a -> a == norm a .* basis a
--- > \a -> norm (basis a) == one
---
--- >>> norm (-0.5 :: Double)
+-- >>> magnitude (-0.5 :: Double)
 -- 0.5
 --
 -- >>> basis (-0.5 :: Double)
 -- -1.0
-class (Additive a, Multiplicative (Normed a), Additive (Normed a)) => Norm a where
-  type Normed a :: Type
+class (Multiplicative (Mag a), Additive (Mag a)) => Basis a where
+  type Mag a :: Type
+  type Base a :: Type
 
   -- | or length, or ||v||
-  norm :: a -> Normed a
+  magnitude :: a -> Mag a
 
   -- | or direction, or v-hat
-  basis :: a -> a
+  basis :: a -> Base a
 
-instance Norm Double where
-  type Normed Double = Double
-  norm = P.abs
+-- | Basis where the domain and magnitude codomain are the same.
+type Absolute a = (Basis a, Mag a ~ a)
+
+-- | Basis where the domain and basis codomain are the same.
+type Sign a = (Basis a, Base a ~ a)
+
+-- | Basis where the domain, magnitude codomain and basis codomain are the same.
+type HomoBased a = (Basis a, Mag a ~ a, Base a ~ a)
+
+-- | The absolute value of a number.
+--
+-- prop> \a -> abs a * signum a ~= a
+--
+-- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
+--
+-- >>> abs (-1)
+-- 1
+abs :: (Absolute a) => a -> a
+abs = magnitude
+
+-- | The sign of a number.
+--
+-- >>> signum zero == zero
+-- True
+--
+-- >>> signum (-1)
+-- -1
+signum :: (Sign a) => a -> a
+signum = basis
+
+instance Basis Double where
+  type Mag Double = Double
+  type Base Double = Double
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Float where
-  type Normed Float = Float
-  norm = P.abs
+instance Basis Float where
+  type Mag Float = Float
+  type Base Float = Float
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Int where
-  type Normed Int = Int
-  norm = P.abs
+instance Basis Int where
+  type Mag Int = Int
+  type Base Int = Int
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Integer where
-  type Normed Integer = Integer
-  norm = P.abs
+instance Basis Integer where
+  type Mag Integer = Integer
+  type Base Integer = Integer
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Natural where
-  type Normed Natural = Natural
-  norm = P.abs
+instance Basis Natural where
+  type Mag Natural = Natural
+  type Base Natural = Natural
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Int8 where
-  type Normed Int8 = Int8
-  norm = P.abs
+instance Basis Int8 where
+  type Mag Int8 = Int8
+  type Base Int8 = Int8
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Int16 where
-  type Normed Int16 = Int16
-  norm = P.abs
+instance Basis Int16 where
+  type Mag Int16 = Int16
+  type Base Int16 = Int16
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Int32 where
-  type Normed Int32 = Int32
-  norm = P.abs
+instance Basis Int32 where
+  type Mag Int32 = Int32
+  type Base Int32 = Int32
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Int64 where
-  type Normed Int64 = Int64
-  norm = P.abs
+instance Basis Int64 where
+  type Mag Int64 = Int64
+  type Base Int64 = Int64
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Word where
-  type Normed Word = Word
-  norm = P.abs
+instance Basis Word where
+  type Mag Word = Word
+  type Base Word = Word
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Word8 where
-  type Normed Word8 = Word8
-  norm = P.abs
+instance Basis Word8 where
+  type Mag Word8 = Word8
+  type Base Word8 = Word8
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Word16 where
-  type Normed Word16 = Word16
-  norm = P.abs
+instance Basis Word16 where
+  type Mag Word16 = Word16
+  type Base Word16 = Word16
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Word32 where
-  type Normed Word32 = Word32
-  norm = P.abs
+instance Basis Word32 where
+  type Mag Word32 = Word32
+  type Base Word32 = Word32
+  magnitude = P.abs
   basis = P.signum
 
-instance Norm Word64 where
-  type Normed Word64 = Word64
-  norm = P.abs
+instance Basis Word64 where
+  type Mag Word64 = Word64
+  type Base Word64 = Word64
+  magnitude = P.abs
   basis = P.signum
 
--- | Distance, which combines the Subtractive notion of difference, with Norm.
+-- | Distance, which combines the Subtractive notion of difference, with Basis.
 --
 -- > distance a b >= zero
 -- > distance a a == zero
 -- > distance a b .* basis (a - b) == a - b
-distance :: (Norm a, Subtractive a) => a -> a -> Normed a
-distance a b = norm (a - b)
+distance :: (Basis a, Subtractive a) => a -> a -> Mag a
+distance a b = magnitude (a - b)
 
--- | Convert between a "co-ordinated" or "higher-kinded" number and representations of an angle. Typically thought of as polar co-ordinate conversion.
+-- | Convert between a "co-ordinated" or "higher-kinded" number and representations of a direction. Typically thought of as polar co-ordinate conversion.
 --
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 --
 -- > ray . angle == basis
--- > norm (ray x) == one
+-- > magnitude (ray x) == one
 class (Additive coord, Multiplicative coord, Additive (Dir coord), Multiplicative (Dir coord)) => Direction coord where
   type Dir coord :: Type
   angle :: coord -> Dir coord
   ray :: Dir coord -> coord
 
 -- | Something that has a magnitude and a direction.
-data Polar a = Polar {magnitude :: !(Normed a), direction :: !(Dir a)}
-  deriving (Generic)
+data Polar a = Polar { radial :: a, azimuth :: a}
+  deriving (Generic, Show, Eq)
 
--- | Convert from a number to a Polar.
-polar :: (Norm coord, Direction coord) => coord -> Polar coord
-polar z = Polar (norm z) (angle z)
+instance (Additive a, Multiplicative a) => Basis (Polar a) where
+  type Mag (Polar a) = a
+  type Base (Polar a) = a
+  magnitude = radial
+  basis = azimuth
 
--- | Convert from a Polar to a (coordinated aka higher-kinded) number.
-coord :: (Normed coord ~ Scalar coord, MultiplicativeAction coord, Direction coord) => Polar coord -> coord
-coord (Polar m d) = m .* ray d
+-- | Convert a higher-kinded number that has direction, to a 'Polar'
+polar :: (Dir (Base a) ~ Mag a, Basis a, Direction (Base a)) => a -> Polar (Mag a)
+polar x = Polar (magnitude x) (angle (basis x))
+
+-- | Convert a Polar to a (higher-kinded) number that has a direction.
+coord :: (Scalar m ~ Dir m, MultiplicativeAction m, Direction m) => Polar (Scalar m) -> m
+coord x = radial x .* ray (azimuth x)
 
 -- | A small number, especially useful for approximate equality.
 class
@@ -336,3 +300,150 @@ instance Epsilon Word16
 instance Epsilon Word32
 
 instance Epsilon Word64
+
+data Euclid a = Euclid a a deriving (Generic, Generic1, Eq, Show)
+
+instance Functor Euclid where
+  fmap f (Euclid x y) = Euclid (f x) (f y)
+
+instance Applicative Euclid where
+  pure x = Euclid x x
+  Euclid fx fy <*> Euclid x y = Euclid (fx x) (fy y)
+  liftA2 f (Euclid x y) (Euclid x' y') = Euclid (f x x') (f y y')
+
+instance (Additive a) => Additive (Euclid a) where
+  (+) = liftA2 (+)
+  zero = pure zero
+
+instance (Subtractive a) => Subtractive (Euclid a) where
+  negate = fmap negate
+
+instance
+  (Multiplicative a) =>
+  Multiplicative (Euclid a)
+  where
+   (*) = liftA2 (*)
+   one = pure one
+
+instance
+  (Subtractive a, Divisive a) =>
+  Divisive (Euclid a)
+  where
+  recip = fmap recip
+
+instance (TrigField a) => Direction (Euclid a) where
+  type Dir (Euclid a) = a
+  angle (Euclid x y) = atan2 y x
+  ray x = Euclid (cos x) (sin x)
+
+instance
+  (ExpField a, Eq a) =>
+  Basis (Euclid a)
+  where
+    type Mag (Euclid a) = a
+    type Base (Euclid a) = Euclid a
+
+    magnitude (Euclid x y) = sqrt (x * x + y * y)
+    basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
+
+instance
+  (Ord a, Basis a, Epsilon a, Subtractive a) =>
+  Epsilon (Euclid a)
+  where
+    epsilon = pure epsilon
+    nearZero (Euclid x y) = x <= epsilon && y <= epsilon
+
+instance (JoinSemiLattice a) => JoinSemiLattice (Euclid a) where
+  (\/) (Euclid x y) (Euclid x' y') = Euclid (x \/ x') (y \/ y')
+
+instance (MeetSemiLattice a) => MeetSemiLattice (Euclid a) where
+  (/\) (Euclid x y) (Euclid x' y') = Euclid (x /\ x') (y /\ y')
+
+instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Euclid a) where
+  bottom = pure bottom
+
+instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Euclid a) where
+  top = pure top
+
+instance (Multiplicative a) => MultiplicativeAction (Euclid a) where
+  type Scalar (Euclid a) = a
+  (.*) s (Euclid x y) = Euclid (s*x) (s*y)
+
+instance (Divisive a) => DivisiveAction (Euclid a) where
+  (./) s = fmap (s/)
+
+-- FIXME: performance versus Euclid
+newtype EuclidPair a = EuclidPair { euclidPair :: (a,a) }
+  deriving stock
+  ( Generic,
+    Eq,
+    Show)
+
+instance Functor EuclidPair where
+  fmap f (EuclidPair (x,y)) = EuclidPair (f x, f y)
+
+instance Applicative EuclidPair where
+  pure x = EuclidPair (x,x)
+  EuclidPair (fx,fy) <*> EuclidPair (x,y) = EuclidPair (fx x, fy y)
+  liftA2 f (EuclidPair (x,y)) (EuclidPair (x',y')) = EuclidPair (f x x', f y y')
+
+instance (Additive a) => Additive (EuclidPair a) where
+  (+) = liftA2 (+)
+  zero = pure zero
+
+instance (Subtractive a) => Subtractive (EuclidPair a) where
+  negate = fmap negate
+
+instance
+  (Multiplicative a) =>
+  Multiplicative (EuclidPair a)
+  where
+   (*) = liftA2 (*)
+   one = pure one
+
+instance
+  (Subtractive a, Divisive a) =>
+  Divisive (EuclidPair a)
+  where
+  recip = fmap recip
+
+instance (TrigField a) => Direction (EuclidPair a) where
+  type Dir (EuclidPair a) = a
+  angle (EuclidPair (x,y)) = atan2 y x
+  ray x = EuclidPair (cos x, sin x)
+
+instance
+  (ExpField a, Eq a) =>
+  Basis (EuclidPair a)
+  where
+    type Mag (EuclidPair a) = a
+    type Base (EuclidPair a) = EuclidPair a
+
+    magnitude (EuclidPair (x,y)) = sqrt (x * x + y * y)
+    basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
+
+instance
+  (Ord a, Basis a, Epsilon a, Subtractive a) =>
+  Epsilon (EuclidPair a)
+  where
+    epsilon = pure epsilon
+    nearZero (EuclidPair (x,y)) = x <= epsilon && y <= epsilon
+
+instance (JoinSemiLattice a) => JoinSemiLattice (EuclidPair a) where
+  (\/) (EuclidPair (x,y)) (EuclidPair (x',y')) = EuclidPair (x \/ x', y \/ y')
+
+instance (MeetSemiLattice a) => MeetSemiLattice (EuclidPair a) where
+  (/\) (EuclidPair (x,y)) (EuclidPair (x',y')) = EuclidPair (x /\ x', y /\ y')
+
+instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (EuclidPair a) where
+  bottom = pure bottom
+
+instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (EuclidPair a) where
+  top = pure top
+
+instance (Multiplicative a) => MultiplicativeAction (EuclidPair a) where
+  type Scalar (EuclidPair a) = a
+  (.*) s (EuclidPair (x,y)) = EuclidPair (s*x, s*y)
+
+instance (Divisive a) => DivisiveAction (EuclidPair a) where
+  (./) s = fmap (s/)

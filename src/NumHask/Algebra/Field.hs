@@ -57,15 +57,7 @@ import qualified Prelude as P
 -- > recip a == one / a || a == zero
 -- > recip a * a == one || a == zero
 -- > a * recip a == one || a == zero
-class
-  (Distributive a, Subtractive a, Divisive a) =>
-  Field a
-
-instance Field P.Double
-
-instance Field P.Float
-
-instance (Field b) => Field (a -> b)
+type Field a = (Ring a, Divisive a)
 
 -- | A hyperbolic field class
 --

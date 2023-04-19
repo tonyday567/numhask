@@ -1,3 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- | Complex numbers.
@@ -9,7 +11,7 @@ module NumHask.Data.Complex
 where
 
 import Data.Data (Data)
-import GHC.Generics (Generic, Generic1)
+import GHC.Generics
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
@@ -34,97 +36,67 @@ import Prelude hiding
   )
 import qualified Prelude as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
 
--- -----------------------------------------------------------------------------
--- The Complex type
-infix 6 :+
-
 -- | Complex numbers have real and imaginary parts.
 --
--- The 'Data.Foldable.Foldable' and 'Data.Traversable.Traversable' instances traverse the real part first.
-data Complex a
-  = -- | forms a complex number from its real and imaginary
-    -- rectangular components.
-    !a :+ !a
-  deriving
+newtype Complex a = Complex { complexPair :: (a,a) }
+  deriving stock
     ( Eq,
       Show,
       Read,
       Data,
       Generic,
-      Generic1,
-      Functor,
-      Foldable,
-      Traversable
+      Functor
     )
+  deriving
+    ( Additive,
+      Subtractive,
+      Basis,
+      Direction,
+      Epsilon,
+      JoinSemiLattice,
+      MeetSemiLattice,
+      BoundedJoinSemiLattice,
+      BoundedMeetSemiLattice
+    ) via (EuclidPair a)
+
+infixl 6 +|
+
+(+|) :: a -> a -> Complex a
+(+|) r i = Complex (r,i)
 
 -- | Extracts the real part of a complex number.
 realPart :: Complex a -> a
-realPart (x :+ _) = x
+realPart (Complex (x,_)) = x
 
 -- | Extracts the imaginary part of a complex number.
 imagPart :: Complex a -> a
-imagPart (_ :+ y) = y
-
-instance (Additive a) => Additive (Complex a) where
-  (rx :+ ix) + (ry :+ iy) = (rx + ry) :+ (ix + iy)
-  zero = zero :+ zero
-
-instance (Subtractive a) => Subtractive (Complex a) where
-  negate (rx :+ ix) = negate rx :+ negate ix
-
-instance
-  (Distributive a, Subtractive a) =>
-  Distributive (Complex a)
+imagPart (Complex (_,y)) = y
 
 instance
   (Subtractive a, Multiplicative a) =>
   Multiplicative (Complex a)
   where
-  (rx :+ ix) * (ry :+ iy) =
-    (rx * ry - ix * iy) :+ (ix * ry + iy * rx)
-  one = one :+ zero
+  (Complex (r,i)) * (Complex (r',i')) =
+    Complex (r * r' - i * i', i * r' + i' * r)
+  one = one +| zero
 
 instance
   (Subtractive a, Divisive a) =>
   Divisive (Complex a)
   where
-  recip (rx :+ ix) = (rx * d) :+ (negate ix * d)
+  recip (Complex (r,i)) = (r * d) +| (negate i * d)
     where
-      d = recip ((rx * rx) + (ix * ix))
+      d = recip ((r * r) + (i * i))
 
 instance
   (Additive a, FromIntegral a b) =>
   FromIntegral (Complex a) b
   where
-  fromIntegral x = fromIntegral x :+ zero
-
--- | A euclidean-style norm is an established convention for Complex.
-instance
-  (ExpField a) =>
-  Norm (Complex a)
-  where
-  type Normed (Complex a) = a
-  norm (rx :+ ix) = sqrt (rx * rx + ix * ix)
-  basis x@(rx :+ ix) = rx / norm x :+ ix / norm x
-
-instance (TrigField a) => Direction (Complex a) where
-  type Dir (Complex a) = a
-  angle (x :+ y) = atan2 y x
-  ray x = cos x :+ sin x
-
-instance
-  (Ord a, Signed a, Epsilon a, Subtractive a) =>
-  Epsilon (Complex a)
-  where
-  epsilon = epsilon :+ epsilon
-
-  nearZero (ar :+ ai) = ar <= epsilon && ai <= epsilon
-
-instance (Field a) => Field (Complex a)
+  fromIntegral x = fromIntegral x +| zero
 
 instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
-  exp (rx :+ ix) = (exp rx * cos ix) :+ (exp rx * sin ix)
-  log (rx :+ ix) = log (sqrt (rx * rx + ix * ix)) :+ atan2' ix rx
+  exp (Complex (r,i)) = (exp r * cos i) +| (exp r * sin i)
+  log (Complex (r,i)) = log (sqrt (r * r + i * i)) +| atan2' i r
     where
       atan2' y x
         | x P.> zero = atan (y / x)
@@ -137,16 +109,4 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
-  adj (a :+ b) = a :+ negate b
-
-instance (JoinSemiLattice a) => JoinSemiLattice (Complex a) where
-  (\/) (ar :+ ai) (br :+ bi) = (ar \/ br) :+ (ai \/ bi)
-
-instance (MeetSemiLattice a) => MeetSemiLattice (Complex a) where
-  (/\) (ar :+ ai) (br :+ bi) = (ar /\ br) :+ (ai /\ bi)
-
-instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Complex a) where
-  bottom = bottom :+ bottom
-
-instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Complex a) where
-  top = top :+ top
+  adj (Complex (r,i)) = r +| negate i

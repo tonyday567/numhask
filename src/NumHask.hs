@@ -68,8 +68,12 @@ module NumHask
     Module,
 
     -- * Metric
-    Signed (..),
-    Norm (..),
+    Basis (..),
+    Absolute,
+    Sign,
+    HomoBased,
+    abs,
+    signum,
     distance,
     Direction (..),
     Polar (..),
@@ -135,18 +139,21 @@ import NumHask.Algebra.Lattice
     (<\),
   )
 import NumHask.Algebra.Metric
-  ( Direction (..),
-    Epsilon (..),
-    Norm (..),
-    Polar (..),
-    Signed (..),
-    aboutEqual,
-    coord,
+  ( Basis (..),
+    Absolute,
+    Sign,
+    HomoBased,
+    abs,
+    signum,
     distance,
-    nearZero,
+    Direction (..),
+    Polar (..),
     polar,
+    coord,
+    Epsilon (..),
     (~=),
-  )
+    )
+
 import NumHask.Algebra.Module
   ( AdditiveAction (..),
     DivisiveAction (..),

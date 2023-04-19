@@ -28,7 +28,7 @@ class
   type AdditiveScalar m :: Type
 
   infixl 6 .+
-  (.+) :: a -> m -> m
+  (.+) :: AdditiveScalar m -> m -> m
 
 infixl 6 +.
 

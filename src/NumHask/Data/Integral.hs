@@ -2,7 +2,9 @@
 module NumHask.Data.Integral
   ( Integral (..),
     ToIntegral (..),
+    ToInt,
     FromIntegral (..),
+    FromInt,
     FromInteger (..),
     even,
     odd,
@@ -121,6 +123,8 @@ class ToIntegral a b where
 
   toIntegral :: a -> b
 
+type ToInt a = ToIntegral a Int
+
 instance ToIntegral Integer Integer where
   toIntegral = P.id
 
@@ -230,6 +234,8 @@ class FromIntegral a b where
   {-# MINIMAL fromIntegral #-}
 
   fromIntegral :: b -> a
+
+type FromInt a = FromIntegral a Int
 
 instance (FromIntegral a b) => FromIntegral (c -> a) b where
   fromIntegral i _ = fromIntegral i
