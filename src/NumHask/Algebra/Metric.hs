@@ -1,7 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- | Metric classes
@@ -18,9 +17,10 @@ module NumHask.Algebra.Metric
     polar,
     coord,
     Epsilon (..),
+    nearZero,
+    aboutEqual,
     (~=),
     Euclid (..),
-    EuclidPair (..),
   )
 where
 
@@ -245,21 +245,19 @@ class
   epsilon :: a
   epsilon = zero
 
-  -- | are we near enough?
-  --
-  -- >>> nearZero (epsilon :: Double)
-  -- True
-  nearZero :: a -> Bool
-  default nearZero :: (Ord a, Subtractive a) => a -> Bool
-  nearZero a = epsilon >= a && epsilon >= negate a
+-- | are we near enough?
+--
+-- >>> nearZero (epsilon :: Double)
+-- True
+nearZero :: (Epsilon a, Ord a, Subtractive a) => a -> Bool
+nearZero a = epsilon >= a && epsilon >= negate a
 
-  -- | Approximate equality
-  --
-  -- >>> aboutEqual zero (epsilon :: Double)
-  -- True
-  aboutEqual :: a -> a -> Bool
-  default aboutEqual :: (Subtractive a) => a -> a -> Bool
-  aboutEqual a b = nearZero $ a - b
+-- | Approximate equality
+--
+-- >>> aboutEqual zero (epsilon :: Double)
+-- True
+aboutEqual :: (Epsilon a, Ord a, Subtractive a) => a -> a -> Bool
+aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=
 
@@ -267,7 +265,7 @@ infixl 4 ~=
 --
 -- >>> (1.0 + epsilon) ~= (1.0 :: Double)
 -- True
-(~=) :: (Epsilon a) => a -> a -> Bool
+(~=) :: (Epsilon a) => (Ord a, Subtractive a) => a -> a -> Bool
 (~=) = aboutEqual
 
 -- | 1e-14
@@ -301,15 +299,20 @@ instance Epsilon Word32
 
 instance Epsilon Word64
 
-data Euclid a = Euclid a a deriving (Generic, Generic1, Eq, Show)
+-- FIXME: performance versus Euclid
+newtype Euclid a = Euclid { euclidPair :: (a,a) }
+  deriving stock
+  ( Generic,
+    Eq,
+    Show)
 
 instance Functor Euclid where
-  fmap f (Euclid x y) = Euclid (f x) (f y)
+  fmap f (Euclid (x,y)) = Euclid (f x, f y)
 
 instance Applicative Euclid where
-  pure x = Euclid x x
-  Euclid fx fy <*> Euclid x y = Euclid (fx x) (fy y)
-  liftA2 f (Euclid x y) (Euclid x' y') = Euclid (f x x') (f y y')
+  pure x = Euclid (x,x)
+  Euclid (fx,fy) <*> Euclid (x,y) = Euclid (fx x, fy y)
+  liftA2 f (Euclid (x,y)) (Euclid (x',y')) = Euclid (f x x', f y y')
 
 instance (Additive a) => Additive (Euclid a) where
   (+) = liftA2 (+)
@@ -333,8 +336,8 @@ instance
 
 instance (TrigField a) => Direction (Euclid a) where
   type Dir (Euclid a) = a
-  angle (Euclid x y) = atan2 y x
-  ray x = Euclid (cos x) (sin x)
+  angle (Euclid (x,y)) = atan2 y x
+  ray x = Euclid (cos x, sin x)
 
 instance
   (ExpField a, Eq a) =>
@@ -343,21 +346,20 @@ instance
     type Mag (Euclid a) = a
     type Base (Euclid a) = Euclid a
 
-    magnitude (Euclid x y) = sqrt (x * x + y * y)
+    magnitude (Euclid (x,y)) = sqrt (x * x + y * y)
     basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
 
 instance
-  (Ord a, Basis a, Epsilon a, Subtractive a) =>
+  (Epsilon a) =>
   Epsilon (Euclid a)
   where
     epsilon = pure epsilon
-    nearZero (Euclid x y) = x <= epsilon && y <= epsilon
 
 instance (JoinSemiLattice a) => JoinSemiLattice (Euclid a) where
-  (\/) (Euclid x y) (Euclid x' y') = Euclid (x \/ x') (y \/ y')
+  (\/) (Euclid (x,y)) (Euclid (x',y')) = Euclid (x \/ x', y \/ y')
 
 instance (MeetSemiLattice a) => MeetSemiLattice (Euclid a) where
-  (/\) (Euclid x y) (Euclid x' y') = Euclid (x /\ x') (y /\ y')
+  (/\) (Euclid (x,y)) (Euclid (x',y')) = Euclid (x /\ x', y /\ y')
 
 instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Euclid a) where
   bottom = pure bottom
@@ -367,83 +369,7 @@ instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Euclid a) where
 
 instance (Multiplicative a) => MultiplicativeAction (Euclid a) where
   type Scalar (Euclid a) = a
-  (.*) s (Euclid x y) = Euclid (s*x) (s*y)
+  (.*) s (Euclid (x,y)) = Euclid (s*x, s*y)
 
 instance (Divisive a) => DivisiveAction (Euclid a) where
-  (./) s = fmap (s/)
-
--- FIXME: performance versus Euclid
-newtype EuclidPair a = EuclidPair { euclidPair :: (a,a) }
-  deriving stock
-  ( Generic,
-    Eq,
-    Show)
-
-instance Functor EuclidPair where
-  fmap f (EuclidPair (x,y)) = EuclidPair (f x, f y)
-
-instance Applicative EuclidPair where
-  pure x = EuclidPair (x,x)
-  EuclidPair (fx,fy) <*> EuclidPair (x,y) = EuclidPair (fx x, fy y)
-  liftA2 f (EuclidPair (x,y)) (EuclidPair (x',y')) = EuclidPair (f x x', f y y')
-
-instance (Additive a) => Additive (EuclidPair a) where
-  (+) = liftA2 (+)
-  zero = pure zero
-
-instance (Subtractive a) => Subtractive (EuclidPair a) where
-  negate = fmap negate
-
-instance
-  (Multiplicative a) =>
-  Multiplicative (EuclidPair a)
-  where
-   (*) = liftA2 (*)
-   one = pure one
-
-instance
-  (Subtractive a, Divisive a) =>
-  Divisive (EuclidPair a)
-  where
-  recip = fmap recip
-
-instance (TrigField a) => Direction (EuclidPair a) where
-  type Dir (EuclidPair a) = a
-  angle (EuclidPair (x,y)) = atan2 y x
-  ray x = EuclidPair (cos x, sin x)
-
-instance
-  (ExpField a, Eq a) =>
-  Basis (EuclidPair a)
-  where
-    type Mag (EuclidPair a) = a
-    type Base (EuclidPair a) = EuclidPair a
-
-    magnitude (EuclidPair (x,y)) = sqrt (x * x + y * y)
-    basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
-
-instance
-  (Ord a, Basis a, Epsilon a, Subtractive a) =>
-  Epsilon (EuclidPair a)
-  where
-    epsilon = pure epsilon
-    nearZero (EuclidPair (x,y)) = x <= epsilon && y <= epsilon
-
-instance (JoinSemiLattice a) => JoinSemiLattice (EuclidPair a) where
-  (\/) (EuclidPair (x,y)) (EuclidPair (x',y')) = EuclidPair (x \/ x', y \/ y')
-
-instance (MeetSemiLattice a) => MeetSemiLattice (EuclidPair a) where
-  (/\) (EuclidPair (x,y)) (EuclidPair (x',y')) = EuclidPair (x /\ x', y /\ y')
-
-instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (EuclidPair a) where
-  bottom = pure bottom
-
-instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (EuclidPair a) where
-  top = pure top
-
-instance (Multiplicative a) => MultiplicativeAction (EuclidPair a) where
-  type Scalar (EuclidPair a) = a
-  (.*) s (EuclidPair (x,y)) = EuclidPair (s*x, s*y)
-
-instance (Divisive a) => DivisiveAction (EuclidPair a) where
   (./) s = fmap (s/)

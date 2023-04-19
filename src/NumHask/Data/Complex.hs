@@ -57,7 +57,7 @@ newtype Complex a = Complex { complexPair :: (a,a) }
       MeetSemiLattice,
       BoundedJoinSemiLattice,
       BoundedMeetSemiLattice
-    ) via (EuclidPair a)
+    ) via (Euclid a)
 
 infixl 6 +|
 

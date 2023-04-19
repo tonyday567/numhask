@@ -80,6 +80,8 @@ module NumHask
     polar,
     coord,
     Epsilon (..),
+    aboutEqual,
+    nearZero,
     (~=),
 
     -- * Complex
@@ -151,6 +153,8 @@ import NumHask.Algebra.Metric
     polar,
     coord,
     Epsilon (..),
+    aboutEqual,
+    nearZero,
     (~=),
     )
 
