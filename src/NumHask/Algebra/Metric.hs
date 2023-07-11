@@ -54,7 +54,6 @@ import qualified Prelude as P
 import NumHask.Algebra.Module
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
-import Control.Applicative
 
 -- $setup
 --
