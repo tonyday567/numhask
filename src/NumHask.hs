@@ -141,23 +141,22 @@ import NumHask.Algebra.Lattice
     (<\),
   )
 import NumHask.Algebra.Metric
-  ( Basis (..),
-    Absolute,
-    Sign,
-    HomoBased,
-    abs,
-    signum,
-    distance,
+  ( Absolute,
+    Basis (..),
     Direction (..),
-    Polar (..),
-    polar,
-    coord,
     Epsilon (..),
+    HomoBased,
+    Polar (..),
+    Sign,
     aboutEqual,
+    abs,
+    coord,
+    distance,
     nearZero,
+    polar,
+    signum,
     (~=),
-    )
-
+  )
 import NumHask.Algebra.Module
   ( AdditiveAction (..),
     DivisiveAction (..),

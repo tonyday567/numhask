@@ -1,5 +1,6 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 -- | Rational classes
 module NumHask.Data.Rational
   ( Ratio (..),

@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 -- | Metric classes
 module NumHask.Algebra.Metric
@@ -24,37 +24,37 @@ module NumHask.Algebra.Metric
   )
 where
 
+import Control.Applicative
 import Data.Bool
-import Data.Type.Equality
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
+import Data.Type.Equality
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
 import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive
+import NumHask.Algebra.Field
+import NumHask.Algebra.Lattice
+import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import Prelude hiding
   ( Bounded (..),
     Integral (..),
-    negate,
-    (*),
-    (-),
-    (+),
-    (/),
-    recip,
     abs,
-    signum,
-    sqrt,
-    sin,
-    cos,
     atan,
-    atan2
+    atan2,
+    cos,
+    negate,
+    recip,
+    signum,
+    sin,
+    sqrt,
+    (*),
+    (+),
+    (-),
+    (/),
   )
 import qualified Prelude as P
-import NumHask.Algebra.Module
-import NumHask.Algebra.Field
-import NumHask.Algebra.Lattice
-import Control.Applicative
 
 -- $setup
 --
@@ -220,7 +220,7 @@ class (Additive coord, Multiplicative coord, Additive (Dir coord), Multiplicativ
   ray :: Dir coord -> coord
 
 -- | Something that has a magnitude and a direction.
-data Polar a = Polar { radial :: a, azimuth :: a}
+data Polar a = Polar {radial :: a, azimuth :: a}
   deriving (Generic, Show, Eq)
 
 instance (Additive a, Multiplicative a) => Basis (Polar a) where
@@ -300,19 +300,20 @@ instance Epsilon Word32
 instance Epsilon Word64
 
 -- FIXME: performance versus Euclid
-newtype Euclid a = Euclid { euclidPair :: (a,a) }
+newtype Euclid a = Euclid {euclidPair :: (a, a)}
   deriving stock
-  ( Generic,
-    Eq,
-    Show)
+    ( Generic,
+      Eq,
+      Show
+    )
 
 instance Functor Euclid where
-  fmap f (Euclid (x,y)) = Euclid (f x, f y)
+  fmap f (Euclid (x, y)) = Euclid (f x, f y)
 
 instance Applicative Euclid where
-  pure x = Euclid (x,x)
-  Euclid (fx,fy) <*> Euclid (x,y) = Euclid (fx x, fy y)
-  liftA2 f (Euclid (x,y)) (Euclid (x',y')) = Euclid (f x x', f y y')
+  pure x = Euclid (x, x)
+  Euclid (fx, fy) <*> Euclid (x, y) = Euclid (fx x, fy y)
+  liftA2 f (Euclid (x, y)) (Euclid (x', y')) = Euclid (f x x', f y y')
 
 instance (Additive a) => Additive (Euclid a) where
   (+) = liftA2 (+)
@@ -325,8 +326,8 @@ instance
   (Multiplicative a) =>
   Multiplicative (Euclid a)
   where
-   (*) = liftA2 (*)
-   one = pure one
+  (*) = liftA2 (*)
+  one = pure one
 
 instance
   (Subtractive a, Divisive a) =>
@@ -336,30 +337,30 @@ instance
 
 instance (TrigField a) => Direction (Euclid a) where
   type Dir (Euclid a) = a
-  angle (Euclid (x,y)) = atan2 y x
+  angle (Euclid (x, y)) = atan2 y x
   ray x = Euclid (cos x, sin x)
 
 instance
   (ExpField a, Eq a) =>
   Basis (Euclid a)
   where
-    type Mag (Euclid a) = a
-    type Base (Euclid a) = Euclid a
+  type Mag (Euclid a) = a
+  type Base (Euclid a) = Euclid a
 
-    magnitude (Euclid (x,y)) = sqrt (x * x + y * y)
-    basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
+  magnitude (Euclid (x, y)) = sqrt (x * x + y * y)
+  basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
 
 instance
   (Epsilon a) =>
   Epsilon (Euclid a)
   where
-    epsilon = pure epsilon
+  epsilon = pure epsilon
 
 instance (JoinSemiLattice a) => JoinSemiLattice (Euclid a) where
-  (\/) (Euclid (x,y)) (Euclid (x',y')) = Euclid (x \/ x', y \/ y')
+  (\/) (Euclid (x, y)) (Euclid (x', y')) = Euclid (x \/ x', y \/ y')
 
 instance (MeetSemiLattice a) => MeetSemiLattice (Euclid a) where
-  (/\) (Euclid (x,y)) (Euclid (x',y')) = Euclid (x /\ x', y /\ y')
+  (/\) (Euclid (x, y)) (Euclid (x', y')) = Euclid (x /\ x', y /\ y')
 
 instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Euclid a) where
   bottom = pure bottom
@@ -369,7 +370,7 @@ instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Euclid a) where
 
 instance (Multiplicative a) => MultiplicativeAction (Euclid a) where
   type Scalar (Euclid a) = a
-  (.*) s (Euclid (x,y)) = Euclid (s*x, s*y)
+  (.*) s (Euclid (x, y)) = Euclid (s * x, s * y)
 
 instance (Divisive a) => DivisiveAction (Euclid a) where
-  (./) s = fmap (s/)
+  (./) s = fmap (s /)
