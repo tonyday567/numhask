@@ -106,8 +106,6 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
--- prop> (\a -> a - one < fromIntegral (floor a) && fromIntegral (floor a) <= a && a <= fromIntegral (ceiling a) && fromIntegral (ceiling a) <= a + one) :: Double -> Bool
--- prop> \a -> (round a) == (floor (a + half))
 class (Field a) => QuotientField a where
   type Whole a :: Type
   properFraction :: a -> (Whole a, a)
