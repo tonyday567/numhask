@@ -28,7 +28,6 @@ import Control.Applicative
 import Data.Bool
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
-import Data.Type.Equality
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
 import GHC.Natural (Natural (..))
