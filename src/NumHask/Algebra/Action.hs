@@ -1,15 +1,18 @@
 {-# LANGUAGE TypeFamilies #-}
 
--- | Algebra for Modules
-module NumHask.Algebra.Module
+-- | Algebra for Actions
+--
+-- Convention: the dots in the operators point towards the scalars
+--
+module NumHask.Algebra.Action
   ( AdditiveAction (..),
-    (+.),
+    (.+),
     SubtractiveAction (..),
-    (-.),
+    (.-),
     MultiplicativeAction (..),
-    (*.),
+    (.*),
     DivisiveAction (..),
-    (/.),
+    (./),
     Module,
   )
 where
@@ -21,38 +24,39 @@ import NumHask.Algebra.Ring (Distributive)
 import Prelude (flip)
 
 -- | Additive Action
+--
 class
   (Additive (AdditiveScalar m)) =>
   AdditiveAction m
   where
   type AdditiveScalar m :: Type
 
-  infixl 6 .+
-  (.+) :: AdditiveScalar m -> m -> m
+  infixl 6 +.
+  (+.) :: m -> AdditiveScalar m -> m
 
-infixl 6 +.
+infixl 6 .+
 
 -- | flipped additive action
 --
--- > (+.) == flip (.+)
-(+.) :: (AdditiveAction m) => m -> AdditiveScalar m -> m
-(+.) = flip (.+)
+-- > (.+) == flip (+.)
+(.+) :: (AdditiveAction m) => AdditiveScalar m -> m -> m
+(.+) = flip (+.)
 
 -- | Subtractive Action
 class
   (AdditiveAction m, Subtractive (AdditiveScalar m)) =>
   SubtractiveAction m
   where
-  infixl 6 .-
-  (.-) :: AdditiveScalar m -> m -> m
+  infixl 6 -.
+  (-.) :: m -> AdditiveScalar m -> m
 
-infixl 6 -.
+infixl 6 .-
 
--- | right scalar subtraction
+-- | Subtraction with the scalar on the left
 --
--- > (-.) == (+.) . negate
-(-.) :: (AdditiveAction m, Subtractive (AdditiveScalar m)) => m -> AdditiveScalar m -> m
-a -. b = a +. negate b
+-- > (.-) == (.+) . negate
+(.-) :: (AdditiveAction m, Subtractive m) => AdditiveScalar m -> m -> m
+a .- b = a .+ negate b
 
 -- | Multiplicative Action
 class
@@ -61,30 +65,30 @@ class
   where
   type Scalar m :: Type
 
-  infixl 7 .*
-  (.*) :: Scalar m -> m -> m
+  infixl 7 *.
+  (*.) :: m -> Scalar m -> m
 
-infixl 7 *.
+infixl 7 .*
 
 -- | flipped multiplicative action
 --
--- > (*.) == flip (.*)
-(*.) :: (MultiplicativeAction m) => m -> Scalar m -> m
-(*.) = flip (.*)
+-- > (.*) == flip (*.)
+(.*) :: (MultiplicativeAction m) => Scalar m -> m -> m
+(.*) = flip (*.)
 
 -- | Divisive Action
 class
   (Divisive (Scalar m), MultiplicativeAction m) =>
   DivisiveAction m
   where
-  infixl 7 ./
-  (./) :: Scalar m -> m -> m
+  infixl 7 /.
+  (/.) :: m -> Scalar m -> m
 
--- | right scalar division
+-- | left scalar division
 --
--- > (/.) == (*.) . recip
-(/.) :: (MultiplicativeAction m, Divisive (Scalar m)) => m -> Scalar m -> m
-a /. b = a *. recip b
+-- > (./) == (.*) . recip
+(./) :: (MultiplicativeAction m, Divisive m) => Scalar m -> m -> m
+a ./ b = a .* recip b
 
 -- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module>
 --

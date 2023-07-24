@@ -2,13 +2,14 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 
 -- | Metric classes
 module NumHask.Algebra.Metric
   ( Basis (..),
     Absolute,
     Sign,
-    HomoBased,
+    EndoBased,
     abs,
     signum,
     distance,
@@ -20,7 +21,7 @@ module NumHask.Algebra.Metric
     nearZero,
     aboutEqual,
     (~=),
-    Euclid (..),
+    EuclideanPair (..),
   )
 where
 
@@ -34,8 +35,9 @@ import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
-import NumHask.Algebra.Module
+import NumHask.Algebra.Action
 import NumHask.Algebra.Multiplicative
+import NumHask.Algebra.Ring
 import Prelude hiding
   ( Bounded (..),
     Integral (..),
@@ -52,6 +54,9 @@ import Prelude hiding
     (+),
     (-),
     (/),
+    exp,
+    log,
+    pi,
   )
 import qualified Prelude as P
 
@@ -69,13 +74,12 @@ import qualified Prelude as P
 --
 -- The names chosen are meant to represent the spiritual idea of a basis rather than a specific mathematics. See https://en.wikipedia.org/wiki/Basis_(linear_algebra) & https://en.wikipedia.org/wiki/Norm_(mathematics) for some mathematical motivations.
 --
---
 -- >>> magnitude (-0.5 :: Double)
 -- 0.5
 --
 -- >>> basis (-0.5 :: Double)
 -- -1.0
-class (Multiplicative (Mag a), Additive (Mag a)) => Basis a where
+class (Distributive (Mag a)) => Basis a where
   type Mag a :: Type
   type Base a :: Type
 
@@ -92,13 +96,12 @@ type Absolute a = (Basis a, Mag a ~ a)
 type Sign a = (Basis a, Base a ~ a)
 
 -- | Basis where the domain, magnitude codomain and basis codomain are the same.
-type HomoBased a = (Basis a, Mag a ~ a, Base a ~ a)
+type EndoBased a = (Basis a, Mag a ~ a, Base a ~ a)
 
 -- | The absolute value of a number.
 --
 -- prop> \a -> abs a * signum a ~= a
 --
--- abs zero == zero, so any value for sign zero is ok.  We choose lawful neutral:
 --
 -- >>> abs (-1)
 -- 1
@@ -107,11 +110,14 @@ abs = magnitude
 
 -- | The sign of a number.
 --
+-- >>> signum (-1)
+-- -1
+--
+-- @abs zero == zero@, so any value for @signum zero@ is ok.  We choose lawful neutral:
+--
 -- >>> signum zero == zero
 -- True
 --
--- >>> signum (-1)
--- -1
 signum :: (Sign a) => a -> a
 signum = basis
 
@@ -207,18 +213,19 @@ instance Basis Word64 where
 distance :: (Basis a, Subtractive a) => a -> a -> Mag a
 distance a b = magnitude (a - b)
 
--- | Convert between a "co-ordinated" or "higher-kinded" number and representations of a direction. Typically thought of as polar co-ordinate conversion.
+-- | Convert between a "co-ordinated" or "higher-kinded" number and and a direction.
 --
--- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 --
 -- > ray . angle == basis
 -- > magnitude (ray x) == one
-class (Additive coord, Multiplicative coord, Additive (Dir coord), Multiplicative (Dir coord)) => Direction coord where
+class (Distributive coord, Distributive (Dir coord)) => Direction coord where
   type Dir coord :: Type
   angle :: coord -> Dir coord
   ray :: Dir coord -> coord
 
--- | Something that has a magnitude and a direction.
+-- | Something that has a magnitude and a direction, with both expressed as the same type.
+--
+-- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 data Polar a = Polar {radial :: a, azimuth :: a}
   deriving (Generic, Show, Eq)
 
@@ -248,14 +255,17 @@ class
 --
 -- >>> nearZero (epsilon :: Double)
 -- True
-nearZero :: (Epsilon a, Ord a, Subtractive a) => a -> Bool
-nearZero a = epsilon >= a && epsilon >= negate a
+--
+-- >>> nearZero (epsilon :: EuclideanPair Double)
+-- True
+nearZero :: (Epsilon a, Lattice a, Subtractive a) => a -> Bool
+nearZero a = epsilon /\ a == epsilon && epsilon /\ negate a == epsilon
 
 -- | Approximate equality
 --
 -- >>> aboutEqual zero (epsilon :: Double)
 -- True
-aboutEqual :: (Epsilon a, Ord a, Subtractive a) => a -> a -> Bool
+aboutEqual :: (Epsilon a, Lattice a, Subtractive a) => a -> a -> Bool
 aboutEqual a b = nearZero $ a - b
 
 infixl 4 ~=
@@ -264,7 +274,7 @@ infixl 4 ~=
 --
 -- >>> (1.0 + epsilon) ~= (1.0 :: Double)
 -- True
-(~=) :: (Epsilon a) => (Ord a, Subtractive a) => a -> a -> Bool
+(~=) :: (Epsilon a) => (Lattice a, Subtractive a) => a -> a -> Bool
 (~=) = aboutEqual
 
 -- | 1e-14
@@ -298,78 +308,91 @@ instance Epsilon Word32
 
 instance Epsilon Word64
 
--- FIXME: performance versus Euclid
-newtype Euclid a = Euclid {euclidPair :: (a, a)}
+newtype EuclideanPair a = EuclideanPair {euclidPair :: (a, a)}
   deriving stock
     ( Generic,
       Eq,
       Show
     )
 
-instance Functor Euclid where
-  fmap f (Euclid (x, y)) = Euclid (f x, f y)
+instance Functor EuclideanPair where
+  fmap f (EuclideanPair (x, y)) = EuclideanPair (f x, f y)
 
-instance Applicative Euclid where
-  pure x = Euclid (x, x)
-  Euclid (fx, fy) <*> Euclid (x, y) = Euclid (fx x, fy y)
-  liftA2 f (Euclid (x, y)) (Euclid (x', y')) = Euclid (f x x', f y y')
+instance Applicative EuclideanPair where
+  pure x = EuclideanPair (x, x)
+  EuclideanPair (fx, fy) <*> EuclideanPair (x, y) = EuclideanPair (fx x, fy y)
+  liftA2 f (EuclideanPair (x, y)) (EuclideanPair (x', y')) = EuclideanPair (f x x', f y y')
 
-instance (Additive a) => Additive (Euclid a) where
+instance (Additive a) => Additive (EuclideanPair a) where
   (+) = liftA2 (+)
   zero = pure zero
 
-instance (Subtractive a) => Subtractive (Euclid a) where
+instance (Subtractive a) => Subtractive (EuclideanPair a) where
   negate = fmap negate
 
 instance
   (Multiplicative a) =>
-  Multiplicative (Euclid a)
+  Multiplicative (EuclideanPair a)
   where
   (*) = liftA2 (*)
   one = pure one
 
 instance
   (Subtractive a, Divisive a) =>
-  Divisive (Euclid a)
+  Divisive (EuclideanPair a)
   where
   recip = fmap recip
 
-instance (TrigField a) => Direction (Euclid a) where
-  type Dir (Euclid a) = a
-  angle (Euclid (x, y)) = atan2 y x
-  ray x = Euclid (cos x, sin x)
+instance (TrigField a) => Direction (EuclideanPair a) where
+  type Dir (EuclideanPair a) = a
+  angle (EuclideanPair (x, y)) = atan2 y x
+  ray x = EuclideanPair (cos x, sin x)
 
 instance
   (ExpField a, Eq a) =>
-  Basis (Euclid a)
+  Basis (EuclideanPair a)
   where
-  type Mag (Euclid a) = a
-  type Base (Euclid a) = Euclid a
+  type Mag (EuclideanPair a) = a
+  type Base (EuclideanPair a) = EuclideanPair a
 
-  magnitude (Euclid (x, y)) = sqrt (x * x + y * y)
+  magnitude (EuclideanPair (x, y)) = sqrt (x * x + y * y)
   basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
 
 instance
   (Epsilon a) =>
-  Epsilon (Euclid a)
+  Epsilon (EuclideanPair a)
   where
   epsilon = pure epsilon
 
-instance (JoinSemiLattice a) => JoinSemiLattice (Euclid a) where
-  (\/) (Euclid (x, y)) (Euclid (x', y')) = Euclid (x \/ x', y \/ y')
+instance (JoinSemiLattice a) => JoinSemiLattice (EuclideanPair a) where
+  (\/) (EuclideanPair (x, y)) (EuclideanPair (x', y')) = EuclideanPair (x \/ x', y \/ y')
 
-instance (MeetSemiLattice a) => MeetSemiLattice (Euclid a) where
-  (/\) (Euclid (x, y)) (Euclid (x', y')) = Euclid (x /\ x', y /\ y')
+instance (MeetSemiLattice a) => MeetSemiLattice (EuclideanPair a) where
+  (/\) (EuclideanPair (x, y)) (EuclideanPair (x', y')) = EuclideanPair (x /\ x', y /\ y')
 
-instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (Euclid a) where
+instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (EuclideanPair a) where
   bottom = pure bottom
 
-instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (Euclid a) where
+instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (EuclideanPair a) where
   top = pure top
 
-instance (Multiplicative a) => MultiplicativeAction (Euclid a) where
-  type Scalar (Euclid a) = a
-  (.*) s (Euclid (x, y)) = Euclid (s * x, s * y)
+instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
+  type Scalar (EuclideanPair a) = a
+  (*.) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
 
-instance (Divisive a) => DivisiveAction (Euclid a) where
-  (./) s = fmap (s /)
+instance (Divisive a) => DivisiveAction (EuclideanPair a) where
+  (/.) e s = fmap (/s) e
+
+instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
+  exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
+  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2' y x)
+    where
+      atan2' y x
+        | x P.> zero = atan (y / x)
+        | x P.== zero P.&& y P.> zero = pi / (one + one)
+        | x P.< one P.&& y P.> one = pi + atan (y / x)
+        | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
+            negate (atan2' (negate y) x)
+        | y P.== zero = pi -- must be after the previous test on zero y
+        | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
+        | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)

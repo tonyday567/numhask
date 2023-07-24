@@ -56,22 +56,22 @@ module NumHask
     BoundedJoinSemiLattice (..),
     BoundedMeetSemiLattice (..),
 
-    -- * Module
+    -- * Action
     AdditiveAction (..),
-    (+.),
+    (.+),
     SubtractiveAction (..),
-    (-.),
+    (.-),
     MultiplicativeAction (..),
-    (*.),
+    (.*),
     DivisiveAction (..),
-    (/.),
+    (./),
     Module,
 
     -- * Metric
     Basis (..),
     Absolute,
     Sign,
-    HomoBased,
+    EndoBased,
     abs,
     signum,
     distance,
@@ -92,8 +92,10 @@ module NumHask
     -- * Integral
     Integral (..),
     ToIntegral (..),
+    ToInt,
     FromIntegral (..),
     FromInteger (..),
+    FromInt,
     even,
     odd,
     (^^),
@@ -145,7 +147,7 @@ import NumHask.Algebra.Metric
     Basis (..),
     Direction (..),
     Epsilon (..),
-    HomoBased,
+    EndoBased,
     Polar (..),
     Sign,
     aboutEqual,
@@ -157,16 +159,16 @@ import NumHask.Algebra.Metric
     signum,
     (~=),
   )
-import NumHask.Algebra.Module
+import NumHask.Algebra.Action
   ( AdditiveAction (..),
     DivisiveAction (..),
     Module,
     MultiplicativeAction (..),
     SubtractiveAction (..),
-    (*.),
-    (+.),
-    (-.),
-    (/.),
+    (.*),
+    (.+),
+    (.-),
+    (./),
   )
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
@@ -186,8 +188,10 @@ import NumHask.Data.Complex (Complex (..), imagPart, realPart)
 import NumHask.Data.Integral
   ( FromInteger (..),
     FromIntegral (..),
+    FromInt,
     Integral (..),
     ToIntegral (..),
+    ToInt,
     even,
     odd,
     (^),
@@ -319,13 +323,15 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- >    -- or @1@ (positive).
 -- >    signum              :: a -> a
 --
--- 'abs' is a function in the 'NumHask.Algebra.Metric.Signed' class.
--- The concept of an absolute value can also include situations where the domain and codomain
--- are different, and 'norm' as a function in the 'NumHask.Algebra.Metric.Norm' class is supplied
--- for these cases.
+-- The concept of an absolute value and the sign of a number can include situations where the domain type is different to the absolute and sign codomain types.
 --
--- 'NumHask.Algebra.Metric.sign' replaces 'GHC.Num.signum', because signum is simply a naming crime.
--- 'NumHask.Algebra.Metric.basis' can also be seen as a generalisation of sign.
+-- A new class, 'Basis' is supplied to handle these situations:
+--
+-- - the 'magnitude' method is a generalisation of 'abs'
+--
+-- - the 'basis' method is a generalisation of 'signum'
+--
+-- 'NumHask.Algebra.Metric.abs' and 'NumHask.Algebra.Metric.signum' are specialisations of these methods.
 --
 -- >    -- | Conversion from an 'Integer'.
 -- >    -- An integer literal represents the application of the function
@@ -341,7 +347,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- 'GHC.Real.Fractional' is roughly synonymous to 'Field' together with a polymorphic 'FromRatio'.
 --
--- 'GHC.Real.RealFrac' becomes the polymorphic 'QuotientField'
+-- 'GHC.Real.RealFrac' becomes 'QuotientField' with a polymorphic 'Whole' type using Type Families.
 --
 -- 'GHC.Float.Floating' is split into 'ExpField' and 'TrigField'
 --

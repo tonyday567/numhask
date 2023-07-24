@@ -34,7 +34,6 @@ import Prelude hiding
     sqrt,
     (/),
   )
-import qualified Prelude as P (Ord (..), otherwise, (&&), (<), (<=), (==), (>))
 
 -- | Complex numbers have real and imaginary parts.
 newtype Complex a = Complex {complexPair :: (a, a)}
@@ -55,9 +54,10 @@ newtype Complex a = Complex {complexPair :: (a, a)}
       JoinSemiLattice,
       MeetSemiLattice,
       BoundedJoinSemiLattice,
-      BoundedMeetSemiLattice
+      BoundedMeetSemiLattice,
+      ExpField
     )
-    via (Euclid a)
+    via (EuclideanPair a)
 
 infixl 6 +|
 
@@ -93,20 +93,6 @@ instance
   FromIntegral (Complex a) b
   where
   fromIntegral x = fromIntegral x +| zero
-
-instance (Ord a, TrigField a, ExpField a) => ExpField (Complex a) where
-  exp (Complex (r, i)) = (exp r * cos i) +| (exp r * sin i)
-  log (Complex (r, i)) = log (sqrt (r * r + i * i)) +| atan2' i r
-    where
-      atan2' y x
-        | x P.> zero = atan (y / x)
-        | x P.== zero P.&& y P.> zero = pi / (one + one)
-        | x P.< one P.&& y P.> one = pi + atan (y / x)
-        | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
-            negate (atan2' (negate y) x)
-        | y P.== zero = pi -- must be after the previous test on zero y
-        | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
-        | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (Complex (r, i)) = r +| negate i

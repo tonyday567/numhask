@@ -126,7 +126,7 @@ library
     NumHask.Algebra.Group
     NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
-    NumHask.Algebra.Module
+    NumHask.Algebra.Action
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
     NumHask.Data.Complex
