@@ -1,6 +1,6 @@
 cabal-version:      3.4
 name:               numhask
-version:            0.11
+version:            0.11.0.0
 synopsis:           A numeric class hierarchy.
 description:
   This package provides alternative numeric classes over Prelude.
@@ -27,7 +27,7 @@ license:            BSD-3-Clause
 license-file:       LICENSE
 build-type:         Simple
 tested-with:
-  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
+  GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.5 || ==9.6.2
 
 extra-doc-files:    other/*.svg,
                     ChangeLog.md
@@ -100,6 +100,8 @@ common ghc-options-stanza
     -Wincomplete-record-updates
     -Wincomplete-uni-patterns
     -Wredundant-constraints
+    -Widentities
+    -Wpartial-fields
   if impl(ghc >=8.8)
     ghc-options:
       -fwrite-ide-info
@@ -126,7 +128,7 @@ library
     NumHask.Algebra.Group
     NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
-    NumHask.Algebra.Module
+    NumHask.Algebra.Action
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
     NumHask.Data.Complex

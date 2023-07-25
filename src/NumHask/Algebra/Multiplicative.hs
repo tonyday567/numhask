@@ -1,6 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-
 -- | Multiplicative classes
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
@@ -73,6 +70,8 @@ accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 -- >>> 1 / 2
 -- 0.5
 class (Multiplicative a) => Divisive a where
+  {-# MINIMAL (/) | recip #-}
+
   recip :: a -> a
   recip a = one / a
 

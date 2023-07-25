@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 -- | Rational classes
 module NumHask.Data.Rational
@@ -36,7 +37,7 @@ import qualified Prelude as P
 -- | A rational number
 data Ratio a = !a :% !a deriving (P.Show)
 
-instance (P.Eq a, Subtractive a, Signed a, Integral a) => P.Eq (Ratio a) where
+instance (P.Eq a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)
     | isRNaN a P.|| isRNaN b = P.False
     | xa == zero P.&& xb == zero = P.True
@@ -51,11 +52,11 @@ isRNaN (x :% y)
   | x P.== zero P.&& y P.== zero = P.True
   | P.otherwise = P.False
 
-instance (P.Ord a, Integral a, Signed a, Subtractive a) => P.Ord (Ratio a) where
+instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => P.Ord (Ratio a) where
   (x :% y) <= (x' :% y') = x * y' P.<= x' * y
   (x :% y) < (x' :% y') = x * y' P.< x' * y
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Additive (Ratio a) where
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Additive (Ratio a) where
   (x :% y) + (x' :% y')
     | y P.== zero P.&& y' P.== zero = bool one (negate one) (x + x' P.< zero) :% zero
     | y P.== zero = x :% y
@@ -64,48 +65,43 @@ instance (P.Ord a, Signed a, Integral a, Ring a) => Additive (Ratio a) where
 
   zero = zero :% one
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Subtractive (Ratio a) where
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Subtractive (Ratio a) where
   negate (x :% y) = negate x :% y
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Multiplicative (Ratio a) where
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Multiplicative (Ratio a) where
   (x :% y) * (x' :% y') = reduce (x * x') (y * y')
 
   one = one :% one
 
 instance
-  (P.Ord a, Signed a, Integral a, Ring a) =>
+  (P.Ord a, EndoBased a, Integral a, Ring a) =>
   Divisive (Ratio a)
   where
   recip (x :% y)
-    | sign x P.== negate one = negate y :% negate x
+    | signum x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Distributive (Ratio a)
+instance (P.Ord a, EndoBased a, Absolute a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) where
+  type Whole (Ratio a) = Int
+  properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Field (Ratio a)
-
-instance (P.Ord a, P.Ord b, Signed a, Integral a, Ring a, Signed b, Subtractive b, Integral b, FromIntegral b a) => QuotientField (Ratio a) b where
-  properFraction (n :% d) = let (w, r) = quotRem n d in (fromIntegral w, r :% d)
-
-instance (P.Ord a, Signed a, Integral a, Ring a) => Signed (Ratio a) where
-  sign (n :% _) =
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) where
+  type Mag (Ratio a) = Ratio a
+  type Base (Ratio a) = Ratio a
+  basis (n :% _) =
     case compare n zero of
       EQ -> zero
       GT -> one
       LT -> negate one
-  abs (n :% d) = abs n :% abs d
+  magnitude (n :% d) = abs n :% abs d
 
-instance (P.Ord a, Signed a, Integral a, Ring a) => Norm (Ratio a) (Ratio a) where
-  norm = abs
-  basis = sign
-
-instance (P.Ord a, Integral a, Signed a, Subtractive a) => JoinSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => JoinSemiLattice (Ratio a) where
   (\/) = P.min
 
-instance (P.Ord a, Integral a, Signed a, Subtractive a) => MeetSemiLattice (Ratio a) where
+instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
-instance (P.Ord a, Signed a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
+instance (P.Ord a, EndoBased a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
 
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
   fromIntegral x = fromIntegral x :% one
@@ -211,7 +207,7 @@ instance FromRational (Ratio Integer) where
 --
 -- prop> \a b -> reduce a b == a :% b || b == zero
 reduce ::
-  (P.Eq a, Subtractive a, Signed a, Integral a) => a -> a -> Ratio a
+  (P.Eq a, Subtractive a, EndoBased a, Integral a) => a -> a -> Ratio a
 reduce x y
   | x P.== zero P.&& y P.== zero = zero :% zero
   | z P.== zero = one :% zero
@@ -219,7 +215,7 @@ reduce x y
   where
     z = gcd x y
     n % d
-      | sign d P.== negate one = negate n :% negate d
+      | signum d P.== negate one = negate n :% negate d
       | P.otherwise = n :% d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
@@ -234,7 +230,7 @@ reduce x y
 --
 -- >>> gcd 72 60
 -- 12
-gcd :: (P.Eq a, Signed a, Integral a) => a -> a -> a
+gcd :: (P.Eq a, EndoBased a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
   where
     gcd' a b

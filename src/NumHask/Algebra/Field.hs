@@ -1,5 +1,5 @@
 {-# LANGUAGE DefaultSignatures #-}
-{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE TypeFamilies #-}
 
 -- | Field classes
 module NumHask.Algebra.Field
@@ -15,13 +15,14 @@ module NumHask.Algebra.Field
 where
 
 import Data.Bool (bool)
+import Data.Kind
 import NumHask.Algebra.Additive (Additive (..), Subtractive (..), (-))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     (/),
   )
-import NumHask.Algebra.Ring (Distributive, two)
+import NumHask.Algebra.Ring (Distributive, Ring, two)
 import NumHask.Data.Integral (Integral, even)
 import Prelude ((.))
 import qualified Prelude as P
@@ -56,15 +57,7 @@ import qualified Prelude as P
 -- > recip a == one / a || a == zero
 -- > recip a * a == one || a == zero
 -- > a * recip a == one || a == zero
-class
-  (Distributive a, Subtractive a, Divisive a) =>
-  Field a
-
-instance Field P.Double
-
-instance Field P.Float
-
-instance (Field b) => Field (a -> b)
+type Field a = (Ring a, Divisive a)
 
 -- | A hyperbolic field class
 --
@@ -108,31 +101,30 @@ instance (ExpField b) => ExpField (a -> b) where
   exp f = exp . f
   log f = log . f
 
--- | Conversion from a 'Field' to a 'NumHask.Algebra.Ring'
+-- | Quotienting of a 'Field' into a 'NumHask.Algebra.Ring'
 --
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
--- prop> (\a -> a - one < fromIntegral (floor a :: Int) && fromIntegral (floor a :: Int) <= a && a <= fromIntegral (ceiling a :: Int) && fromIntegral (ceiling a :: Int) <= a + one) :: Double -> Bool
--- prop> \a -> (round a :: Int) ~= (floor (a + half) :: Int)
-class (Field a, Multiplicative b, Additive b) => QuotientField a b where
-  properFraction :: a -> (b, a)
+class (Field a) => QuotientField a where
+  type Whole a :: Type
+  properFraction :: a -> (Whole a, a)
 
-  -- | round to the nearest integral
+  -- | round to the nearest Int
   --
   -- Exact ties are managed by rounding down ties if the whole component is even.
   --
-  -- >>> round (1.5 :: Double) :: Int
+  -- >>> round (1.5 :: Double)
   -- 2
   --
-  -- >>> round (2.5 :: Double) :: Int
+  -- >>> round (2.5 :: Double)
   -- 2
-  round :: a -> b
-  default round :: (P.Ord a, P.Ord b, Subtractive b, Integral b) => a -> b
+  round :: (P.Eq (Whole a), Ring (Whole a)) => a -> Whole a
+  default round :: (Integral (Whole a), P.Eq (Whole a), P.Ord a, Ring (Whole a)) => a -> Whole a
   round x = case properFraction x of
     (n, r) ->
       let m = bool (n + one) (n - one) (r P.< zero)
-          half_down = abs' r - (one / (one + one))
+          half_down = abs' r - half
           abs' a
             | a P.< zero = negate a
             | P.otherwise = a
@@ -143,55 +135,42 @@ class (Field a, Multiplicative b, Additive b) => QuotientField a b where
 
   -- | supply the next upper whole component
   --
-  -- >>> ceiling (1.001 :: Double) :: Int
+  -- >>> ceiling (1.001 :: Double)
   -- 2
-  ceiling :: a -> b
-  default ceiling :: (P.Ord a) => a -> b
+  ceiling :: (Distributive (Whole a)) => a -> Whole a
+  default ceiling :: (P.Ord a, Distributive (Whole a)) => a -> Whole a
   ceiling x = bool n (n + one) (r P.>= zero)
     where
       (n, r) = properFraction x
 
   -- | supply the previous lower whole component
   --
-  -- >>> floor (1.001 :: Double) :: Int
+  -- >>> floor (1.001 :: Double)
   -- 1
-  floor :: a -> b
-  default floor :: (P.Ord a, Subtractive b) => a -> b
+  floor :: (Ring (Whole a)) => a -> Whole a
+  default floor :: (P.Ord a, Ring (Whole a)) => a -> Whole a
   floor x = bool n (n - one) (r P.< zero)
     where
       (n, r) = properFraction x
 
   -- | supply the whole component closest to zero
   --
-  -- >>> floor (-1.001 :: Double) :: Int
+  -- >>> floor (-1.001 :: Double)
   -- -2
   --
-  -- >>> truncate (-1.001 :: Double) :: Int
+  -- >>> truncate (-1.001 :: Double)
   -- -1
-  truncate :: a -> b
-  default truncate :: (P.Ord a) => a -> b
+  truncate :: (Ring (Whole a)) => a -> Whole a
+  default truncate :: (P.Ord a, Ring (Whole a)) => a -> Whole a
   truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
-instance QuotientField P.Float P.Integer where
+instance QuotientField P.Float where
+  type Whole P.Float = P.Int
   properFraction = P.properFraction
 
-instance QuotientField P.Double P.Integer where
+instance QuotientField P.Double where
+  type Whole P.Double = P.Int
   properFraction = P.properFraction
-
-instance QuotientField P.Float P.Int where
-  properFraction = P.properFraction
-
-instance QuotientField P.Double P.Int where
-  properFraction = P.properFraction
-
-instance (QuotientField b c) => QuotientField (a -> b) (a -> c) where
-  properFraction f = (P.fst . frac, P.snd . frac)
-    where
-      frac a = properFraction @b @c (f a)
-  round f = round . f
-  ceiling f = ceiling . f
-  floor f = floor . f
-  truncate f = truncate . f
 
 -- | infinity is defined for any 'Field'.
 --

@@ -19,5 +19,3 @@ import NumHask.Prelude
 ```
 See the documentation in the NumHask module for a detailed overview.
 
-NumHask.Prelude passes through the Prelude, with the exception of functions which include Num, Rational, Integral or Real constraints.
-

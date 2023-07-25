@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-
 -- | Exceptions arising within numhask.
 module NumHask.Exception
   ( NumHaskException (..),
