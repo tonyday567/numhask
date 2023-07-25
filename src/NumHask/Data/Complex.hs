@@ -5,6 +5,7 @@
 -- | Complex numbers.
 module NumHask.Data.Complex
   ( Complex (..),
+    (+:),
     realPart,
     imagPart,
   )
@@ -35,7 +36,7 @@ import Prelude hiding
     (/),
   )
 
--- | Complex numbers have real and imaginary parts.
+-- | The underlying representation is a newtype-wrapped tuple, compared with the base datatype. This was chosen to facilitate the use of DerivingVia.
 newtype Complex a = Complex {complexPair :: (a, a)}
   deriving stock
     ( Eq,
@@ -59,10 +60,11 @@ newtype Complex a = Complex {complexPair :: (a, a)}
     )
     via (EuclideanPair a)
 
-infixl 6 +|
+infixl 6 +:
 
-(+|) :: a -> a -> Complex a
-(+|) r i = Complex (r, i)
+-- | Complex number constructor.
+(+:) :: a -> a -> Complex a
+(+:) r i = Complex (r, i)
 
 -- | Extracts the real part of a complex number.
 realPart :: Complex a -> a
@@ -78,13 +80,13 @@ instance
   where
   (Complex (r, i)) * (Complex (r', i')) =
     Complex (r * r' - i * i', i * r' + i' * r)
-  one = one +| zero
+  one = one +: zero
 
 instance
   (Subtractive a, Divisive a) =>
   Divisive (Complex a)
   where
-  recip (Complex (r, i)) = (r * d) +| (negate i * d)
+  recip (Complex (r, i)) = (r * d) +: (negate i * d)
     where
       d = recip ((r * r) + (i * i))
 
@@ -92,7 +94,7 @@ instance
   (Additive a, FromIntegral a b) =>
   FromIntegral (Complex a) b
   where
-  fromIntegral x = fromIntegral x +| zero
+  fromIntegral x = fromIntegral x +: zero
 
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
-  adj (Complex (r, i)) = r +| negate i
+  adj (Complex (r, i)) = r +: negate i

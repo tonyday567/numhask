@@ -58,13 +58,13 @@ module NumHask
 
     -- * Action
     AdditiveAction (..),
-    (.+),
+    (+|),
     SubtractiveAction (..),
-    (.-),
+    (-|),
     MultiplicativeAction (..),
-    (.*),
+    (*|),
     DivisiveAction (..),
-    (./),
+    (/|),
     Module,
 
     -- * Metric
@@ -86,6 +86,7 @@ module NumHask
 
     -- * Complex
     Complex (..),
+    (+:),
     realPart,
     imagPart,
 
@@ -116,6 +117,17 @@ module NumHask
   )
 where
 
+import NumHask.Algebra.Action
+  ( AdditiveAction (..),
+    DivisiveAction (..),
+    Module,
+    MultiplicativeAction (..),
+    SubtractiveAction (..),
+    (*|),
+    (+|),
+    (-|),
+    (/|),
+  )
 import NumHask.Algebra.Additive
   ( Additive (..),
     Subtractive (..),
@@ -146,8 +158,8 @@ import NumHask.Algebra.Metric
   ( Absolute,
     Basis (..),
     Direction (..),
-    Epsilon (..),
     EndoBased,
+    Epsilon (..),
     Polar (..),
     Sign,
     aboutEqual,
@@ -158,17 +170,6 @@ import NumHask.Algebra.Metric
     polar,
     signum,
     (~=),
-  )
-import NumHask.Algebra.Action
-  ( AdditiveAction (..),
-    DivisiveAction (..),
-    Module,
-    MultiplicativeAction (..),
-    SubtractiveAction (..),
-    (.*),
-    (.+),
-    (.-),
-    (./),
   )
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
@@ -184,14 +185,14 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Data.Complex (Complex (..), imagPart, realPart)
+import NumHask.Data.Complex (Complex (..), imagPart, realPart, (+:))
 import NumHask.Data.Integral
-  ( FromInteger (..),
+  ( FromInt,
+    FromInteger (..),
     FromIntegral (..),
-    FromInt,
     Integral (..),
-    ToIntegral (..),
     ToInt,
+    ToIntegral (..),
     even,
     odd,
     (^),
@@ -265,19 +266,16 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents.
 -- Principles that have guided design include:
 --
--- - __/balanced class density/__. The numeric heirarchy begins with addition and multiplication,
---   choosing not to build from a Magma base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
+-- - __/balanced class density/__. The numeric heirarchy begins with addition and multiplication rather than from a Monoidal or Magma base. Whilst not being as principled as other approaches, this circumvents the instance explosion problems of Haskell whilst maintaining clarity of class purpose.
 --
--- - __/operator-first/__. In most cases, a class exists to define useful operators.
---   The exceptions are 'Distributive', 'Ring' and 'Field', which are collections of operators
---   representing major teleological fault lines.
+-- - __/operator-first/__. In all cases, a class exists to define useful operators.
+--   Major class groupings, such as 'Distributive', 'Ring' and 'Field' are type synonyms.
 --
--- - __/lawful/__. Most classes have laws associated with them that serve to relate class operators
---   together in a meaningful way.
+-- - __/lawful/__. All classes have laws associated with them that serve to relate class operators together in a meaningful way.
 --
 -- - __/low-impact/__. The library attempts to fit in with the rest of the Haskell ecosystem.
 --   It provides instances for common numbers: 'GHC.Num.Int', 'GHC.Num.Integer', 'GHC.Float.Double',
---   'GHC.Float.Float' and the Word classes. It avoids name (or idea) clashes with other popular libraries
+--   'GHC.Float.Float', 'GHC.Natural.Natural', and the Word classes. It avoids name (or idea) clashes with other popular libraries
 --   and adopts conventions in the <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude>
 --   where they make sense.
 --
@@ -287,6 +285,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- $pictures
 --
 -- The class heirarchy looks somewhat like this:
+--
 -- ![classes](other/nh.svg)
 
 -- $mapping
@@ -341,14 +340,18 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- 'FromInteger' becomes its own class and 'FromIntegral' is introduced to polymorphise the covariant.
 --
--- Mappings from other areas of prelude include:\
+-- Mappings from other areas of prelude include:
 --
--- 'GHC.Real.Integral' becomes 'Integral' and a polymorphic 'ToIntegral' is introduced.
+-- - 'GHC.Real.Integral' becomes 'Integral' and a polymorphic 'ToIntegral' is introduced.
 --
--- 'GHC.Real.Fractional' is roughly synonymous to 'Field' together with a polymorphic 'FromRatio'.
+-- - 'GHC.Real.Fractional' is roughly synonymous to 'Field' together with a polymorphic 'FromRatio'.
 --
--- 'GHC.Real.RealFrac' becomes 'QuotientField' with a polymorphic 'Whole' type using Type Families.
+-- - 'GHC.Real.RealFrac' becomes 'QuotientField' with a polymorphic 'Whole' type using Type Families.
 --
--- 'GHC.Float.Floating' is split into 'ExpField' and 'TrigField'
+-- - 'GHC.Float.Floating' is split into 'ExpField' and 'TrigField'
 --
--- 'GHC.Float.RealFloat' is not attempted. Life is too short.
+-- - 'GHC.Float.RealFloat' is not attempted. Life is too short.
+--
+-- - Complex is resupplied in 'NumHask.Data.Complex' but with some functionality deriving via 'NumHask.Algebra.Metric.EuclideanPair'. The underlying representation has also been switched to a newtype-wrapped tuple.
+--
+-- In addition to base changes, alternatives to 'sum' and 'product' from 'Data.Foldable' are also supplied.

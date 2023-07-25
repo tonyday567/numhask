@@ -101,7 +101,7 @@ instance (ExpField b) => ExpField (a -> b) where
   exp f = exp . f
   log f = log . f
 
--- | Conversion from a 'Field' to a 'NumHask.Algebra.Ring'
+-- | Quotienting of a 'Field' into a 'NumHask.Algebra.Ring'
 --
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --

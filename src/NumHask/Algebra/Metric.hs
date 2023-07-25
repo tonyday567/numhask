@@ -32,10 +32,10 @@ import Data.Kind
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
 import GHC.Natural (Natural (..))
+import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
-import NumHask.Algebra.Action
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import Prelude hiding
@@ -45,7 +45,10 @@ import Prelude hiding
     atan,
     atan2,
     cos,
+    exp,
+    log,
     negate,
+    pi,
     recip,
     signum,
     sin,
@@ -54,9 +57,6 @@ import Prelude hiding
     (+),
     (-),
     (/),
-    exp,
-    log,
-    pi,
   )
 import qualified Prelude as P
 
@@ -65,11 +65,11 @@ import qualified Prelude as P
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
--- | 'Basis' encapsulates the intuitive notions of magnitude (the reduction of a higher-kinded number to a scalar one intuitive appeal) and the basis of which the magnitude reduction occurs. An instance needs to satisfy these laws:
+-- | 'Basis' encapsulates the notion of magnitude (intuitively the quotienting of a higher-kinded number to a scalar one) and the basis on which the magnitude quotienting was performed. An instance needs to satisfy these laws:
 --
 -- > \a -> magnitude a >= zero
 -- > \a -> magnitude zero == zero
--- > \a -> a == magnitude a .* basis a
+-- > \a -> a == magnitude a *| basis a
 -- > \a -> magnitude (basis a) == one
 --
 -- The names chosen are meant to represent the spiritual idea of a basis rather than a specific mathematics. See https://en.wikipedia.org/wiki/Basis_(linear_algebra) & https://en.wikipedia.org/wiki/Norm_(mathematics) for some mathematical motivations.
@@ -117,7 +117,6 @@ abs = magnitude
 --
 -- >>> signum zero == zero
 -- True
---
 signum :: (Sign a) => a -> a
 signum = basis
 
@@ -209,11 +208,11 @@ instance Basis Word64 where
 --
 -- > distance a b >= zero
 -- > distance a a == zero
--- > distance a b .* basis (a - b) == a - b
+-- > distance a b *| basis (a - b) == a - b
 distance :: (Basis a, Subtractive a) => a -> a -> Mag a
 distance a b = magnitude (a - b)
 
--- | Convert between a "co-ordinated" or "higher-kinded" number and and a direction.
+-- | Convert between a "co-ordinated" or "higher-kinded" number and a direction.
 --
 --
 -- > ray . angle == basis
@@ -241,7 +240,7 @@ polar x = Polar (magnitude x) (angle (basis x))
 
 -- | Convert a Polar to a (higher-kinded) number that has a direction.
 coord :: (Scalar m ~ Dir m, MultiplicativeAction m, Direction m) => Polar (Scalar m) -> m
-coord x = radial x .* ray (azimuth x)
+coord x = radial x *| ray (azimuth x)
 
 -- | A small number, especially useful for approximate equality.
 class
@@ -251,7 +250,7 @@ class
   epsilon :: a
   epsilon = zero
 
--- | are we near enough?
+-- | Note that the constraint is Lattice rather than Ord allowing broader usage.
 --
 -- >>> nearZero (epsilon :: Double)
 -- True
@@ -308,6 +307,7 @@ instance Epsilon Word32
 
 instance Epsilon Word64
 
+-- | Two dimensional cartesian coordinates.
 newtype EuclideanPair a = EuclideanPair {euclidPair :: (a, a)}
   deriving stock
     ( Generic,
@@ -356,7 +356,7 @@ instance
   type Base (EuclideanPair a) = EuclideanPair a
 
   magnitude (EuclideanPair (x, y)) = sqrt (x * x + y * y)
-  basis p = let m = magnitude p in bool (p /. m) zero (m == zero)
+  basis p = let m = magnitude p in bool (p |/ m) zero (m == zero)
 
 instance
   (Epsilon a) =>
@@ -378,10 +378,10 @@ instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (EuclideanPair a) 
 
 instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
   type Scalar (EuclideanPair a) = a
-  (*.) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
+  (|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
 
 instance (Divisive a) => DivisiveAction (EuclideanPair a) where
-  (/.) e s = fmap (/s) e
+  (|/) e s = fmap (/ s) e
 
 instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)

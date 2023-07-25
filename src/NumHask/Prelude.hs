@@ -38,6 +38,7 @@ module NumHask.Prelude
     module Data.Function,
 
     -- * Control.Category
+
     -- Putting id back.
     module Control.Category,
 
@@ -53,7 +54,7 @@ import Control.Applicative
 import Control.Category
 import Data.Bool
 import Data.Foldable hiding (product, sum)
-import Data.Function hiding ((.), id)
+import Data.Function hiding (id, (.))
 import Data.Kind
 import Data.Maybe
 import Data.Semigroup
@@ -62,19 +63,19 @@ import GHC.Exts
 import GHC.Generics
 import GHC.Natural (Natural (..))
 import GHC.OverloadedLabels
+import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Group
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
-import NumHask.Algebra.Action
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Complex
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import NumHask.Exception
-import Prelude hiding (Integral (..), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, log, logBase, negate, odd, pi, product, properFraction, recip, round, signum, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (/), (^), (^^), (.), id)
+import Prelude hiding (Integral (..), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, id, log, logBase, negate, odd, pi, product, properFraction, recip, round, signum, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (.), (/), (^), (^^))
 
 -- $usage
 --
