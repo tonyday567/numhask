@@ -1,4 +1,4 @@
-cabal-version:      3.4
+cabal-version:      3.0
 name:               numhask
 version:            0.11.0.0
 synopsis:           A numeric class hierarchy.
