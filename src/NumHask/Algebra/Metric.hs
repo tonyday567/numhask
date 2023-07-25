@@ -29,7 +29,6 @@ import Control.Applicative
 import Data.Bool
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
-import Data.Type.Equality (type (~))
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
 import GHC.Natural (Natural (..))
@@ -39,7 +38,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational, type (~))
 import qualified Prelude as P
 
 -- $setup
