@@ -29,6 +29,7 @@ import Control.Applicative
 import Data.Bool
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
+import Data.Type.Equality (type (~))
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
 import GHC.Natural (Natural (..))
@@ -38,9 +39,8 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
 import qualified Prelude as P
-import Prelude (Double, Float, Int, Integer, Word, Show, Eq(..), Ord, Functor(..), fromRational)
-import Data.Type.Equality (type (~))
 
 -- $setup
 --
@@ -382,13 +382,13 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
 instance (Eq (Whole a), Ring (Whole a), QuotientField a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
 
-  properFraction (EuclideanPair (x,y)) =
-    (EuclideanPair (xwhole, ywhole), EuclideanPair (xfrac,yfrac))
+  properFraction (EuclideanPair (x, y)) =
+    (EuclideanPair (xwhole, ywhole), EuclideanPair (xfrac, yfrac))
     where
       (xwhole, xfrac) = properFraction x
       (ywhole, yfrac) = properFraction y
 
-  round (EuclideanPair (x,y)) = EuclideanPair (round x, round y)
-  ceiling (EuclideanPair (x,y)) = EuclideanPair (ceiling x, ceiling y)
-  floor (EuclideanPair (x,y)) = EuclideanPair (floor x, floor y)
-  truncate (EuclideanPair (x,y)) = EuclideanPair (truncate x, truncate y)
+  round (EuclideanPair (x, y)) = EuclideanPair (round x, round y)
+  ceiling (EuclideanPair (x, y)) = EuclideanPair (ceiling x, ceiling y)
+  floor (EuclideanPair (x, y)) = EuclideanPair (floor x, floor y)
+  truncate (EuclideanPair (x, y)) = EuclideanPair (truncate x, truncate y)

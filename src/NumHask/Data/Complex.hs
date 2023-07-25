@@ -24,21 +24,21 @@ import Prelude hiding
   ( Num (..),
     atan,
     atan2,
+    ceiling,
     cos,
     exp,
+    floor,
     fromIntegral,
     log,
     negate,
     pi,
+    properFraction,
     recip,
+    round,
     sin,
     sqrt,
-    (/),
     truncate,
-    floor,
-    ceiling,
-    round,
-    properFraction,
+    (/),
   )
 
 -- | The underlying representation is a newtype-wrapped tuple, compared with the base datatype. This was chosen to facilitate the use of DerivingVia.
@@ -108,13 +108,13 @@ instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
 instance (Eq (Whole a), Ring (Whole a), QuotientField a) => QuotientField (Complex a) where
   type Whole (Complex a) = Complex (Whole a)
 
-  properFraction (Complex (x,y)) =
-    (Complex (xwhole, ywhole), Complex (xfrac,yfrac))
+  properFraction (Complex (x, y)) =
+    (Complex (xwhole, ywhole), Complex (xfrac, yfrac))
     where
       (xwhole, xfrac) = properFraction x
       (ywhole, yfrac) = properFraction y
 
-  round (Complex (x,y)) = Complex (round x, round y)
-  ceiling (Complex (x,y)) = Complex (ceiling x, ceiling y)
-  floor (Complex (x,y)) = Complex (floor x, floor y)
-  truncate (Complex (x,y)) = Complex (truncate x, truncate y)
+  round (Complex (x, y)) = Complex (round x, round y)
+  ceiling (Complex (x, y)) = Complex (ceiling x, ceiling y)
+  floor (Complex (x, y)) = Complex (floor x, floor y)
+  truncate (Complex (x, y)) = Complex (truncate x, truncate y)
