@@ -1,3 +1,19 @@
+0.11.0.0
+===
+
+* TypeFamilies introduced replacing FunDep usage for QuotientField, AdditiveAction, MultiplicativeAction, Basis. Classes go from Multi-parameter to single.
+* EuclideanPair introduced as an intended DerivingVia support for 2 dimensional Basis & Direction instances. 
+* Complex modified to use EuclideanPair. Underlying representation changed to tuple and (+:) constructor as a top-level function.
+* Action class operators changed from (.\*) to (|\*), and (\*.) to (\*|) etc.
+* Ring, Field, Distributive & Module become type synonyms (were classes).
+* Added Basis class replacing Norm & Signed
+* extra type synonyms added for Basis specialisations: Absolute, Sign, EndoBased.
+* abs becomes top-level function (previously method of Norm).
+* sign removed and replaced with signum, mirroring Num.
+* aboutEqual & nearZero moved outside Epsilon class definition.
+* rationalised Language pragmas around GHC2021
+* introduced QuotientField instance for Complex & EuclideanPair without Ord constraint.
+
 0.10.0
 ===
 * Moved operators back in.

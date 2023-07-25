@@ -38,27 +38,9 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude hiding
-  ( Bounded (..),
-    Integral (..),
-    abs,
-    atan,
-    atan2,
-    cos,
-    exp,
-    log,
-    negate,
-    pi,
-    recip,
-    signum,
-    sin,
-    sqrt,
-    (*),
-    (+),
-    (-),
-    (/),
-  )
 import qualified Prelude as P
+import Prelude (Double, Float, Int, Integer, Word, Show, Eq(..), Ord, Functor(..), fromRational)
+import Data.Type.Equality (type (~))
 
 -- $setup
 --
@@ -265,7 +247,7 @@ nearZero a = epsilon /\ a == epsilon && epsilon /\ negate a == epsilon
 -- >>> aboutEqual zero (epsilon :: Double)
 -- True
 aboutEqual :: (Epsilon a, Lattice a, Subtractive a) => a -> a -> Bool
-aboutEqual a b = nearZero $ a - b
+aboutEqual a b = nearZero (a - b)
 
 infixl 4 ~=
 
@@ -396,3 +378,17 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
         | y P.== zero = pi -- must be after the previous test on zero y
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
+
+instance (Eq (Whole a), Ring (Whole a), QuotientField a) => QuotientField (EuclideanPair a) where
+  type Whole (EuclideanPair a) = EuclideanPair (Whole a)
+
+  properFraction (EuclideanPair (x,y)) =
+    (EuclideanPair (xwhole, ywhole), EuclideanPair (xfrac,yfrac))
+    where
+      (xwhole, xfrac) = properFraction x
+      (ywhole, yfrac) = properFraction y
+
+  round (EuclideanPair (x,y)) = EuclideanPair (round x, round y)
+  ceiling (EuclideanPair (x,y)) = EuclideanPair (ceiling x, ceiling y)
+  floor (EuclideanPair (x,y)) = EuclideanPair (floor x, floor y)
+  truncate (EuclideanPair (x,y)) = EuclideanPair (truncate x, truncate y)

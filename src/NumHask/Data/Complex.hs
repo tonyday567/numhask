@@ -34,6 +34,11 @@ import Prelude hiding
     sin,
     sqrt,
     (/),
+    truncate,
+    floor,
+    ceiling,
+    round,
+    properFraction,
   )
 
 -- | The underlying representation is a newtype-wrapped tuple, compared with the base datatype. This was chosen to facilitate the use of DerivingVia.
@@ -98,3 +103,18 @@ instance
 
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (Complex (r, i)) = r +: negate i
+
+-- Can't use DerivingVia due to extra Whole constraints
+instance (Eq (Whole a), Ring (Whole a), QuotientField a) => QuotientField (Complex a) where
+  type Whole (Complex a) = Complex (Whole a)
+
+  properFraction (Complex (x,y)) =
+    (Complex (xwhole, ywhole), Complex (xfrac,yfrac))
+    where
+      (xwhole, xfrac) = properFraction x
+      (ywhole, yfrac) = properFraction y
+
+  round (Complex (x,y)) = Complex (round x, round y)
+  ceiling (Complex (x,y)) = Complex (ceiling x, ceiling y)
+  floor (Complex (x,y)) = Complex (floor x, floor y)
+  truncate (Complex (x,y)) = Complex (truncate x, truncate y)

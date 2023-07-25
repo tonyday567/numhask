@@ -100,6 +100,8 @@ common ghc-options-stanza
     -Wincomplete-record-updates
     -Wincomplete-uni-patterns
     -Wredundant-constraints
+    -Widentities
+    -Wpartial-fields
   if impl(ghc >=8.8)
     ghc-options:
       -fwrite-ide-info

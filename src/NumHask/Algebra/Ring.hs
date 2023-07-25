@@ -55,21 +55,19 @@ type Ring a = (Distributive a, Subtractive a)
 --
 -- > \a -> star a == one + a * star a
 class (Distributive a) => StarSemiring a where
+  {-# MINIMAL star | plus #-}
+
   star :: a -> a
   star a = one + plus a
 
   plus :: a -> a
   plus a = a * star a
 
-instance (StarSemiring b) => StarSemiring (a -> b)
-
 -- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
 --
 -- > a * x + x = a ==> star a * x + x = x
 -- > x * a + x = a ==> x * star a + x = x
 class (StarSemiring a, Idempotent a) => KleeneAlgebra a
-
-instance (KleeneAlgebra b) => KleeneAlgebra (a -> b)
 
 -- | Involutive Ring
 --
@@ -110,8 +108,6 @@ instance InvolutiveRing Word16
 instance InvolutiveRing Word32
 
 instance InvolutiveRing Word64
-
-instance (InvolutiveRing b) => InvolutiveRing (a -> b)
 
 -- | Defining 'two' requires adding the multiplicative unital to itself. In other words, the concept of 'two' is a Ring one.
 --

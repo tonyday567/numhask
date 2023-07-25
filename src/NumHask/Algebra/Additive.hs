@@ -70,6 +70,8 @@ accsum = P.snd P.. mapAccumL (\a b -> (a + b, a + b)) zero
 -- >>> 1 - 2
 -- -1
 class (Additive a) => Subtractive a where
+  {-# MINIMAL (-) | negate #-}
+
   negate :: a -> a
   negate a = zero - a
 
