@@ -3,6 +3,8 @@ name: numhask
 version: 0.11.0.2
 license: BSD-3-Clause
 license-file: LICENSE
+copyright: Tony Day (c) 2016
+category: math
 author: Tony Day
 maintainer: tonyday567@gmail.com
 homepage: https://github.com/tonyday567/numhask#readme
