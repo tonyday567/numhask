@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, StandaloneDeriving #-}
 
 -- | Additive classes
 module NumHask.Algebra.Additive
@@ -48,6 +49,7 @@ class Additive a where
 
   zero :: a
 
+
 -- | A wrapper for an Additive which distinguishes the additive structure
 newtype Sum a = Sum {
   getSum :: a
@@ -58,6 +60,9 @@ instance Additive a => P.Semigroup (Sum a) where
 
 instance Additive a => P.Monoid (Sum a) where
   mempty = Sum zero
+
+deriving instance Additive a => Additive (Sum a)
+
 
 -- | Compute the sum of a 'Data.Foldable.Foldable'.
 --
