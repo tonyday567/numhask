@@ -57,7 +57,7 @@ import Data.Foldable hiding (product, sum)
 import Data.Function hiding (id, (.))
 import Data.Kind
 import Data.Maybe
-import Data.Semigroup
+import Data.Semigroup hiding (Sum (..), Product (..))
 import Data.Traversable
 import GHC.Exts
 import GHC.Generics
