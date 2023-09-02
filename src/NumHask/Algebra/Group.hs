@@ -1,7 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wall #-}
-
 -- | The Group hierarchy
 module NumHask.Algebra.Group
   ( Magma (..),
@@ -94,9 +90,7 @@ instance (Invertible b) => Invertible (a -> b) where
 
 -- | A <https://en.wikipedia.org/wiki/Group_(mathematics) Group> is a
 --   Associative, Unital and Invertible Magma.
-class (Associative a, Unital a, Invertible a) => Group a
-
-instance (Associative a, Unital a, Invertible a) => Group a
+type Group a = (Associative a, Unital a, Invertible a)
 
 -- | An Absorbing is a Magma with an
 --   <https://en.wikipedia.org/wiki/Absorbing_element Absorbing Element>
@@ -125,6 +119,4 @@ instance (Idempotent b) => Idempotent (a -> b)
 -- | An <https://en.wikipedia.org/wiki/Abelian_group Abelian Group> is an
 --   Associative, Unital, Invertible and Commutative Magma . In other words, it
 --   is a Commutative Group
-class (Associative a, Unital a, Invertible a, Commutative a) => AbelianGroup a
-
-instance (Associative a, Unital a, Invertible a, Commutative a) => AbelianGroup a
+type AbelianGroup a = (Associative a, Unital a, Invertible a, Commutative a)

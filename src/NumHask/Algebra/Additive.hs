@@ -1,7 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving, StandaloneDeriving #-}
-
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
@@ -12,14 +8,13 @@ module NumHask.Algebra.Additive
   )
 where
 
-import Control.Applicative
 import Data.Foldable (foldl')
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Semigroup (Semigroup (..))
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 import GHC.Natural (Natural (..))
-import Prelude (Applicative, Bool, Double, Eq, Float, Functor, Int, Integer, Ord, Show, fromInteger, ($))
+import Prelude (Bool, Double, Float, Int, Integer, fromInteger)
 import qualified Prelude as P
 
 -- $setup
@@ -92,6 +87,8 @@ accsum = P.snd P.. mapAccumL (\a b -> (a + b, a + b)) zero
 -- >>> 1 - 2
 -- -1
 class (Additive a) => Subtractive a where
+  {-# MINIMAL (-) | negate #-}
+
   negate :: a -> a
   negate a = zero - a
 

@@ -1,5 +1,3 @@
-{-# LANGUAGE RebindableSyntax #-}
-{-# OPTIONS_GHC -Wall #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -- | A prelude composed by overlaying numhask on Prelude, together with a few minor tweaks needed for RebindableSyntax.
@@ -9,7 +7,7 @@ module NumHask.Prelude
     module NumHask.Algebra.Field,
     module NumHask.Algebra.Group,
     module NumHask.Algebra.Lattice,
-    module NumHask.Algebra.Module,
+    module NumHask.Algebra.Action,
     module NumHask.Algebra.Multiplicative,
     module NumHask.Algebra.Ring,
     module NumHask.Algebra.Metric,
@@ -25,21 +23,38 @@ module NumHask.Prelude
     fromList,
     fromListN,
     Natural (..),
+    module GHC.OverloadedLabels,
 
     -- * Modules you can't live without
     module Data.Bool,
     module Data.Kind,
     module GHC.Generics,
-    module Prelude,
-    module Data.Foldable,
+    module Control.Applicative,
     module Data.Traversable,
     module Data.Semigroup,
     module Data.Maybe,
+
+    -- * Data.Function
+    module Data.Function,
+
+    -- * Control.Category
+
+    -- Putting id back.
+    module Control.Category,
+
+    -- * Data.Foldable
+    module Data.Foldable,
+
+    -- * The Prelude
+    module Prelude,
   )
 where
 
+import Control.Applicative
+import Control.Category
 import Data.Bool
 import Data.Foldable hiding (product, sum)
+import Data.Function hiding (id, (.))
 import Data.Kind
 import Data.Maybe
 import Data.Semigroup hiding (Sum (..), Product (..))
@@ -47,19 +62,20 @@ import Data.Traversable
 import GHC.Exts
 import GHC.Generics
 import GHC.Natural (Natural (..))
+import GHC.OverloadedLabels
+import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Group
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
-import NumHask.Algebra.Module
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Complex
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import NumHask.Exception
-import Prelude hiding (Integral (..), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, log, logBase, negate, odd, pi, product, properFraction, recip, round, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (/), (^), (^^))
+import Prelude hiding (Integral (..), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, id, log, logBase, negate, odd, pi, product, properFraction, recip, round, signum, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (.), (/), (^), (^^))
 
 -- $usage
 --

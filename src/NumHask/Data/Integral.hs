@@ -1,16 +1,10 @@
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wall #-}
-
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral (..),
     ToIntegral (..),
+    ToInt,
     FromIntegral (..),
+    FromInt,
     FromInteger (..),
     even,
     odd,
@@ -129,6 +123,9 @@ class ToIntegral a b where
 
   toIntegral :: a -> b
 
+-- | Convert to an 'Int'
+type ToInt a = ToIntegral a Int
+
 instance ToIntegral Integer Integer where
   toIntegral = P.id
 
@@ -238,6 +235,9 @@ class FromIntegral a b where
   {-# MINIMAL fromIntegral #-}
 
   fromIntegral :: b -> a
+
+-- | Convert from an 'Int'
+type FromInt a = FromIntegral a Int
 
 instance (FromIntegral a b) => FromIntegral (c -> a) b where
   fromIntegral i _ = fromIntegral i
@@ -362,7 +362,7 @@ instance FromIntegral Word64 Word64 where
 --
 -- - The default rules in < https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3 haskell2010> specify that constraints on 'fromInteger' need to be in a form @C v@, where v is a Num or a subclass of Num.
 --
--- So a type synonym of `type FromInteger a = FromIntegral a Integer` doesn't work well with type defaulting; hence the need for a separate class.
+-- So a type synonym such as @type FromInteger a = FromIntegral a Integer@ doesn't work well with type defaulting; hence the need for a separate class.
 class FromInteger a where
   fromInteger :: Integer -> a
 
@@ -453,7 +453,7 @@ infixr 8 ^
 
 -- | raise a number to an 'Int' power
 --
--- Note: This differs from (^) found in prelude which is a partial function (it errors on negative integrals). This monomorphic version is provided to help reduce ambiguous type noise in common usages of this sign.
+-- Note: This differs from (^) found in prelude which is a partial function (it errors on negative integrals). This is a monomorphic version of '(^^)' provided to help reduce ambiguous type noise in common usages.
 --
 -- >>> 2 ^ 3
 -- 8.0
