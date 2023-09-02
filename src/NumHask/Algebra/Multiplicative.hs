@@ -42,16 +42,16 @@ class Multiplicative a where
 
   one :: a
 
-
 -- | A wrapper for an Multiplicative which distinguishes the multiplicative structure
-newtype Product a = Product {
-  getProduct :: a
-} deriving (Eq, Ord, Show)
+newtype Product a = Product
+  { getProduct :: a
+  }
+  deriving (Eq, Ord, Show)
 
-instance Multiplicative a => P.Semigroup (Product a) where
+instance (Multiplicative a) => P.Semigroup (Product a) where
   Product a <> Product b = Product (a * b)
 
-instance Multiplicative a => P.Monoid (Product a) where
+instance (Multiplicative a) => P.Monoid (Product a) where
   mempty = Product one
 
 -- | Compute the product of a 'Data.Foldable.Foldable'.
