@@ -264,9 +264,9 @@ instance (TrigField b) => TrigField (a -> b) where
   acosh f = acosh . f
   atanh f = atanh . f
 
--- | A 'half' is a 'Field' because it requires addition, multiplication and division.
+-- | A 'half'
 --
 -- >>> half :: Double
 -- 0.5
-half :: (Field a) => a
+half :: (Additive a, Divisive a) => a
 half = one / two

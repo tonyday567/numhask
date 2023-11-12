@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.11.1.0
+version: 0.12
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
@@ -123,6 +123,7 @@ library
         NumHask.Algebra.Group
         NumHask.Algebra.Lattice
         NumHask.Algebra.Metric
+        NumHask.Algebra.Monus
         NumHask.Algebra.Multiplicative
         NumHask.Algebra.Ring
         NumHask.Data.Complex
