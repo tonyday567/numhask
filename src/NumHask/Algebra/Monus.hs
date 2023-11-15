@@ -1,7 +1,7 @@
 {-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
-{-# LANGUAGE DerivingStrategies #-}
 
 -- | Field classes
 module NumHask.Algebra.Monus
@@ -24,18 +24,18 @@ where
 
 import Data.Bool (bool)
 import Data.Kind
+import Data.Maybe
 import NumHask.Algebra.Additive (Additive (..), Subtractive (..), (-))
+import NumHask.Algebra.Field (half)
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
   )
 import NumHask.Algebra.Ring (Distributive)
-import NumHask.Data.Integral (Integral (..), even, FromIntegral (..), FromInteger (..))
+import NumHask.Data.Integral (FromInteger (..), FromIntegral (..), Integral (..), even)
 import NumHask.Data.Rational (FromRational (..))
 import Prelude (Eq, Ord, Show)
 import qualified Prelude as P
-import NumHask.Algebra.Field (half)
-import Data.Maybe
 
 -- $setup
 --
@@ -83,42 +83,35 @@ makeT a = makeUT (makeLT a)
 --
 -- >>> :set -XNegativeLiterals
 -- >>> -1 :: Positive Int
--- Positive {unPositive 0}
-newtype Positive a =
-  Positive { unPositive :: a }
+-- Positive {unPositive = 0}
+newtype Positive a = Positive {unPositive :: a}
   deriving stock
-  (Eq, Ord, Show)
+    (Eq, Ord, Show)
 
-instance (Additive a) => Additive (Positive a)
-  where
-    zero = Positive zero
-    (Positive a) + (Positive b) = Positive (a + b)
+instance (Additive a) => Additive (Positive a) where
+  zero = Positive zero
+  (Positive a) + (Positive b) = Positive (a + b)
 
-instance (Multiplicative a) => Multiplicative (Positive a)
-  where
-    one = Positive one
-    (Positive a) * (Positive b) = Positive (a * b)
+instance (Multiplicative a) => Multiplicative (Positive a) where
+  one = Positive one
+  (Positive a) * (Positive b) = Positive (a * b)
 
-instance (Divisive a) => Divisive (Positive a)
-  where
-    recip (Positive a) = Positive (recip a)
+instance (Divisive a) => Divisive (Positive a) where
+  recip (Positive a) = Positive (recip a)
 
-instance (Ord a, Integral a) => FromIntegral (Positive a) a
-  where
-    fromIntegral :: (Ord a, Integral a) => a -> Positive a
-    fromIntegral a = positive a
+instance (Ord a, Integral a) => FromIntegral (Positive a) a where
+  fromIntegral :: (Ord a, Integral a) => a -> Positive a
+  fromIntegral a = positive a
 
-instance (Additive a, Ord a, FromInteger a) => FromInteger (Positive a)
-  where
-    fromInteger a = positive (fromInteger a)
+instance (Additive a, Ord a, FromInteger a) => FromInteger (Positive a) where
+  fromInteger a = positive (fromInteger a)
 
-instance (FromRational a, Additive a, Ord a) => FromRational (Positive a)
-  where
-    fromRational a = positive (fromRational a)
+instance (FromRational a, Additive a, Ord a) => FromRational (Positive a) where
+  fromRational a = positive (fromRational a)
 
 instance (Integral a) => Integral (Positive a) where
-  divMod (Positive a) (Positive b) = (\(n,r) -> (Positive n, Positive r)) (divMod a b)
-  quotRem (Positive a) (Positive b) =  (\(n,r) -> (Positive n, Positive r)) (quotRem a b)
+  divMod (Positive a) (Positive b) = (\(n, r) -> (Positive n, Positive r)) (divMod a b)
+  quotRem (Positive a) (Positive b) = (\(n, r) -> (Positive n, Positive r)) (quotRem a b)
 
 positive :: (Ord a, Additive a) => a -> Positive a
 positive a = Positive (P.max zero a)
@@ -126,13 +119,11 @@ positive a = Positive (P.max zero a)
 maybePositive :: (Additive a, Ord a) => a -> Maybe (Positive a)
 maybePositive a = bool Nothing (Just (Positive a)) (a P.>= zero)
 
-instance (Additive a) => LowerTruncated (Positive a)
-  where
-    lowerT = Positive zero
+instance (Additive a) => LowerTruncated (Positive a) where
+  lowerT = Positive zero
 
-instance (Ord a, Subtractive a) => Monus (Positive a)
-  where
-    (Positive a) -. (Positive b) = positive (a - b)
+instance (Ord a, Subtractive a) => Monus (Positive a) where
+  (Positive a) -. (Positive b) = positive (a - b)
 
 class Monus a where
   {-# MINIMAL (-.) #-}
@@ -154,7 +145,7 @@ type MSemiField a = (Monus a, NumHask.Algebra.Ring.Distributive a, Divisive a)
 
 instance MonusQuotientField (Positive P.Double) where
   type MonusWhole (Positive P.Double) = Positive P.Int
-  properFraction (Positive a) = (\(n,r) -> (Positive n, Positive r)) (P.properFraction a)
+  properFraction (Positive a) = (\(n, r) -> (Positive n, Positive r)) (P.properFraction a)
 
 -- | Quotienting of a 'Field' into a 'NumHask.Algebra.Ring'
 --
@@ -204,6 +195,5 @@ class (MSemiField a) => MonusQuotientField a where
       (n, _) = properFraction x
 
   -- | for completeness
-  --
   truncate :: (MSemiField a) => a -> MonusWhole a
   truncate x = floor x
