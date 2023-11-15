@@ -80,6 +80,10 @@ makeT a = makeUT (makeLT a)
 --
 -- >>> :t -1
 -- -1 :: (Subtractive a, FromInteger a) => a
+--
+-- >>> :set -XNegativeLiterals
+-- >>> -1 :: Positive Int
+-- Positive {unPositive 0}
 newtype Positive a =
   Positive { unPositive :: a }
   deriving stock
