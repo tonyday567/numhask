@@ -72,6 +72,8 @@ class (Distributive (Mag a)) => Basis a where
   basis :: a -> Base a
 
 -- | Basis where the domain and magnitude codomain are the same.
+--
+-- @since 0.11
 type Absolute a = (Basis a, Mag a ~ a)
 
 -- | Basis where the domain and basis codomain are the same.
