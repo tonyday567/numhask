@@ -49,6 +49,8 @@ import qualified Prelude as P
 
 -- | 'Basis' encapsulates the notion of magnitude (intuitively the quotienting of a higher-kinded number to a scalar one) and the basis on which the magnitude quotienting was performed. An instance needs to satisfy these laws:
 --
+-- @since 0.11
+--
 -- > \a -> magnitude a >= zero
 -- > \a -> magnitude zero == zero
 -- > \a -> a == magnitude a *| basis a
@@ -72,12 +74,18 @@ class (Distributive (Mag a)) => Basis a where
   basis :: a -> Base a
 
 -- | Basis where the domain and magnitude codomain are the same.
+--
+-- @since 0.11
 type Absolute a = (Basis a, Mag a ~ a)
 
 -- | Basis where the domain and basis codomain are the same.
+--
+-- @since 0.11
 type Sign a = (Basis a, Base a ~ a)
 
 -- | Basis where the domain, magnitude codomain and basis codomain are the same.
+--
+-- @since 0.11
 type EndoBased a = (Basis a, Mag a ~ a, Base a ~ a)
 
 -- | The absolute value of a number.
@@ -91,6 +99,8 @@ abs :: (Absolute a) => a -> a
 abs = magnitude
 
 -- | The sign of a number.
+--
+-- @since 0.11
 --
 -- >>> signum (-1)
 -- -1
@@ -196,6 +206,7 @@ distance a b = magnitude (a - b)
 
 -- | Convert between a "co-ordinated" or "higher-kinded" number and a direction.
 --
+-- @since 0.7
 --
 -- > ray . angle == basis
 -- > magnitude (ray x) == one
@@ -205,6 +216,8 @@ class (Distributive coord, Distributive (Dir coord)) => Direction coord where
   ray :: Dir coord -> coord
 
 -- | Something that has a magnitude and a direction, with both expressed as the same type.
+--
+-- @since 0.7
 --
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 data Polar a = Polar {radial :: a, azimuth :: a}
@@ -217,10 +230,14 @@ instance (Additive a, Multiplicative a) => Basis (Polar a) where
   basis = azimuth
 
 -- | Convert a higher-kinded number that has direction, to a 'Polar'
+--
+-- @since 0.7
 polar :: (Dir (Base a) ~ Mag a, Basis a, Direction (Base a)) => a -> Polar (Mag a)
 polar x = Polar (magnitude x) (angle (basis x))
 
 -- | Convert a Polar to a (higher-kinded) number that has a direction.
+--
+-- @since 0.07
 coord :: (Scalar m ~ Dir m, MultiplicativeAction m, Direction m) => Polar (Scalar m) -> m
 coord x = radial x *| ray (azimuth x)
 
@@ -290,6 +307,8 @@ instance Epsilon Word32
 instance Epsilon Word64
 
 -- | Two dimensional cartesian coordinates.
+--
+-- @since 0.11
 newtype EuclideanPair a = EuclideanPair {euclidPair :: (a, a)}
   deriving stock
     ( Generic,
