@@ -26,7 +26,7 @@ import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
-import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), Rational, (.))
+import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), (.))
 import qualified Prelude as P
 
 -- $setup
@@ -34,8 +34,11 @@ import qualified Prelude as P
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
--- | A rational number
+-- | A rational number, represented as the ratio of two 'Integral' numbers.
 data Ratio a = !a :% !a deriving (P.Show)
+
+-- | Ratio of two integers
+type Rational = Ratio Integer
 
 instance (P.Eq a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)
@@ -119,9 +122,6 @@ instance ToRatio Double Integer where
 instance ToRatio Float Integer where
   toRatio = fromBaseRational . P.toRational
 
-instance ToRatio Rational Integer where
-  toRatio = fromBaseRational
-
 instance ToRatio (Ratio Integer) Integer where
   toRatio = P.id
 
@@ -178,7 +178,7 @@ instance FromRatio Float Integer where
   fromRatio (n :% d) = rationalToFloat n d
 
 instance FromRatio Rational Integer where
-  fromRatio (n :% d) = n GHC.Real.% d
+  fromRatio = P.id
 
 -- | fromRational is special in two ways:
 --

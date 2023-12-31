@@ -43,6 +43,8 @@ class Multiplicative a where
   one :: a
 
 -- | A wrapper for an Multiplicative which distinguishes the multiplicative structure
+--
+-- @since 0.11.1
 newtype Product a = Product
   { getProduct :: a
   }

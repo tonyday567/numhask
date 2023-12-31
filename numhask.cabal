@@ -128,6 +128,7 @@ library
         NumHask.Data.Complex
         NumHask.Data.Integral
         NumHask.Data.Rational
+        NumHask.Data.Wrapped
         NumHask.Exception
         NumHask.Prelude
     other-modules:
