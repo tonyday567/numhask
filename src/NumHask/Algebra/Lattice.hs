@@ -76,17 +76,20 @@ type Lattice a = (JoinSemiLattice a, MeetSemiLattice a)
 
 -- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
--- > Identity: x \/ bottom == x
+-- > x \/ bottom == bottom
 class (JoinSemiLattice a) => BoundedJoinSemiLattice a where
   bottom :: a
 
 -- | A meet-semilattice with an identity element 'top' for '/\'.
 --
--- > Identity: x /\ top == x
+-- > x /\ top == top
 class (MeetSemiLattice a) => BoundedMeetSemiLattice a where
   top :: a
 
 -- | Lattices with both bounds
+--
+-- > x /\ bottom == x
+-- > x \/ top = x
 type BoundedLattice a = (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a)
 
 instance JoinSemiLattice Float where

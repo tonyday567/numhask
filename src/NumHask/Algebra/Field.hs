@@ -3,7 +3,8 @@
 
 -- | Field classes
 module NumHask.Algebra.Field
-  ( Field,
+  ( SemiField,
+    Field,
     ExpField (..),
     QuotientField (..),
     infinity,
@@ -32,6 +33,9 @@ import qualified Prelude as P
 -- >>> :set -XRebindableSyntax
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
+
+-- | A <https://en.wikipedia.org/wiki/Semifield Semifield> is a field with no substraction.
+type SemiField a = (Distributive a, Divisive a)
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set
 --   on which addition, subtraction, multiplication, and division are defined. It is also assumed that multiplication is distributive over addition.
@@ -106,7 +110,7 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
-class (Field a) => QuotientField a where
+class (SemiField a) => QuotientField a where
   type Whole a :: Type
   properFraction :: a -> (Whole a, a)
 
@@ -119,16 +123,16 @@ class (Field a) => QuotientField a where
   --
   -- >>> round (2.5 :: Double)
   -- 2
-  round :: (P.Eq (Whole a), Ring (Whole a)) => a -> Whole a
-  default round :: (Integral (Whole a), P.Eq (Whole a), P.Ord a, Ring (Whole a)) => a -> Whole a
+  round :: a -> Whole a
+  default round :: (Subtractive a, Integral (Whole a), P.Eq (Whole a), P.Ord a, Subtractive (Whole a)) => a -> Whole a
   round x = case properFraction x of
     (n, r) ->
       let m = bool (n + one) (n - one) (r P.< zero)
-          half_down = abs' r - half
+          half_up = abs' r + half
           abs' a
             | a P.< zero = negate a
             | P.otherwise = a
-       in case P.compare half_down zero of
+       in case P.compare half_up one of
             P.LT -> n
             P.EQ -> bool m n (even n)
             P.GT -> m
@@ -137,9 +141,9 @@ class (Field a) => QuotientField a where
   --
   -- >>> ceiling (1.001 :: Double)
   -- 2
-  ceiling :: (Distributive (Whole a)) => a -> Whole a
+  ceiling :: a -> Whole a
   default ceiling :: (P.Ord a, Distributive (Whole a)) => a -> Whole a
-  ceiling x = bool n (n + one) (r P.>= zero)
+  ceiling x = bool n (n + one) (r P.> zero)
     where
       (n, r) = properFraction x
 
@@ -147,8 +151,8 @@ class (Field a) => QuotientField a where
   --
   -- >>> floor (1.001 :: Double)
   -- 1
-  floor :: (Ring (Whole a)) => a -> Whole a
-  default floor :: (P.Ord a, Ring (Whole a)) => a -> Whole a
+  floor :: a -> Whole a
+  default floor :: (P.Ord a, Subtractive (Whole a), Distributive (Whole a)) => a -> Whole a
   floor x = bool n (n - one) (r P.< zero)
     where
       (n, r) = properFraction x
@@ -160,8 +164,8 @@ class (Field a) => QuotientField a where
   --
   -- >>> truncate (-1.001 :: Double)
   -- -1
-  truncate :: (Ring (Whole a)) => a -> Whole a
-  default truncate :: (P.Ord a, Ring (Whole a)) => a -> Whole a
+  truncate :: a -> Whole a
+  default truncate :: (P.Ord a) => a -> Whole a
   truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
 instance QuotientField P.Float where
@@ -179,7 +183,7 @@ instance QuotientField P.Double where
 --
 -- >>> infinity + 1
 -- Infinity
-infinity :: (Field a) => a
+infinity :: (SemiField a) => a
 infinity = one / zero
 
 -- | nan is defined as zero/zero
@@ -188,7 +192,7 @@ infinity = one / zero
 --
 -- >>> nan == zero / zero
 -- False
-nan :: (Field a) => a
+nan :: (SemiField a) => a
 nan = zero / zero
 
 -- | negative infinity

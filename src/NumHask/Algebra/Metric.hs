@@ -398,7 +398,7 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
         | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
         | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
 
-instance (Eq (Whole a), Ring (Whole a), QuotientField a) => QuotientField (EuclideanPair a) where
+instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
 
   properFraction (EuclideanPair (x, y)) =

@@ -1,5 +1,5 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 -- | Wrapped numhask instances, useful for derivingvia situations to quickly specifiy a numhask friendly numerical type.
 module NumHask.Data.Wrapped
@@ -11,9 +11,9 @@ import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
+import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Algebra.Metric
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import qualified Prelude as P
@@ -49,7 +49,7 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
     )
 
 instance
-  (P.Ord a, Integral (Whole a), QuotientField a) =>
+  (P.Ord a, P.Eq (Whole a), Integral (Whole a), Subtractive (Whole a), Subtractive a, QuotientField a) =>
   QuotientField (Wrapped a)
   where
   type Whole (Wrapped a) = Whole a

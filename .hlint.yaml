@@ -3,4 +3,5 @@
 - ignore: {name: Use logBase, within: NumHask.Algebra.Field}
 - ignore: {name: Use -}
 - ignore: {name: Eta reduce}
+- ignore: {name: Use bimap}
 - ignore: {name: Redundant fromInteger}

@@ -105,7 +105,7 @@ instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (Complex (r, i)) = r +: negate i
 
 -- Can't use DerivingVia due to extra Whole constraints
-instance (Eq (Whole a), Ring (Whole a), QuotientField a) => QuotientField (Complex a) where
+instance (Subtractive a, QuotientField a) => QuotientField (Complex a) where
   type Whole (Complex a) = Complex (Whole a)
 
   properFraction (Complex (x, y)) =
