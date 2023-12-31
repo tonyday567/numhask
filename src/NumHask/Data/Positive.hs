@@ -21,9 +21,9 @@ import Data.Maybe
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
-import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
+import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import NumHask.Data.Rational
@@ -50,7 +50,6 @@ import qualified Prelude as P
 --
 -- >>> maybePositive (-1)
 -- Nothing
---
 newtype Positive a = UnsafePositive {unPositive :: a}
   deriving stock
     (Eq, Ord, Show)
@@ -74,7 +73,7 @@ newtype Positive a = UnsafePositive {unPositive :: a}
     )
     via (Wrapped a)
 
-instance (MeetSemiLattice a , Integral a) => FromIntegral (Positive a) a where
+instance (MeetSemiLattice a, Integral a) => FromIntegral (Positive a) a where
   fromIntegral a = positive a
 
 instance (FromIntegral a b) => FromIntegral (Positive a) b where
@@ -89,14 +88,13 @@ instance (FromRatio a b) => FromRatio (Positive a) b where
 instance (ToRatio a b) => ToRatio (Positive a) b where
   toRatio (UnsafePositive a) = toRatio a
 
-instance (Additive a, JoinSemiLattice a) => BoundedJoinSemiLattice (Positive a)
-  where
-    bottom = UnsafePositive zero
+instance (Additive a, JoinSemiLattice a) => BoundedJoinSemiLattice (Positive a) where
+  bottom = UnsafePositive zero
 
 instance QuotientField (Positive P.Double) where
   type Whole (Positive P.Double) = Positive P.Int
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
-  ceiling = properFraction >>> P.fst >>> (+one)
+  ceiling = properFraction >>> P.fst >>> (+ one)
   floor = properFraction >>> P.fst
   truncate = floor
   round x = case properFraction x of
@@ -155,4 +153,3 @@ class Addus a where
   (∔) :: a -> a -> a
   default (∔) :: (BoundedMeetSemiLattice a, JoinSemiLattice a, Additive a) => a -> a -> a
   a ∔ b = top \/ (a + b)
-
