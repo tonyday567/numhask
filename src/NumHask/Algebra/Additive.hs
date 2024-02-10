@@ -44,6 +44,8 @@ class Additive a where
   zero :: a
 
 -- | A wrapper for an Additive which distinguishes the additive structure
+--
+-- @since 0.11.1
 newtype Sum a = Sum
   { getSum :: a
   }

@@ -75,7 +75,7 @@ import NumHask.Data.Complex
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import NumHask.Exception
-import Prelude hiding (Integral (..), abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, id, log, logBase, negate, odd, pi, product, properFraction, recip, round, signum, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (.), (/), (^), (^^))
+import Prelude hiding (Integral (..), Rational, abs, acos, acosh, asin, asinh, atan, atan2, atanh, ceiling, cos, cosh, even, exp, floor, fromInteger, fromIntegral, fromRational, gcd, id, log, logBase, negate, odd, pi, product, properFraction, recip, round, signum, sin, sinh, sqrt, subtract, sum, tan, tanh, toInteger, toRational, truncate, (*), (**), (+), (-), (.), (/), (^), (^^))
 
 -- $usage
 --
