@@ -1,3 +1,18 @@
+0.12
+===
+
+- added SemiField, and bumped QuotientField to default for Subtraction.
+
+- moved infinity & nqn to SemiField, from Field.
+
+- introduced NumHask.Data.Positive
+
+- introduced NumHask.Data.Wrapped
+
+- Monus & Addus
+
+- hiding Prelude.Rational
+
 0.11.1.0
 ===
 * Added Sum (..)
