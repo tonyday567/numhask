@@ -112,8 +112,6 @@ library
     import: ghc2021-stanza
     hs-source-dirs: src
     build-depends:
-        -- keeping cabal-docspec happy
-        , QuickCheck >=2.14 && <3
         , base       >=4.7 && <5
     exposed-modules:
         NumHask
