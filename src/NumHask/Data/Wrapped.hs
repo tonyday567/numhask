@@ -16,7 +16,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import NumHask.Data.Rational
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- | Wrapped numhask instances
 newtype Wrapped a = Wrapped {unWrapped :: a}

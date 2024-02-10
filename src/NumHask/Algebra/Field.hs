@@ -26,7 +26,7 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring (Distributive, Ring, two)
 import NumHask.Data.Integral (Integral, even)
 import Prelude ((.))
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --

@@ -29,7 +29,7 @@ import NumHask.Data.Integral
 import NumHask.Data.Rational
 import NumHask.Data.Wrapped
 import Prelude (Eq, Ord, Show)
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --

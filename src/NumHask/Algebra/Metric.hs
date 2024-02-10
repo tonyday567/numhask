@@ -40,7 +40,7 @@ import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --

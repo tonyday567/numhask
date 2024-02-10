@@ -15,7 +15,7 @@ import GHC.Natural (Natural (..))
 import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
 import NumHask.Algebra.Group (Idempotent)
 import NumHask.Algebra.Multiplicative (Multiplicative (..))
-import qualified Prelude as P
+import Prelude qualified as P
 
 -- $setup
 --
