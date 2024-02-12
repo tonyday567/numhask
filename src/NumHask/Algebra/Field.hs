@@ -35,6 +35,8 @@ import Prelude qualified as P
 -- >>> import NumHask.Prelude
 
 -- | A <https://en.wikipedia.org/wiki/Semifield Semifield> is a field with no substraction.
+--
+-- @since 0.12
 type SemiField a = (Distributive a, Divisive a)
 
 -- | A <https://en.wikipedia.org/wiki/Field_(mathematics) Field> is a set

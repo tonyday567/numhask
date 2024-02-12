@@ -6,6 +6,17 @@ numhask
 
 ![](other/nh12.svg)
 
+Usage
+===
+
+``` haskell
+{-# LANGUAGE RebindableSyntax #-}
+import NumHask.Prelude
+```
+See the documentation in the NumHask module for a detailed overview.
+
+v0.12 notes
+===
 
 SemiField
 ---
@@ -109,27 +120,33 @@ ghci> unPositive (7 ∸ 4 :: Positive Int)
 3
 ```
 
+NumHask.Data.Wrapped
+---
 
-
-
-
-- introduced NumHask.Data.Positive
-
-- introduced NumHask.Data.Wrapped
-
-
-This package provides numeric classes alternate to the prelude as specified in haskell98.
-
-The numeric class constellation looks somewhat like:
-
-![nh](other/nh.svg)
-
-Usage
-===
+The introduction of Positive provoked including a wrapper type for most numhask types. This type can be used with derivingvia:
 
 ``` haskell
-{-# LANGUAGE RebindableSyntax #-}
-import NumHask.Prelude
+newtype Positive a = UnsafePositive {unPositive :: a}
+  deriving stock
+    (Eq, Ord, Show)
+  deriving
+    ( Additive,
+      Multiplicative,
+      Divisive,
+      Integral,
+      FromInteger,
+      FromRational,
+      Basis,
+      Direction,
+      Epsilon,
+      AdditiveAction,
+      SubtractiveAction,
+      MultiplicativeAction,
+      DivisiveAction,
+      JoinSemiLattice,
+      MeetSemiLattice,
+      BoundedMeetSemiLattice
+    )
+    via (Wrapped a)
 ```
-See the documentation in the NumHask module for a detailed overview.
 

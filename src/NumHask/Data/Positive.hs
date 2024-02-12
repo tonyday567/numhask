@@ -148,6 +148,8 @@ type MonusSemiField a = (Monus a, Distributive a, Divisive a)
 
 -- | <https://en.wikipedia.org/wiki/Monus Monus> or truncated subtraction.
 --
+-- @since 0.12
+--
 -- >>> positive 4 ∸ positive 7
 -- UnsafePositive {unPositive = 0}
 --
@@ -162,6 +164,8 @@ class Monus a where
   a ∸ b = bottom /\ (a - b)
 
 -- | Truncated addition
+--
+-- @since 0.12
 class Addus a where
   {-# MINIMAL (∔) #-}
   infixl 6 ∔
