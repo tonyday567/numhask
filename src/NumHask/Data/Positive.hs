@@ -64,7 +64,6 @@ import Prelude qualified as P
 --
 -- >>> UnsafePositive (-1)
 -- UnsafePositive {unPositive = -1}
---
 newtype Positive a = UnsafePositive {unPositive :: a}
   deriving stock
     (Eq, Ord, Show)
