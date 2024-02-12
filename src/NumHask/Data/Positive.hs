@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | Field classes
+-- |  A positive number type, defined as existing on [zero, +infinity)
 module NumHask.Data.Positive
   ( Positive (..),
     positive,
@@ -37,19 +37,34 @@ import Prelude qualified as P
 -- >>> import NumHask.Prelude
 -- >>> import NumHask.Data.Positive
 
--- | zero is positive
+-- | A positive number is a number that is contained in [zero,+infinity).
 --
 -- >>> 1 :: Positive Int
 -- UnsafePositive {unPositive = 1}
 --
+--
+-- >>> -1 :: Positive Int
+-- ...
+--     • No instance for ‘Subtractive (Positive Int)’
+--         arising from a use of syntactic negation
+-- ...
+--
+-- zero is positive
+--
 -- >>> positive 0 == zero
 -- True
+--
+-- The main constructors:
 --
 -- >>> positive (-1)
 -- UnsafePositive {unPositive = 0}
 --
 -- >>> maybePositive (-1)
 -- Nothing
+--
+-- >>> UnsafePositive (-1)
+-- UnsafePositive {unPositive = -1}
+--
 newtype Positive a = UnsafePositive {unPositive :: a}
   deriving stock
     (Eq, Ord, Show)
@@ -105,21 +120,22 @@ instance QuotientField (Positive P.Double) where
             P.EQ -> bool (n + one) n (even n)
             P.GT -> n + one
 
--- | Constructor which returns zero for a negative input.
+-- | Constructor which returns zero for a negative number.
 --
 -- >>> positive (-1)
 -- UnsafePositive {unPositive = 0}
 positive :: (Additive a, MeetSemiLattice a) => a -> Positive a
 positive a = UnsafePositive (a /\ zero)
 
--- | Unsafe constructors.
+-- | Unsafe constructor.
 --
 -- >>> positive_ (-one)
 -- UnsafePositive {unPositive = -1}
 positive_ :: a -> Positive a
 positive_ = UnsafePositive
 
--- | Constructor which returns Nothing for a negative number.
+-- | Constructor which returns Nothing if a negative number is supplied.
+--
 -- >>> maybePositive (-one)
 -- Nothing
 maybePositive :: (Additive a, MeetSemiLattice a) => a -> Maybe (Positive a)

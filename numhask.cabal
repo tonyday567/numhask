@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.12.0.0
+version: 0.12.0.1
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
@@ -15,7 +15,7 @@ description:
 
     The numeric class constellation looks somewhat like:
 
-    ![nh](docs/other/nh.svg)
+    ![nh](docs/other/nh12.svg)
 
     == Usage
 
@@ -49,9 +49,14 @@ common ghc-options-stanza
 common ghc2021-stanza
     default-language: GHC2021
 
+common docspec
+    x-docspec-extra-packages: QuickCheck
+    build-depends: QuickCheck
+
 library
     import: ghc-options-stanza
     import: ghc2021-stanza
+    import: docspec
     hs-source-dirs: src
     build-depends:
         , base       >=4.7 && <5
