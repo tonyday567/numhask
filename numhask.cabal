@@ -51,7 +51,7 @@ common ghc2021-stanza
 
 common docspec
     x-docspec-extra-packages: QuickCheck
-    build-depends: QuickCheck
+    build-depends: QuickCheck >= 2.14 && < 2.15
 
 library
     import: ghc-options-stanza
