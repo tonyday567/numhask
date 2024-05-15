@@ -27,15 +27,23 @@ description:
 
 build-type: Simple
 tested-with:
-    GHC ==9.4.8 || ==9.6.4 || ==9.8.1
+    , GHC == 9.10.1
+    , GHC == 9.8.2
+    , GHC == 9.6.5
+    , GHC == 9.4.8
+    , GHC == 9.2.8
 extra-doc-files:
-    readme.md
     ChangeLog.md
     other/*.svg
+    readme.md
 
 source-repository head
     type: git
     location: https://github.com/tonyday567/numhask
+
+common docspec
+    build-depends: QuickCheck >=2.14 && <2.16
+    x-docspec-extra-packages: QuickCheck
 
 common ghc-options-stanza
     ghc-options:
@@ -50,17 +58,12 @@ common ghc-options-stanza
 common ghc2021-stanza
     default-language: GHC2021
 
-common docspec
-    x-docspec-extra-packages: QuickCheck
-    build-depends: QuickCheck >= 2.14 && < 2.15
-
 library
+    import: docspec
     import: ghc-options-stanza
     import: ghc2021-stanza
-    import: docspec
     hs-source-dirs: src
-    build-depends:
-        , base       >=4.7 && <5
+    build-depends: base >=4.14 && <5
     exposed-modules:
         NumHask
         NumHask.Algebra.Action
