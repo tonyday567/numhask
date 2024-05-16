@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.12.0.2
+version: 0.12.0.3
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
