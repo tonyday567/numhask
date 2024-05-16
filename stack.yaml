@@ -1,5 +1,5 @@
-# GHC 9.4.5
-resolver: lts-21.2
+# GHC 9.6.5
+resolver: lts-22.22
 
 packages:
 - .
