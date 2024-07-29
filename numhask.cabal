@@ -82,3 +82,14 @@ library
         NumHask.Exception
         NumHask.Prelude
     default-extensions: RebindableSyntax
+
+test-suite doctests
+    import: ghc2021-stanza
+    type: exitcode-stdio-1.0
+    hs-source-dirs: test
+    main-is: doctests.hs
+    ghc-options: -threaded
+    build-depends:
+        , base
+        , numhask
+        , doctest-parallel >=0.3 && <0.4
