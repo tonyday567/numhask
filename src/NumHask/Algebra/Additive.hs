@@ -18,6 +18,7 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :m -Prelude
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 

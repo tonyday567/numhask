@@ -30,6 +30,7 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :m -Prelude
 -- >>> :set -XRebindableSyntax
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
@@ -67,9 +68,9 @@ type Field a = (Ring a, Divisive a)
 
 -- | A hyperbolic field class
 --
--- prop> \a -> a < zero || (sqrt . (**2)) a == a
--- prop> \a -> a < zero || (log . exp) a ~= a
--- prop> \a b -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
+-- prop> \(a::Double) -> a < zero || (sqrt . (**2)) a == a
+-- prop> \(a::Double) -> a < zero || (log . exp) a ~= a
+-- prop> \(a::Double) (b::Double) -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
 class
   (Field a) =>
   ExpField a

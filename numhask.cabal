@@ -93,3 +93,4 @@ test-suite doctests
         , base
         , numhask
         , doctest-parallel >=0.3 && <0.4
+    default-extensions: RebindableSyntax
