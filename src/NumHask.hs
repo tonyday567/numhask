@@ -211,6 +211,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 
 -- $setup
 --
+-- >>> :m -Prelude
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 -- >>> 1+1

@@ -79,6 +79,7 @@ import Prelude hiding (Integral (..), Rational, abs, acos, acosh, asin, asinh, a
 
 -- $usage
 --
+-- >>> :m -Prelude
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 -- >>> 1+1
