@@ -1,5 +1,13 @@
+name: build
 on: [push]
-name: haskell-ci
+
+# INFO: The following configuration block ensures that only one build runs per branch,
+# which may be desirable for projects with a costly build process.
+# Remove this block from the CI workflow to let each CI job run to completion.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   hlint:
     runs-on: ubuntu-latest
@@ -14,28 +22,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: haskell-actions/run-ormolu@v15
-  cabal:
+      - uses: haskell-actions/run-ormolu@v16
+  build:
     name: GHC ${{ matrix.ghc-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        ghc-version: ['9.10', '9.8', '9.6', '9.4', '9.2']
-        docspec: [false]
-        experimental: [false]
+        ghc-version: ['9.10', '9.8', '9.6']
 
         include:
           - os: windows-latest
             ghc-version: '9.8'
           - os: macos-latest
             ghc-version: '9.8'
-          - os: ubuntu-latest
-            ghc-version: '9.8'
-            docspec: true
-            experimental: true
-            name: docspec
 
     steps:
       - uses: actions/checkout@v4
@@ -46,14 +47,6 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc-version }}
 
-      - name: Installed minor versions of GHC and Cabal
-        shell: bash
-        run: |
-          GHC_VERSION=$(ghc --numeric-version)
-          CABAL_VERSION=$(cabal --numeric-version)
-          echo "GHC_VERSION=${GHC_VERSION}"     >> "${GITHUB_ENV}"
-          echo "CABAL_VERSION=${CABAL_VERSION}" >> "${GITHUB_ENV}"
-
       - name: Configure the build
         run: |
           cabal configure --enable-tests --enable-benchmarks --disable-documentation
@@ -61,23 +54,25 @@ jobs:
         # The last step generates dist-newstyle/cache/plan.json for the cache key.
 
       - name: Restore cached dependencies
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id: cache
+        env:
+          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
         with:
           path: ${{ steps.setup.outputs.cabal-store }}
-          key: ${{ runner.os }}-ghc-${{ env.GHC_VERSION }}-cabal-${{ env.CABAL_VERSION }}-plan-${{ hashFiles('**/plan.json') }}
-          restore-keys: |
-            ${{ runner.os }}-ghc-${{ env.GHC_VERSION }}-cabal-${{ env.CABAL_VERSION }}-
+          key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ env.key }}-
 
       - name: Install dependencies
+        # If we had an exact cache hit, the dependencies will be up to date.
+        if: steps.cache.outputs.cache-hit != 'true'
         run: cabal build all --only-dependencies
 
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
       - name: Save cached dependencies
-        uses: actions/cache/save@v3
-        # Caches are immutable, trying to save with the same key would error.
-        if: ${{ !steps.cache.outputs.cache-hit
-          || steps.cache.outputs.cache-primary-key != steps.cache.outputs.cache-matched-key }}
+        uses: actions/cache/save@v4
+        # If we had an exact cache hit, trying to save the cache would error because of key clash.
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: ${{ steps.setup.outputs.cabal-store }}
           key: ${{ steps.cache.outputs.cache-primary-key }}
@@ -85,18 +80,9 @@ jobs:
       - name: Build
         run: cabal build all
 
+      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.8'}}
+        name: doctests
+        run: cabal run doctests
+
       - name: Check cabal file
         run: cabal check
-
-      - if: matrix.docspec
-        name: cabal-docspec
-        run: |
-          mkdir -p $HOME/.cabal/bin
-          echo "$HOME/.cabal/bin" >> $GITHUB_PATH
-          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20240414/cabal-docspec-0.0.0.20240414-x86_64-linux.xz > cabal-docspec.xz
-          echo '2d18a3f79619e8ec5f11870f926f6dc2616e02a6c889315b7f82044b95a1adb9 cabal-docspec.xz' | sha256sum -c -
-          xz -d < cabal-docspec.xz > $HOME/.cabal/bin/cabal-docspec
-          rm -f cabal-docspec.xz
-          chmod a+x $HOME/.cabal/bin/cabal-docspec
-          $HOME/.cabal/bin/cabal-docspec --version
-          cabal-docspec
