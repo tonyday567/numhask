@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.12.0.3
+version: 0.12.1.0
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
@@ -28,10 +28,8 @@ description:
 build-type: Simple
 tested-with:
     , GHC == 9.10.1
-    , GHC == 9.8.2
     , GHC == 9.6.5
-    , GHC == 9.4.8
-    , GHC == 9.2.8
+    , GHC == 9.8.2
 extra-doc-files:
     ChangeLog.md
     other/*.svg
@@ -40,10 +38,6 @@ extra-doc-files:
 source-repository head
     type: git
     location: https://github.com/tonyday567/numhask
-
-common docspec
-    build-depends: QuickCheck >=2.14 && <2.16
-    x-docspec-extra-packages: QuickCheck
 
 common ghc-options-stanza
     ghc-options:
@@ -59,11 +53,10 @@ common ghc2021-stanza
     default-language: GHC2021
 
 library
-    import: docspec
     import: ghc-options-stanza
     import: ghc2021-stanza
     hs-source-dirs: src
-    build-depends: base >=4.14 && <5
+    build-depends: , base >=4.14 && <5
     exposed-modules:
         NumHask
         NumHask.Algebra.Action
@@ -85,12 +78,12 @@ library
 
 test-suite doctests
     import: ghc2021-stanza
-    type: exitcode-stdio-1.0
-    hs-source-dirs: test
     main-is: doctests.hs
-    ghc-options: -threaded
+    hs-source-dirs: test
     build-depends:
-        , base
-        , numhask
+        , QuickCheck       >=2.14 && <2.16
+        , base             >=4.14 && <5
         , doctest-parallel >=0.3 && <0.4
     default-extensions: RebindableSyntax
+    ghc-options: -threaded
+    type: exitcode-stdio-1.0
