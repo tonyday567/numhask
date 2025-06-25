@@ -1,4 +1,4 @@
-cabal-version: 3.0
+cabal-version: 3.4
 name: numhask
 version: 0.13.0.0
 license: BSD-3-Clause
@@ -51,26 +51,13 @@ common ghc-options-stanza
     -Wpartial-fields
     -Wredundant-constraints
 
-common ghc2024-stanza
-  if impl(ghc >=9.10)
-    default-language:
-      GHC2024
-  if impl(ghc <9.10)
-    default-language:
-      GHC2021
-    default-extensions:
-      DataKinds
-      DerivingStrategies
-      DisambiguateRecordFields
-      ExplicitNamespaces
-      GADTs
-      MonoLocalBinds
-      LambdaCase
-      RoleAnnotations
+common ghc2021-stanza
+  default-language:
+    GHC2021
 
 library
   import: ghc-options-stanza
-  import: ghc2024-stanza
+  import: ghc2021-stanza
   hs-source-dirs: src
   build-depends: base >=4.14 && <5
   exposed-modules:
@@ -94,7 +81,7 @@ library
   default-extensions: RebindableSyntax
 
 test-suite doctests
-  import: ghc2024-stanza
+  import: ghc2021-stanza
   main-is: doctests.hs
   hs-source-dirs: test
   build-depends:
