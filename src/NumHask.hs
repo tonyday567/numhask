@@ -142,13 +142,13 @@ import NumHask.Algebra.Field
     Field,
     QuotientField (..),
     TrigField (..),
-    half,
-    infinity,
-    nan,
-    negInfinity,
-    modF,
     divF,
     divModF,
+    half,
+    infinity,
+    modF,
+    nan,
+    negInfinity,
   )
 import NumHask.Algebra.Lattice
   ( JoinSemiLattice (..),

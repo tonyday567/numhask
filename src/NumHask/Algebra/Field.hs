@@ -285,8 +285,8 @@ half = one / two
 --
 -- @since 0.13
 --
--- >>> modF 1.2 0.3
--- 0.0
+-- >>> modF 1.5 1.2
+-- 0.30000000000000004
 modF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
 modF n d
   | d == infinity = n
@@ -299,8 +299,8 @@ modF n d
 --
 -- @since 0.13
 --
--- >>> divF 0.3 1.2
--- 4.0
+-- >>> divF 1.5 1.2
+-- 1.0
 divF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
 divF n d
   | d == infinity = zero
@@ -311,8 +311,8 @@ divF n d
 --
 -- @since 0.13
 --
--- >>> divModF 0.3 1.2
--- (4.0, 0.0)
+-- >>> divModF 1.5 1.2
+-- (1.0,0.30000000000000004)
 divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> (a, a)
 divModF n d
   | d == infinity = (zero, n)

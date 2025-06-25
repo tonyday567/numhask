@@ -19,7 +19,7 @@ description:
 
   == Usage
 
-  >>> {-# LANGUAGE GHC2021 #-}
+  >>> {-# LANGUAGE GHC2024 #-}
   >>> {-# LANGUAGE RebindableSyntax #-}
   >>> import NumHask.Prelude
 
@@ -52,7 +52,21 @@ common ghc-options-stanza
     -Wredundant-constraints
 
 common ghc2024-stanza
-  default-language: GHC2024
+  if impl(ghc >=9.10)
+    default-language:
+      GHC2024
+  if impl(ghc <9.10)
+    default-language:
+      GHC2021
+    default-extensions:
+      DataKinds
+      DerivingStrategies
+      DisambiguateRecordFields
+      ExplicitNamespaces
+      GADTs
+      MonoLocalBinds
+      LambdaCase
+      RoleAnnotations
 
 library
   import: ghc-options-stanza
