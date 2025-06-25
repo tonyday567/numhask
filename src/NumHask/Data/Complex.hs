@@ -41,6 +41,11 @@ import Prelude hiding
     (/),
   )
 
+-- $setup
+--
+-- >>> import NumHask.Prelude
+-- >>> :m -Prelude
+
 -- | The underlying representation is a newtype-wrapped tuple, compared with the base datatype. This was chosen to facilitate the use of DerivingVia.
 newtype Complex a = Complex {complexPair :: (a, a)}
   deriving stock
@@ -68,6 +73,14 @@ newtype Complex a = Complex {complexPair :: (a, a)}
 infixl 6 +:
 
 -- | Complex number constructor.
+--
+-- Internally, Complex derives most instances via EuclideanPair. For instance,
+--
+-- >>> sqrt (1.0 +: (-1.0)) :: Complex Double
+-- Complex {complexPair = (1.0986841134678098,-0.45508986056222733)}
+--
+-- >>> sqrt ((-1.0) +: 0.0) :: Complex Double
+-- Complex {complexPair = (6.123233995736766e-17,1.0)}
 (+:) :: a -> a -> Complex a
 (+:) r i = Complex (r, i)
 

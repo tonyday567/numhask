@@ -39,7 +39,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
+import Prelude (Double, Eq (..), Ord (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
 import Prelude qualified as P
 
 -- $setup
@@ -390,14 +390,13 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2' y x)
     where
       atan2' y x
-        | x P.> zero = atan (y / x)
-        | x P.== zero P.&& y P.> zero = pi / (one + one)
-        | x P.< one P.&& y P.> one = pi + atan (y / x)
-        | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
-            negate (atan2' (negate y) x)
-        | y P.== zero = pi -- must be after the previous test on zero y
-        | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
-        | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
+        | x > zero = atan (y / x)
+        | x == zero && y > zero = pi / (one + one)
+        | x < zero && y > zero = pi + atan (y / x)
+        | (x <= zero && y < zero) = negate (atan2' (negate y) x)
+        | y == zero = pi
+        | x == zero && y == zero = y
+        | True = x + y
 
 instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)

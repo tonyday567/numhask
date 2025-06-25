@@ -6,11 +6,10 @@ module NumHask.Exception
 where
 
 import Control.Exception
-import Data.Typeable (Typeable)
 import Prelude qualified as P
 
 -- | A numhask exception.
 newtype NumHaskException = NumHaskException {errorMessage :: P.String}
-  deriving (P.Show, Typeable)
+  deriving (P.Show)
 
 instance Exception NumHaskException

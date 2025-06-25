@@ -12,6 +12,9 @@ module NumHask.Algebra.Field
     nan,
     TrigField (..),
     half,
+    modF,
+    divF,
+    divModF,
   )
 where
 
@@ -24,8 +27,8 @@ import NumHask.Algebra.Multiplicative
     (/),
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
-import NumHask.Data.Integral (Integral, even)
-import Prelude ((.))
+import NumHask.Data.Integral (Integral, even, FromIntegral(..))
+import Prelude ((.), Eq(..))
 import Prelude qualified as P
 
 -- $setup
@@ -277,3 +280,35 @@ instance (TrigField b) => TrigField (a -> b) where
 -- 0.5
 half :: (Additive a, Divisive a) => a
 half = one / two
+
+-- Approximate modulo for fields
+--
+-- >>> modF 1.2 0.3
+-- 0.0
+modF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
+modF n d
+  | d == infinity = n
+  | d == zero = nan
+  | P.True = n - d * fromIntegral (floor (n/d))
+
+-- Approximate whole division for fields.
+--
+-- >>> divF 0.3 1.2
+-- 4.0
+divF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
+divF n d
+  | d == infinity = zero
+  | d == zero = infinity
+  | P.True = fromIntegral (floor (n/d))
+
+-- Approximate `divMod` for fields.
+--
+-- >>> divModF 0.3 1.2
+-- (4.0, 0.0)
+divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> (a, a)
+divModF n d
+  | d == infinity = (zero,n)
+  | d == zero = (infinity, nan)
+  | P.True = (div', n - d * div')
+      where
+        div' = fromIntegral (floor (n/d))
