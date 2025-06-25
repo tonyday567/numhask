@@ -1,3 +1,12 @@
+0.13
+===
+
+- added modF, divF and divModF as field versions of modulo and diviso Integral functions.
+- fixed bug in EuclideanPair log function.
+- BoundedJoinSemiLattice becomes LowerBounded
+- BoundedMeetSemiLattice becomes UpperBounded
+- switch to GHC2024
+
 0.12.1
 ===
 

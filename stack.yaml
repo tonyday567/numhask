@@ -1,5 +1,4 @@
-# GHC 9.8.4
-resolver: lts-23.25
+snapshot: nightly-2025-06-18
 
 packages:
 - .

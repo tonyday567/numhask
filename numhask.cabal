@@ -51,12 +51,12 @@ common ghc-options-stanza
     -Wpartial-fields
     -Wredundant-constraints
 
-common ghc2021-stanza
-  default-language: GHC2021
+common ghc2024-stanza
+  default-language: GHC2024
 
 library
   import: ghc-options-stanza
-  import: ghc2021-stanza
+  import: ghc2024-stanza
   hs-source-dirs: src
   build-depends: base >=4.14 && <5
   exposed-modules:
@@ -80,7 +80,7 @@ library
   default-extensions: RebindableSyntax
 
 test-suite doctests
-  import: ghc2021-stanza
+  import: ghc2024-stanza
   main-is: doctests.hs
   hs-source-dirs: test
   build-depends:

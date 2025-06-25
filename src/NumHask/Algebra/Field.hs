@@ -1,7 +1,7 @@
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE TypeFamilies #-}
 
--- | Field classes
+-- | [field](https://en.wikipedia.org/wiki/Field_(mathematics\)) classes
 module NumHask.Algebra.Field
   ( SemiField,
     Field,
@@ -38,7 +38,7 @@ import Prelude qualified as P
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 
--- | A <https://en.wikipedia.org/wiki/Semifield Semifield> is a field with no substraction.
+-- | A <https://en.wikipedia.org/wiki/Semifield Semifield> is a field with no subtraction.
 --
 -- @since 0.12
 type SemiField a = (Distributive a, Divisive a)
@@ -281,7 +281,7 @@ instance (TrigField b) => TrigField (a -> b) where
 half :: (Additive a, Divisive a) => a
 half = one / two
 
--- Approximate modulo for fields
+-- | Approximate modulo for fields
 --
 -- @since 0.13
 --
@@ -293,7 +293,9 @@ modF n d
   | d == zero = nan
   | P.True = n - d * fromIntegral (floor (n / d))
 
--- Approximate whole division for fields.
+-- | Approximate diviso for fields.
+--
+-- Compared with 'NumHask.Algebra.Field.div', divF returns the original type rather than the 'Whole' type.
 --
 -- @since 0.13
 --
@@ -305,7 +307,7 @@ divF n d
   | d == zero = infinity
   | P.True = fromIntegral (floor (n / d))
 
--- Approximate `divMod` for fields.
+-- | Approximate `NumHask.Algebra.Field.divMod` for fields.
 --
 -- @since 0.13
 --
