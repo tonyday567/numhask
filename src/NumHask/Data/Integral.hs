@@ -6,8 +6,6 @@ module NumHask.Data.Integral
     FromIntegral (..),
     FromInt,
     FromInteger (..),
-    even,
-    odd,
     (^^),
     (^),
   )
@@ -59,6 +57,12 @@ class
   rem a1 a2 = snd (quotRem a1 a2)
 
   quotRem :: a -> a -> (a, a)
+
+  even :: a -> Bool
+  even x = x `rem` (one + one) == zero
+
+  odd :: a -> Bool
+  odd = not . even
 
 instance Integral Int where
   divMod = P.divMod
@@ -408,18 +412,6 @@ instance FromInteger Word32 where
 
 instance FromInteger Word64 where
   fromInteger = P.fromInteger
-
--- |
--- >>> even 2
--- True
-even :: (P.Eq a, Integral a) => a -> P.Bool
-even n = n `rem` (one + one) P.== zero
-
--- |
--- >>> odd 3
--- True
-odd :: (P.Eq a, Integral a) => a -> P.Bool
-odd = P.not . even
 
 infixr 8 ^^
 

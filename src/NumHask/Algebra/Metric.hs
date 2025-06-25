@@ -387,16 +387,7 @@ instance (Divisive a) => DivisiveAction (EuclideanPair a) where
 
 instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
-  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2' y x)
-    where
-      atan2' y x
-        | x > zero = atan (y / x)
-        | x == zero && y > zero = pi / (one + one)
-        | x < zero && y > zero = pi + atan (y / x)
-        | (x <= zero && y < zero) = negate (atan2' (negate y) x)
-        | y == zero = pi
-        | x == zero && y == zero = y
-        | True = x + y
+  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
 instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
