@@ -27,8 +27,8 @@ import NumHask.Algebra.Multiplicative
     (/),
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
-import NumHask.Data.Integral (Integral, even, FromIntegral(..))
-import Prelude ((.), Eq(..))
+import NumHask.Data.Integral (FromIntegral (..), Integral, even)
+import Prelude (Eq (..), (.))
 import Prelude qualified as P
 
 -- $setup
@@ -283,15 +283,19 @@ half = one / two
 
 -- Approximate modulo for fields
 --
+-- @since 0.13
+--
 -- >>> modF 1.2 0.3
 -- 0.0
 modF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
 modF n d
   | d == infinity = n
   | d == zero = nan
-  | P.True = n - d * fromIntegral (floor (n/d))
+  | P.True = n - d * fromIntegral (floor (n / d))
 
 -- Approximate whole division for fields.
+--
+-- @since 0.13
 --
 -- >>> divF 0.3 1.2
 -- 4.0
@@ -299,16 +303,18 @@ divF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> 
 divF n d
   | d == infinity = zero
   | d == zero = infinity
-  | P.True = fromIntegral (floor (n/d))
+  | P.True = fromIntegral (floor (n / d))
 
 -- Approximate `divMod` for fields.
+--
+-- @since 0.13
 --
 -- >>> divModF 0.3 1.2
 -- (4.0, 0.0)
 divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> (a, a)
 divModF n d
-  | d == infinity = (zero,n)
+  | d == infinity = (zero, n)
   | d == zero = (infinity, nan)
   | P.True = (div', n - d * div')
-      where
-        div' = fromIntegral (floor (n/d))
+  where
+    div' = fromIntegral (floor (n / d))

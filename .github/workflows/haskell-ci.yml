@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: haskell-actions/run-ormolu@v16
+      - uses: haskell-actions/run-ormolu@v17
   build:
     name: GHC ${{ matrix.ghc-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -30,13 +30,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        ghc-version: ['9.10', '9.8', '9.6']
+        ghc-version: ['9.12', '9.10', '9.8', '9.6']
 
         include:
           - os: windows-latest
-            ghc-version: '9.8'
+            ghc-version: '9.12'
           - os: macos-latest
-            ghc-version: '9.8'
+            ghc-version: '9.12'
 
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
       - name: Build
         run: cabal build all
 
-      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.8'}}
+      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.12'}}
         name: doctests
         run: cabal run doctests
 

@@ -64,8 +64,8 @@ newtype Complex a = Complex {complexPair :: (a, a)}
       Epsilon,
       JoinSemiLattice,
       MeetSemiLattice,
-      BoundedJoinSemiLattice,
-      BoundedMeetSemiLattice,
+      LowerBounded,
+      UpperBounded,
       ExpField
     )
     via (EuclideanPair a)

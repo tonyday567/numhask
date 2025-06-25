@@ -6,6 +6,8 @@ module NumHask.Data.Integral
     FromIntegral (..),
     FromInt,
     FromInteger (..),
+    even,
+    odd,
     (^^),
     (^),
   )
@@ -57,12 +59,6 @@ class
   rem a1 a2 = snd (quotRem a1 a2)
 
   quotRem :: a -> a -> (a, a)
-
-  even :: a -> Bool
-  even x = x `rem` (one + one) == zero
-
-  odd :: a -> Bool
-  odd = not . even
 
 instance Integral Int where
   divMod = P.divMod
@@ -119,6 +115,18 @@ instance (Integral b) => Integral (a -> b) where
   quot f f' a = f a `mod` f' a
   rem f f' a = f a `mod` f' a
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
+
+-- |
+-- >>> even 2
+-- True
+even :: (P.Eq a, Integral a) => a -> P.Bool
+even n = n `rem` (one + one) P.== zero
+
+-- |
+-- >>> odd 3
+-- True
+odd :: (P.Eq a, Integral a) => a -> P.Bool
+odd = P.not . even
 
 -- | toIntegral is kept separate from Integral to help with compatability issues.
 --

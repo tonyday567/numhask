@@ -39,7 +39,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Ord (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word, fromRational)
 import Prelude qualified as P
 
 -- $setup
@@ -372,10 +372,10 @@ instance (JoinSemiLattice a) => JoinSemiLattice (EuclideanPair a) where
 instance (MeetSemiLattice a) => MeetSemiLattice (EuclideanPair a) where
   (/\) (EuclideanPair (x, y)) (EuclideanPair (x', y')) = EuclideanPair (x /\ x', y /\ y')
 
-instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (EuclideanPair a) where
+instance (LowerBounded a) => LowerBounded (EuclideanPair a) where
   bottom = pure bottom
 
-instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (EuclideanPair a) where
+instance (UpperBounded a) => UpperBounded (EuclideanPair a) where
   top = pure top
 
 instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where

@@ -6,8 +6,8 @@ module NumHask.Algebra.Lattice
     MeetSemiLattice (..),
     meetLeq,
     (</),
-    BoundedJoinSemiLattice (..),
-    BoundedMeetSemiLattice (..),
+    LowerBounded (..),
+    UpperBounded (..),
     Lattice,
     BoundedLattice,
   )
@@ -77,20 +77,20 @@ type Lattice a = (JoinSemiLattice a, MeetSemiLattice a)
 -- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
 -- > x \/ bottom == bottom
-class (JoinSemiLattice a) => BoundedJoinSemiLattice a where
+class (JoinSemiLattice a) => LowerBounded a where
   bottom :: a
 
 -- | A meet-semilattice with an identity element 'top' for '/\'.
 --
 -- > x /\ top == top
-class (MeetSemiLattice a) => BoundedMeetSemiLattice a where
+class (MeetSemiLattice a) => UpperBounded a where
   top :: a
 
 -- | Lattices with both bounds
 --
 -- > x /\ bottom == x
 -- > x \/ top = x
-type BoundedLattice a = (JoinSemiLattice a, MeetSemiLattice a, BoundedJoinSemiLattice a, BoundedMeetSemiLattice a)
+type BoundedLattice a = (JoinSemiLattice a, MeetSemiLattice a, LowerBounded a, UpperBounded a)
 
 instance JoinSemiLattice Float where
   (\/) = min
@@ -182,83 +182,83 @@ instance JoinSemiLattice Word64 where
 instance MeetSemiLattice Word64 where
   (/\) = max
 
-instance BoundedJoinSemiLattice Float where
+instance LowerBounded Float where
   bottom = negInfinity
 
-instance BoundedMeetSemiLattice Float where
+instance UpperBounded Float where
   top = infinity
 
-instance BoundedJoinSemiLattice Double where
+instance LowerBounded Double where
   bottom = negInfinity
 
-instance BoundedMeetSemiLattice Double where
+instance UpperBounded Double where
   top = infinity
 
-instance BoundedJoinSemiLattice Int where
+instance LowerBounded Int where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Int where
+instance UpperBounded Int where
   top = maxBound
 
-instance BoundedJoinSemiLattice Bool where
+instance LowerBounded Bool where
   bottom = False
 
-instance BoundedMeetSemiLattice Bool where
+instance UpperBounded Bool where
   top = True
 
-instance BoundedJoinSemiLattice Natural where
+instance LowerBounded Natural where
   bottom = zero
 
-instance BoundedJoinSemiLattice Int8 where
+instance LowerBounded Int8 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Int8 where
+instance UpperBounded Int8 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Int16 where
+instance LowerBounded Int16 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Int16 where
+instance UpperBounded Int16 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Int32 where
+instance LowerBounded Int32 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Int32 where
+instance UpperBounded Int32 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Int64 where
+instance LowerBounded Int64 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Int64 where
+instance UpperBounded Int64 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Word where
+instance LowerBounded Word where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Word where
+instance UpperBounded Word where
   top = maxBound
 
-instance BoundedJoinSemiLattice Word8 where
+instance LowerBounded Word8 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Word8 where
+instance UpperBounded Word8 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Word16 where
+instance LowerBounded Word16 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Word16 where
+instance UpperBounded Word16 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Word32 where
+instance LowerBounded Word32 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Word32 where
+instance UpperBounded Word32 where
   top = maxBound
 
-instance BoundedJoinSemiLattice Word64 where
+instance LowerBounded Word64 where
   bottom = minBound
 
-instance BoundedMeetSemiLattice Word64 where
+instance UpperBounded Word64 where
   top = maxBound
