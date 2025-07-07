@@ -2,7 +2,7 @@ numhask
 ===
 
 [![Hackage](https://img.shields.io/hackage/v/numhask.svg)](https://hackage.haskell.org/package/numhask)
-[![Build Status](https://github.com/tonyday567/numhask/workflows/haskell-ci/badge.svg)](https://github.com/tonyday567/numhask/actions)
+[![build](https://github.com/tonyday567/numhask/actions/workflows/haskell-ci.yml/badge.svg)](https://github.com/tonyday567/numhask/actions/workflows/haskell-ci.yml)
 
 ![](other/nh12.svg)
 
