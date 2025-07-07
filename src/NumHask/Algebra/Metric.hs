@@ -2,8 +2,6 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# OPTIONS_GHC -Wno-type-equality-out-of-scope #-}
 
 -- | Metric classes
 module NumHask.Algebra.Metric
@@ -30,6 +28,7 @@ import Control.Applicative
 import Data.Bool
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
+import Data.Type.Equality
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
 import GHC.Natural (Natural (..))
@@ -39,7 +38,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord, Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word, fromRational)
 import Prelude qualified as P
 
 -- $setup
@@ -372,10 +371,10 @@ instance (JoinSemiLattice a) => JoinSemiLattice (EuclideanPair a) where
 instance (MeetSemiLattice a) => MeetSemiLattice (EuclideanPair a) where
   (/\) (EuclideanPair (x, y)) (EuclideanPair (x', y')) = EuclideanPair (x /\ x', y /\ y')
 
-instance (BoundedJoinSemiLattice a) => BoundedJoinSemiLattice (EuclideanPair a) where
+instance (LowerBounded a) => LowerBounded (EuclideanPair a) where
   bottom = pure bottom
 
-instance (BoundedMeetSemiLattice a) => BoundedMeetSemiLattice (EuclideanPair a) where
+instance (UpperBounded a) => UpperBounded (EuclideanPair a) where
   top = pure top
 
 instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
@@ -387,17 +386,7 @@ instance (Divisive a) => DivisiveAction (EuclideanPair a) where
 
 instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
-  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2' y x)
-    where
-      atan2' y x
-        | x P.> zero = atan (y / x)
-        | x P.== zero P.&& y P.> zero = pi / (one + one)
-        | x P.< one P.&& y P.> one = pi + atan (y / x)
-        | (x P.<= zero P.&& y P.< zero) || (x P.< zero) =
-            negate (atan2' (negate y) x)
-        | y P.== zero = pi -- must be after the previous test on zero y
-        | x P.== zero P.&& y P.== zero = y -- must be after the other double zero tests
-        | P.otherwise = x + y -- x or y is a NaN, return a NaN (via +)
+  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
 instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)

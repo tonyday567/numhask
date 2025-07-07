@@ -45,6 +45,9 @@ module NumHask
     negInfinity,
     nan,
     half,
+    modF,
+    divF,
+    divModF,
 
     -- * Lattice
     JoinSemiLattice (..),
@@ -53,8 +56,8 @@ module NumHask
     MeetSemiLattice (..),
     meetLeq,
     (</),
-    BoundedJoinSemiLattice (..),
-    BoundedMeetSemiLattice (..),
+    LowerBounded (..),
+    UpperBounded (..),
 
     -- * Action
     AdditiveAction (..),
@@ -139,16 +142,19 @@ import NumHask.Algebra.Field
     Field,
     QuotientField (..),
     TrigField (..),
+    divF,
+    divModF,
     half,
     infinity,
+    modF,
     nan,
     negInfinity,
   )
 import NumHask.Algebra.Lattice
-  ( BoundedJoinSemiLattice (..),
-    BoundedMeetSemiLattice (..),
-    JoinSemiLattice (..),
+  ( JoinSemiLattice (..),
+    LowerBounded (..),
     MeetSemiLattice (..),
+    UpperBounded (..),
     joinLeq,
     meetLeq,
     (</),

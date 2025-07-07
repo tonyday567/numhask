@@ -145,7 +145,7 @@ newtype Positive a = UnsafePositive {unPositive :: a}
       DivisiveAction,
       JoinSemiLattice,
       MeetSemiLattice,
-      BoundedMeetSemiLattice
+      UpperBounded
     )
     via (Wrapped a)
 ```

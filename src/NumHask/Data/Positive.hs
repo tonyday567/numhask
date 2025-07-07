@@ -84,7 +84,7 @@ newtype Positive a = UnsafePositive {unPositive :: a}
       DivisiveAction,
       JoinSemiLattice,
       MeetSemiLattice,
-      BoundedMeetSemiLattice
+      UpperBounded
     )
     via (Wrapped a)
 
@@ -103,7 +103,7 @@ instance (FromRatio a b) => FromRatio (Positive a) b where
 instance (ToRatio a b) => ToRatio (Positive a) b where
   toRatio (UnsafePositive a) = toRatio a
 
-instance (Additive a, JoinSemiLattice a) => BoundedJoinSemiLattice (Positive a) where
+instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
   bottom = UnsafePositive zero
 
 instance QuotientField (Positive P.Double) where
@@ -161,7 +161,7 @@ class Monus a where
 
   infixl 6 ∸
   (∸) :: a -> a -> a
-  default (∸) :: (BoundedJoinSemiLattice a, MeetSemiLattice a, Subtractive a) => a -> a -> a
+  default (∸) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
   a ∸ b = bottom /\ (a - b)
 
 -- | Truncated addition
@@ -171,5 +171,5 @@ class Addus a where
   {-# MINIMAL (∔) #-}
   infixl 6 ∔
   (∔) :: a -> a -> a
-  default (∔) :: (BoundedMeetSemiLattice a, JoinSemiLattice a, Additive a) => a -> a -> a
+  default (∔) :: (UpperBounded a, JoinSemiLattice a, Additive a) => a -> a -> a
   a ∔ b = top \/ (a + b)

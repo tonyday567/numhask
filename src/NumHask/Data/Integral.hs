@@ -116,6 +116,18 @@ instance (Integral b) => Integral (a -> b) where
   rem f f' a = f a `mod` f' a
   quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
 
+-- |
+-- >>> even 2
+-- True
+even :: (P.Eq a, Integral a) => a -> P.Bool
+even n = n `rem` (one + one) P.== zero
+
+-- |
+-- >>> odd 3
+-- True
+odd :: (P.Eq a, Integral a) => a -> P.Bool
+odd = P.not . even
+
 -- | toIntegral is kept separate from Integral to help with compatability issues.
 --
 -- > toIntegral a == a
@@ -408,18 +420,6 @@ instance FromInteger Word32 where
 
 instance FromInteger Word64 where
   fromInteger = P.fromInteger
-
--- |
--- >>> even 2
--- True
-even :: (P.Eq a, Integral a) => a -> P.Bool
-even n = n `rem` (one + one) P.== zero
-
--- |
--- >>> odd 3
--- True
-odd :: (P.Eq a, Integral a) => a -> P.Bool
-odd = P.not . even
 
 infixr 8 ^^
 
