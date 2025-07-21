@@ -192,21 +192,24 @@ instance QuotientField P.Double where
 infinity :: (SemiField a) => a
 infinity = one / zero
 
--- | nan is defined as zero/zero
---
--- but note the (social) law:
---
--- >>> nan == zero / zero
--- False
-nan :: (SemiField a) => a
-nan = zero / zero
-
 -- | negative infinity
 --
 -- >>> negInfinity + infinity
 -- NaN
 negInfinity :: (Field a) => a
 negInfinity = negate infinity
+
+-- | nan is defined as zero/zero
+--
+-- but note the (social) law:
+--
+-- >>> nan == zero / zero
+-- False
+--
+-- >>> infinity - infinity
+-- NaN
+nan :: (SemiField a) => a
+nan = zero / zero
 
 -- | Trigonometric Field
 --

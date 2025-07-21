@@ -118,49 +118,56 @@ class ToRatio a b where
   toRatio :: a -> Ratio b
 
 instance ToRatio Double Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = toRational
 
 instance ToRatio Float Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = toRational
 
 instance ToRatio (Ratio Integer) Integer where
   toRatio = P.id
 
 instance ToRatio Int Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . fromIntegral
 
 instance ToRatio Integer Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . fromIntegral
 
 instance ToRatio Natural Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Int8 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Int16 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Int32 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Int64 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Word Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Word8 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Word16 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Word32 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
 
 instance ToRatio Word64 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = (:% 1) . P.fromIntegral
+
+-- see https://github.com/haskell/core-libraries-committee/issues/338
+toRational :: (RealFloat a, Additive a) => a -> Ratio Integer
+toRational x
+  | isInfinite x = bool negInfinity infinity (x > zero)
+  | P.isNaN x = nan
+  | P.otherwise = fromBaseRational (P.toRational x)
 
 -- | `GHC.Real.Fractional` in base splits into fromRatio and Field
 --
