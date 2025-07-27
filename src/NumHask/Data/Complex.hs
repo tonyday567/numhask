@@ -52,8 +52,8 @@ newtype Complex a = Complex {complexPair :: (a, a)}
     ( Eq,
       Show,
       Read,
-      Data,
       Generic,
+      Data,
       Functor
     )
   deriving

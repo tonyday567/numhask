@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -26,6 +25,7 @@ where
 
 import Control.Applicative
 import Data.Bool
+import Data.Data
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Kind
 import Data.Type.Equality
@@ -221,7 +221,7 @@ class (Distributive coord, Distributive (Dir coord)) => Direction coord where
 --
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 data Polar a = Polar {radial :: a, azimuth :: a}
-  deriving (Generic, Show, Eq)
+  deriving (Eq, Show, Generic, Data)
 
 instance (Additive a, Multiplicative a) => Basis (Polar a) where
   type Mag (Polar a) = a
@@ -311,10 +311,7 @@ instance Epsilon Word64
 -- @since 0.11
 newtype EuclideanPair a = EuclideanPair {euclidPair :: (a, a)}
   deriving stock
-    ( Generic,
-      Eq,
-      Show
-    )
+    (Eq, Show, Generic, Data)
 
 instance Functor EuclideanPair where
   fmap f (EuclideanPair (x, y)) = EuclideanPair (f x, f y)

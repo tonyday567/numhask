@@ -1,3 +1,9 @@
+0.13.1
+===
+
+- added Data instances
+
+
 0.13
 ===
 
