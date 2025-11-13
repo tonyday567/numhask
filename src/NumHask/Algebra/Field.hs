@@ -242,7 +242,7 @@ instance TrigField P.Double where
   atan2 = P.atan2
   sinh = P.sinh
   cosh = P.cosh
-  asinh = P.sinh
+  asinh = P.asinh
   acosh = P.acosh
   atanh = P.atanh
 
@@ -256,7 +256,7 @@ instance TrigField P.Float where
   atan2 = P.atan2
   sinh = P.sinh
   cosh = P.cosh
-  asinh = P.sinh
+  asinh = P.asinh
   acosh = P.acosh
   atanh = P.atanh
 
