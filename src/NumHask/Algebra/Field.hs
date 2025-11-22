@@ -186,7 +186,7 @@ instance QuotientField P.Double where
 #endif
 #if defined(__MHS__)
 class (SemiField a) => QuotientField a whole where
-  properFraction :: a -> (whole, a)
+  properFraction :: forall a whole. a -> (whole, a)
 
   -- | round to the nearest Integral
   --
@@ -230,7 +230,6 @@ class (SemiField a) => QuotientField a whole where
   floor x = bool n (n - one) (r P.< zero)
     where
       (n, r) = properFraction x
-
   -- | supply the whole component closest to zero
   --
   -- >>> floor (-1.001 :: Double)
@@ -239,7 +238,7 @@ class (SemiField a) => QuotientField a whole where
   -- >>> truncate (-1.001 :: Double)
   -- -1
   truncate :: a -> w
-  default truncate :: (P.Ord a) => a -> w
+  default truncate :: (P.Ord a, Distributive w, Subtractive w) => a -> w
   truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
 instance QuotientField P.Float P.Int where
@@ -354,7 +353,12 @@ half = one / two
 --
 -- >>> modF 1.5 1.2
 -- 0.30000000000000004
+#if defined(__GLASGOW_HASKELL__)
 modF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
+#endif
+#if defined(__MHS__)
+modF :: (Eq a, Field a, FromIntegral a w, QuotientField a w) => a -> a -> a
+#endif
 modF n d
   | d == infinity = n
   | d == zero = nan
@@ -368,7 +372,12 @@ modF n d
 --
 -- >>> divF 1.5 1.2
 -- 1.0
+#if defined(__GLASGOW_HASKELL__)
 divF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
+#endif
+#if defined(__MHS__)
+divF :: (Eq a, Field a, FromIntegral a w, QuotientField a w) => a -> a -> a
+#endif
 divF n d
   | d == infinity = zero
   | d == zero = infinity
@@ -380,7 +389,12 @@ divF n d
 --
 -- >>> divModF 1.5 1.2
 -- (1.0,0.30000000000000004)
+#if defined(__GLASGOW_HASKELL__)
 divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> (a, a)
+#endif
+#if defined(__MHS__)
+divModF :: (Eq a, Field a, FromIntegral a w, QuotientField a w) => a -> a -> (a,a)
+#endif
 divModF n d
   | d == infinity = (zero, n)
   | d == zero = (infinity, nan)

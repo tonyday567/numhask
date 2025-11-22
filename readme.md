@@ -71,9 +71,23 @@ Tracked down typos in MicroHS extension support list.
 
 ## included mhs CI
 
-## more typefamilies
+## more typefamilies and Natural usage sites
 
     mhs: uncaught exception: error: "src/NumHask/Algebra/Field.hs": line 120, col 3:
       found:    type
       expected: LIdent ( UQIdent [ literal ~ ! (# infixl infixr infix default ; eof
+    
+    mhs: uncaught exception: error: "src/NumHask/Data/Integral.hs": line 19, col 8: Module not found: GHC.Natural
+    search path=["src","dist-mcabal/autogen"]
+    package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]
+
+
+## QuotientField
+
+
+    mhs: uncaught exception: error: "src/NumHask/Algebra/Field.hs": line 202, col 18: Cannot satisfy constraint: (QuotientField _a3654 _a3655)
+     fully qualified: (NumHask.Algebra.Field.QuotientField _a3654 _a3655)
+
+
+
 

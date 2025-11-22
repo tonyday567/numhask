@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral (..),
@@ -16,7 +18,9 @@ where
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..), naturalFromInteger)
+#endif
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
@@ -68,9 +72,11 @@ instance Integral Integer where
   divMod = P.divMod
   quotRem = P.quotRem
 
+#if defined(__GLASGOW_HASKELL__)
 instance Integral Natural where
   divMod = P.divMod
   quotRem = P.quotRem
+#endif
 
 instance Integral Int8 where
   divMod = P.divMod
@@ -145,8 +151,10 @@ instance ToIntegral Integer Integer where
 instance ToIntegral Int Integer where
   toIntegral = P.toInteger
 
+#if defined(__GLASGOW_HASKELL__)
 instance ToIntegral Natural Integer where
   toIntegral = P.toInteger
+#endif
 
 instance ToIntegral Int8 Integer where
   toIntegral = P.toInteger
@@ -181,8 +189,10 @@ instance ToIntegral Int Int where
 instance ToIntegral Integer Int where
   toIntegral = P.fromIntegral
 
+#if defined(__GLASGOW_HASKELL__)
 instance ToIntegral Natural Int where
   toIntegral = P.fromIntegral
+#endif
 
 instance ToIntegral Int8 Int where
   toIntegral = P.fromIntegral
@@ -211,8 +221,10 @@ instance ToIntegral Word32 Int where
 instance ToIntegral Word64 Int where
   toIntegral = P.fromIntegral
 
+#if defined(__GLASGOW_HASKELL__)
 instance ToIntegral Natural Natural where
   toIntegral = P.id
+#endif
 
 instance ToIntegral Int8 Int8 where
   toIntegral = P.id
@@ -267,8 +279,10 @@ instance FromIntegral Int Integer where
 instance FromIntegral Integer Integer where
   fromIntegral = P.id
 
+#if defined(__GLASGOW_HASKELL__)
 instance FromIntegral Natural Integer where
   fromIntegral = naturalFromInteger
+#endif
 
 instance FromIntegral Int8 Integer where
   fromIntegral = P.fromInteger
@@ -309,8 +323,10 @@ instance FromIntegral Int Int where
 instance FromIntegral Integer Int where
   fromIntegral = P.fromIntegral
 
+#if defined(__GLASGOW_HASKELL__)
 instance FromIntegral Natural Int where
   fromIntegral = P.fromIntegral
+#endif
 
 instance FromIntegral Int8 Int where
   fromIntegral = P.fromIntegral
@@ -339,8 +355,10 @@ instance FromIntegral Word32 Int where
 instance FromIntegral Word64 Int where
   fromIntegral = P.fromIntegral
 
+#if defined(__GLASGOW_HASKELL__)
 instance FromIntegral Natural Natural where
   fromIntegral = P.id
+#endif
 
 instance FromIntegral Int8 Int8 where
   fromIntegral = P.id
@@ -391,8 +409,10 @@ instance FromInteger Int where
 instance FromInteger Integer where
   fromInteger = P.id
 
+#if defined(__GLASGOW_HASKELL__)
 instance FromInteger Natural where
   fromInteger = naturalFromInteger
+#endif
 
 instance FromInteger Int8 where
   fromInteger = P.fromInteger
