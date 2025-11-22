@@ -22,9 +22,9 @@ module NumHask.Prelude
     ifThenElse,
     fromList,
     fromListN,
-    #if defined(__GLASGOW_HASKELL__)
+#if defined(__GLASGOW_HASKELL__)
     Natural (..),
-    #endif
+#endif
     module GHC.OverloadedLabels,
 
     -- * Modules you can't live without
