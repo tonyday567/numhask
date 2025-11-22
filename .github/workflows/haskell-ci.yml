@@ -24,11 +24,6 @@ jobs:
           cd mhs
           make minstall
 
-      - name: install extra packages
-        run: |
-          PATH="$HOME/.mcabal/bin:$PATH"
-          mcabal install ghc-compat
-
       - name: checkout this repo
         uses: actions/checkout@v4
         with:
