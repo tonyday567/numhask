@@ -57,3 +57,14 @@ Tracked down typos in MicroHS extension support list.
 ## remove NumHask.Algebra.Group & KleeneAlgebra from library.
 
     mhs: uncaught exception: error: "src/NumHask/Algebra/Action.hs": line 56, col 50: kind error: cannot unify Type and (_a18 -> _a19)
+
+## ormolu failed
+
+
+    src/NumHask/Prelude.hs:25:1
+       The GHC parser (in Haddock mode) failed:
+       [GHC-58481] parse error (possibly incorrect indentation or mismatched brackets)  
+  
+  
+  
+
