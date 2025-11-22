@@ -37,3 +37,14 @@ mcabal &#x2013;ghc build
 
 mcabal: uncaught exception: error: &ldquo;../MicroCabal/src/MicroCabal/Backend/GHC.hs&rdquo;,26:5: The Stackage snapshot files are for ghc-9.12.2, but the current compiler is ghc-9.10.3
 
+Moved to a compile cycle of `mcabal --ghc build && mcabal build`
+
+CI picked up styling and extension issues ...
+
+## MHS2024 extensions
+
+Tracked down typos in MicroHS extension support list.
+
+    cabal check
+
+

@@ -123,7 +123,7 @@ common mhs2024-additions
     ConstraintKinds
     DefaultSignatures
     DeriveAnyClass
-    DerivingDataTypeable
+    DeriveDataTypeable
     DerivingStrategies
     DerivingVia
     DoAndIfThenElse
@@ -134,21 +134,19 @@ common mhs2024-additions
     ExistentialQuantification
     ExplicitNamespaces
     ExtendedDefaultRules
-    ExtraInstanceBindings
     FlexibleContexts
-    FlexibleInstance
+    FlexibleInstances
     ForeignFunctionInterface
     FunctionalDependencies
     GADTs
-    GADTsyntax
+    GADTSyntax
     GeneralizedNewtypeDeriving
-    ImportShadowing
     ImportQualifiedPost
     IncoherentInstances
     InstanceSigs
     KindSignatures
     LambdaCase
-    LiberalTypesynonyms
+    LiberalTypeSynonyms
     MagicHash
     MonoLocalBinds
     MultilineStrings
@@ -179,7 +177,6 @@ common mhs2024-additions
     StandaloneKindSignatures
     TupleSections
     TypeApplications
-    TypeLits
     TypeSynonymInstances
     UndecidableInstances
     UndecidableSuperClasses
