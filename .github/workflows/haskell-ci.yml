@@ -27,7 +27,8 @@ jobs:
       - name: checkout this repo
         uses: actions/checkout@v4
         with:
-          path: tonyday567/numhask
+          repository: tonyday567/numhask
+          path: numhask
 
       - name: compile and install via mhs
         run: |

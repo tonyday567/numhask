@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE TypeFamilies #-}
 
@@ -116,6 +117,7 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
+#if defined(__GLASGOW_HASKELL__)
 class (SemiField a) => QuotientField a where
   type Whole a :: Type
   properFraction :: a -> (Whole a, a)
@@ -181,6 +183,71 @@ instance QuotientField P.Float where
 instance QuotientField P.Double where
   type Whole P.Double = P.Int
   properFraction = P.properFraction
+#endif
+#if defined(__MHS__)
+class (SemiField a) => QuotientField a whole where
+  properFraction :: a -> (whole, a)
+
+  -- | round to the nearest Integral
+  --
+  -- Exact ties are managed by rounding down ties if the whole component is even.
+  --
+  -- >>> round (1.5 :: Double)
+  -- 2
+  --
+  -- >>> round (2.5 :: Double)
+  -- 2
+  round :: a -> w
+  default round :: (Subtractive a, Integral w, P.Eq w, P.Ord a, Subtractive w) => a -> w
+  round x = case properFraction x of
+    (n, r) ->
+      let m = bool (n + one) (n - one) (r P.< zero)
+          half_up = abs' r + half
+          abs' a
+            | a P.< zero = negate a
+            | P.otherwise = a
+       in case P.compare half_up one of
+            P.LT -> n
+            P.EQ -> bool m n (even n)
+            P.GT -> m
+
+  -- | supply the next upper whole component
+  --
+  -- >>> ceiling (1.001 :: Double)
+  -- 2
+  ceiling :: a -> w
+  default ceiling :: (P.Ord a, Distributive w) => a -> w
+  ceiling x = bool n (n + one) (r P.> zero)
+    where
+      (n, r) = properFraction x
+
+  -- | supply the previous lower whole component
+  --
+  -- >>> floor (1.001 :: Double)
+  -- 1
+  floor :: a -> w
+  default floor :: (P.Ord a, Subtractive w, Distributive w) => a -> w
+  floor x = bool n (n - one) (r P.< zero)
+    where
+      (n, r) = properFraction x
+
+  -- | supply the whole component closest to zero
+  --
+  -- >>> floor (-1.001 :: Double)
+  -- -2
+  --
+  -- >>> truncate (-1.001 :: Double)
+  -- -1
+  truncate :: a -> w
+  default truncate :: (P.Ord a) => a -> w
+  truncate x = bool (ceiling x) (floor x) (x P.> zero)
+
+instance QuotientField P.Float P.Int where
+  properFraction = P.properFraction
+
+instance QuotientField P.Double P.Int where
+  properFraction = P.properFraction
+#endif
 
 -- | infinity is defined for any 'Field'.
 --
