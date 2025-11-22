@@ -114,6 +114,78 @@ common ghc2024-additions
     MonoLocalBinds
     RoleAnnotations
 
+common mhs2024-additions
+  default-extensions:
+    AllowAmbiguousTypes
+    BangPatterns
+    BinaryLiterals
+    BlockArguments
+    ConstraintKinds
+    DefaultSignatures
+    DeriveAnyClass
+    DerivingDataTypeable
+    DerivingStrategies
+    DerivingVia
+    DoAndIfThenElse
+    DuplicateRecordFields
+    EmptyCase
+    EmptyDataDecls
+    EmptyDataDeriving
+    ExistentialQuantification
+    ExplicitNamespaces
+    ExtendedDefaultRules
+    ExtraInstanceBindings
+    FlexibleContexts
+    FlexibleInstance
+    ForeignFunctionInterface
+    FunctionalDependencies
+    GADTs
+    GADTsyntax
+    GeneralizedNewtypeDeriving
+    ImportShadowing
+    ImportQualifiedPost
+    IncoherentInstances
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    LiberalTypesynonyms
+    MagicHash
+    MonoLocalBinds
+    MultilineStrings
+    MultiParamTypeClasses
+    MultiWayIf
+    NamedDefaults
+    NamedFieldPuns
+    NegativeLiterals
+    NoMonomorphismRestriction
+    NondecreasingIndentation
+    NoStarIsType
+    NumericUnderscores
+    OrPatterns
+    OverlappingInstances
+    OverloadedRecordDot
+    OverloadedRecordUpdate
+    OverloadedStrings
+    PatternSynonyms
+    PolyKinds
+    PolymorphicComponents
+    RankNTypes
+    RecordWildCards
+    RecursiveDo
+    RequiredTypeArguments
+    QualifiedDo
+    ScopedTypeVariables
+    StandaloneDeriving
+    StandaloneKindSignatures
+    TupleSections
+    TypeApplications
+    TypeLits
+    TypeSynonymInstances
+    UndecidableInstances
+    UndecidableSuperClasses
+    UnicodeSyntax
+    ViewPatterns
+
 common ghc2024-stanza
   if impl(ghc >=9.10)
     default-language:
@@ -122,9 +194,13 @@ common ghc2024-stanza
     import: ghc2024-additions
     default-language:
       GHC2021
-  else
+  elif impl(ghc <9.2)
     import: ghc2021-additions
     import: ghc2024-additions
+    default-language:
+      Haskell2010
+  else
+    import: mhs2024-additions
     default-language:
       Haskell2010
 
