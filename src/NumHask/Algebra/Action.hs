@@ -53,7 +53,7 @@ class
 (+|) :: (AdditiveAction m) => AdditiveScalar m -> m -> m
 #endif
 #if defined(__MHS__)
-(+|) :: (Additive a, AdditiveAction m a) => a -> m a -> m a
+(+|) :: (AdditiveAction m a) => a -> m -> m
 #endif
 (+|) = flip (|+)
 
@@ -89,7 +89,7 @@ infixl 6 -|
 (-|) :: (AdditiveAction m, Subtractive m) => AdditiveScalar m -> m -> m
 #endif
 #if defined(__MHS__)
-(-|) :: (AdditiveAction m a, Subtractive a) => a -> m a -> m a
+(-|) :: (AdditiveAction m a, Subtractive m) => a -> m -> m
 #endif
 a -| b = a +| negate b
 
@@ -126,7 +126,7 @@ infixl 7 *|
 (*|) :: (MultiplicativeAction m) => Scalar m -> m -> m
 #endif
 #if defined(__MHS__)
-(*|) :: (Multiplicative a, MultiplicativeAction m a) => a -> m a -> m a
+(*|) :: (MultiplicativeAction m a) => a -> m -> m
 #endif
 (*|) = flip (|*)
 
@@ -158,7 +158,7 @@ class
 (/|) :: (MultiplicativeAction m, Divisive m) => Scalar m -> m -> m
 #endif
 #if defined(__MHS__)
-(/|) :: (MultiplicativeAction m a, Divisive a) => a -> m a -> m a
+(/|) :: (MultiplicativeAction m a, Divisive m) => a -> m -> m
 #endif
 a /| b = a *| recip b
 
