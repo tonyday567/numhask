@@ -32,7 +32,6 @@ module NumHask
     Distributive,
     Ring,
     StarSemiring (..),
-    KleeneAlgebra,
     InvolutiveRing (..),
     two,
 
@@ -186,7 +185,6 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
   ( Distributive,
     InvolutiveRing (..),
-    KleeneAlgebra,
     Ring,
     StarSemiring (..),
     two,
@@ -283,7 +281,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- - __/low-impact/__. The library attempts to fit in with the rest of the Haskell ecosystem.
 --   It provides instances for common numbers: 'GHC.Num.Int', 'GHC.Num.Integer', 'GHC.Float.Double',
---   'GHC.Float.Float', 'GHC.Natural.Natural', and the Word classes. It avoids name (or idea) clashes with other popular libraries
+--   'GHC.Float.Float', and the Word classes. It avoids name (or idea) clashes with other popular libraries
 --   and adopts conventions in the <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude>
 --   where they make sense.
 --

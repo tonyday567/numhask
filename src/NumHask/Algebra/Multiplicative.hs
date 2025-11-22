@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Multiplicative classes
 module NumHask.Algebra.Multiplicative
   ( Multiplicative (..),
@@ -11,9 +13,15 @@ where
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
 import Prelude (Double, Eq, Float, Int, Integer, Ord, Show, fromInteger, fromRational)
 import Prelude qualified as P
+#if defined(__MHS__)
+import Data.Foldable qualified as P
+import Data.Traversable qualified as P
+#endif
 
 -- $setup
 --
@@ -122,9 +130,11 @@ instance Multiplicative P.Bool where
   (*) = (P.&&)
   one = P.True
 
+#if defined(__GLASGOW_HASKELL__)
 instance Multiplicative Natural where
   (*) = (P.*)
   one = 1
+#endif
 
 instance Multiplicative Int8 where
   (*) = (P.*)

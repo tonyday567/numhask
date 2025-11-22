@@ -211,7 +211,6 @@ library
     NumHask.Algebra.Action
     NumHask.Algebra.Additive
     NumHask.Algebra.Field
-    NumHask.Algebra.Group
     NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
     NumHask.Algebra.Multiplicative

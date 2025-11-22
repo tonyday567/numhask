@@ -1,9 +1,10 @@
+{-# LANGUAGE CPP #-}
+
 -- | Ring classes
 module NumHask.Algebra.Ring
   ( Distributive,
     Ring,
     StarSemiring (..),
-    KleeneAlgebra,
     InvolutiveRing (..),
     two,
   )
@@ -11,9 +12,10 @@ where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
 import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
-import NumHask.Algebra.Group (Idempotent)
 import NumHask.Algebra.Multiplicative (Multiplicative (..))
 import Prelude qualified as P
 
@@ -64,12 +66,6 @@ class (Distributive a) => StarSemiring a where
   plus :: a -> a
   plus a = a * star a
 
--- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
---
--- > a * x + x = a ==> star a * x + x = x
--- > x * a + x = a ==> x * star a + x = x
-class (StarSemiring a, Idempotent a) => KleeneAlgebra a
-
 -- | Involutive Ring
 --
 -- > adj (a + b) ==> adj a + adj b
@@ -90,7 +86,9 @@ instance InvolutiveRing P.Integer
 
 instance InvolutiveRing P.Int
 
+#if defined(__GLASGOW_HASKELL__)
 instance InvolutiveRing Natural
+#endif
 
 instance InvolutiveRing Int8
 

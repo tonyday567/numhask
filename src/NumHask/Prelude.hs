@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -- | A prelude composed by overlaying numhask on Prelude, together with a few minor tweaks needed for RebindableSyntax.
@@ -5,7 +6,6 @@ module NumHask.Prelude
   ( -- * numhask exports
     module NumHask.Algebra.Additive,
     module NumHask.Algebra.Field,
-    module NumHask.Algebra.Group,
     module NumHask.Algebra.Lattice,
     module NumHask.Algebra.Action,
     module NumHask.Algebra.Multiplicative,
@@ -22,7 +22,9 @@ module NumHask.Prelude
     ifThenElse,
     fromList,
     fromListN,
+    #if defined(__GLASGOW_HASKELL__)
     Natural (..),
+    #endif
     module GHC.OverloadedLabels,
 
     -- * Modules you can't live without
@@ -61,12 +63,13 @@ import Data.Semigroup hiding (Product (..), Sum (..))
 import Data.Traversable
 import GHC.Exts
 import GHC.Generics
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
 import GHC.OverloadedLabels
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
-import NumHask.Algebra.Group
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative

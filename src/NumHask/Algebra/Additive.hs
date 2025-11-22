@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
@@ -12,9 +14,15 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Semigroup (Semigroup (..))
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
 import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show, fromInteger)
 import Prelude qualified as P
+#if defined(__MHS__)
+import Data.Foldable qualified as P
+import Data.Traversable qualified as P
+#endif
 
 -- $setup
 --
@@ -129,12 +137,14 @@ instance Additive Bool where
   (+) = (P.||)
   zero = P.False
 
+#if defined(__GLASGOW_HASKELL__)
 instance Additive Natural where
   (+) = (P.+)
   zero = 0
 
 instance Subtractive Natural where
   negate = P.negate
+#endif
 
 instance Additive Int8 where
   (+) = (P.+)
