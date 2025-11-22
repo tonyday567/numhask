@@ -84,6 +84,7 @@ Tracked down typos in MicroHS extension support list.
 
 ## QuotientField
 
+I stopped here and switched to a new branch because I wanted to compile the __MHS__ wrapped code with ghc but couldnt work out an easy way to achieve this.
 
     mhs: uncaught exception: error: "src/NumHask/Algebra/Field.hs": line 202, col 18: Cannot satisfy constraint: (QuotientField _a3654 _a3655)
      fully qualified: (NumHask.Algebra.Field.QuotientField _a3654 _a3655)
