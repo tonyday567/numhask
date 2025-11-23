@@ -85,8 +85,8 @@ instance
     | signum x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
-instance (P.Ord a, EndoBased a, Absolute a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) where
-  type Whole (Ratio a) = Int
+instance (P.Ord a, EndoBased a, Absolute a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) Int where
+  -- type Whole (Ratio a) = Int
   properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) where

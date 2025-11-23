@@ -385,16 +385,3 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
   log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
-instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
-  type Whole (EuclideanPair a) = EuclideanPair (Whole a)
-
-  properFraction (EuclideanPair (x, y)) =
-    (EuclideanPair (xwhole, ywhole), EuclideanPair (xfrac, yfrac))
-    where
-      (xwhole, xfrac) = properFraction x
-      (ywhole, yfrac) = properFraction y
-
-  round (EuclideanPair (x, y)) = EuclideanPair (round x, round y)
-  ceiling (EuclideanPair (x, y)) = EuclideanPair (ceiling x, ceiling y)
-  floor (EuclideanPair (x, y)) = EuclideanPair (floor x, floor y)
-  truncate (EuclideanPair (x, y)) = EuclideanPair (truncate x, truncate y)

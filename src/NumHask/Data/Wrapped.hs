@@ -48,13 +48,6 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       DivisiveAction
     )
 
-instance
-  (P.Ord a, P.Eq (Whole a), Integral (Whole a), Subtractive (Whole a), Subtractive a, QuotientField a) =>
-  QuotientField (Wrapped a)
-  where
-  type Whole (Wrapped a) = Whole a
-  properFraction (Wrapped a) = let (i, r) = properFraction a in (i, Wrapped r)
-
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral a = Wrapped (fromIntegral a)
 

@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
   ( JoinSemiLattice (..),
@@ -18,12 +20,22 @@ import Data.Eq (Eq ((==)))
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord (Ord (..))
 import Data.Word (Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Enum (Bounded (..))
 import GHC.Float (Double, Float)
 import GHC.Int (Int)
 import GHC.Natural (Natural (..))
 import GHC.Num (Integer)
 import GHC.Word (Word)
+#endif
+#if defined(__MHS__)
+import Data.Bounded (Bounded (..))
+import Data.Double (Double)
+import Data.Float (Float)
+import Data.Int.Int (Int)
+import Data.Integer (Integer)
+import Data.Word.Word (Word)
+#endif
 import NumHask.Algebra.Additive (zero)
 import NumHask.Algebra.Field
   ( infinity,
@@ -43,7 +55,7 @@ class (Eq a) => JoinSemiLattice a where
 joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
-infixr 6 <\
+infixr 6 <\ -- comment to stop CPP picking up the line-ending backslash
 
 -- | The partial ordering induced by the join-semilattice structure
 (<\) :: (JoinSemiLattice a) => a -> a -> Bool
@@ -55,14 +67,14 @@ infixr 6 <\
 -- > Commutativity: x /\ y == y /\ x
 -- > Idempotency:   x /\ x == x
 class (Eq a) => MeetSemiLattice a where
-  infixr 6 /\
+  infixr 6 /\ -- comment to stop CPP picking up the line-ending backslash
   (/\) :: a -> a -> a
 
 -- | The partial ordering induced by the meet-semilattice structure
 meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
-infixr 6 </
+infixr 6 </ -- comment to stop CPP picking up the line-ending backslash
 
 -- | The partial ordering induced by the meet-semilattice structure
 (</) :: (MeetSemiLattice a) => a -> a -> Bool
@@ -122,11 +134,13 @@ instance JoinSemiLattice Bool where
 instance MeetSemiLattice Bool where
   (/\) = (&&)
 
+#if defined(__GLASGOW_HASKELL__)
 instance JoinSemiLattice Natural where
   (\/) = min
 
 instance MeetSemiLattice Natural where
   (/\) = max
+#endif
 
 instance JoinSemiLattice Int8 where
   (\/) = min
@@ -206,8 +220,10 @@ instance LowerBounded Bool where
 instance UpperBounded Bool where
   top = True
 
+#if defined(__GLASGOW_HASKELL__)
 instance LowerBounded Natural where
   bottom = zero
+#endif
 
 instance LowerBounded Int8 where
   bottom = minBound

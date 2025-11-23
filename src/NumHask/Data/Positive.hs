@@ -106,19 +106,8 @@ instance (ToRatio a b) => ToRatio (Positive a) b where
 instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
   bottom = UnsafePositive zero
 
-instance QuotientField (Positive P.Double) where
-  type Whole (Positive P.Double) = Positive P.Int
+instance QuotientField (Positive P.Double) (Positive P.Int) where
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
-  ceiling = properFraction >>> P.fst >>> (+ one)
-  floor = properFraction >>> P.fst
-  truncate = floor
-  round x = case properFraction x of
-    (n, r) ->
-      let half_up = r + half
-       in case P.compare half_up one of
-            P.LT -> n
-            P.EQ -> bool (n + one) n (even n)
-            P.GT -> n + one
 
 -- | Constructor which returns zero for a negative number.
 --

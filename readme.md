@@ -90,5 +90,13 @@ I stopped here and switched to a new branch because I wanted to compile the __MH
      fully qualified: (NumHask.Algebra.Field.QuotientField _a3654 _a3655)
 
 
+## GHC.Enum
+
+This branch has a lot of QuotientField ripped out.
+
+mhs: uncaught exception: error: "src/NumHask/Algebra/Lattice.hs": line 21, col 8: Module not found: GHC.Enum
+search path=["src","dist-mcabal/autogen"]
+package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]
+
 
 

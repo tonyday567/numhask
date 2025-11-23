@@ -44,9 +44,6 @@ module NumHask
     negInfinity,
     nan,
     half,
-    modF,
-    divF,
-    divModF,
 
     -- * Lattice
     JoinSemiLattice (..),
@@ -141,11 +138,8 @@ import NumHask.Algebra.Field
     Field,
     QuotientField (..),
     TrigField (..),
-    divF,
-    divModF,
     half,
     infinity,
-    modF,
     nan,
     negInfinity,
   )
