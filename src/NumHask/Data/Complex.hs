@@ -59,8 +59,6 @@ newtype Complex a = Complex {complexPair :: (a, a)}
   deriving
     ( Additive,
       Subtractive,
-      Basis,
-      Direction,
       Epsilon,
       JoinSemiLattice,
       MeetSemiLattice,

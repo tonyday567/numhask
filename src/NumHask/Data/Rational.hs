@@ -41,7 +41,7 @@ data Ratio a = !a :% !a deriving (P.Show)
 -- | Ratio of two integers
 type Rational = Ratio Integer
 
-instance (P.Eq a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
+instance (P.Eq a, Subtractive a, EndoBased a, Absolute a a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)
     | isRNaN a P.|| isRNaN b = P.False
     | xa == zero P.&& xb == zero = P.True
@@ -85,13 +85,11 @@ instance
     | signum x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
-instance (P.Ord a, EndoBased a, Absolute a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) Int where
+instance (P.Ord a, EndoBased a, Absolute a a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) Int where
   -- type Whole (Ratio a) = Int
   properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
 
-instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) where
-  type Mag (Ratio a) = Ratio a
-  type Base (Ratio a) = Ratio a
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) (Ratio a) (Ratio a) where
   basis (n :% _) =
     case compare n zero of
       EQ -> zero

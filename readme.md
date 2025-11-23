@@ -99,4 +99,17 @@ search path=["src","dist-mcabal/autogen"]
 package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]
 
 
+## extension work
 
+Created extension lists to check if both mhs and ghc extensions are compatible with all code.
+
+## Algebra.Metric
+
+    mhs: uncaught exception: error: "src/NumHask/Algebra/Metric.hs": line 67, col 3:
+      found:    type
+      expected: LIdent ( UQIdent [ literal ~ ! (# infixl infixr infix default ; eof
+      
+
+Swapping out TF for FD is major for Basis, Polar etc.
+
+https://gitlab.haskell.org/ghc/ghc/-/wikis/tf-vs-fd
