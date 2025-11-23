@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -51,19 +52,15 @@ newtype Complex a = Complex {complexPair :: (a, a)}
   deriving stock
     ( Eq,
       Show,
-      Read,
-      Generic,
-      Data,
-      Functor
+      Read
     )
+#if defined(__GLASGOW_HASKELL__)
+  deriving stock (Functor, Generic)
+#endif
   deriving
-    ( Additive,
-      Subtractive,
-      Epsilon,
-      JoinSemiLattice,
-      MeetSemiLattice,
-      LowerBounded,
-      UpperBounded,
+    ( -- Additive,
+      -- Subtractive,
+      -- Data,
       ExpField
     )
     via (EuclideanPair a)
@@ -89,6 +86,21 @@ realPart (Complex (x, _)) = x
 -- | Extracts the imaginary part of a complex number.
 imagPart :: Complex a -> a
 imagPart (Complex (_, y)) = y
+
+instance
+  (Additive a) =>
+  Additive (Complex a)
+  where
+  (Complex (r, i)) + (Complex (r', i')) =
+    Complex (r + r', i+i')
+  zero = zero +: zero
+
+instance
+  (Subtractive a) =>
+  Subtractive (Complex a)
+  where
+  negate (Complex (r, i)) =
+    Complex (-r, -i)
 
 instance
   (Subtractive a, Multiplicative a) =>

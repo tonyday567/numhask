@@ -195,7 +195,10 @@ class (Distributive coord, Distributive dir) => Direction coord dir where
 --
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 data Polar a = Polar {radial :: a, azimuth :: a}
-  deriving (Eq, Show, Generic, Data)
+  deriving stock (Eq, Show)
+#if defined(__GLASGOW_HASKELL__)
+  deriving stock (Generic, Data)
+#endif
 
 instance (Additive a, Multiplicative a) => Basis a a (Polar a) where
   magnitude = radial
@@ -210,7 +213,12 @@ polar x = Polar (magnitude x) (angle (basis x))
 -- | Convert a Polar to a (higher-kinded) number that has a direction.
 --
 -- @since 0.07
+#if defined(__GLASGOW_HASKELL__)
 coord :: (MultiplicativeAction c, Scalar c ~ a, Direction c a) => Polar a -> c
+#endif
+#if defined(__MHS__)
+coord :: (MultiplicativeAction c a, Direction c a) => Polar a -> c
+#endif
 coord x = radial x *| ray (azimuth x)
 
 -- | A small number, especially useful for approximate equality.
@@ -282,8 +290,10 @@ instance Epsilon Word64
 --
 -- @since 0.11
 newtype EuclideanPair a = EuclideanPair {euclidPair :: (a, a)}
-  deriving stock
-    (Eq, Show, Generic, Data)
+  deriving stock (Eq, Show)
+#if defined(__GLASGOW_HASKELL__)
+  deriving stock (Generic, Data)
+#endif
 
 instance Functor EuclideanPair where
   fmap f (EuclideanPair (x, y)) = EuclideanPair (f x, f y)
@@ -318,7 +328,12 @@ instance (TrigField a) => Direction (EuclideanPair a) a where
   ray x = EuclideanPair (cos x, sin x)
 
 instance
+#if defined(__GLASGOW_HASKELL__)
   (ExpField a, Eq a, DivisiveAction (EuclideanPair a), Scalar (EuclideanPair a) ~ a) =>
+#endif
+#if defined(__MHS__)
+  (ExpField a, Eq a, DivisiveAction (EuclideanPair a) a) =>
+#endif
   Basis (EuclideanPair a) a (EuclideanPair a)
   where
   magnitude (EuclideanPair (x, y)) = sqrt (x * x + y * y)

@@ -103,13 +103,26 @@ package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]
 
 Created extension lists to check if both mhs and ghc extensions are compatible with all code.
 
-## Algebra.Metric
+## refactor of Algebra.Metric
 
     mhs: uncaught exception: error: "src/NumHask/Algebra/Metric.hs": line 67, col 3:
       found:    type
       expected: LIdent ( UQIdent [ literal ~ ! (# infixl infixr infix default ; eof
       
-
 Swapping out TF for FD is major for Basis, Polar etc.
 
 https://gitlab.haskell.org/ghc/ghc/-/wikis/tf-vs-fd
+
+
+
+## derivingvia
+
+Something weird is going on with derivingvia
+
+    mhs: uncaught exception: error: "src/NumHask/Data/Complex.hs": line 51, col 17: Multiple constraint solutions for: (Additive (EuclideanPair a))
+
+Even after adding an instance manually, up comes:
+
+    mhs: uncaught exception: error: "src/NumHask/Data/Complex.hs": line 51, col 17: Cannot satisfy constraint: (Additive a)
+         fully qualified: (NumHask.Algebra.Additive.Additive a)
+         
