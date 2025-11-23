@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -39,14 +40,9 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       JoinSemiLattice,
       LowerBounded,
       UpperBounded,
-      Basis,
-      Direction,
-      Epsilon,
-      AdditiveAction,
-      SubtractiveAction,
-      MultiplicativeAction,
-      DivisiveAction
-    )
+#if defined(__GLASGOW_HASKELL__)
+#endif
+      Epsilon)
 
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral a = Wrapped (fromIntegral a)

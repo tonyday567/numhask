@@ -75,13 +75,7 @@ newtype Positive a = UnsafePositive {unPositive :: a}
       Integral,
       FromInteger,
       FromRational,
-      Basis,
-      Direction,
       Epsilon,
-      AdditiveAction,
-      SubtractiveAction,
-      MultiplicativeAction,
-      DivisiveAction,
       JoinSemiLattice,
       MeetSemiLattice,
       UpperBounded
