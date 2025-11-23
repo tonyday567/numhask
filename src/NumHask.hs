@@ -183,7 +183,6 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Data.Complex (Complex (..), imagPart, realPart, (+:))
 import NumHask.Data.Integral
   ( FromInt,
     FromInteger (..),

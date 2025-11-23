@@ -316,7 +316,6 @@ library
     NumHask.Algebra.Metric
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
-    NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.Positive
     NumHask.Data.Rational
