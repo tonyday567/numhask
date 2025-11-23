@@ -21,7 +21,7 @@ import Prelude qualified as P
 
 -- | Wrapped numhask instances
 newtype Wrapped a = Wrapped {unWrapped :: a}
-  deriving
+  deriving newtype
     ( P.Show,
       P.Eq,
       P.Ord,
