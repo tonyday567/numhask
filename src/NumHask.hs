@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_HADDOCK prune #-}
 
@@ -18,13 +19,13 @@ module NumHask
 
     -- * Additive
     Additive (..),
-    sum,
+    NumHask.Algebra.Additive.sum,
     accsum,
     Subtractive (..),
 
     -- * Multiplicative
     Multiplicative (..),
-    product,
+    NumHask.Algebra.Multiplicative.product,
     accproduct,
     Divisive (..),
 
@@ -71,8 +72,8 @@ module NumHask
     Absolute,
     Sign,
     EndoBased,
-    abs,
-    signum,
+    NumHask.Algebra.Metric.abs,
+    NumHask.Algebra.Metric.signum,
     distance,
     Direction (..),
     Polar (..),
@@ -83,32 +84,28 @@ module NumHask
     nearZero,
     (~=),
 
-    -- * Complex
-    Complex (..),
-    (+:),
-    realPart,
-    imagPart,
-
     -- * Integral
-    Integral (..),
+    NumHask.Data.Integral.Integral (..),
     ToIntegral (..),
     ToInt,
     FromIntegral (..),
     FromInteger (..),
     FromInt,
-    even,
-    odd,
-    (^^),
-    (^),
+    NumHask.Data.Integral.even,
+    NumHask.Data.Integral.odd,
+    (NumHask.Data.Integral.^^),
+    (NumHask.Data.Integral.^),
 
     -- * Rational
     Ratio (..),
-    Rational,
+    NumHask.Data.Rational.Rational,
     ToRatio (..),
     FromRatio (..),
+#if defined(__GLASGOW_HASKELL__)
     FromRational (..),
+#endif
     reduce,
-    gcd,
+    NumHask.Data.Rational.gcd,
 
     -- * Exceptions
     NumHaskException (..),
@@ -197,7 +194,9 @@ import NumHask.Data.Integral
   )
 import NumHask.Data.Rational
   ( FromRatio (..),
+#if defined(__GLASGOW_HASKELL__)
     FromRational (..),
+#endif
     Ratio (..),
     Rational,
     ToRatio (..),

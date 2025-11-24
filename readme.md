@@ -113,7 +113,8 @@ Swapping out TF for FD is major for Basis, Polar etc.
 
 https://gitlab.haskell.org/ghc/ghc/-/wikis/tf-vs-fd
 
-
+functional dependencies are type inference and type families are evidence for type equality.
+FD works better with overlapping instances.
 
 ## derivingvia
 
@@ -126,3 +127,30 @@ Even after adding an instance manually, up comes:
     mhs: uncaught exception: error: "src/NumHask/Data/Complex.hs": line 51, col 17: Cannot satisfy constraint: (Additive a)
          fully qualified: (NumHask.Algebra.Additive.Additive a)
          
+Removing Data.Complex seemed like the only way to progress.
+
+## Data.Rational
+
+mhs didnt like identical constraints in a list.
+
+    mhs: uncaught exception: error: "src/NumHask/Data/Rational.hs": line 96, col 100: Multiple constraint solutions for: (Basis a a a)
+    mhs: uncaught exception: error: "src/NumHask/Data/Rational.hs": line 19, col 8: Module not found: GHC.Float
+    
+Ratio is in Data.Ratio_Type
+
+    mhs: uncaught exception: error: "src/NumHask/Data/Rational.hs": line 205, col 37: undefined value: rationalToDouble
+
+
+## direct name clashes
+
+    mhs: uncaught exception: error: "src/NumHask.hs": line 88, col 5: ambiguous export: Integral [Data.Integral.Integral,NumHask.Data.Integral.Integral]
+    mhs: uncaught exception: error: "src/NumHask.hs": line 101, col 5: ambiguous export: Rational [Data.Ratio_Type.Rational,NumHask.Data.Rational.Rational]
+    mhs: uncaught exception: error: "src/NumHask.hs": line 22, col 5: ambiguous export: sum [Data.List.sum,NumHask.Algebra.Additive.sum]
+
+nameclashes logged via tagging in NumHask.hs
+
+## ???
+
+mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 128, col 22:
+  found:    Unrecognized input: '\8760'
+  expected: LIdent ( UQIdent [ literal ~ ! (# QSymOper `

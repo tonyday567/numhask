@@ -115,7 +115,7 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
-class (SemiField a) => QuotientField a whole where
+class (SemiField a) => QuotientField a whole | a -> whole where
   properFraction :: a -> (whole, a)
 
   -- | round to the nearest Integral

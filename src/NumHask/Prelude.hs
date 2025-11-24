@@ -11,7 +11,6 @@ module NumHask.Prelude
     module NumHask.Algebra.Multiplicative,
     module NumHask.Algebra.Ring,
     module NumHask.Algebra.Metric,
-    module NumHask.Data.Complex,
     module NumHask.Data.Integral,
     module NumHask.Data.Rational,
     module NumHask.Exception,
@@ -74,7 +73,6 @@ import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import NumHask.Data.Complex
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import NumHask.Exception

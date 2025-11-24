@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -7,7 +8,9 @@ module NumHask.Data.Rational
     Rational,
     ToRatio (..),
     FromRatio (..),
+#if defined(__GLASGOW_HASKELL__)
     FromRational (..),
+#endif
     reduce,
     gcd,
   )
@@ -16,9 +19,18 @@ where
 import Data.Bool (bool)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
-import GHC.Float
+#if defined(__GLASGOW_HASKELL__)
+import GHC.Float qualified as BaseFloat
 import GHC.Natural (Natural (..))
-import GHC.Real qualified
+import GHC.Real qualified as BaseStuff
+#endif
+#if defined(__MHS__)
+import Data.Float
+import Data.Double
+import Data.Ratio_Type qualified as BaseRatio
+import Data.Ratio qualified as BaseRatio
+import Data.Fractional qualified as BaseStuff
+#endif
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
@@ -32,7 +44,7 @@ import Prelude qualified as P
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
+-- >>> :set -XRebindableSyntaxeal
 -- >>> import NumHask.Prelude
 
 -- | A rational number, represented as the ratio of two 'Integral' numbers.
@@ -41,7 +53,7 @@ data Ratio a = !a :% !a deriving (P.Show)
 -- | Ratio of two integers
 type Rational = Ratio Integer
 
-instance (P.Eq a, Subtractive a, EndoBased a, Absolute a a, Integral a) => P.Eq (Ratio a) where
+instance (P.Eq a, Subtractive a, EndoBased a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)
     | isRNaN a P.|| isRNaN b = P.False
     | xa == zero P.&& xb == zero = P.True
@@ -85,8 +97,7 @@ instance
     | signum x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
-instance (P.Ord a, EndoBased a, Absolute a a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) Int where
-  -- type Whole (Ratio a) = Int
+instance (P.Ord a, EndoBased a, ToIntegral a Int, Integral a, Ring a) => QuotientField (Ratio a) Int where
   properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) (Ratio a) (Ratio a) where
@@ -130,8 +141,10 @@ instance ToRatio Int Integer where
 instance ToRatio Integer Integer where
   toRatio = fromBaseRational . P.toRational
 
+#if defined(__GLASGOW_HASKELL__)
 instance ToRatio Natural Integer where
   toRatio = fromBaseRational . P.toRational
+#endif
 
 instance ToRatio Int8 Integer where
   toRatio = fromBaseRational . P.toRational
@@ -168,17 +181,21 @@ class FromRatio a b where
   fromRatio :: Ratio b -> a
 
 fromBaseRational :: P.Rational -> Ratio Integer
-fromBaseRational (n GHC.Real.:% d) = n :% d
+fromBaseRational (n BaseRatio.:% d) = n :% d
+
+toBaseRational :: Ratio Integer -> P.Rational
+toBaseRational (n :% d) = n BaseRatio.:% d
 
 instance FromRatio Double Integer where
-  fromRatio (n :% d) = rationalToDouble n d
+  fromRatio = P.fromRational . toBaseRational
 
 instance FromRatio Float Integer where
-  fromRatio (n :% d) = rationalToFloat n d
+  fromRatio = P.fromRational . toBaseRational
 
 instance FromRatio Rational Integer where
   fromRatio = P.id
 
+#if defined(__GLASGOW_HASKELL__)
 -- | fromRational is special in two ways:
 --
 -- - numeric decimal literals (like "53.66") are interpreted as exactly "fromRational (53.66 :: GHC.Real.Ratio Integer)". The prelude version, GHC.Real.fromRational is used as default (or whatever is in scope if RebindableSyntax is set).
@@ -190,13 +207,14 @@ class FromRational a where
   fromRational :: P.Rational -> a
 
 instance FromRational Double where
-  fromRational (n GHC.Real.:% d) = rationalToDouble n d
+  fromRational = P.fromRational
 
 instance FromRational Float where
-  fromRational (n GHC.Real.:% d) = rationalToFloat n d
+  fromRational = P.fromRational
 
 instance FromRational (Ratio Integer) where
-  fromRational (n GHC.Real.:% d) = n :% d
+  fromRational = P.fromRational
+#endif
 
 -- | 'reduce' normalises a ratio by dividing both numerator and denominator by
 -- their greatest common divisor.
