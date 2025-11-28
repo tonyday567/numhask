@@ -35,12 +35,12 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       InvolutiveRing,
       Integral,
       FromInteger,
-      FromRational,
       MeetSemiLattice,
       JoinSemiLattice,
       LowerBounded,
       UpperBounded,
 #if defined(__GLASGOW_HASKELL__)
+      FromRational,
 #endif
       Epsilon)
 

@@ -149,10 +149,13 @@ Ratio is in Data.Ratio_Type
 
 nameclashes logged via tagging in NumHask.hs
 
-## ???
+## utf8 guff
 
 mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 128, col 22:
   found:    Unrecognized input: '\8760'
   expected: LIdent ( UQIdent [ literal ~ ! (# QSymOper `
 
+## weird Eq a constraint coming out of the woodwork.
 
+mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 71, col 18: Cannot satisfy constraint: (Eq a)
+     fully qualified: (Data.Eq.Eq a)

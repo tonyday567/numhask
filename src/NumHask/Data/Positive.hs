@@ -1,6 +1,9 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DerivingVia #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 {-# LANGUAGE UndecidableInstances #-}
 
 -- |  A positive number type, defined as existing on [zero, +infinity)
@@ -125,7 +128,7 @@ maybePositive :: (Additive a, MeetSemiLattice a) => a -> Maybe (Positive a)
 maybePositive a = bool Nothing (Just (UnsafePositive a)) (a `meetLeq` zero)
 
 instance (Subtractive a, MeetSemiLattice a) => Monus (Positive a) where
-  (UnsafePositive a) ∸ (UnsafePositive b) = positive (a - b)
+  (UnsafePositive a) -\ (UnsafePositive b) = positive (a - b)
 
 -- | A field but with truncated subtraction.
 type MonusSemiField a = (Monus a, Distributive a, Divisive a)
@@ -140,19 +143,19 @@ type MonusSemiField a = (Monus a, Distributive a, Divisive a)
 -- >>> 4 ∸ 7 :: Positive Int
 -- UnsafePositive {unPositive = 0}
 class Monus a where
-  {-# MINIMAL (∸) #-}
+  {-# MINIMAL (-\) #-}
 
-  infixl 6 ∸
-  (∸) :: a -> a -> a
-  default (∸) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
-  a ∸ b = bottom /\ (a - b)
+  infixl 6 -\ -- CPP and \ really dont mix
+  (-\) :: a -> a -> a
+  default (-\) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
+  a -\ b = bottom /\ (a - b)
 
 -- | Truncated addition
 --
 -- @since 0.12
 class Addus a where
-  {-# MINIMAL (∔) #-}
-  infixl 6 ∔
-  (∔) :: a -> a -> a
-  default (∔) :: (UpperBounded a, JoinSemiLattice a, Additive a) => a -> a -> a
-  a ∔ b = top \/ (a + b)
+  {-# MINIMAL (+\) #-}
+  infixl 6 +\ -- CPP
+  (+\) :: a -> a -> a
+  default (+\) :: (UpperBounded a, JoinSemiLattice a, Additive a) => a -> a -> a
+  a +\ b = top \/ (a + b)

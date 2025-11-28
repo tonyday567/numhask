@@ -8,9 +8,7 @@ module NumHask.Data.Rational
     Rational,
     ToRatio (..),
     FromRatio (..),
-#if defined(__GLASGOW_HASKELL__)
     FromRational (..),
-#endif
     reduce,
     gcd,
   )
@@ -195,7 +193,6 @@ instance FromRatio Float Integer where
 instance FromRatio Rational Integer where
   fromRatio = P.id
 
-#if defined(__GLASGOW_HASKELL__)
 -- | fromRational is special in two ways:
 --
 -- - numeric decimal literals (like "53.66") are interpreted as exactly "fromRational (53.66 :: GHC.Real.Ratio Integer)". The prelude version, GHC.Real.fromRational is used as default (or whatever is in scope if RebindableSyntax is set).
@@ -206,6 +203,7 @@ instance FromRatio Rational Integer where
 class FromRational a where
   fromRational :: P.Rational -> a
 
+#if defined(__GLASGOW_HASKELL__)
 instance FromRational Double where
   fromRational = P.fromRational
 
