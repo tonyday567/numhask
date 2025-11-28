@@ -159,3 +159,9 @@ mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 128, col 22
 
 mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 71, col 18: Cannot satisfy constraint: (Eq a)
      fully qualified: (Data.Eq.Eq a)
+
+## overlodaed labels
+
+    mhs: uncaught exception: error: "src/NumHask/Prelude.hs": line 68, col 8: Module not found: GHC.OverloadedLabels
+    search path=["src","dist-mcabal/autogen"]
+    package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]

@@ -72,16 +72,19 @@ newtype Positive a = UnsafePositive {unPositive :: a}
   deriving stock
     (Eq, Ord, Show)
   deriving
-    ( Additive,
-      Multiplicative,
-      Divisive,
+    (
+#if defined(__GLASGOW_HASKELL__)
       Integral,
       FromInteger,
       FromRational,
       Epsilon,
       JoinSemiLattice,
       MeetSemiLattice,
-      UpperBounded
+      UpperBounded,
+#endif
+      Divisive,
+      Multiplicative,
+      Additive
     )
     via (Wrapped a)
 
@@ -100,8 +103,10 @@ instance (FromRatio a b) => FromRatio (Positive a) b where
 instance (ToRatio a b) => ToRatio (Positive a) b where
   toRatio (UnsafePositive a) = toRatio a
 
+#if defined(__GLASGOW_HASKELL__)
 instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
   bottom = UnsafePositive zero
+#endif
 
 instance QuotientField (Positive P.Double) (Positive P.Int) where
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
@@ -137,10 +142,10 @@ type MonusSemiField a = (Monus a, Distributive a, Divisive a)
 --
 -- @since 0.12
 --
--- >>> positive 4 ∸ positive 7
+-- >>> positive 4 -\ positive 7
 -- UnsafePositive {unPositive = 0}
 --
--- >>> 4 ∸ 7 :: Positive Int
+-- >>> 4 -\ 7 :: Positive Int
 -- UnsafePositive {unPositive = 0}
 class Monus a where
   {-# MINIMAL (-\) #-}
