@@ -20,16 +20,16 @@ import Data.Bool (bool)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Float qualified as BaseFloat
+import GHC.Float qualified
 import GHC.Natural (Natural (..))
-import GHC.Real qualified as BaseStuff
+import GHC.Real qualified
 #endif
 #if defined(__MHS__)
 import Data.Float
 import Data.Double
-import Data.Ratio_Type qualified as BaseRatio
-import Data.Ratio qualified as BaseRatio
-import Data.Fractional qualified as BaseStuff
+import Data.Ratio_Type
+import Data.Ratio
+import Data.Fractional
 #endif
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
@@ -38,7 +38,7 @@ import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
 import NumHask.Data.Integral
-import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), (.))
+import Prelude (Eq (..), Int, Integer, Ord (..), Ordering (..), (.), Double, Float)
 import Prelude qualified as P
 
 -- $setup
@@ -126,52 +126,53 @@ instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
 class ToRatio a b where
   toRatio :: a -> Ratio b
 
+#if defined(__GLASGOW_HASKELL__)
+
 instance ToRatio Double Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Float Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio (Ratio Integer) Integer where
   toRatio = P.id
 
 instance ToRatio Int Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Integer Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
-#if defined(__GLASGOW_HASKELL__)
 instance ToRatio Natural Integer where
-  toRatio = fromBaseRational . P.toRational
-#endif
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Int8 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Int16 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Int32 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Int64 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Word Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Word8 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Word16 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Word32 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
 
 instance ToRatio Word64 Integer where
-  toRatio = fromBaseRational . P.toRational
+  toRatio = fromRational . P.toRational
+#endif
 
 -- | `GHC.Real.Fractional` in base splits into fromRatio and Field
 --
@@ -180,17 +181,16 @@ instance ToRatio Word64 Integer where
 class FromRatio a b where
   fromRatio :: Ratio b -> a
 
-fromBaseRational :: P.Rational -> Ratio Integer
-fromBaseRational (n BaseRatio.:% d) = n :% d
-
+#if defined(__GLASGOW_HASKELL__)
 toBaseRational :: Ratio Integer -> P.Rational
-toBaseRational (n :% d) = n BaseRatio.:% d
+toBaseRational (n :% d) = n GHC.Real.:% d
 
 instance FromRatio Double Integer where
   fromRatio = P.fromRational . toBaseRational
 
 instance FromRatio Float Integer where
   fromRatio = P.fromRational . toBaseRational
+#endif
 
 instance FromRatio Rational Integer where
   fromRatio = P.id
@@ -213,7 +213,7 @@ instance FromRational Float where
   fromRational = P.fromRational
 
 instance FromRational (Ratio Integer) where
-  fromRational = P.fromRational
+  fromRational (n GHC.Real.:% d) = n :% d
 #endif
 
 -- | 'reduce' normalises a ratio by dividing both numerator and denominator by

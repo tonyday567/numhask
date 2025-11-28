@@ -154,3 +154,5 @@ nameclashes logged via tagging in NumHask.hs
 mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 128, col 22:
   found:    Unrecognized input: '\8760'
   expected: LIdent ( UQIdent [ literal ~ ! (# QSymOper `
+
+
