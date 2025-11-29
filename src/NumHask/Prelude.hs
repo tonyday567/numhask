@@ -19,12 +19,12 @@ module NumHask.Prelude
     -- $rebindables
     fromString,
     ifThenElse,
+#if defined(__GLASGOW_HASKELL__)
     fromList,
     fromListN,
-#if defined(__GLASGOW_HASKELL__)
     Natural (..),
-#endif
     module GHC.OverloadedLabels,
+#endif
 
     -- * Modules you can't live without
     module Data.Bool,
@@ -64,8 +64,8 @@ import GHC.Exts
 import GHC.Generics
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
-#endif
 import GHC.OverloadedLabels
+#endif
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
