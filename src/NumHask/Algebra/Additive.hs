@@ -17,6 +17,9 @@ import Data.Word (Word, Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
 #endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show, fromInteger)
 import Prelude qualified as P
 #if defined(__MHS__)
@@ -137,14 +140,9 @@ instance Additive Bool where
   (+) = (P.||)
   zero = P.False
 
-#if defined(__GLASGOW_HASKELL__)
 instance Additive Natural where
   (+) = (P.+)
   zero = 0
-
-instance Subtractive Natural where
-  negate = P.negate
-#endif
 
 instance Additive Int8 where
   (+) = (P.+)

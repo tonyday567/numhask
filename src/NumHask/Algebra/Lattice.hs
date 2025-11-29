@@ -33,6 +33,7 @@ import Data.Bounded (Bounded (..))
 import Data.Double (Double)
 import Data.Float (Float)
 import Data.Int.Int (Int)
+import Numeric.Natural (Natural (..))
 import Data.Integer (Integer)
 import Data.Word.Word (Word)
 #endif
@@ -134,13 +135,11 @@ instance JoinSemiLattice Bool where
 instance MeetSemiLattice Bool where
   (/\) = (&&)
 
-#if defined(__GLASGOW_HASKELL__)
 instance JoinSemiLattice Natural where
   (\/) = min
 
 instance MeetSemiLattice Natural where
   (/\) = max
-#endif
 
 instance JoinSemiLattice Int8 where
   (\/) = min
@@ -220,10 +219,8 @@ instance LowerBounded Bool where
 instance UpperBounded Bool where
   top = True
 
-#if defined(__GLASGOW_HASKELL__)
 instance LowerBounded Natural where
   bottom = zero
-#endif
 
 instance LowerBounded Int8 where
   bottom = minBound

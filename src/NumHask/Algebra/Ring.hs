@@ -15,6 +15,9 @@ import Data.Word (Word, Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
 #endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
 import NumHask.Algebra.Multiplicative (Multiplicative (..))
 import Prelude qualified as P
@@ -86,9 +89,7 @@ instance InvolutiveRing P.Integer
 
 instance InvolutiveRing P.Int
 
-#if defined(__GLASGOW_HASKELL__)
 instance InvolutiveRing Natural
-#endif
 
 instance InvolutiveRing Int8
 

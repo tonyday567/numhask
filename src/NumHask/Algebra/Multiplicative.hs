@@ -16,6 +16,9 @@ import Data.Word (Word, Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
 #endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import Prelude (Double, Eq, Float, Int, Integer, Ord, Show, fromInteger, fromRational)
 import Prelude qualified as P
 #if defined(__MHS__)
@@ -130,11 +133,9 @@ instance Multiplicative P.Bool where
   (*) = (P.&&)
   one = P.True
 
-#if defined(__GLASGOW_HASKELL__)
 instance Multiplicative Natural where
   (*) = (P.*)
   one = 1
-#endif
 
 instance Multiplicative Int8 where
   (*) = (P.*)

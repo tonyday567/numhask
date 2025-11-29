@@ -19,7 +19,10 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Natural (Natural (..), naturalFromInteger)
+import GHC.Natural (Natural (..))
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
 #endif
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
@@ -279,10 +282,8 @@ instance FromIntegral Int Integer where
 instance FromIntegral Integer Integer where
   fromIntegral = P.id
 
-#if defined(__GLASGOW_HASKELL__)
 instance FromIntegral Natural Integer where
-  fromIntegral = naturalFromInteger
-#endif
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int8 Integer where
   fromIntegral = P.fromInteger
@@ -323,10 +324,8 @@ instance FromIntegral Int Int where
 instance FromIntegral Integer Int where
   fromIntegral = P.fromIntegral
 
-#if defined(__GLASGOW_HASKELL__)
 instance FromIntegral Natural Int where
   fromIntegral = P.fromIntegral
-#endif
 
 instance FromIntegral Int8 Int where
   fromIntegral = P.fromIntegral
@@ -355,10 +354,8 @@ instance FromIntegral Word32 Int where
 instance FromIntegral Word64 Int where
   fromIntegral = P.fromIntegral
 
-#if defined(__GLASGOW_HASKELL__)
 instance FromIntegral Natural Natural where
   fromIntegral = P.id
-#endif
 
 instance FromIntegral Int8 Int8 where
   fromIntegral = P.id
@@ -409,10 +406,8 @@ instance FromInteger Int where
 instance FromInteger Integer where
   fromInteger = P.id
 
-#if defined(__GLASGOW_HASKELL__)
 instance FromInteger Natural where
-  fromInteger = naturalFromInteger
-#endif
+  fromInteger = P.fromInteger
 
 instance FromInteger Int8 where
   fromInteger = P.fromInteger

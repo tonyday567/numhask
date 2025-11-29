@@ -35,6 +35,9 @@ import GHC.Generics
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
 #endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
@@ -129,11 +132,9 @@ instance Basis Integer Integer Integer where
   magnitude = P.abs
   basis = P.signum
 
-#if defined(__GLASGOW_HASKELL__)
 instance Basis Natural Natural Natural where
   magnitude = P.abs
   basis = P.signum
-#endif
 
 instance Basis Int8 Int8 Int8 where
   magnitude = P.abs

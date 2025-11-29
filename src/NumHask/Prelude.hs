@@ -22,7 +22,6 @@ module NumHask.Prelude
 #if defined(__GLASGOW_HASKELL__)
     fromList,
     fromListN,
-    Natural (..),
     module GHC.OverloadedLabels,
 #endif
 
@@ -64,8 +63,14 @@ import GHC.Exts
 import GHC.Generics
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
+#if defined(__GLASGOW_HASKELL__)
 import GHC.OverloadedLabels
 #endif
+
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field

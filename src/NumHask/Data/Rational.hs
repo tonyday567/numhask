@@ -28,6 +28,7 @@ import Data.Double
 import Data.Ratio_Type
 import Data.Ratio
 import Data.Fractional
+import Numeric.Natural (Natural (..))
 #endif
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
