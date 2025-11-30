@@ -74,13 +74,13 @@ newtype Positive a = UnsafePositive {unPositive :: a}
   deriving
     (
 #if defined(__GLASGOW_HASKELL__)
+      Epsilon,
+#endif
       Integral,
       FromInteger,
-      FromRational,
-      Epsilon,
-      MeetSemiLattice,
       UpperBounded,
-#endif
+      FromRational,
+      MeetSemiLattice,
       JoinSemiLattice,
       Divisive,
       Multiplicative,
