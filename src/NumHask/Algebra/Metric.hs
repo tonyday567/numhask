@@ -561,12 +561,13 @@ instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) a where
 #endif
 (|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
 
+#if defined(__GLASGOW_HASKELL__)
 instance (Divisive a) => DivisiveAction (EuclideanPair a) where
+#endif
+#if defined(__MHS__)
+instance (Divisive a) => DivisiveAction (EuclideanPair a) a where
+#endif
   (|/) e s = fmap (/ s) e
-
-instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
-  exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
-  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
 #if defined(__GLASGOW_HASKELL__)
 instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where

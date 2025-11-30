@@ -107,7 +107,13 @@ instance (P.Ord a, EndoBased a, ToInt a, Integral a, Ring a) => QuotientField (R
   properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
 #endif
 
+#if defined(__GLASGOW_HASKELL__)
+instance (P.Ord a, Subtractive (Base (Ratio a)), Multiplicative (Base (Ratio a)), EndoBased a, Absolute (Ratio a), Integral a, Ring a) => Basis (Ratio a) where
+#endif
+#if defined(__MHS__)
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) (Ratio a) (Ratio a) where
+#endif
+
   basis (n :% _) =
     case compare n zero of
       EQ -> zero
