@@ -225,3 +225,5 @@ QuotientField for mhs a bit weird:
      fully qualified: (Primitives.~ (NumHask.Data.Positive.Positive Primitives.Int) w#10967)
 
 
+## FramRational, FromRation etc
+
