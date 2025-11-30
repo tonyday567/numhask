@@ -81,7 +81,6 @@ Tracked down typos in MicroHS extension support list.
     search path=["src","dist-mcabal/autogen"]
     package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]
 
-
 ## QuotientField
 
 I stopped here and switched to a new branch because I wanted to compile the __MHS__ wrapped code with ghc but couldnt work out an easy way to achieve this.
@@ -233,3 +232,8 @@ All good.
 
 - instances as well for positive, euc pair?
 
+## Constraint problem with MultiplicativeAction
+
+    mhs: uncaught exception: error: "src/NumHask/Algebra/Metric.hs": line 564, col 26: kind error: cannot unify Constraint and (_a212 -> _a213)
+    
+    

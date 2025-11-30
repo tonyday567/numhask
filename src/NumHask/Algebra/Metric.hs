@@ -504,19 +504,29 @@ instance
   where
   recip = fmap recip
 
+#if defined(__GLASGOW_HASKELL__)
+instance (TrigField a) => Direction (EuclideanPair a) where
+  type Dir (EuclideanPair a) = a
+#endif
+#if defined(__MHS__)
 instance (TrigField a) => Direction (EuclideanPair a) a where
+#endif
   angle (EuclideanPair (x, y)) = atan2 y x
   ray x = EuclideanPair (cos x, sin x)
 
-instance
 #if defined(__GLASGOW_HASKELL__)
-  (ExpField a, Eq a, DivisiveAction (EuclideanPair a), Scalar (EuclideanPair a) ~ a) =>
+instance
+  (ExpField a, Eq a) =>
+  Basis (EuclideanPair a)
+  where
+  type Mag (EuclideanPair a) = a
+  type Base (EuclideanPair a) = EuclideanPair a
 #endif
 #if defined(__MHS__)
-  (ExpField a, Eq a, DivisiveAction (EuclideanPair a) a) =>
-#endif
+instance (ExpField a, Eq a, DivisiveAction (EuclideanPair a) a) =>
   Basis (EuclideanPair a) a (EuclideanPair a)
   where
+#endif
   magnitude (EuclideanPair (x, y)) = sqrt (x * x + y * y)
   basis p = let m = magnitude p in bool (p |/ m) zero (m == zero)
 
@@ -542,3 +552,37 @@ instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
   log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
+#if defined(__GLASGOW_HASKELL__)
+instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
+  type Scalar (EuclideanPair a) = a
+#endif
+#if defined(__MHS__)
+instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) a where
+#endif
+(|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
+
+instance (Divisive a) => DivisiveAction (EuclideanPair a) where
+  (|/) e s = fmap (/ s) e
+
+instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
+  exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
+  log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
+
+#if defined(__GLASGOW_HASKELL__)
+instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
+  type Whole (EuclideanPair a) = EuclideanPair (Whole a)
+#endif
+#if defined(__MHS__)
+instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) a where
+#endif
+
+  properFraction (EuclideanPair (x, y)) =
+    (EuclideanPair (xwhole, ywhole), EuclideanPair (xfrac, yfrac))
+    where
+      (xwhole, xfrac) = properFraction x
+      (ywhole, yfrac) = properFraction y
+
+  round (EuclideanPair (x, y)) = EuclideanPair (round x, round y)
+  ceiling (EuclideanPair (x, y)) = EuclideanPair (ceiling x, ceiling y)
+  floor (EuclideanPair (x, y)) = EuclideanPair (floor x, floor y)
+  truncate (EuclideanPair (x, y)) = EuclideanPair (truncate x, truncate y)
