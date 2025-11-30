@@ -75,11 +75,9 @@ instance Integral Integer where
   divMod = P.divMod
   quotRem = P.quotRem
 
-#if defined(__GLASGOW_HASKELL__)
 instance Integral Natural where
   divMod = P.divMod
   quotRem = P.quotRem
-#endif
 
 instance Integral Int8 where
   divMod = P.divMod
@@ -154,10 +152,8 @@ instance ToIntegral Integer Integer where
 instance ToIntegral Int Integer where
   toIntegral = P.toInteger
 
-#if defined(__GLASGOW_HASKELL__)
 instance ToIntegral Natural Integer where
   toIntegral = P.toInteger
-#endif
 
 instance ToIntegral Int8 Integer where
   toIntegral = P.toInteger
@@ -192,10 +188,8 @@ instance ToIntegral Int Int where
 instance ToIntegral Integer Int where
   toIntegral = P.fromIntegral
 
-#if defined(__GLASGOW_HASKELL__)
 instance ToIntegral Natural Int where
   toIntegral = P.fromIntegral
-#endif
 
 instance ToIntegral Int8 Int where
   toIntegral = P.fromIntegral
@@ -224,10 +218,8 @@ instance ToIntegral Word32 Int where
 instance ToIntegral Word64 Int where
   toIntegral = P.fromIntegral
 
-#if defined(__GLASGOW_HASKELL__)
 instance ToIntegral Natural Natural where
   toIntegral = P.id
-#endif
 
 instance ToIntegral Int8 Int8 where
   toIntegral = P.id

@@ -1,6 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DerivingVia #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Metric classes
