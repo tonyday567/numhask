@@ -29,7 +29,6 @@ import Data.Traversable qualified as P
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | or [Multiplication](https://en.wikipedia.org/wiki/Multiplication)

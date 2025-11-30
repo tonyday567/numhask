@@ -257,7 +257,7 @@ common mhs2024-additions
     NoStarIsType
     NumericUnderscores
     OrPatterns
-    OverlappingInstances
+    -- OverlappingInstances
     OverloadedRecordDot
     OverloadedRecordUpdate
     OverloadedStrings
@@ -323,8 +323,6 @@ library
     NumHask.Exception
     NumHask.Prelude
 
-  default-extensions: RebindableSyntax
-
 test-suite doctests
   import: ghc2024-stanza
   main-is: doctests.hs
@@ -334,6 +332,5 @@ test-suite doctests
     base >=4.14 && <5,
     doctest-parallel >=0.3 && <0.5,
 
-  default-extensions: RebindableSyntax
   ghc-options: -threaded
   type: exitcode-stdio-1.0

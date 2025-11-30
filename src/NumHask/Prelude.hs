@@ -15,16 +15,9 @@ module NumHask.Prelude
     module NumHask.Data.Rational,
     module NumHask.Exception,
 
-    -- * rebindables
-    -- $rebindables
-    ifThenElse,
-
     -- * Modules you can't live without
     module Data.Bool,
     module Data.Kind,
-#if defined(__GLASGOW_HASKELL__)
-    module GHC.Exts,
-#endif
     module GHC.Generics,
     module Control.Applicative,
     module Data.Foldable,
@@ -58,12 +51,6 @@ import Data.Kind
 import Data.Maybe
 import Data.Semigroup hiding (Product (..), Sum (..))
 import Data.Traversable
-#if defined(__GLASGOW_HASKELL__)
-import GHC.Exts (IsString (..))
-#endif
-#if defined(__MHS__)
-import Data.String (IsString (..))
-#endif
 import GHC.Generics
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
@@ -87,16 +74,7 @@ import Prelude hiding (Integral (..), Rational, abs, acos, acosh, asin, asinh, a
 -- $usage
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 -- >>> 1+1
 -- 2
 
--- $rebindables
---
--- Using different types for numbers requires RebindableSyntax.  This then removes base-level stuff that has to be put back in.
-
--- | RebindableSyntax splats this, and I'm not sure where it exists in GHC land
-ifThenElse :: Bool -> a -> a -> a
-ifThenElse True x _ = x
-ifThenElse False _ y = y

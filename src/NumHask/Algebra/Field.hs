@@ -35,7 +35,6 @@ import Prelude qualified as P
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 

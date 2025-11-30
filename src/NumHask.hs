@@ -1,7 +1,4 @@
 {-# LANGUAGE CPP #-}
-#if defined(__GLASGOW_HASKELL__)
-{-# LANGUAGE RebindableSyntax #-}
-#endif
 {-# OPTIONS_HADDOCK prune #-}
 
 -- | Numeric classes.
@@ -206,7 +203,6 @@ import NumHask.Exception (NumHaskException (..), throw)
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 -- >>> 1+1
 -- 2

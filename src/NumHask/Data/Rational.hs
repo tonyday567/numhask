@@ -45,7 +45,6 @@ import Prelude qualified as P
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntaxeal
 -- >>> import NumHask.Prelude
 
 -- | A rational number, represented as the ratio of two 'Integral' numbers.

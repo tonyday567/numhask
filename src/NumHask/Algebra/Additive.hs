@@ -30,7 +30,6 @@ import Data.Traversable qualified as P
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | or [Addition](https://en.wikipedia.org/wiki/Addition)

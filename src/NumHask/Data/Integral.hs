@@ -33,7 +33,6 @@ import Prelude qualified as P
 -- $setup
 --
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | An Integral is anything that satisfies the law:
