@@ -78,10 +78,10 @@ newtype Positive a = UnsafePositive {unPositive :: a}
       FromInteger,
       FromRational,
       Epsilon,
-      JoinSemiLattice,
       MeetSemiLattice,
       UpperBounded,
 #endif
+      JoinSemiLattice,
       Divisive,
       Multiplicative,
       Additive
@@ -103,10 +103,8 @@ instance (FromRatio a b) => FromRatio (Positive a) b where
 instance (ToRatio a b) => ToRatio (Positive a) b where
   toRatio (UnsafePositive a) = toRatio a
 
-#if defined(__GLASGOW_HASKELL__)
 instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
   bottom = UnsafePositive zero
-#endif
 
 instance QuotientField (Positive P.Double) (Positive P.Int) where
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
@@ -129,7 +127,7 @@ positive_ = UnsafePositive
 --
 -- >>> maybePositive (-one)
 -- Nothing
-maybePositive :: (Additive a, MeetSemiLattice a) => a -> Maybe (Positive a)
+maybePositive :: (Additive a, Eq a, MeetSemiLattice a) => a -> Maybe (Positive a)
 maybePositive a = bool Nothing (Just (UnsafePositive a)) (a `meetLeq` zero)
 
 instance (Subtractive a, MeetSemiLattice a) => Monus (Positive a) where

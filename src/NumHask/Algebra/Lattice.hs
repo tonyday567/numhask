@@ -48,18 +48,18 @@ import NumHask.Algebra.Field
 -- > Associativity: x \/ (y \/ z) == (x \/ y) \/ z
 -- > Commutativity: x \/ y == y \/ x
 -- > Idempotency:   x \/ x == x
-class (Eq a) => JoinSemiLattice a where
+class JoinSemiLattice a where
   infixr 5 \/
   (\/) :: a -> a -> a
 
 -- | The partial ordering induced by the join-semilattice structure
-joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
+joinLeq :: (JoinSemiLattice a, Eq a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
 infixr 6 <\ -- comment to stop CPP picking up the line-ending backslash
 
 -- | The partial ordering induced by the join-semilattice structure
-(<\) :: (JoinSemiLattice a) => a -> a -> Bool
+(<\) :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
 (<\) = joinLeq
 
 -- | A algebraic structure with element meets: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
@@ -67,18 +67,18 @@ infixr 6 <\ -- comment to stop CPP picking up the line-ending backslash
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
 -- > Commutativity: x /\ y == y /\ x
 -- > Idempotency:   x /\ x == x
-class (Eq a) => MeetSemiLattice a where
+class MeetSemiLattice a where
   infixr 6 /\ -- comment to stop CPP picking up the line-ending backslash
   (/\) :: a -> a -> a
 
 -- | The partial ordering induced by the meet-semilattice structure
-meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
+meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
 infixr 6 </ -- comment to stop CPP picking up the line-ending backslash
 
 -- | The partial ordering induced by the meet-semilattice structure
-(</) :: (MeetSemiLattice a) => a -> a -> Bool
+(</) :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
 (</) = meetLeq
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:

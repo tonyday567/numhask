@@ -18,7 +18,6 @@ module NumHask.Prelude
     -- * Modules you can't live without
     module Data.Bool,
     module Data.Kind,
-    module GHC.Generics,
     module Control.Applicative,
     module Data.Foldable,
     module Data.Traversable,
@@ -51,7 +50,6 @@ import Data.Kind
 import Data.Maybe
 import Data.Semigroup hiding (Product (..), Sum (..))
 import Data.Traversable
-import GHC.Generics
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
 #endif

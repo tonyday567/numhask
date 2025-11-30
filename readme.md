@@ -198,4 +198,14 @@ import Numeric.Natural (Natural (..))
 
 ## cabal run doctest errors with Not in scope: fromString, which is a rebindable syntax thing.
 
+## removed RebindableSyntax
+
+## turned a lot of doctests off.
+
+removed GHC.Generics except at EuclideanPair site
+
+## pushed meetLeq (Eq a) down to functions 
+
+
+
 
