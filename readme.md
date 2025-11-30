@@ -217,4 +217,11 @@ mhs fails to derivevia because of the (Eq a) constraint, where GHC finds it.
 Seemed legit and adding in a manual instance.
 
 
+## Putting back GHC TF-style classes and instances; QuotientField, FromRational, Basis & Direction
+
+QuotientField for mhs a bit weird:
+
+    mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 113, col 11: Cannot satisfy constraint: ((Positive Int) ~ w#10967)
+     fully qualified: (Primitives.~ (NumHask.Data.Positive.Positive Primitives.Int) w#10967)
+
 
