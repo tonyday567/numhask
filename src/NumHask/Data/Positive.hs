@@ -109,16 +109,7 @@ instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
 #if defined(__MHS__)
 instance QuotientField (Positive P.Double) (Positive P.Int) where
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
-  ceiling = properFraction >>> P.fst >>> (+ one)
-  floor = properFraction >>> P.fst
   truncate = floor
-  round x = case properFraction x of
-    (n, r) ->
-      let half_up = r + half
-       in case P.compare half_up one of
-            P.LT -> n
-            P.EQ -> bool (n + one) n (even n)
-            P.GT -> n + one
 #endif
 #if defined(__GLASGOW_HASKELL__)
 instance QuotientField (Positive P.Double) where
