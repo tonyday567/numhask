@@ -19,17 +19,14 @@ module NumHask.Algebra.Field
   )
 where
 
-import Data.Bool (bool)
-import Data.Kind
-import NumHask.Algebra.Additive (Additive (..), Subtractive (..), (-))
+import NumHask.Algebra.Additive (Additive (..), Subtractive (..))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     (/),
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
-import NumHask.Data.Integral (FromIntegral (..), Integral, even)
-import Prelude (Eq (..), (.))
+import Prelude ((.))
 import Prelude qualified as P
 
 -- $setup

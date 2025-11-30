@@ -30,7 +30,6 @@ import Control.Applicative
 import Data.Bool
 import Data.Data
 import Data.Int (Int16, Int32, Int64, Int8)
-import Data.Kind
 import Data.Type.Equality
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
@@ -46,7 +45,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word)
 import Prelude qualified as P
 
 -- $setup
@@ -200,10 +199,11 @@ class (Distributive coord, Distributive dir) => Direction coord dir where
 data Polar a = Polar {radial :: a, azimuth :: a}
   deriving stock (Eq, Show)
 #if defined(__GLASGOW_HASKELL__)
-  deriving stock (Generic, Data)
+  deriving stock (Generic)
 #endif
+  deriving stock (Data)
 
-instance (Additive a, Multiplicative a) => Basis a a (Polar a) where
+instance Basis a a (Polar a) where
   magnitude = radial
   basis = azimuth
 

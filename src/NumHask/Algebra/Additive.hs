@@ -20,7 +20,7 @@ import GHC.Natural (Natural (..))
 #if defined(__MHS__)
 import Numeric.Natural (Natural (..))
 #endif
-import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show, fromInteger)
+import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show)
 import Prelude qualified as P
 #if defined(__MHS__)
 import Data.Foldable qualified as P
@@ -61,7 +61,7 @@ class Additive a where
 newtype Sum a = Sum
   { getSum :: a
   }
-  deriving (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Show)
 
 instance (Additive a) => P.Semigroup (Sum a) where
   Sum a <> Sum b = Sum (a + b)
@@ -69,7 +69,9 @@ instance (Additive a) => P.Semigroup (Sum a) where
 instance (Additive a) => P.Monoid (Sum a) where
   mempty = Sum zero
 
-deriving instance (Additive a) => Additive (Sum a)
+instance (Additive a) => Additive (Sum a) where
+  zero = Sum zero
+  (Sum a) + (Sum b) = Sum (a + b)
 
 -- | Compute the sum of a 'Data.Foldable.Foldable'.
 --
