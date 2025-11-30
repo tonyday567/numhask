@@ -202,56 +202,11 @@ import NumHask.Exception (NumHaskException (..), throw)
 
 -- $setup
 --
--- >>> :m -Prelude
--- >>> import NumHask.Prelude
--- >>> 1+1
+-- >> :set -Wno-deprecated-flags
+-- >> :m -Prelude
+-- >> import NumHask.Prelude
+-- >> 1+1
 -- 2
-
--- $extensions
---
--- [RebindableSyntax](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/rebindable_syntax.html)
--- is recommended for use with numhask.
---
--- As a replacement for the numerical classes, numhask clashes significantly with an
--- unqualified import of the @Prelude@. Either numhask modules should be qualified,
--- or prelude turned off with the NoImplicitPrelude extension, or with RebindableSyntax,
--- which implies NoImplicitPrelude.
---
--- == defaulting
---
--- Without RebindableSyntax, numeric literals default as follows:
---
--- >>> :set -XNoRebindableSyntax
--- >>> :t 1
--- 1 :: Num a => a
---
--- >>> :t 1.0
--- 1.0 :: Fractional a => a
---
--- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to the numhask types, 'FromInteger' and 'FromRational':
---
--- >>> :set -XRebindableSyntax
--- >>> :t 1
--- 1 :: FromInteger a => a
---
--- >>> :t 1.0
--- 1.0 :: FromRational a => a
---
--- >>> 1
--- 1
---
--- >>> 1.0
--- 1.0
---
--- RebindableSyntax is a tradeoff, however, and usage comes attached with other non-numeric changes
--- that "NumHask.Prelude" attempts to counteract.
---
--- See [haskell2010 Section 4.3.4](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3) for the nuts and bolts to defaulting.
---
--- The effect of [ExtendedDefaultRules](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/ghci.html#extension-ExtendedDefaultRules)
--- in ghci or switched on as an extension also need to be understood.
--- It can lead to unusual interactions with numerics and strange error messages at times because
--- it adds @()@ and @[]@ to the start of the type defaulting list.
 
 -- $overview
 -- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents.
