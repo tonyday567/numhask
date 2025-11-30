@@ -20,7 +20,6 @@ import Data.Bool (bool)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Float qualified
 import GHC.Natural (Natural (..))
 import GHC.Real qualified
 #endif
@@ -134,8 +133,6 @@ instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
 class ToRatio a b where
   toRatio :: a -> Ratio b
 
-#if defined(__GLASGOW_HASKELL__)
-
 instance ToRatio Double Integer where
   toRatio = fromRational . P.toRational
 
@@ -180,7 +177,6 @@ instance ToRatio Word32 Integer where
 
 instance ToRatio Word64 Integer where
   toRatio = fromRational . P.toRational
-#endif
 
 -- | `GHC.Real.Fractional` in base splits into fromRatio and Field
 --
@@ -213,15 +209,19 @@ instance FromRatio Rational Integer where
 class FromRational a where
   fromRational :: P.Rational -> a
 
-#if defined(__GLASGOW_HASKELL__)
 instance FromRational Double where
   fromRational = P.fromRational
 
 instance FromRational Float where
   fromRational = P.fromRational
 
+#if defined(__GLASGOW_HASKELL__)
 instance FromRational (Ratio Integer) where
   fromRational (n GHC.Real.:% d) = n :% d
+#endif
+#if defined(__MHS__)
+instance FromRational (Ratio Integer) where
+  fromRational (n Data.Ratio_Type.:% d) = n :% d
 #endif
 
 -- | 'reduce' normalises a ratio by dividing both numerator and denominator by
