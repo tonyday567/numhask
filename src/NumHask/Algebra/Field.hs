@@ -28,6 +28,11 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring (Distributive, Ring, two)
 import Prelude ((.))
 import Prelude qualified as P
+#if defined(__GLASGOW_HASKELL__)
+import Data.Kind (Type)
+import NumHask.Data.Integral (Integral (..), even)
+import Data.Bool (bool)
+#endif
 
 -- $setup
 --
@@ -114,6 +119,75 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
+#if defined(__GLASGOW_HASKELL__)
+class (SemiField a) => QuotientField a where
+  type Whole a :: Type
+  properFraction :: a -> (Whole a, a)
+
+  -- | round to the nearest Int
+  --
+  -- Exact ties are managed by rounding down ties if the whole component is even.
+  --
+  -- >>> round (1.5 :: Double)
+  -- 2
+  --
+  -- >>> round (2.5 :: Double)
+  -- 2
+  round :: a -> Whole a
+  default round :: (Subtractive a, Integral (Whole a), P.Eq (Whole a), P.Ord a, Subtractive (Whole a)) => a -> Whole a
+  round x = case properFraction x of
+    (n, r) ->
+      let m = bool (n + one) (n - one) (r P.< zero)
+          half_up = abs' r + half
+          abs' a
+            | a P.< zero = negate a
+            | P.otherwise = a
+       in case P.compare half_up one of
+            P.LT -> n
+            P.EQ -> bool m n (even n)
+            P.GT -> m
+
+  -- | supply the next upper whole component
+  --
+  -- >>> ceiling (1.001 :: Double)
+  -- 2
+  ceiling :: a -> Whole a
+  default ceiling :: (P.Ord a, Distributive (Whole a)) => a -> Whole a
+  ceiling x = bool n (n + one) (r P.> zero)
+    where
+      (n, r) = properFraction x
+
+  -- | supply the previous lower whole component
+  --
+  -- >>> floor (1.001 :: Double)
+  -- 1
+  floor :: a -> Whole a
+  default floor :: (P.Ord a, Subtractive (Whole a), Distributive (Whole a)) => a -> Whole a
+  floor x = bool n (n - one) (r P.< zero)
+    where
+      (n, r) = properFraction x
+
+  -- | supply the whole component closest to zero
+  --
+  -- >>> floor (-1.001 :: Double)
+  -- -2
+  --
+  -- >>> truncate (-1.001 :: Double)
+  -- -1
+  truncate :: a -> Whole a
+  default truncate :: (P.Ord a) => a -> Whole a
+  truncate x = bool (ceiling x) (floor x) (x P.> zero)
+
+instance QuotientField P.Float where
+  type Whole P.Float = P.Int
+  properFraction = P.properFraction
+
+instance QuotientField P.Double where
+  type Whole P.Double = P.Int
+  properFraction = P.properFraction
+#endif
+
+#if defined(__MHS__)
 class (SemiField a) => QuotientField a whole | a -> whole where
   properFraction :: a -> (whole, a)
 
@@ -148,6 +222,13 @@ class (SemiField a) => QuotientField a whole | a -> whole where
   -- >> truncate (-1.001 :: Double)
   -- -1
   truncate :: a -> w
+
+instance QuotientField P.Float P.Int where
+  properFraction = P.properFraction
+
+instance QuotientField P.Double P.Int where
+  properFraction = P.properFraction
+#endif
 
 -- | infinity is defined for any 'Field'.
 --
