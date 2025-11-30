@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 
 -- | Algebra for Actions
 --

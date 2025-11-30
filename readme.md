@@ -165,3 +165,19 @@ mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 71, col 18:
     mhs: uncaught exception: error: "src/NumHask/Prelude.hs": line 68, col 8: Module not found: GHC.OverloadedLabels
     search path=["src","dist-mcabal/autogen"]
     package path=["/Users/tonyday567/.mcabal/mhs-0.14.25.0","."]
+
+
+## unwound Natural CPP and put Natural back in with:
+
+``` haskell
+#if defined(__GLASGOW_HASKELL__)
+import GHC.Natural (Natural (..))
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
+```
+
+## audit
+
+

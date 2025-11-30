@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE RebindableSyntax #-}
+#endif
 {-# OPTIONS_HADDOCK prune #-}
 
 -- | Numeric classes.
