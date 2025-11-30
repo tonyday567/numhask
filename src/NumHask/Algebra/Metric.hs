@@ -30,6 +30,9 @@ import Control.Applicative
 import Data.Bool
 import Data.Data
 import Data.Int (Int16, Int32, Int64, Int8)
+#if defined(__GLASGOW_HASKELL__)
+import Data.Kind (Type)
+#endif
 import Data.Type.Equality
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
@@ -70,6 +73,188 @@ import Prelude qualified as P
 --
 -- >>> basis (-0.5 :: Double)
 -- -1.0
+
+#if defined(__GLASGOW_HASKELL__)
+class (Distributive (Mag a)) => Basis a where
+  type Mag a :: Type
+  type Base a :: Type
+
+  -- | or length, or ||v||
+  magnitude :: a -> Mag a
+
+  -- | or direction, or v-hat
+  basis :: a -> Base a
+
+-- | Basis where the domain and magnitude codomain are the same.
+--
+-- @since 0.11
+type Absolute a = (Basis a, Mag a ~ a)
+
+-- | Basis where the domain and basis codomain are the same.
+--
+-- @since 0.11
+type Sign a = (Basis a, Base a ~ a)
+
+-- | Basis where the domain, magnitude codomain and basis codomain are the same.
+--
+-- @since 0.11
+type EndoBased a = (Basis a, Mag a ~ a, Base a ~ a)
+
+-- | The absolute value of a number.
+--
+-- prop> \a -> abs a * signum a ~= a
+--
+--
+-- >>> abs (-1)
+-- 1
+abs :: (Absolute a) => a -> a
+abs = magnitude
+
+-- | The sign of a number.
+--
+-- @since 0.11
+--
+-- >>> signum (-1)
+-- -1
+--
+-- @abs zero == zero@, so any value for @signum zero@ is ok.  We choose lawful neutral:
+--
+-- >>> signum zero == zero
+-- True
+signum :: (Sign a) => a -> a
+signum = basis
+
+instance Basis Double where
+  type Mag Double = Double
+  type Base Double = Double
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Float where
+  type Mag Float = Float
+  type Base Float = Float
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int where
+  type Mag Int = Int
+  type Base Int = Int
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Integer where
+  type Mag Integer = Integer
+  type Base Integer = Integer
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Natural where
+  type Mag Natural = Natural
+  type Base Natural = Natural
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int8 where
+  type Mag Int8 = Int8
+  type Base Int8 = Int8
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int16 where
+  type Mag Int16 = Int16
+  type Base Int16 = Int16
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int32 where
+  type Mag Int32 = Int32
+  type Base Int32 = Int32
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int64 where
+  type Mag Int64 = Int64
+  type Base Int64 = Int64
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word where
+  type Mag Word = Word
+  type Base Word = Word
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word8 where
+  type Mag Word8 = Word8
+  type Base Word8 = Word8
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word16 where
+  type Mag Word16 = Word16
+  type Base Word16 = Word16
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word32 where
+  type Mag Word32 = Word32
+  type Base Word32 = Word32
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word64 where
+  type Mag Word64 = Word64
+  type Base Word64 = Word64
+  magnitude = P.abs
+  basis = P.signum
+
+-- | Distance, which combines the Subtractive notion of difference, with Basis.
+--
+-- > distance a b >= zero
+-- > distance a a == zero
+-- > distance a b *| basis (a - b) == a - b
+distance :: (Basis a, Subtractive a) => a -> a -> Mag a
+distance a b = magnitude (a - b)
+
+-- | Convert between a "co-ordinated" or "higher-kinded" number and a direction.
+--
+-- @since 0.7
+--
+-- > ray . angle == basis
+-- > magnitude (ray x) == one
+class (Distributive coord, Distributive (Dir coord)) => Direction coord where
+  type Dir coord :: Type
+  angle :: coord -> Dir coord
+  ray :: Dir coord -> coord
+
+-- | Something that has a magnitude and a direction, with both expressed as the same type.
+--
+-- @since 0.7
+--
+-- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
+data Polar a = Polar {radial :: a, azimuth :: a}
+  deriving (Eq, Show, Generic, Data)
+
+instance (Additive a, Multiplicative a) => Basis (Polar a) where
+  type Mag (Polar a) = a
+  type Base (Polar a) = a
+  magnitude = radial
+  basis = azimuth
+
+-- | Convert a higher-kinded number that has direction, to a 'Polar'
+--
+-- @since 0.7
+polar :: (Dir (Base a) ~ Mag a, Basis a, Direction (Base a)) => a -> Polar (Mag a)
+polar x = Polar (magnitude x) (angle (basis x))
+
+-- | Convert a Polar to a (higher-kinded) number that has a direction.
+--
+-- @since 0.07
+coord :: (Scalar m ~ Dir m, MultiplicativeAction m, Direction m) => Polar (Scalar m) -> m
+coord x = radial x *| ray (azimuth x)
+#endif
+
+#if defined(__MHS__)
 class Basis basis mag a | a -> mag basis where
 
   -- | or length, or ||v||
@@ -198,9 +383,6 @@ class (Distributive coord, Distributive dir) => Direction coord dir where
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 data Polar a = Polar {radial :: a, azimuth :: a}
   deriving stock (Eq, Show)
-#if defined(__GLASGOW_HASKELL__)
-  deriving stock (Generic)
-#endif
   deriving stock (Data)
 
 instance Basis a a (Polar a) where
@@ -216,13 +398,9 @@ polar x = Polar (magnitude x) (angle (basis x))
 -- | Convert a Polar to a (higher-kinded) number that has a direction.
 --
 -- @since 0.07
-#if defined(__GLASGOW_HASKELL__)
-coord :: (MultiplicativeAction c, Scalar c ~ a, Direction c a) => Polar a -> c
-#endif
-#if defined(__MHS__)
 coord :: (MultiplicativeAction c a, Direction c a) => Polar a -> c
-#endif
 coord x = radial x *| ray (azimuth x)
+#endif
 
 -- | A small number, especially useful for approximate equality.
 class
