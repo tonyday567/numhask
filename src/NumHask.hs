@@ -103,9 +103,7 @@ module NumHask
     NumHask.Data.Rational.Rational,
     ToRatio (..),
     FromRatio (..),
-#if defined(__GLASGOW_HASKELL__)
     FromRational (..),
-#endif
     reduce,
     NumHask.Data.Rational.gcd,
 
@@ -196,9 +194,7 @@ import NumHask.Data.Integral
   )
 import NumHask.Data.Rational
   ( FromRatio (..),
-#if defined(__GLASGOW_HASKELL__)
     FromRational (..),
-#endif
     Ratio (..),
     Rational,
     ToRatio (..),

@@ -196,3 +196,6 @@ import Numeric.Natural (Natural (..))
 - [x] Question GHC.Exts usage
 
 
+## cabal run doctest errors with Not in scope: fromString, which is a rebindable syntax thing.
+
+
