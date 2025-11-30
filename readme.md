@@ -206,6 +206,16 @@ removed GHC.Generics except at EuclideanPair site
 
 ## pushed meetLeq (Eq a) down to functions 
 
+## The Epsilon (Eq a) bug
+
+Adding Epsilon to the list of DerivingVias causes this error:
+
+    mhs: uncaught exception: error: "src/NumHask/Data/Positive.hs": line 71, col 18: Cannot satisfy constraint: (Eq a)
+     fully qualified: (Data.Eq.Eq a)
+     
+mhs fails to derivevia because of the (Eq a) constraint, where GHC finds it.
+
+Seemed legit and adding in a manual instance.
 
 
 

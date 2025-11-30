@@ -73,9 +73,6 @@ newtype Positive a = UnsafePositive {unPositive :: a}
     (Eq, Ord, Show)
   deriving
     (
-#if defined(__GLASGOW_HASKELL__)
-      Epsilon,
-#endif
       Integral,
       FromInteger,
       UpperBounded,
@@ -87,6 +84,9 @@ newtype Positive a = UnsafePositive {unPositive :: a}
       Additive
     )
     via (Wrapped a)
+
+instance (Epsilon a, Eq a) => Epsilon (Positive a) where
+  epsilon = UnsafePositive epsilon
 
 instance (MeetSemiLattice a, Integral a) => FromIntegral (Positive a) a where
   fromIntegral a = positive a
