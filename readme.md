@@ -180,9 +180,12 @@ import Numeric.Natural (Natural (..))
 
 ## audit
 
-- fromList fixed => get tests back???
-- GHC.Generics usage
-- OverloadedLabels Usage
+- [x] fromList fixed => get tests back???
+  Removed from mhs (OverloadedLists)
+- [x] GHC.Generics usage
+  Spoofed by mhs
+- [x] OverloadedLabels Usage
+  Removed from ghc
 - fix fromRational
 - put ghc TypeFamily QuotientFields back
 - put ghc TypeFamily Basis back
@@ -190,6 +193,6 @@ import Numeric.Natural (Natural (..))
 - fix ToRatio, FromRatio
 - Positive bugs
 - Polar bugs
-- Question GHC.Exts usage
+- [x] Question GHC.Exts usage
 
 

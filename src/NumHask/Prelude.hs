@@ -17,33 +17,32 @@ module NumHask.Prelude
 
     -- * rebindables
     -- $rebindables
-    fromString,
     ifThenElse,
-#if defined(__GLASGOW_HASKELL__)
-    fromList,
-    fromListN,
-    module GHC.OverloadedLabels,
-#endif
 
     -- * Modules you can't live without
     module Data.Bool,
     module Data.Kind,
+#if defined(__GLASGOW_HASKELL__)
+    module GHC.Exts,
+#endif
     module GHC.Generics,
     module Control.Applicative,
+    module Data.Foldable,
     module Data.Traversable,
     module Data.Semigroup,
     module Data.Maybe,
+#if defined(__GLASGOW_HASKELL__)
+    module GHC.Natural,
+#endif
+#if defined(__MHS__)
+    module Numeric.Natural,
+#endif
 
     -- * Data.Function
     module Data.Function,
 
-    -- * Control.Category
-
-    -- Putting id back.
+    -- * Putting id back.
     module Control.Category,
-
-    -- * Data.Foldable
-    module Data.Foldable,
 
     -- * The Prelude
     module Prelude,
@@ -59,16 +58,18 @@ import Data.Kind
 import Data.Maybe
 import Data.Semigroup hiding (Product (..), Sum (..))
 import Data.Traversable
-import GHC.Exts
+#if defined(__GLASGOW_HASKELL__)
+import GHC.Exts (IsString (..))
+#endif
+#if defined(__MHS__)
+import Data.String (IsString (..))
+#endif
 import GHC.Generics
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
 #endif
 #if defined(__MHS__)
 import Numeric.Natural (Natural (..))
-#endif
-#if defined(__GLASGOW_HASKELL__)
-import GHC.OverloadedLabels
 #endif
 
 import NumHask.Algebra.Action
