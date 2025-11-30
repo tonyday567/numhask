@@ -36,17 +36,18 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> import NumHask.Prelude
 -- >>> import NumHask.Data.Positive
 
 -- | A positive number is a number that is contained in [zero,+infinity).
 --
--- >>> 1 :: Positive Int
+-- >> 1 :: Positive Int
 -- UnsafePositive {unPositive = 1}
 --
 --
--- >>> -1 :: Positive Int
+-- >> -1 :: Positive Int
 -- ...
 --     • No instance for ‘Subtractive (Positive Int)’
 --         arising from a use of syntactic negation
@@ -54,18 +55,18 @@ import Prelude qualified as P
 --
 -- zero is positive
 --
--- >>> positive 0 == zero
+-- >> positive 0 == zero
 -- True
 --
 -- The main constructors:
 --
--- >>> positive (-1)
+-- >> positive (-1)
 -- UnsafePositive {unPositive = 0}
 --
--- >>> maybePositive (-1)
+-- >> maybePositive (-1)
 -- Nothing
 --
--- >>> UnsafePositive (-1)
+-- >> UnsafePositive (-1)
 -- UnsafePositive {unPositive = -1}
 newtype Positive a = UnsafePositive {unPositive :: a}
   deriving stock
@@ -141,10 +142,10 @@ type MonusSemiField a = (Monus a, Distributive a, Divisive a)
 --
 -- @since 0.12
 --
--- >>> positive 4 -\ positive 7
+-- >> positive 4 -\ positive 7
 -- UnsafePositive {unPositive = 0}
 --
--- >>> 4 -\ 7 :: Positive Int
+-- >> 4 -\ 7 :: Positive Int
 -- UnsafePositive {unPositive = 0}
 class Monus a where
   {-# MINIMAL (-\) #-}

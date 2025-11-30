@@ -73,8 +73,10 @@ import Prelude hiding (Integral (..), Rational, abs, acos, acosh, asin, asinh, a
 
 -- $usage
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> import NumHask.Prelude
--- >>> 1+1
+--
+-- >> 1+1
 -- 2
 

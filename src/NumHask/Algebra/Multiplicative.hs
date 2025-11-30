@@ -28,6 +28,7 @@ import Data.Traversable qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> import NumHask.Prelude
 
@@ -36,9 +37,9 @@ import Data.Traversable qualified as P
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 --
--- prop> \a -> one * a == a
--- prop> \a -> a * one == a
--- prop> \a b c -> (a * b) * c == a * (b * c)
+-- >> \a -> one * a == a
+-- >> \a -> a * one == a
+-- >> \a b c -> (a * b) * c == a * (b * c)
 --
 -- By convention, (*) is regarded as not necessarily commutative, but this is not universal, and the introduction of another symbol which means commutative multiplication seems a bit dogmatic.
 --
@@ -85,10 +86,10 @@ accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 --
 -- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
--- prop> \(a :: Double) -> a / a ~= one || a == zero
--- prop> \(a :: Double) -> recip a ~= one / a || a == zero
--- prop> \(a :: Double) -> recip a * a ~= one || a == zero
--- prop> \(a :: Double) -> a * recip a ~= one || a == zero
+-- >> \(a :: Double) -> a / a ~= one || a == zero
+-- >> \(a :: Double) -> recip a ~= one / a || a == zero
+-- >> \(a :: Double) -> recip a * a ~= one || a == zero
+-- >> \(a :: Double) -> a * recip a ~= one || a == zero
 --
 -- >>> recip 2.0
 -- 0.5

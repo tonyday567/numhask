@@ -51,6 +51,7 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> import NumHask.Prelude
 
@@ -95,7 +96,7 @@ type EndoBased a = Basis a a a
 
 -- | The absolute value of a number.
 --
--- prop> \a -> abs a * signum a ~= a
+-- >> \a -> abs a * signum a ~= a
 --
 --
 -- >>> abs (-1)

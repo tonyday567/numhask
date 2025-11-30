@@ -34,6 +34,7 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
@@ -71,9 +72,9 @@ type Field a = (Ring a, Divisive a)
 
 -- | A hyperbolic field class
 --
--- prop> \(a::Double) -> a < zero || (sqrt . (**2)) a == a
--- prop> \(a::Double) -> a < zero || (log . exp) a ~= a
--- prop> \(a::Double) (b::Double) -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
+-- >> \(a::Double) -> a < zero || (sqrt . (**2)) a == a
+-- >> \(a::Double) -> a < zero || (log . exp) a ~= a
+-- >> \(a::Double) (b::Double) -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
 class
   (Field a) =>
   ExpField a
@@ -123,31 +124,31 @@ class (SemiField a) => QuotientField a whole | a -> whole where
   --
   -- Exact ties are managed by rounding down ties if the whole component is even.
   --
-  -- >>> round (1.5 :: Double)
+  -- >> round (1.5 :: Double)
   -- 2
   --
-  -- >>> round (2.5 :: Double)
+  -- >> round (2.5 :: Double)
   -- 2
   round :: a -> w
 
   -- | supply the next upper whole component
   --
-  -- >>> ceiling (1.001 :: Double)
+  -- >> ceiling (1.001 :: Double)
   -- 2
   ceiling :: a -> w
 
   -- | supply the previous lower whole component
   --
-  -- >>> floor (1.001 :: Double)
+  -- >> floor (1.001 :: Double)
   -- 1
   floor :: a -> w
 
   -- | supply the whole component closest to zero
   --
-  -- >>> floor (-1.001 :: Double)
+  -- >> floor (-1.001 :: Double)
   -- -2
   --
-  -- >>> truncate (-1.001 :: Double)
+  -- >> truncate (-1.001 :: Double)
   -- -1
   truncate :: a -> w
 

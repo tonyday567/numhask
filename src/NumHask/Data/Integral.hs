@@ -32,12 +32,13 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> import NumHask.Prelude
 
 -- | An Integral is anything that satisfies the law:
 --
--- prop> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
+-- >> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
 --
 -- >>> 3 `divMod` 2
 -- (1,1)

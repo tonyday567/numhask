@@ -44,6 +44,7 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
 -- >>> import NumHask.Prelude
 
@@ -222,7 +223,7 @@ instance FromRational (Ratio Integer) where
 -- >>> reduce 72 60
 -- 6 :% 5
 --
--- prop> \a b -> reduce a b == a :% b || b == zero
+-- >> \a b -> reduce a b == a :% b || b == zero
 reduce ::
   (P.Eq a, Subtractive a, EndoBased a, Integral a) => a -> a -> Ratio a
 reduce x y
@@ -245,7 +246,7 @@ reduce x y
 -- the result may be negative if one of the arguments is @'GHC.Enum.minBound'@ (and
 -- necessarily is if the other is @0@ or @'GHC.Enum.minBound'@) for such types.
 --
--- >>> gcd 72 60
+-- >> gcd 72 60
 -- 12
 gcd :: (P.Eq a, EndoBased a, Integral a) => a -> a -> a
 gcd x y = gcd' (abs x) (abs y)
