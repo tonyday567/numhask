@@ -98,8 +98,15 @@ instance
     | signum x P.== negate one = negate y :% negate x
     | P.otherwise = y :% x
 
+#if defined(__MHS__)
 instance (P.Ord a, EndoBased a, ToIntegral a Int, Integral a, Ring a) => QuotientField (Ratio a) Int where
   properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
+#endif
+#if defined(__GLASGOW_HASKELL__)
+instance (P.Ord a, EndoBased a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) where
+  type Whole (Ratio a) = Int
+  properFraction (n :% d) = let (w, r) = quotRem n d in (toIntegral w, r :% d)
+#endif
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) (Ratio a) (Ratio a) where
   basis (n :% _) =

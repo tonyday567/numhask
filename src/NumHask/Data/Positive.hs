@@ -106,8 +106,15 @@ instance (ToRatio a b) => ToRatio (Positive a) b where
 instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
   bottom = UnsafePositive zero
 
+#if defined(__MHS__)
 instance QuotientField (Positive P.Double) (Positive P.Int) where
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
+#endif
+#if defined(__GLASGOW_HASKELL__)
+instance QuotientField (Positive P.Double) where
+  type Whole (Positive P.Double) = Positive P.Int
+  properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
+#endif
 
 -- | Constructor which returns zero for a negative number.
 --
