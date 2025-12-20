@@ -1,9 +1,11 @@
-mhs
-
-<https://github.com/augustss/MicroHs>
-
-
 # building to mhs
+
+Notes on building numhask towards being compilable by <https://github.com/augustss/MicroHs>
+
+
+- replacing closed type families with functions
+- open type families with classes
+- fundeps where the purpose is type suggestion
 
 ## cabal cpp bug
 
@@ -12,7 +14,7 @@ CPP logic in cabal file is now only partial.
     mcabal: uncaught exception: error: "../MicroCabal/src/MicroCabal/Normalize.hs",34:24: fields "import" cannot be combined, values=(VItem "ghc2021-additions",VItem "ghc2024-additions")
 
 
-## TyepFamilies
+## TypeFamilies
 
 Encounter with TypeFamilies
 
