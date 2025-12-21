@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -20,7 +21,7 @@ import Prelude qualified as P
 
 -- | Wrapped numhask instances
 newtype Wrapped a = Wrapped {unWrapped :: a}
-  deriving
+  deriving newtype
     ( P.Show,
       P.Eq,
       P.Ord,
@@ -34,26 +35,18 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       InvolutiveRing,
       Integral,
       FromInteger,
-      FromRational,
       MeetSemiLattice,
       JoinSemiLattice,
       LowerBounded,
       UpperBounded,
-      Basis,
-      Direction,
-      Epsilon,
+#if defined(__GLASGOW_HASKELL__)
+      FromRational,
       AdditiveAction,
       SubtractiveAction,
       MultiplicativeAction,
-      DivisiveAction
-    )
-
-instance
-  (P.Ord a, P.Eq (Whole a), Integral (Whole a), Subtractive (Whole a), Subtractive a, QuotientField a) =>
-  QuotientField (Wrapped a)
-  where
-  type Whole (Wrapped a) = Whole a
-  properFraction (Wrapped a) = let (i, r) = properFraction a in (i, Wrapped r)
+      DivisiveAction,
+#endif
+      Epsilon)
 
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral a = Wrapped (fromIntegral a)

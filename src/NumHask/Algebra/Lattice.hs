@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | [Lattices](https://en.wikipedia.org/wiki/Lattice_(order\))
 module NumHask.Algebra.Lattice
   ( JoinSemiLattice (..),
@@ -13,17 +15,20 @@ module NumHask.Algebra.Lattice
   )
 where
 
-import Data.Bool (Bool (..), (&&), (||))
-import Data.Eq (Eq ((==)))
 import Data.Int (Int16, Int32, Int64, Int8)
-import Data.Ord (Ord (..))
 import Data.Word (Word16, Word32, Word64, Word8)
-import GHC.Enum (Bounded (..))
-import GHC.Float (Double, Float)
-import GHC.Int (Int)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
-import GHC.Num (Integer)
-import GHC.Word (Word)
+#endif
+#if defined(__MHS__)
+import Data.Bounded (Bounded (..))
+import Data.Double (Double)
+import Data.Float (Float)
+import Data.Int.Int (Int)
+import Numeric.Natural (Natural (..))
+import Data.Integer (Integer)
+import Data.Word.Word (Word)
+#endif
 import NumHask.Algebra.Additive (zero)
 import NumHask.Algebra.Field
   ( infinity,
@@ -35,18 +40,18 @@ import NumHask.Algebra.Field
 -- > Associativity: x \/ (y \/ z) == (x \/ y) \/ z
 -- > Commutativity: x \/ y == y \/ x
 -- > Idempotency:   x \/ x == x
-class (Eq a) => JoinSemiLattice a where
+class JoinSemiLattice a where
   infixr 5 \/
   (\/) :: a -> a -> a
 
 -- | The partial ordering induced by the join-semilattice structure
-joinLeq :: (JoinSemiLattice a) => a -> a -> Bool
+joinLeq :: (JoinSemiLattice a, Eq a) => a -> a -> Bool
 joinLeq x y = (x \/ y) == y
 
-infixr 6 <\
+infixr 6 <\ -- comment to stop CPP picking up the line-ending backslash
 
 -- | The partial ordering induced by the join-semilattice structure
-(<\) :: (JoinSemiLattice a) => a -> a -> Bool
+(<\) :: (Eq a, JoinSemiLattice a) => a -> a -> Bool
 (<\) = joinLeq
 
 -- | A algebraic structure with element meets: See [Semilattice](http://en.wikipedia.org/wiki/Semilattice)
@@ -54,18 +59,18 @@ infixr 6 <\
 -- > Associativity: x /\ (y /\ z) == (x /\ y) /\ z
 -- > Commutativity: x /\ y == y /\ x
 -- > Idempotency:   x /\ x == x
-class (Eq a) => MeetSemiLattice a where
-  infixr 6 /\
+class MeetSemiLattice a where
+  infixr 6 /\ -- comment to stop CPP picking up the line-ending backslash
   (/\) :: a -> a -> a
 
 -- | The partial ordering induced by the meet-semilattice structure
-meetLeq :: (MeetSemiLattice a) => a -> a -> Bool
+meetLeq :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
 meetLeq x y = (x /\ y) == x
 
-infixr 6 </
+infixr 6 </ -- comment to stop CPP picking up the line-ending backslash
 
 -- | The partial ordering induced by the meet-semilattice structure
-(</) :: (MeetSemiLattice a) => a -> a -> Bool
+(</) :: (Eq a, MeetSemiLattice a) => a -> a -> Bool
 (</) = meetLeq
 
 -- | The combination of two semi lattices makes a lattice if the absorption law holds:

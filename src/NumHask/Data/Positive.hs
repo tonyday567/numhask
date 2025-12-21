@@ -1,6 +1,9 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DerivingVia #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 {-# LANGUAGE UndecidableInstances #-}
 
 -- |  A positive number type, defined as existing on [zero, +infinity)
@@ -33,18 +36,18 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 -- >>> import NumHask.Data.Positive
 
 -- | A positive number is a number that is contained in [zero,+infinity).
 --
--- >>> 1 :: Positive Int
+-- >> 1 :: Positive Int
 -- UnsafePositive {unPositive = 1}
 --
 --
--- >>> -1 :: Positive Int
+-- >> -1 :: Positive Int
 -- ...
 --     • No instance for ‘Subtractive (Positive Int)’
 --         arising from a use of syntactic negation
@@ -52,41 +55,44 @@ import Prelude qualified as P
 --
 -- zero is positive
 --
--- >>> positive 0 == zero
+-- >> positive 0 == zero
 -- True
 --
 -- The main constructors:
 --
--- >>> positive (-1)
+-- >> positive (-1)
 -- UnsafePositive {unPositive = 0}
 --
--- >>> maybePositive (-1)
+-- >> maybePositive (-1)
 -- Nothing
 --
--- >>> UnsafePositive (-1)
+-- >> UnsafePositive (-1)
 -- UnsafePositive {unPositive = -1}
 newtype Positive a = UnsafePositive {unPositive :: a}
   deriving stock
     (Eq, Ord, Show)
   deriving
-    ( Additive,
-      Multiplicative,
-      Divisive,
-      Integral,
-      FromInteger,
-      FromRational,
-      Basis,
-      Direction,
-      Epsilon,
+    (
+#if defined(__GLASGOW_HASKELL__)
       AdditiveAction,
       SubtractiveAction,
       MultiplicativeAction,
       DivisiveAction,
-      JoinSemiLattice,
+#endif
+      Integral,
+      FromInteger,
+      UpperBounded,
+      FromRational,
       MeetSemiLattice,
-      UpperBounded
+      JoinSemiLattice,
+      Divisive,
+      Multiplicative,
+      Additive
     )
     via (Wrapped a)
+
+instance (Epsilon a, Eq a) => Epsilon (Positive a) where
+  epsilon = UnsafePositive epsilon
 
 instance (MeetSemiLattice a, Integral a) => FromIntegral (Positive a) a where
   fromIntegral a = positive a
@@ -106,6 +112,12 @@ instance (ToRatio a b) => ToRatio (Positive a) b where
 instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
   bottom = UnsafePositive zero
 
+#if defined(__MHS__)
+instance QuotientField (Positive P.Double) (Positive P.Int) where
+  properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
+  truncate = floor
+#endif
+#if defined(__GLASGOW_HASKELL__)
 instance QuotientField (Positive P.Double) where
   type Whole (Positive P.Double) = Positive P.Int
   properFraction (UnsafePositive a) = (\(n, r) -> (UnsafePositive n, UnsafePositive r)) (P.properFraction a)
@@ -119,6 +131,7 @@ instance QuotientField (Positive P.Double) where
             P.LT -> n
             P.EQ -> bool (n + one) n (even n)
             P.GT -> n + one
+#endif
 
 -- | Constructor which returns zero for a negative number.
 --
@@ -138,11 +151,11 @@ positive_ = UnsafePositive
 --
 -- >>> maybePositive (-one)
 -- Nothing
-maybePositive :: (Additive a, MeetSemiLattice a) => a -> Maybe (Positive a)
+maybePositive :: (Additive a, Eq a, MeetSemiLattice a) => a -> Maybe (Positive a)
 maybePositive a = bool Nothing (Just (UnsafePositive a)) (a `meetLeq` zero)
 
 instance (Subtractive a, MeetSemiLattice a) => Monus (Positive a) where
-  (UnsafePositive a) ∸ (UnsafePositive b) = positive (a - b)
+  (UnsafePositive a) -\ (UnsafePositive b) = positive (a - b)
 
 -- | A field but with truncated subtraction.
 type MonusSemiField a = (Monus a, Distributive a, Divisive a)
@@ -151,25 +164,25 @@ type MonusSemiField a = (Monus a, Distributive a, Divisive a)
 --
 -- @since 0.12
 --
--- >>> positive 4 ∸ positive 7
+-- >> positive 4 -\ positive 7
 -- UnsafePositive {unPositive = 0}
 --
--- >>> 4 ∸ 7 :: Positive Int
+-- >> 4 -\ 7 :: Positive Int
 -- UnsafePositive {unPositive = 0}
 class Monus a where
-  {-# MINIMAL (∸) #-}
+  {-# MINIMAL (-\) #-}
 
-  infixl 6 ∸
-  (∸) :: a -> a -> a
-  default (∸) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
-  a ∸ b = bottom /\ (a - b)
+  infixl 6 -\ -- CPP and \ really dont mix
+  (-\) :: a -> a -> a
+  default (-\) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
+  a -\ b = bottom /\ (a - b)
 
 -- | Truncated addition
 --
 -- @since 0.12
 class Addus a where
-  {-# MINIMAL (∔) #-}
-  infixl 6 ∔
-  (∔) :: a -> a -> a
-  default (∔) :: (UpperBounded a, JoinSemiLattice a, Additive a) => a -> a -> a
-  a ∔ b = top \/ (a + b)
+  {-# MINIMAL (+\) #-}
+  infixl 6 +\ -- CPP
+  (+\) :: a -> a -> a
+  default (+\) :: (UpperBounded a, JoinSemiLattice a, Additive a) => a -> a -> a
+  a +\ b = top \/ (a + b)

@@ -1,5 +1,9 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DefaultSignatures #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 
 -- | [field](https://en.wikipedia.org/wiki/Field_(mathematics\)) classes
 module NumHask.Algebra.Field
@@ -12,29 +16,28 @@ module NumHask.Algebra.Field
     nan,
     TrigField (..),
     half,
-    modF,
-    divF,
-    divModF,
   )
 where
 
-import Data.Bool (bool)
-import Data.Kind
-import NumHask.Algebra.Additive (Additive (..), Subtractive (..), (-))
+import NumHask.Algebra.Additive (Additive (..), Subtractive (..))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     (/),
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
-import NumHask.Data.Integral (FromIntegral (..), Integral, even)
-import Prelude (Eq (..), (.))
+import Prelude ((.))
 import Prelude qualified as P
+#if defined(__GLASGOW_HASKELL__)
+import Data.Kind (Type)
+import NumHask.Data.Integral (Integral (..), even)
+import Data.Bool (bool)
+#endif
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> :set -XScopedTypeVariables
 -- >>> import NumHask.Prelude
 
@@ -71,9 +74,9 @@ type Field a = (Ring a, Divisive a)
 
 -- | A hyperbolic field class
 --
--- prop> \(a::Double) -> a < zero || (sqrt . (**2)) a == a
--- prop> \(a::Double) -> a < zero || (log . exp) a ~= a
--- prop> \(a::Double) (b::Double) -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
+-- >> \(a::Double) -> a < zero || (sqrt . (**2)) a == a
+-- >> \(a::Double) -> a < zero || (log . exp) a ~= a
+-- >> \(a::Double) (b::Double) -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
 class
   (Field a) =>
   ExpField a
@@ -116,6 +119,7 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
+#if defined(__GLASGOW_HASKELL__)
 class (SemiField a) => QuotientField a where
   type Whole a :: Type
   properFraction :: a -> (Whole a, a)
@@ -181,6 +185,50 @@ instance QuotientField P.Float where
 instance QuotientField P.Double where
   type Whole P.Double = P.Int
   properFraction = P.properFraction
+#endif
+
+#if defined(__MHS__)
+class (SemiField a) => QuotientField a whole | a -> whole where
+  properFraction :: a -> (whole, a)
+
+  -- | round to the nearest Integral
+  --
+  -- Exact ties are managed by rounding down ties if the whole component is even.
+  --
+  -- >> round (1.5 :: Double)
+  -- 2
+  --
+  -- >> round (2.5 :: Double)
+  -- 2
+  round :: a -> whole
+
+  -- | supply the next upper whole component
+  --
+  -- >> ceiling (1.001 :: Double)
+  -- 2
+  ceiling :: a -> whole
+
+  -- | supply the previous lower whole component
+  --
+  -- >> floor (1.001 :: Double)
+  -- 1
+  floor :: a -> whole
+
+  -- | supply the whole component closest to zero
+  --
+  -- >> floor (-1.001 :: Double)
+  -- -2
+  --
+  -- >> truncate (-1.001 :: Double)
+  -- -1
+  truncate :: a -> whole
+
+instance QuotientField P.Float P.Int where
+  properFraction = P.properFraction
+
+instance QuotientField P.Double P.Int where
+  properFraction = P.properFraction
+#endif
 
 -- | infinity is defined for any 'Field'.
 --
@@ -281,42 +329,3 @@ instance (TrigField b) => TrigField (a -> b) where
 half :: (Additive a, Divisive a) => a
 half = one / two
 
--- | Approximate modulo for fields
---
--- @since 0.13
---
--- >>> modF 1.5 1.2
--- 0.30000000000000004
-modF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
-modF n d
-  | d == infinity = n
-  | d == zero = nan
-  | P.True = n - d * fromIntegral (floor (n / d))
-
--- | Approximate diviso for fields.
---
--- Compared with 'NumHask.Algebra.Field.div', divF returns the original type rather than the 'Whole' type.
---
--- @since 0.13
---
--- >>> divF 1.5 1.2
--- 1.0
-divF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> a
-divF n d
-  | d == infinity = zero
-  | d == zero = infinity
-  | P.True = fromIntegral (floor (n / d))
-
--- | Approximate `NumHask.Algebra.Field.divMod` for fields.
---
--- @since 0.13
---
--- >>> divModF 1.5 1.2
--- (1.0,0.30000000000000004)
-divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> (a, a)
-divModF n d
-  | d == infinity = (zero, n)
-  | d == zero = (infinity, nan)
-  | P.True = (div', n - d * div')
-  where
-    div' = fromIntegral (floor (n / d))

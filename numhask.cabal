@@ -51,6 +51,103 @@ common ghc-options-stanza
     -Wincomplete-uni-patterns
     -Wpartial-fields
     -Wredundant-constraints
+    -Wno-deprecated-flags
+
+common ghc-mhs-intersection
+  default-extensions:
+    BangPatterns
+    BinaryLiterals
+    ConstraintKinds
+    DeriveDataTypeable
+    DerivingStrategies
+    DoAndIfThenElse
+    EmptyCase
+    EmptyDataDecls
+    EmptyDataDeriving
+    ExistentialQuantification
+    ExplicitNamespaces
+    FlexibleContexts
+    FlexibleInstances
+    ForeignFunctionInterface
+    GADTSyntax
+    GADTs
+    ImportQualifiedPost
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    MonoLocalBinds
+    MultiParamTypeClasses
+    NamedFieldPuns
+    NumericUnderscores
+    PolyKinds
+    RankNTypes
+    ScopedTypeVariables
+    StandaloneDeriving
+    StandaloneKindSignatures
+    TupleSections
+    TypeApplications
+    TypeSynonymInstances
+
+common ghc-mhs-difference
+  default-extensions:
+    ConstrainedClassMethods
+    DataKinds
+    DeriveFoldable
+    DeriveFunctor
+    DeriveGeneric
+    DeriveLift
+    DeriveTraversable
+    DisambiguateRecordFields
+    ExplicitForAll
+    GeneralisedNewtypeDeriving
+    HexFloatLiterals
+    ImplicitPrelude
+    MonomorphismRestriction
+    NamedWildCards
+    PatternGuards
+    PostfixOperators
+    RelaxedPolyRec
+    RoleAnnotations
+    StarIsType
+    TraditionalRecordSyntax
+    TypeOperators
+
+common mhs-ghc-difference
+  default-extensions:
+    AllowAmbiguousTypes
+    BlockArguments
+    DefaultSignatures
+    DeriveAnyClass
+    DerivingVia
+    DuplicateRecordFields
+    ExtendedDefaultRules
+    FunctionalDependencies
+    GeneralizedNewtypeDeriving
+    IncoherentInstances
+    LiberalTypeSynonyms
+    MagicHash
+    MultiWayIf
+    MultilineStrings
+    NamedDefaults
+    NegativeLiterals
+    NoMonomorphismRestriction
+    NoStarIsType
+    NondecreasingIndentation
+    OrPatterns
+    OverlappingInstances
+    OverloadedRecordDot
+    OverloadedRecordUpdate
+    OverloadedStrings
+    PatternSynonyms
+    PolymorphicComponents
+    QualifiedDo
+    RecordWildCards
+    RecursiveDo
+    RequiredTypeArguments
+    UndecidableInstances
+    UndecidableSuperClasses
+    UnicodeSyntax
+    ViewPatterns
 
 common ghc2021-additions
   default-extensions:
@@ -114,6 +211,75 @@ common ghc2024-additions
     MonoLocalBinds
     RoleAnnotations
 
+common mhs2024-additions
+  default-extensions:
+    AllowAmbiguousTypes
+    BangPatterns
+    BinaryLiterals
+    BlockArguments
+    ConstraintKinds
+    DefaultSignatures
+    DeriveAnyClass
+    DeriveDataTypeable
+    DerivingStrategies
+    DerivingVia
+    DoAndIfThenElse
+    DuplicateRecordFields
+    EmptyCase
+    EmptyDataDecls
+    EmptyDataDeriving
+    ExistentialQuantification
+    ExplicitNamespaces
+    ExtendedDefaultRules
+    FlexibleContexts
+    FlexibleInstances
+    ForeignFunctionInterface
+    FunctionalDependencies
+    GADTs
+    GADTSyntax
+    GeneralizedNewtypeDeriving
+    ImportQualifiedPost
+    IncoherentInstances
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    LiberalTypeSynonyms
+    MagicHash
+    MonoLocalBinds
+    MultilineStrings
+    MultiParamTypeClasses
+    MultiWayIf
+    NamedDefaults
+    NamedFieldPuns
+    NegativeLiterals
+    NoMonomorphismRestriction
+    NondecreasingIndentation
+    NoStarIsType
+    NumericUnderscores
+    OrPatterns
+    -- OverlappingInstances
+    OverloadedRecordDot
+    OverloadedRecordUpdate
+    OverloadedStrings
+    PatternSynonyms
+    PolyKinds
+    PolymorphicComponents
+    RankNTypes
+    RecordWildCards
+    RecursiveDo
+    RequiredTypeArguments
+    QualifiedDo
+    ScopedTypeVariables
+    StandaloneDeriving
+    StandaloneKindSignatures
+    TupleSections
+    TypeApplications
+    TypeSynonymInstances
+    UndecidableInstances
+    UndecidableSuperClasses
+    UnicodeSyntax
+    ViewPatterns
+
 common ghc2024-stanza
   if impl(ghc >=9.10)
     default-language:
@@ -122,36 +288,40 @@ common ghc2024-stanza
     import: ghc2024-additions
     default-language:
       GHC2021
-  else
+  elif impl(ghc <9.2)
     import: ghc2021-additions
     import: ghc2024-additions
+    default-language:
+      Haskell2010
+  else
+    import: mhs2024-additions
     default-language:
       Haskell2010
 
 library
   import: ghc-options-stanza
   import: ghc2024-stanza
+  import: mhs-ghc-difference
   hs-source-dirs: src
-  build-depends: base >=4.14 && <5
+  build-depends:
+    base >=4.14 && <5,
+    containers,
+
   exposed-modules:
     NumHask
     NumHask.Algebra.Action
     NumHask.Algebra.Additive
     NumHask.Algebra.Field
-    NumHask.Algebra.Group
     NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
-    NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.Positive
     NumHask.Data.Rational
     NumHask.Data.Wrapped
     NumHask.Exception
     NumHask.Prelude
-
-  default-extensions: RebindableSyntax
 
 test-suite doctests
   import: ghc2024-stanza
@@ -162,6 +332,5 @@ test-suite doctests
     base >=4.14 && <5,
     doctest-parallel >=0.3 && <0.5,
 
-  default-extensions: RebindableSyntax
   ghc-options: -threaded
   type: exitcode-stdio-1.0

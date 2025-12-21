@@ -1,4 +1,7 @@
+{-# LANGUAGE CPP #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 
 -- | Algebra for Actions
 --
@@ -25,6 +28,7 @@ import Prelude (flip)
 -- | Additive Action
 --
 -- > m |+ zero == m
+#if defined(__GLASGOW_HASKELL__)
 class
   (Additive (AdditiveScalar m)) =>
   AdditiveAction m
@@ -33,25 +37,49 @@ class
 
   infixl 6 |+
   (|+) :: m -> AdditiveScalar m -> m
-
-infixl 6 +|
+#endif
+#if defined(__MHS__)
+class
+  (Additive a) =>
+  AdditiveAction m a | m -> a
+  where
+  infixl 6 |+
+  (|+) :: m -> a -> m
+#endif
 
 -- | flipped additive action
 --
 -- > (+|) == flip (|+)
 -- > zero +| m = m
+#if defined(__GLASGOW_HASKELL__)
 (+|) :: (AdditiveAction m) => AdditiveScalar m -> m -> m
+#endif
+#if defined(__MHS__)
+(+|) :: (AdditiveAction m a) => a -> m -> m
+#endif
 (+|) = flip (|+)
+
+infixl 6 +|
 
 -- | Subtractive Action
 --
 -- > m |- zero = m
+#if defined(__GLASGOW_HASKELL__)
 class
   (AdditiveAction m, Subtractive (AdditiveScalar m)) =>
   SubtractiveAction m
   where
   infixl 6 |-
   (|-) :: m -> AdditiveScalar m -> m
+#endif
+#if defined(__MHS__)
+class
+  (Subtractive a) =>
+  SubtractiveAction m a | m -> a
+  where
+  infixl 6 |-
+  (|-) :: m -> a -> m
+#endif
 
 infixl 6 -|
 
@@ -59,21 +87,35 @@ infixl 6 -|
 --
 -- > (-|) == (+|) . negate
 -- > zero -| m = negate m
+#if defined(__GLASGOW_HASKELL__)
 (-|) :: (AdditiveAction m, Subtractive m) => AdditiveScalar m -> m -> m
+#endif
+#if defined(__MHS__)
+(-|) :: (AdditiveAction m a, Subtractive m) => a -> m -> m
+#endif
 a -| b = a +| negate b
 
 -- | Multiplicative Action
 --
 -- > m |* one = m
 -- > m |* zero = zero
+#if defined(__GLASGOW_HASKELL__)
 class
   (Multiplicative (Scalar m)) =>
   MultiplicativeAction m
   where
   type Scalar m :: Type
-
   infixl 7 |*
   (|*) :: m -> Scalar m -> m
+#endif
+#if defined(__MHS__)
+class
+  (Multiplicative a) =>
+  MultiplicativeAction m a | m -> a
+  where
+  infixl 6 |*
+  (|*) :: m -> a -> m
+#endif
 
 infixl 7 *|
 
@@ -82,24 +124,44 @@ infixl 7 *|
 -- > (*|) == flip (|*)
 -- > one *| m = one
 -- > zero *| m = zero
+#if defined(__GLASGOW_HASKELL__)
 (*|) :: (MultiplicativeAction m) => Scalar m -> m -> m
+#endif
+#if defined(__MHS__)
+(*|) :: (MultiplicativeAction m a) => a -> m -> m
+#endif
 (*|) = flip (|*)
 
 -- | Divisive Action
 --
 -- > m |/ one = m
+#if defined(__GLASGOW_HASKELL__)
 class
   (Divisive (Scalar m), MultiplicativeAction m) =>
   DivisiveAction m
   where
   infixl 7 |/
   (|/) :: m -> Scalar m -> m
+#endif
+#if defined(__MHS__)
+class
+  (Divisive a) =>
+  DivisiveAction m a | m -> a
+  where
+  infixl 6 |/
+  (|/) :: m -> a -> m
+#endif
 
 -- | left scalar division
 --
 -- > (/|) == (*|) . recip
 -- > one |/ m = recip m
+#if defined(__GLASGOW_HASKELL__)
 (/|) :: (MultiplicativeAction m, Divisive m) => Scalar m -> m -> m
+#endif
+#if defined(__MHS__)
+(/|) :: (MultiplicativeAction m a, Divisive m) => a -> m -> m
+#endif
 a /| b = a *| recip b
 
 -- | A <https://en.wikipedia.org/wiki/Module_(mathematics) Module>
@@ -109,4 +171,9 @@ a /| b = a *| recip b
 -- > c |* (a + b) == (c |* a) + (c |* b)
 -- > a *| zero == zero
 -- > a *| b == b |* a
+#if defined(__GLASGOW_HASKELL__)
 type Module m = (Distributive (Scalar m), MultiplicativeAction m)
+#endif
+#if defined(__MHS__)
+type Module m a = (Distributive a, MultiplicativeAction m a)
+#endif

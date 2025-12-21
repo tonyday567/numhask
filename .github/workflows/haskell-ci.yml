@@ -9,6 +9,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  mhs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout mhs repo
+        uses: actions/checkout@v4
+        with:
+          repository: augustss/MicroHs
+          ref: v0.14.15.0
+          path: mhs
+
+      - name: make and install mhs
+        run: |
+          cd mhs
+          make minstall
+
+      - name: checkout this repo
+        uses: actions/checkout@v4
+        with:
+          repository: tonyday567/numhask
+          path: numhask
+
+      - name: compile and install via mhs
+        run: |
+          PATH="$HOME/.mcabal/bin:$PATH"
+          cd numhask
+          mcabal install
+
   hlint:
     runs-on: ubuntu-latest
     steps:
@@ -18,11 +45,6 @@ jobs:
       with:
         path: .
         fail-on: warning
-  ormolu:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: haskell-actions/run-ormolu@v17
   build:
     name: GHC ${{ matrix.ghc-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

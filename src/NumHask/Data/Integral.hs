@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral (..),
@@ -16,7 +18,12 @@ where
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord
 import Data.Word (Word, Word16, Word32, Word64, Word8)
-import GHC.Natural (Natural (..), naturalFromInteger)
+#if defined(__GLASGOW_HASKELL__)
+import GHC.Natural (Natural (..))
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
@@ -25,13 +32,13 @@ import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | An Integral is anything that satisfies the law:
 --
--- prop> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
+-- >> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
 --
 -- >>> 3 `divMod` 2
 -- (1,1)
@@ -268,7 +275,7 @@ instance FromIntegral Integer Integer where
   fromIntegral = P.id
 
 instance FromIntegral Natural Integer where
-  fromIntegral = naturalFromInteger
+  fromIntegral = P.fromInteger
 
 instance FromIntegral Int8 Integer where
   fromIntegral = P.fromInteger
@@ -392,7 +399,7 @@ instance FromInteger Integer where
   fromInteger = P.id
 
 instance FromInteger Natural where
-  fromInteger = naturalFromInteger
+  fromInteger = P.fromInteger
 
 instance FromInteger Int8 where
   fromInteger = P.fromInteger

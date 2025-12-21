@@ -1,4 +1,4 @@
-{-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -- | Numeric classes.
@@ -18,13 +18,13 @@ module NumHask
 
     -- * Additive
     Additive (..),
-    sum,
+    NumHask.Algebra.Additive.sum,
     accsum,
     Subtractive (..),
 
     -- * Multiplicative
     Multiplicative (..),
-    product,
+    NumHask.Algebra.Multiplicative.product,
     accproduct,
     Divisive (..),
 
@@ -32,7 +32,6 @@ module NumHask
     Distributive,
     Ring,
     StarSemiring (..),
-    KleeneAlgebra,
     InvolutiveRing (..),
     two,
 
@@ -45,9 +44,6 @@ module NumHask
     negInfinity,
     nan,
     half,
-    modF,
-    divF,
-    divModF,
 
     -- * Lattice
     JoinSemiLattice (..),
@@ -75,8 +71,8 @@ module NumHask
     Absolute,
     Sign,
     EndoBased,
-    abs,
-    signum,
+    NumHask.Algebra.Metric.abs,
+    NumHask.Algebra.Metric.signum,
     distance,
     Direction (..),
     Polar (..),
@@ -87,32 +83,26 @@ module NumHask
     nearZero,
     (~=),
 
-    -- * Complex
-    Complex (..),
-    (+:),
-    realPart,
-    imagPart,
-
     -- * Integral
-    Integral (..),
+    NumHask.Data.Integral.Integral (..),
     ToIntegral (..),
     ToInt,
     FromIntegral (..),
     FromInteger (..),
     FromInt,
-    even,
-    odd,
-    (^^),
-    (^),
+    NumHask.Data.Integral.even,
+    NumHask.Data.Integral.odd,
+    (NumHask.Data.Integral.^^),
+    (NumHask.Data.Integral.^),
 
     -- * Rational
     Ratio (..),
-    Rational,
+    NumHask.Data.Rational.Rational,
     ToRatio (..),
     FromRatio (..),
     FromRational (..),
     reduce,
-    gcd,
+    NumHask.Data.Rational.gcd,
 
     -- * Exceptions
     NumHaskException (..),
@@ -142,11 +132,8 @@ import NumHask.Algebra.Field
     Field,
     QuotientField (..),
     TrigField (..),
-    divF,
-    divModF,
     half,
     infinity,
-    modF,
     nan,
     negInfinity,
   )
@@ -186,12 +173,10 @@ import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
   ( Distributive,
     InvolutiveRing (..),
-    KleeneAlgebra,
     Ring,
     StarSemiring (..),
     two,
   )
-import NumHask.Data.Complex (Complex (..), imagPart, realPart, (+:))
 import NumHask.Data.Integral
   ( FromInt,
     FromInteger (..),
@@ -217,57 +202,11 @@ import NumHask.Exception (NumHaskException (..), throw)
 
 -- $setup
 --
--- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
--- >>> import NumHask.Prelude
--- >>> 1+1
+-- >> :set -Wno-deprecated-flags
+-- >> :m -Prelude
+-- >> import NumHask.Prelude
+-- >> 1+1
 -- 2
-
--- $extensions
---
--- [RebindableSyntax](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/rebindable_syntax.html)
--- is recommended for use with numhask.
---
--- As a replacement for the numerical classes, numhask clashes significantly with an
--- unqualified import of the @Prelude@. Either numhask modules should be qualified,
--- or prelude turned off with the NoImplicitPrelude extension, or with RebindableSyntax,
--- which implies NoImplicitPrelude.
---
--- == defaulting
---
--- Without RebindableSyntax, numeric literals default as follows:
---
--- >>> :set -XNoRebindableSyntax
--- >>> :t 1
--- 1 :: Num a => a
---
--- >>> :t 1.0
--- 1.0 :: Fractional a => a
---
--- With RebindableSyntax (which also switches NoImplicitPrelude on) literal numbers change to the numhask types, 'FromInteger' and 'FromRational':
---
--- >>> :set -XRebindableSyntax
--- >>> :t 1
--- 1 :: FromInteger a => a
---
--- >>> :t 1.0
--- 1.0 :: FromRational a => a
---
--- >>> 1
--- 1
---
--- >>> 1.0
--- 1.0
---
--- RebindableSyntax is a tradeoff, however, and usage comes attached with other non-numeric changes
--- that "NumHask.Prelude" attempts to counteract.
---
--- See [haskell2010 Section 4.3.4](https://www.haskell.org/onlinereport/haskell2010/haskellch4.html#x10-750004.3) for the nuts and bolts to defaulting.
---
--- The effect of [ExtendedDefaultRules](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/ghci.html#extension-ExtendedDefaultRules)
--- in ghci or switched on as an extension also need to be understood.
--- It can lead to unusual interactions with numerics and strange error messages at times because
--- it adds @()@ and @[]@ to the start of the type defaulting list.
 
 -- $overview
 -- numhask is largely a set of classes that can replace the 'GHC.Num.Num' class and it's descendents.
@@ -283,7 +222,7 @@ import NumHask.Exception (NumHaskException (..), throw)
 --
 -- - __/low-impact/__. The library attempts to fit in with the rest of the Haskell ecosystem.
 --   It provides instances for common numbers: 'GHC.Num.Int', 'GHC.Num.Integer', 'GHC.Float.Double',
---   'GHC.Float.Float', 'GHC.Natural.Natural', and the Word classes. It avoids name (or idea) clashes with other popular libraries
+--   'GHC.Float.Float', and the Word classes. It avoids name (or idea) clashes with other popular libraries
 --   and adopts conventions in the <https://hackage.haskell.org/package/base/docs/Prelude.html current prelude>
 --   where they make sense.
 --

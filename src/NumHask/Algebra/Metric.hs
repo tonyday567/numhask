@@ -1,5 +1,8 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DerivingVia #-}
+#if defined(__GLASGOW_HASKELL__)
 {-# LANGUAGE TypeFamilies #-}
+#endif
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Metric classes
@@ -27,24 +30,31 @@ import Control.Applicative
 import Data.Bool
 import Data.Data
 import Data.Int (Int16, Int32, Int64, Int8)
-import Data.Kind
+#if defined(__GLASGOW_HASKELL__)
+import Data.Kind (Type)
+#endif
 import Data.Type.Equality
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Generics
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word)
 import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | 'Basis' encapsulates the notion of magnitude (intuitively the quotienting of a higher-kinded number to a scalar one) and the basis on which the magnitude quotienting was performed. An instance needs to satisfy these laws:
@@ -63,6 +73,8 @@ import Prelude qualified as P
 --
 -- >>> basis (-0.5 :: Double)
 -- -1.0
+
+#if defined(__GLASGOW_HASKELL__)
 class (Distributive (Mag a)) => Basis a where
   type Mag a :: Type
   type Base a :: Type
@@ -240,6 +252,155 @@ polar x = Polar (magnitude x) (angle (basis x))
 -- @since 0.07
 coord :: (Scalar m ~ Dir m, MultiplicativeAction m, Direction m) => Polar (Scalar m) -> m
 coord x = radial x *| ray (azimuth x)
+#endif
+
+#if defined(__MHS__)
+class Basis basis mag a | a -> mag basis where
+
+  -- | or length, or ||v||
+  magnitude :: a -> mag
+
+  -- | or direction, or v-hat
+  basis :: a -> basis
+
+-- | Basis where the domain and magnitude codomain are the same.
+--
+-- @since 0.11
+type Absolute basis a = Basis basis a a
+
+-- | Basis where the domain and basis codomain are the same.
+--
+-- @since 0.11
+type Sign mag a = Basis a mag a
+
+-- | Basis where the domain, magnitude codomain and basis codomain are the same.
+--
+-- @since 0.11
+type EndoBased a = Basis a a a
+
+-- | The absolute value of a number.
+--
+-- >> \a -> abs a * signum a ~= a
+--
+--
+-- >>> abs (-1)
+-- 1
+abs :: (EndoBased a) => a -> a
+abs = magnitude
+
+-- | The sign of a number.
+--
+-- @since 0.11
+--
+-- >>> signum (-1)
+-- -1
+--
+-- @abs zero == zero@, so any value for @signum zero@ is ok.  We choose lawful neutral:
+--
+-- >>> signum zero == zero
+-- True
+signum :: (EndoBased a) => a -> a
+signum = basis
+
+instance Basis Double Double Double where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Float Float Float where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int Int Int where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Integer Integer Integer where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Natural Natural Natural where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int8 Int8 Int8 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int16 Int16 Int16 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int32 Int32 Int32 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Int64 Int64 Int64 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word Word Word where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word8 Word8 Word8 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word16 Word16 Word16 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word32 Word32 Word32 where
+  magnitude = P.abs
+  basis = P.signum
+
+instance Basis Word64 Word64 Word64 where
+  magnitude = P.abs
+  basis = P.signum
+
+-- | Distance, which combines the Subtractive notion of difference, with Basis.
+--
+-- > distance a b >= zero
+-- > distance a a == zero
+-- > distance a b *| basis (a - b) == a - b
+distance :: (Basis b mag a, Subtractive a) => a -> a -> mag
+distance a b = magnitude (a - b)
+
+-- | Convert between a "co-ordinated" or "higher-kinded" number and a direction.
+--
+-- @since 0.7
+--
+-- > ray . angle == basis
+-- > magnitude (ray x) == one
+class (Distributive coord, Distributive dir) => Direction coord dir where
+  angle :: coord -> dir
+  ray :: dir -> coord
+
+-- | Something that has a magnitude and a direction, with both expressed as the same type.
+--
+-- @since 0.7
+--
+-- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
+data Polar a = Polar {radial :: a, azimuth :: a}
+  deriving stock (Eq, Show)
+  deriving stock (Data)
+
+instance Basis a a (Polar a) where
+  magnitude = radial
+  basis = azimuth
+
+-- | Convert a higher-kinded number that has direction, to a 'Polar'
+--
+-- @since 0.7
+polar :: (Basis b a a, Direction b a) => a -> Polar a
+polar x = Polar (magnitude x) (angle (basis x))
+
+-- | Convert a Polar to a (higher-kinded) number that has a direction.
+--
+-- @since 0.07
+coord :: (MultiplicativeAction c a, Direction c a) => Polar a -> c
+coord x = radial x *| ray (azimuth x)
+#endif
 
 -- | A small number, especially useful for approximate equality.
 class
@@ -310,8 +471,10 @@ instance Epsilon Word64
 --
 -- @since 0.11
 newtype EuclideanPair a = EuclideanPair {euclidPair :: (a, a)}
-  deriving stock
-    (Eq, Show, Generic, Data)
+  deriving stock (Eq, Show)
+#if defined(__GLASGOW_HASKELL__)
+  deriving stock (Generic, Data)
+#endif
 
 instance Functor EuclideanPair where
   fmap f (EuclideanPair (x, y)) = EuclideanPair (f x, f y)
@@ -341,18 +504,29 @@ instance
   where
   recip = fmap recip
 
+#if defined(__GLASGOW_HASKELL__)
 instance (TrigField a) => Direction (EuclideanPair a) where
   type Dir (EuclideanPair a) = a
+#endif
+#if defined(__MHS__)
+instance (TrigField a) => Direction (EuclideanPair a) a where
+#endif
   angle (EuclideanPair (x, y)) = atan2 y x
   ray x = EuclideanPair (cos x, sin x)
 
+#if defined(__GLASGOW_HASKELL__)
 instance
   (ExpField a, Eq a) =>
   Basis (EuclideanPair a)
   where
   type Mag (EuclideanPair a) = a
   type Base (EuclideanPair a) = EuclideanPair a
-
+#endif
+#if defined(__MHS__)
+instance (ExpField a, Eq a, DivisiveAction (EuclideanPair a) a) =>
+  Basis (EuclideanPair a) a (EuclideanPair a)
+  where
+#endif
   magnitude (EuclideanPair (x, y)) = sqrt (x * x + y * y)
   basis p = let m = magnitude p in bool (p |/ m) zero (m == zero)
 
@@ -374,19 +548,34 @@ instance (LowerBounded a) => LowerBounded (EuclideanPair a) where
 instance (UpperBounded a) => UpperBounded (EuclideanPair a) where
   top = pure top
 
-instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
-  type Scalar (EuclideanPair a) = a
-  (|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
-
-instance (Divisive a) => DivisiveAction (EuclideanPair a) where
-  (|/) e s = fmap (/ s) e
-
 instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
   log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
+#if defined(__GLASGOW_HASKELL__)
+instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
+  type Scalar (EuclideanPair a) = a
+#endif
+#if defined(__MHS__)
+instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) a where
+#endif
+  (|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
+
+#if defined(__GLASGOW_HASKELL__)
+instance (Divisive a) => DivisiveAction (EuclideanPair a) where
+#endif
+#if defined(__MHS__)
+instance (Divisive a) => DivisiveAction (EuclideanPair a) a where
+#endif
+  (|/) e s = fmap (/ s) e
+
+#if defined(__GLASGOW_HASKELL__)
 instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
+#endif
+#if defined(__MHS__)
+instance (QuotientField a whole, Subtractive a) => QuotientField (EuclideanPair a) (EuclideanPair whole) where
+#endif
 
   properFraction (EuclideanPair (x, y)) =
     (EuclideanPair (xwhole, ywhole), EuclideanPair (xfrac, yfrac))

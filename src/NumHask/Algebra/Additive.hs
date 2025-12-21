@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
@@ -12,24 +14,33 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Semigroup (Semigroup (..))
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
-import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show, fromInteger)
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
+import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show)
 import Prelude qualified as P
+#if defined(__MHS__)
+import Data.Foldable qualified as P
+import Data.Traversable qualified as P
+#endif
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | or [Addition](https://en.wikipedia.org/wiki/Addition)
 --
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
--- prop> \a -> zero + a == a
--- prop> \a -> a + zero == a
--- prop> \a b c -> (a + b) + c == a + (b + c)
--- prop> \a b -> a + b == b + a
+-- >> \a -> zero + a == a
+-- >> \a -> a + zero == a
+-- >> \a b c -> (a + b) + c == a + (b + c)
+-- >> \a b -> a + b == b + a
 --
 -- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative addition seems a bit dogmatic.
 --
@@ -50,7 +61,7 @@ class Additive a where
 newtype Sum a = Sum
   { getSum :: a
   }
-  deriving (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Show)
 
 instance (Additive a) => P.Semigroup (Sum a) where
   Sum a <> Sum b = Sum (a + b)
@@ -58,7 +69,9 @@ instance (Additive a) => P.Semigroup (Sum a) where
 instance (Additive a) => P.Monoid (Sum a) where
   mempty = Sum zero
 
-deriving instance (Additive a) => Additive (Sum a)
+instance (Additive a) => Additive (Sum a) where
+  zero = Sum zero
+  (Sum a) + (Sum b) = Sum (a + b)
 
 -- | Compute the sum of a 'Data.Foldable.Foldable'.
 --
@@ -76,10 +89,10 @@ accsum = P.snd P.. mapAccumL (\a b -> (a + b, a + b)) zero
 
 -- | or [Subtraction](https://en.wikipedia.org/wiki/Subtraction)
 --
--- prop> \a -> a - a == zero
--- prop> \a -> negate a == zero - a
--- prop> \a -> negate a + a == zero
--- prop> \a -> a + negate a == zero
+-- >> \a -> a - a == zero
+-- >> \a -> negate a == zero - a
+-- >> \a -> negate a + a == zero
+-- >> \a -> a + negate a == zero
 --
 --
 -- >>> negate 1
@@ -132,9 +145,6 @@ instance Additive Bool where
 instance Additive Natural where
   (+) = (P.+)
   zero = 0
-
-instance Subtractive Natural where
-  negate = P.negate
 
 instance Additive Int8 where
   (+) = (P.+)

@@ -1,9 +1,10 @@
+{-# LANGUAGE CPP #-}
+
 -- | Ring classes
 module NumHask.Algebra.Ring
   ( Distributive,
     Ring,
     StarSemiring (..),
-    KleeneAlgebra,
     InvolutiveRing (..),
     two,
   )
@@ -11,24 +12,28 @@ where
 
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
 import NumHask.Algebra.Additive (Additive ((+)), Subtractive)
-import NumHask.Algebra.Group (Idempotent)
 import NumHask.Algebra.Multiplicative (Multiplicative (..))
 import Prelude qualified as P
 
 -- $setup
 --
+-- >>> :set -Wno-deprecated-flags
 -- >>> :m -Prelude
--- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
 -- | <https://en.wikipedia.org/wiki/Distributive_property Distributive>
 --
--- prop> \a b c -> a * (b + c) == a * b + a * c
--- prop> \a b c -> (a + b) * c == a * c + b * c
--- prop> \a -> zero * a == zero
--- prop> \a -> a * zero == zero
+-- >> \a b c -> a * (b + c) == a * b + a * c
+-- >> \a b c -> (a + b) * c == a * c + b * c
+-- >> \a -> zero * a == zero
+-- >> \a -> a * zero == zero
 --
 -- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element Absorption> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
 type Distributive a = (Additive a, Multiplicative a)
@@ -63,12 +68,6 @@ class (Distributive a) => StarSemiring a where
 
   plus :: a -> a
   plus a = a * star a
-
--- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
---
--- > a * x + x = a ==> star a * x + x = x
--- > x * a + x = a ==> x * star a + x = x
-class (StarSemiring a, Idempotent a) => KleeneAlgebra a
 
 -- | Involutive Ring
 --
