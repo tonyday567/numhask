@@ -15,18 +15,10 @@ module NumHask.Algebra.Lattice
   )
 where
 
-import Data.Bool (Bool (..), (&&), (||))
-import Data.Eq (Eq ((==)))
 import Data.Int (Int16, Int32, Int64, Int8)
-import Data.Ord (Ord (..))
 import Data.Word (Word16, Word32, Word64, Word8)
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Enum (Bounded (..))
-import GHC.Float (Double, Float)
-import GHC.Int (Int)
 import GHC.Natural (Natural (..))
-import GHC.Num (Integer)
-import GHC.Word (Word)
 #endif
 #if defined(__MHS__)
 import Data.Bounded (Bounded (..))

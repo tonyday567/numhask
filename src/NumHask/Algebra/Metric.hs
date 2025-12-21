@@ -559,7 +559,7 @@ instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
 #if defined(__MHS__)
 instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) a where
 #endif
-(|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
+  (|*) (EuclideanPair (x, y)) s = EuclideanPair (s * x, s * y)
 
 #if defined(__GLASGOW_HASKELL__)
 instance (Divisive a) => DivisiveAction (EuclideanPair a) where
@@ -574,7 +574,7 @@ instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) whe
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
 #endif
 #if defined(__MHS__)
-instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) a where
+instance (QuotientField a whole, Subtractive a) => QuotientField (EuclideanPair a) (EuclideanPair whole) where
 #endif
 
   properFraction (EuclideanPair (x, y)) =

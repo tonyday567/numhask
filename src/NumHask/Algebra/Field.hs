@@ -200,19 +200,19 @@ class (SemiField a) => QuotientField a whole | a -> whole where
   --
   -- >> round (2.5 :: Double)
   -- 2
-  round :: a -> w
+  round :: a -> whole
 
   -- | supply the next upper whole component
   --
   -- >> ceiling (1.001 :: Double)
   -- 2
-  ceiling :: a -> w
+  ceiling :: a -> whole
 
   -- | supply the previous lower whole component
   --
   -- >> floor (1.001 :: Double)
   -- 1
-  floor :: a -> w
+  floor :: a -> whole
 
   -- | supply the whole component closest to zero
   --
@@ -221,7 +221,7 @@ class (SemiField a) => QuotientField a whole | a -> whole where
   --
   -- >> truncate (-1.001 :: Double)
   -- -1
-  truncate :: a -> w
+  truncate :: a -> whole
 
 instance QuotientField P.Float P.Int where
   properFraction = P.properFraction
