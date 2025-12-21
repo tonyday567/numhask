@@ -108,7 +108,9 @@ instance (P.Ord a, EndoBased a, ToInt a, Integral a, Ring a) => QuotientField (R
 #endif
 
 #if defined(__GLASGOW_HASKELL__)
-instance (P.Ord a, Subtractive (Base (Ratio a)), Multiplicative (Base (Ratio a)), EndoBased a, Absolute (Ratio a), Integral a, Ring a) => Basis (Ratio a) where
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) where
+  type Mag (Ratio a) = Ratio a
+  type Base (Ratio a) = Ratio a
 #endif
 #if defined(__MHS__)
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) (Ratio a) (Ratio a) where

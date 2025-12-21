@@ -19,7 +19,7 @@ import GHC.Natural (Natural (..))
 #if defined(__MHS__)
 import Numeric.Natural (Natural (..))
 #endif
-import Prelude (Double, Eq, Float, Int, Integer, Ord, Show, fromInteger, fromRational)
+import Prelude (Double, Eq, Float, Int, Integer, Ord, Show)
 import Prelude qualified as P
 #if defined(__MHS__)
 import Data.Foldable qualified as P

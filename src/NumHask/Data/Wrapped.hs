@@ -41,6 +41,10 @@ newtype Wrapped a = Wrapped {unWrapped :: a}
       UpperBounded,
 #if defined(__GLASGOW_HASKELL__)
       FromRational,
+      AdditiveAction,
+      SubtractiveAction,
+      MultiplicativeAction,
+      DivisiveAction,
 #endif
       Epsilon)
 
