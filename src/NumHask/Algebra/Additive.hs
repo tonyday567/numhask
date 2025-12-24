@@ -102,6 +102,7 @@ instance Additive Double where
   zero = 0
 
 instance Subtractive Double where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Float where
@@ -109,6 +110,7 @@ instance Additive Float where
   zero = 0
 
 instance Subtractive Float where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Int where
@@ -116,6 +118,7 @@ instance Additive Int where
   zero = 0
 
 instance Subtractive Int where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Integer where
@@ -123,6 +126,7 @@ instance Additive Integer where
   zero = 0
 
 instance Subtractive Integer where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Bool where
@@ -134,6 +138,7 @@ instance Additive Natural where
   zero = 0
 
 instance Subtractive Natural where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Int8 where
@@ -141,6 +146,7 @@ instance Additive Int8 where
   zero = 0
 
 instance Subtractive Int8 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Int16 where
@@ -148,6 +154,7 @@ instance Additive Int16 where
   zero = 0
 
 instance Subtractive Int16 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Int32 where
@@ -155,6 +162,7 @@ instance Additive Int32 where
   zero = 0
 
 instance Subtractive Int32 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Int64 where
@@ -162,6 +170,7 @@ instance Additive Int64 where
   zero = 0
 
 instance Subtractive Int64 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Word where
@@ -169,6 +178,7 @@ instance Additive Word where
   zero = 0
 
 instance Subtractive Word where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Word8 where
@@ -176,6 +186,7 @@ instance Additive Word8 where
   zero = 0
 
 instance Subtractive Word8 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Word16 where
@@ -183,6 +194,7 @@ instance Additive Word16 where
   zero = 0
 
 instance Subtractive Word16 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Word32 where
@@ -190,6 +202,7 @@ instance Additive Word32 where
   zero = 0
 
 instance Subtractive Word32 where
+  (-) = (P.-)
   negate = P.negate
 
 instance Additive Word64 where
@@ -197,6 +210,7 @@ instance Additive Word64 where
   zero = 0
 
 instance Subtractive Word64 where
+  (-) = (P.-)
   negate = P.negate
 
 instance (Additive b) => Additive (a -> b) where
@@ -204,4 +218,5 @@ instance (Additive b) => Additive (a -> b) where
   zero _ = zero
 
 instance (Subtractive b) => Subtractive (a -> b) where
+  f - f' = \a -> f a - f' a
   negate f = negate P.. f

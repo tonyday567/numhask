@@ -326,6 +326,7 @@ instance (Additive a) => Additive (EuclideanPair a) where
   zero = pure zero
 
 instance (Subtractive a) => Subtractive (EuclideanPair a) where
+  (-) = liftA2 (-)
   negate = fmap negate
 
 instance
