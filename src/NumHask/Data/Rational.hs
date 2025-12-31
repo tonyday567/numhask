@@ -107,6 +107,9 @@ instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => MeetSemiLattice (R
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
 
+instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
+  fromInteger x = fromInteger x :% one
+
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
   fromIntegral x = fromIntegral x :% one
 
