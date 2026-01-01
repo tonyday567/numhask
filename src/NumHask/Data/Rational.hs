@@ -10,6 +10,8 @@ module NumHask.Data.Rational
     FromRational (..),
     reduce,
     gcd,
+    numerator,
+    denominator,
   )
 where
 
@@ -40,6 +42,12 @@ data Ratio a = !a :% !a deriving (P.Show)
 
 -- | Ratio of two integers
 type Rational = Ratio Integer
+
+numerator :: Ratio a -> a
+numerator (a :% _) = a
+
+denominator :: Ratio a -> a
+denominator (_ :% a) = a
 
 instance (P.Eq a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)

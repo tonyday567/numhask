@@ -113,6 +113,8 @@ module NumHask
     FromRational (..),
     reduce,
     gcd,
+    numerator,
+    denominator,
 
     -- * Exceptions
     NumHaskException (..),
@@ -212,6 +214,8 @@ import NumHask.Data.Rational
     ToRatio (..),
     gcd,
     reduce,
+    numerator,
+    denominator,
   )
 import NumHask.Exception (NumHaskException (..), throw)
 
