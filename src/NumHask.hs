@@ -69,6 +69,7 @@ module NumHask
     DivisiveAction (..),
     (/|),
     Module,
+    TrivialAction (..),
 
     -- * Metric
     Basis (..),
@@ -132,6 +133,7 @@ import NumHask.Algebra.Action
     (+|),
     (-|),
     (/|),
+    TrivialAction (..),
   )
 import NumHask.Algebra.Additive
   ( Additive (..),
