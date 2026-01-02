@@ -93,6 +93,7 @@ module NumHask
     (+:),
     realPart,
     imagPart,
+    normSquared,
 
     -- * Integral
     Integral (..),
@@ -195,7 +196,13 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Data.Complex (Complex (..), imagPart, realPart, (+:))
+import NumHask.Data.Complex
+  ( Complex (..),
+    imagPart,
+    realPart,
+    (+:),
+    normSquared,
+  )
 import NumHask.Data.Integral
   ( FromInt,
     FromInteger (..),

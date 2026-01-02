@@ -8,6 +8,7 @@ module NumHask.Data.Complex
     (+:),
     realPart,
     imagPart,
+    normSquared,
   )
 where
 
@@ -131,3 +132,8 @@ instance (Subtractive a, QuotientField a) => QuotientField (Complex a) where
   ceiling (Complex (x, y)) = Complex (ceiling x, ceiling y)
   floor (Complex (x, y)) = Complex (floor x, floor y)
   truncate (Complex (x, y)) = Complex (truncate x, truncate y)
+
+-- | The squared norm: frequently useful, and doesn't require the
+-- ability to take square roots.
+normSquared :: Distributive a => Complex a -> a
+normSquared (Complex (x, y)) = x*x + y*y
