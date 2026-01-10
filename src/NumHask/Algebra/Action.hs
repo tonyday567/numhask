@@ -13,14 +13,15 @@ module NumHask.Algebra.Action
     DivisiveAction (..),
     (/|),
     Module,
+    TrivialAction (..),
   )
 where
 
 import Data.Kind (Type)
-import NumHask.Algebra.Additive (Additive, Subtractive, negate)
-import NumHask.Algebra.Multiplicative (Divisive, Multiplicative, recip)
+import NumHask.Algebra.Additive (Additive(..), Subtractive(..))
+import NumHask.Algebra.Multiplicative (Divisive(..), Multiplicative(..))
 import NumHask.Algebra.Ring (Distributive)
-import Prelude (flip)
+import Prelude (flip, Eq, Ord)
 
 -- | Additive Action
 --
@@ -110,3 +111,22 @@ a /| b = a *| recip b
 -- > a *| zero == zero
 -- > a *| b == b |* a
 type Module m = (Distributive (Scalar m), MultiplicativeAction m)
+
+-- | An action of a set of numbers on itself
+newtype TrivialAction a = TrivialAction {
+  getTrivialAction :: a
+} deriving (Eq, Ord, Additive, Subtractive, Multiplicative, Divisive)
+
+instance Additive a => AdditiveAction (TrivialAction a) where
+  type AdditiveScalar (TrivialAction a) = a
+  TrivialAction a |+ b = TrivialAction (a + b)
+
+instance Subtractive a => SubtractiveAction (TrivialAction a) where
+  TrivialAction a |- b = TrivialAction (a - b)
+
+instance Multiplicative a => MultiplicativeAction (TrivialAction a) where
+  type Scalar (TrivialAction a) = a
+  TrivialAction a |* b = TrivialAction (a * b)
+
+instance Divisive a => DivisiveAction (TrivialAction a) where
+  TrivialAction a |/ b = TrivialAction (a / b)

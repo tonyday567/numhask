@@ -421,6 +421,10 @@ instance FromInteger Word32 where
 instance FromInteger Word64 where
   fromInteger = P.fromInteger
 
+deriving instance FromInteger a => FromInteger (Sum a)
+
+deriving instance FromInteger a => FromInteger (Product a)
+
 infixr 8 ^^
 
 -- | raise a number to an 'Integral' power

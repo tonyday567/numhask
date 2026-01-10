@@ -10,6 +10,8 @@ module NumHask.Data.Rational
     FromRational (..),
     reduce,
     gcd,
+    numerator,
+    denominator,
   )
 where
 
@@ -40,6 +42,12 @@ data Ratio a = !a :% !a deriving (P.Show)
 
 -- | Ratio of two integers
 type Rational = Ratio Integer
+
+numerator :: Ratio a -> a
+numerator (a :% _) = a
+
+denominator :: Ratio a -> a
+denominator (_ :% a) = a
 
 instance (P.Eq a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)
@@ -106,6 +114,9 @@ instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => MeetSemiLattice (R
   (/\) = P.max
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
+
+instance (FromInteger a, Multiplicative a) => FromInteger (Ratio a) where
+  fromInteger x = fromInteger x :% one
 
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
   fromIntegral x = fromIntegral x :% one

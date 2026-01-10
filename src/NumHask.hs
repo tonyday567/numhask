@@ -69,6 +69,7 @@ module NumHask
     DivisiveAction (..),
     (/|),
     Module,
+    TrivialAction (..),
 
     -- * Metric
     Basis (..),
@@ -92,6 +93,7 @@ module NumHask
     (+:),
     realPart,
     imagPart,
+    normSquared,
 
     -- * Integral
     Integral (..),
@@ -113,6 +115,8 @@ module NumHask
     FromRational (..),
     reduce,
     gcd,
+    numerator,
+    denominator,
 
     -- * Exceptions
     NumHaskException (..),
@@ -130,6 +134,7 @@ import NumHask.Algebra.Action
     (+|),
     (-|),
     (/|),
+    TrivialAction (..),
   )
 import NumHask.Algebra.Additive
   ( Additive (..),
@@ -191,7 +196,13 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Data.Complex (Complex (..), imagPart, realPart, (+:))
+import NumHask.Data.Complex
+  ( Complex (..),
+    imagPart,
+    realPart,
+    (+:),
+    normSquared,
+  )
 import NumHask.Data.Integral
   ( FromInt,
     FromInteger (..),
@@ -212,6 +223,8 @@ import NumHask.Data.Rational
     ToRatio (..),
     gcd,
     reduce,
+    numerator,
+    denominator,
   )
 import NumHask.Exception (NumHaskException (..), throw)
 
