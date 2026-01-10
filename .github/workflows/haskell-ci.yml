@@ -84,6 +84,7 @@ jobs:
         run: cabal check
 
       - name: cabal-docspec
+        if: matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.14'
         run: |
           mkdir -p $HOME/.cabal/bin
           echo "$HOME/.cabal/bin" >> $GITHUB_PATH
