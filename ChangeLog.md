@@ -1,3 +1,9 @@
+0.13.2.1
+===
+
+- removed doctest-parallel test suite, use cabal-docspec in CI instead
+- updated CI to use cabal-docspec 0.0.0.20250606
+
 0.13.2
 ===
 

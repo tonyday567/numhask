@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.13.2.0
+version: 0.13.2.1
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
@@ -73,16 +73,3 @@ library
 
   default-extensions: RebindableSyntax
 
-test-suite doctests
-  import: ghc-options-stanza
-  default-language: GHC2024
-  main-is: doctests.hs
-  hs-source-dirs: test
-  build-depends:
-    QuickCheck >=2.14 && <2.17,
-    base >=4.14 && <5,
-    doctest-parallel >=0.3 && <0.5,
-
-  default-extensions: RebindableSyntax
-  ghc-options: -threaded
-  type: exitcode-stdio-1.0
