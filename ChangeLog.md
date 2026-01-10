@@ -1,3 +1,10 @@
+0.13.2
+===
+
+- GHC 9.14.1 support
+- simplified Cabal stanzas to best practice template
+- fixed asinh bug in Field module
+
 0.13.1
 ===
 

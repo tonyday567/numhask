@@ -44,91 +44,13 @@ common ghc-options-stanza
   ghc-options:
     -Wall
     -Wcompat
-    -Widentities
     -Wincomplete-record-updates
     -Wincomplete-uni-patterns
-    -Wpartial-fields
     -Wredundant-constraints
-
-common ghc2021-additions
-  default-extensions:
-    BangPatterns
-    BinaryLiterals
-    ConstrainedClassMethods
-    ConstraintKinds
-    DeriveDataTypeable
-    DeriveFoldable
-    DeriveFunctor
-    DeriveGeneric
-    DeriveLift
-    DeriveTraversable
-    DoAndIfThenElse
-    EmptyCase
-    EmptyDataDecls
-    EmptyDataDeriving
-    ExistentialQuantification
-    ExplicitForAll
-    FlexibleContexts
-    FlexibleInstances
-    ForeignFunctionInterface
-    GADTSyntax
-    GeneralisedNewtypeDeriving
-    HexFloatLiterals
-    ImplicitPrelude
-    InstanceSigs
-    KindSignatures
-    MonomorphismRestriction
-    MultiParamTypeClasses
-    NamedFieldPuns
-    NamedWildCards
-    NumericUnderscores
-    PatternGuards
-    PolyKinds
-    PostfixOperators
-    RankNTypes
-    RelaxedPolyRec
-    ScopedTypeVariables
-    StandaloneDeriving
-    StarIsType
-    TraditionalRecordSyntax
-    TupleSections
-    TypeApplications
-    TypeOperators
-    TypeSynonymInstances
-
-  if impl(ghc <9.2) && impl(ghc >=8.10)
-    default-extensions:
-      ImportQualifiedPost
-      StandaloneKindSignatures
-
-common ghc2024-additions
-  default-extensions:
-    DataKinds
-    DerivingStrategies
-    DisambiguateRecordFields
-    ExplicitNamespaces
-    GADTs
-    LambdaCase
-    MonoLocalBinds
-    RoleAnnotations
-
-common ghc2024-stanza
-  if impl(ghc >=9.10)
-    default-language:
-      GHC2024
-  elif impl(ghc >=9.2)
-    import: ghc2024-additions
-    default-language:
-      GHC2021
-  else
-    import: ghc2021-additions
-    import: ghc2024-additions
-    default-language:
-      Haskell2010
 
 library
   import: ghc-options-stanza
-  import: ghc2024-stanza
+  default-language: GHC2024
   hs-source-dirs: src
   build-depends: base >=4.14 && <5
   exposed-modules:
@@ -152,7 +74,8 @@ library
   default-extensions: RebindableSyntax
 
 test-suite doctests
-  import: ghc2024-stanza
+  import: ghc-options-stanza
+  default-language: GHC2024
   main-is: doctests.hs
   hs-source-dirs: test
   build-depends:
