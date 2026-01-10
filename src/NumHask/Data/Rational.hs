@@ -105,7 +105,7 @@ instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => JoinSemiLattice (R
 instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => MeetSemiLattice (Ratio a) where
   (/\) = P.max
 
-instance (P.Ord a, EndoBased a, Integral a, Ring a, MeetSemiLattice a) => Epsilon (Ratio a)
+instance (P.Ord a, EndoBased a, Integral a, Ring a) => Epsilon (Ratio a)
 
 instance (FromIntegral a b, Multiplicative a) => FromIntegral (Ratio a) b where
   fromIntegral x = fromIntegral x :% one

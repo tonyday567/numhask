@@ -38,7 +38,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Ord (..), Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Show, Word, fromRational)
 import Prelude qualified as P
 
 -- $setup
@@ -337,7 +337,7 @@ instance
   one = pure one
 
 instance
-  (Subtractive a, Divisive a) =>
+  (Divisive a) =>
   Divisive (EuclideanPair a)
   where
   recip = fmap recip
@@ -382,11 +382,11 @@ instance (Multiplicative a) => MultiplicativeAction (EuclideanPair a) where
 instance (Divisive a) => DivisiveAction (EuclideanPair a) where
   (|/) e s = fmap (/ s) e
 
-instance (Ord a, TrigField a, ExpField a) => ExpField (EuclideanPair a) where
+instance (TrigField a, ExpField a) => ExpField (EuclideanPair a) where
   exp (EuclideanPair (x, y)) = EuclideanPair (exp x * cos y, exp x * sin y)
   log (EuclideanPair (x, y)) = EuclideanPair (log (sqrt (x * x + y * y)), atan2 y x)
 
-instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) where
+instance (QuotientField a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
 
   properFraction (EuclideanPair (x, y)) =
