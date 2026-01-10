@@ -30,13 +30,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        ghc-version: ['9.12', '9.10', '9.8', '9.6','8.10']
+        ghc-version: ['9.14', '9.12', '9.10']
 
         include:
           - os: windows-latest
-            ghc-version: '9.12'
+            ghc-version: '9.14'
           - os: macos-latest
-            ghc-version: '9.12'
+            ghc-version: '9.14'
 
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
       - name: Build
         run: cabal build all
 
-      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.12'}}
+      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.14'}}
         name: doctests
         run: cabal run doctests
 

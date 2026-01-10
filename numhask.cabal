@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.13.1.0
+version: 0.13.2.0
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
@@ -27,11 +27,9 @@ description:
 
 build-type: Simple
 tested-with:
-  ghc ==8.10.7
-  ghc ==9.6.7
-  ghc ==9.8.4
-  ghc ==9.10.2
+  ghc ==9.10.3
   ghc ==9.12.2
+  ghc ==9.14.1
 
 extra-doc-files:
   ChangeLog.md
