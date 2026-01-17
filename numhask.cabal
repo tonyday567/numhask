@@ -58,12 +58,10 @@ library
     NumHask.Algebra.Action
     NumHask.Algebra.Additive
     NumHask.Algebra.Field
-    NumHask.Algebra.Group
     NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
-    NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.Positive
     NumHask.Data.Rational

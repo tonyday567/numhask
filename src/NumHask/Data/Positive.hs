@@ -74,10 +74,6 @@ newtype Positive a = UnsafePositive {unPositive :: a}
   deriving
     (
 #if defined(__GLASGOW_HASKELL__)
-      AdditiveAction,
-      SubtractiveAction,
-      MultiplicativeAction,
-      DivisiveAction,
 #endif
       Integral,
       FromInteger,
