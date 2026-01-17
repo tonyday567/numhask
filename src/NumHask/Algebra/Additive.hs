@@ -1,3 +1,6 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE RebindableSyntax #-}
+
 -- | Additive classes
 module NumHask.Algebra.Additive
   ( Additive (..),
@@ -12,9 +15,18 @@ import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Semigroup (Semigroup (..))
 import Data.Traversable (mapAccumL)
 import Data.Word (Word, Word16, Word32, Word64, Word8)
+#if defined(__GLASGOW_HASKELL__)
 import GHC.Natural (Natural (..))
-import Prelude (Bool, Double, Eq, Float, Int, Integer, Ord, Show, fromInteger)
+#endif
+#if defined(__MHS__)
+import Numeric.Natural (Natural (..))
+#endif
+import Prelude (fromRational, fromInteger, Bool, Double, Eq, Float, Int, Integer, Ord, Show)
 import Prelude qualified as P
+#if defined(__MHS__)
+import Data.Foldable qualified as P
+import Data.Traversable qualified as P
+#endif
 
 -- $setup
 --
@@ -99,7 +111,7 @@ class (Additive a) => Subtractive a where
 
 instance Additive Double where
   (+) = (P.+)
-  zero = 0
+  zero = 0.0
 
 instance Subtractive Double where
   (-) = (P.-)
@@ -107,7 +119,7 @@ instance Subtractive Double where
 
 instance Additive Float where
   (+) = (P.+)
-  zero = 0
+  zero = 0.0
 
 instance Subtractive Float where
   (-) = (P.-)
