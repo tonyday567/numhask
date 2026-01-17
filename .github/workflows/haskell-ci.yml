@@ -52,13 +52,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        ghc-version: ['9.12', '9.10', '9.8', '9.6','8.10']
+        ghc-version: ['9.14', '9.12', '9.10']
 
         include:
           - os: windows-latest
-            ghc-version: '9.12'
+            ghc-version: '9.14'
           - os: macos-latest
-            ghc-version: '9.12'
+            ghc-version: '9.14'
 
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
 
       - name: Configure the build
         run: |
-          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal configure --enable-benchmarks --disable-documentation
           cabal build --dry-run
         # The last step generates dist-newstyle/cache/plan.json for the cache key.
 
@@ -102,9 +102,17 @@ jobs:
       - name: Build
         run: cabal build all
 
-      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.12'}}
-        name: doctests
-        run: cabal run doctests
-
       - name: Check cabal file
         run: cabal check
+
+      - name: cabal-docspec
+        if: matrix.os == 'ubuntu-latest' && matrix.ghc-version == '9.14'
+        run: |
+          mkdir -p $HOME/.cabal/bin
+          echo "$HOME/.cabal/bin" >> $GITHUB_PATH
+          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20250606/cabal-docspec-0.0.0.20250606-x86_64-linux.xz > cabal-docspec.xz
+          xz -d < cabal-docspec.xz > $HOME/.cabal/bin/cabal-docspec
+          rm -f cabal-docspec.xz
+          chmod a+x $HOME/.cabal/bin/cabal-docspec
+          $HOME/.cabal/bin/cabal-docspec --version
+          cabal-docspec

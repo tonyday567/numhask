@@ -1,3 +1,16 @@
+0.13.2.1
+===
+
+- removed doctest-parallel test suite, use cabal-docspec in CI instead
+- updated CI to use cabal-docspec 0.0.0.20250606
+
+0.13.2
+===
+
+- GHC 9.14.1 support
+- simplified Cabal stanzas to best practice template
+- fixed asinh bug in Field module
+
 0.13.1
 ===
 

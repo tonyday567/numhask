@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: numhask
-version: 0.13.1.0
+version: 0.13.2.1
 license: BSD-3-Clause
 license-file: LICENSE
 copyright: Tony Day (c) 2016
@@ -27,11 +27,9 @@ description:
 
 build-type: Simple
 tested-with:
-  ghc ==8.10.7
-  ghc ==9.6.7
-  ghc ==9.8.4
-  ghc ==9.10.2
+  ghc ==9.10.3
   ghc ==9.12.2
+  ghc ==9.14.1
 
 extra-doc-files:
   ChangeLog.md
@@ -46,276 +44,26 @@ common ghc-options-stanza
   ghc-options:
     -Wall
     -Wcompat
-    -Widentities
     -Wincomplete-record-updates
     -Wincomplete-uni-patterns
-    -Wpartial-fields
     -Wredundant-constraints
-    -Wno-deprecated-flags
-
-common ghc-mhs-intersection
-  default-extensions:
-    BangPatterns
-    BinaryLiterals
-    ConstraintKinds
-    DeriveDataTypeable
-    DerivingStrategies
-    DoAndIfThenElse
-    EmptyCase
-    EmptyDataDecls
-    EmptyDataDeriving
-    ExistentialQuantification
-    ExplicitNamespaces
-    FlexibleContexts
-    FlexibleInstances
-    ForeignFunctionInterface
-    GADTSyntax
-    GADTs
-    ImportQualifiedPost
-    InstanceSigs
-    KindSignatures
-    LambdaCase
-    MonoLocalBinds
-    MultiParamTypeClasses
-    NamedFieldPuns
-    NumericUnderscores
-    PolyKinds
-    RankNTypes
-    ScopedTypeVariables
-    StandaloneDeriving
-    StandaloneKindSignatures
-    TupleSections
-    TypeApplications
-    TypeSynonymInstances
-
-common ghc-mhs-difference
-  default-extensions:
-    ConstrainedClassMethods
-    DataKinds
-    DeriveFoldable
-    DeriveFunctor
-    DeriveGeneric
-    DeriveLift
-    DeriveTraversable
-    DisambiguateRecordFields
-    ExplicitForAll
-    GeneralisedNewtypeDeriving
-    HexFloatLiterals
-    ImplicitPrelude
-    MonomorphismRestriction
-    NamedWildCards
-    PatternGuards
-    PostfixOperators
-    RelaxedPolyRec
-    RoleAnnotations
-    StarIsType
-    TraditionalRecordSyntax
-    TypeOperators
-
-common mhs-ghc-difference
-  default-extensions:
-    AllowAmbiguousTypes
-    BlockArguments
-    DefaultSignatures
-    DeriveAnyClass
-    DerivingVia
-    DuplicateRecordFields
-    ExtendedDefaultRules
-    FunctionalDependencies
-    GeneralizedNewtypeDeriving
-    IncoherentInstances
-    LiberalTypeSynonyms
-    MagicHash
-    MultiWayIf
-    MultilineStrings
-    NamedDefaults
-    NegativeLiterals
-    NoMonomorphismRestriction
-    NoStarIsType
-    NondecreasingIndentation
-    OrPatterns
-    OverlappingInstances
-    OverloadedRecordDot
-    OverloadedRecordUpdate
-    OverloadedStrings
-    PatternSynonyms
-    PolymorphicComponents
-    QualifiedDo
-    RecordWildCards
-    RecursiveDo
-    RequiredTypeArguments
-    UndecidableInstances
-    UndecidableSuperClasses
-    UnicodeSyntax
-    ViewPatterns
-
-common ghc2021-additions
-  default-extensions:
-    BangPatterns
-    BinaryLiterals
-    ConstrainedClassMethods
-    ConstraintKinds
-    DeriveDataTypeable
-    DeriveFoldable
-    DeriveFunctor
-    DeriveGeneric
-    DeriveLift
-    DeriveTraversable
-    DoAndIfThenElse
-    EmptyCase
-    EmptyDataDecls
-    EmptyDataDeriving
-    ExistentialQuantification
-    ExplicitForAll
-    FlexibleContexts
-    FlexibleInstances
-    ForeignFunctionInterface
-    GADTSyntax
-    GeneralisedNewtypeDeriving
-    HexFloatLiterals
-    ImplicitPrelude
-    InstanceSigs
-    KindSignatures
-    MonomorphismRestriction
-    MultiParamTypeClasses
-    NamedFieldPuns
-    NamedWildCards
-    NumericUnderscores
-    PatternGuards
-    PolyKinds
-    PostfixOperators
-    RankNTypes
-    RelaxedPolyRec
-    ScopedTypeVariables
-    StandaloneDeriving
-    StarIsType
-    TraditionalRecordSyntax
-    TupleSections
-    TypeApplications
-    TypeOperators
-    TypeSynonymInstances
-
-  if impl(ghc <9.2) && impl(ghc >=8.10)
-    default-extensions:
-      ImportQualifiedPost
-      StandaloneKindSignatures
-
-common ghc2024-additions
-  default-extensions:
-    DataKinds
-    DerivingStrategies
-    DisambiguateRecordFields
-    ExplicitNamespaces
-    GADTs
-    LambdaCase
-    MonoLocalBinds
-    RoleAnnotations
-
-common mhs2024-additions
-  default-extensions:
-    AllowAmbiguousTypes
-    BangPatterns
-    BinaryLiterals
-    BlockArguments
-    ConstraintKinds
-    DefaultSignatures
-    DeriveAnyClass
-    DeriveDataTypeable
-    DerivingStrategies
-    DerivingVia
-    DoAndIfThenElse
-    DuplicateRecordFields
-    EmptyCase
-    EmptyDataDecls
-    EmptyDataDeriving
-    ExistentialQuantification
-    ExplicitNamespaces
-    ExtendedDefaultRules
-    FlexibleContexts
-    FlexibleInstances
-    ForeignFunctionInterface
-    FunctionalDependencies
-    GADTs
-    GADTSyntax
-    GeneralizedNewtypeDeriving
-    ImportQualifiedPost
-    IncoherentInstances
-    InstanceSigs
-    KindSignatures
-    LambdaCase
-    LiberalTypeSynonyms
-    MagicHash
-    MonoLocalBinds
-    MultilineStrings
-    MultiParamTypeClasses
-    MultiWayIf
-    NamedDefaults
-    NamedFieldPuns
-    NegativeLiterals
-    NoMonomorphismRestriction
-    NondecreasingIndentation
-    NoStarIsType
-    NumericUnderscores
-    OrPatterns
-    -- OverlappingInstances
-    OverloadedRecordDot
-    OverloadedRecordUpdate
-    OverloadedStrings
-    PatternSynonyms
-    PolyKinds
-    PolymorphicComponents
-    RankNTypes
-    RecordWildCards
-    RecursiveDo
-    RequiredTypeArguments
-    QualifiedDo
-    ScopedTypeVariables
-    StandaloneDeriving
-    StandaloneKindSignatures
-    TupleSections
-    TypeApplications
-    TypeSynonymInstances
-    UndecidableInstances
-    UndecidableSuperClasses
-    UnicodeSyntax
-    ViewPatterns
-
-common ghc2024-stanza
-  if impl(ghc >=9.10)
-    default-language:
-      GHC2024
-  elif impl(ghc >=9.2)
-    import: ghc2024-additions
-    default-language:
-      GHC2021
-  elif impl(ghc <9.2)
-    import: ghc2021-additions
-    import: ghc2024-additions
-    default-language:
-      Haskell2010
-  else
-    import: mhs2024-additions
-    default-language:
-      Haskell2010
 
 library
   import: ghc-options-stanza
-  import: ghc2024-stanza
-  import: mhs-ghc-difference
+  default-language: GHC2024
   hs-source-dirs: src
-  build-depends:
-    base >=4.14 && <5,
-    containers,
-
+  build-depends: base >=4.14 && <5
   exposed-modules:
     NumHask
     NumHask.Algebra.Action
     NumHask.Algebra.Additive
     NumHask.Algebra.Field
+    NumHask.Algebra.Group
     NumHask.Algebra.Lattice
     NumHask.Algebra.Metric
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Ring
+    NumHask.Data.Complex
     NumHask.Data.Integral
     NumHask.Data.Positive
     NumHask.Data.Rational
@@ -323,14 +71,5 @@ library
     NumHask.Exception
     NumHask.Prelude
 
-test-suite doctests
-  import: ghc2024-stanza
-  main-is: doctests.hs
-  hs-source-dirs: test
-  build-depends:
-    QuickCheck >=2.14 && <2.17,
-    base >=4.14 && <5,
-    doctest-parallel >=0.3 && <0.5,
+  default-extensions: RebindableSyntax
 
-  ghc-options: -threaded
-  type: exitcode-stdio-1.0
