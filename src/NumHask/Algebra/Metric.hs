@@ -574,7 +574,7 @@ instance (QuotientField a) => QuotientField (EuclideanPair a) where
   type Whole (EuclideanPair a) = EuclideanPair (Whole a)
 #endif
 #if defined(__MHS__)
-instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) a where
+-- instance (QuotientField a, Subtractive a) => QuotientField (EuclideanPair a) a where
 #endif
 
   properFraction (EuclideanPair (x, y)) =
