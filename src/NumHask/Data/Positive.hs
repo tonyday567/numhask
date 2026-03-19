@@ -18,6 +18,7 @@ where
 import Control.Category ((>>>))
 import Data.Bool (bool)
 import Data.Maybe
+import Numeric.Natural (Natural, minusNaturalMaybe)
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
@@ -163,6 +164,23 @@ class Monus a where
   (∸) :: a -> a -> a
   default (∸) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
   a ∸ b = bottom /\ (a - b)
+
+-- | A newtype wrapper intended for defining Monus instances by:
+-- "x ∸ y = if x < y then zero else x - y"
+newtype MonusFromOrd a = MonusFromOrd a
+  deriving (Eq, Ord, Additive, Subtractive)
+
+instance (Ord a, Subtractive a) => Monus (MonusFromOrd a) where
+  x ∸ y
+    | x P.< y     = zero
+    | P.otherwise = x - y
+
+-- | It appears that Haskell doesn't have any built in truncated
+-- subtraction operation for Word
+deriving via MonusFromOrd P.Word instance Monus P.Word
+
+instance Monus Natural where
+  x ∸ y = fromMaybe 0 (minusNaturalMaybe x y)
 
 -- | Truncated addition
 --
