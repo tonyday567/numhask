@@ -18,7 +18,6 @@ where
 import Control.Category ((>>>))
 import Data.Bool (bool)
 import Data.Maybe
-import Numeric.Natural (Natural, minusNaturalMaybe)
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Field
@@ -29,6 +28,7 @@ import NumHask.Algebra.Ring
 import NumHask.Data.Integral
 import NumHask.Data.Rational
 import NumHask.Data.Wrapped
+import Numeric.Natural (Natural, minusNaturalMaybe)
 import Prelude (Eq, Ord, Show)
 import Prelude qualified as P
 
@@ -172,7 +172,7 @@ newtype MonusFromOrd a = MonusFromOrd a
 
 instance (Ord a, Subtractive a) => Monus (MonusFromOrd a) where
   x ∸ y
-    | x P.< y     = zero
+    | x P.< y = zero
     | P.otherwise = x - y
 
 -- | It appears that Haskell doesn't have any built in truncated

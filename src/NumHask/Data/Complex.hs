@@ -135,5 +135,5 @@ instance (Subtractive a, QuotientField a) => QuotientField (Complex a) where
 
 -- | The squared norm: frequently useful, and doesn't require the
 -- ability to take square roots.
-normSquared :: Distributive a => Complex a -> a
-normSquared (Complex (x, y)) = x*x + y*y
+normSquared :: (Distributive a) => Complex a -> a
+normSquared (Complex (x, y)) = x * x + y * y
