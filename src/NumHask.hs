@@ -130,11 +130,11 @@ import NumHask.Algebra.Action
     Module,
     MultiplicativeAction (..),
     SubtractiveAction (..),
+    TrivialAction (..),
     (*|),
     (+|),
     (-|),
     (/|),
-    TrivialAction (..),
   )
 import NumHask.Algebra.Additive
   ( Additive (..),
@@ -199,9 +199,9 @@ import NumHask.Algebra.Ring
 import NumHask.Data.Complex
   ( Complex (..),
     imagPart,
+    normSquared,
     realPart,
     (+:),
-    normSquared,
   )
 import NumHask.Data.Integral
   ( FromInt,
@@ -221,10 +221,10 @@ import NumHask.Data.Rational
     Ratio (..),
     Rational,
     ToRatio (..),
-    gcd,
-    reduce,
-    numerator,
     denominator,
+    gcd,
+    numerator,
+    reduce,
   )
 import NumHask.Exception (NumHaskException (..), throw)
 
