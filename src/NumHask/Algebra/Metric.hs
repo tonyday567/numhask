@@ -38,7 +38,7 @@ import NumHask.Algebra.Field
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Show, Word, fromRational)
+import Prelude (Double, Eq (..), Float, Functor (..), Int, Integer, Read, Show, Word, fromRational)
 import Prelude qualified as P
 
 -- $setup
@@ -221,7 +221,7 @@ class (Distributive coord, Distributive (Dir coord)) => Direction coord where
 --
 -- See [Polar coordinate system](https://en.wikipedia.org/wiki/Polar_coordinate_system)
 data Polar a = Polar {radial :: a, azimuth :: a}
-  deriving (Eq, Show, Generic, Data)
+  deriving (Eq, Show, Read, Generic, Data)
 
 instance (Additive a, Multiplicative a) => Basis (Polar a) where
   type Mag (Polar a) = a

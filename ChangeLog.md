@@ -1,3 +1,8 @@
+0.13.3.0
+===
+
+- Added `Read` instance for `Polar` in `NumHask.Algebra.Metric`.
+
 0.13.2.1
 ===
 
