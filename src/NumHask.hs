@@ -36,6 +36,9 @@ module NumHask
     InvolutiveRing (..),
     two,
 
+    -- * Tropical
+    MinPlus (..),
+
     -- * Field
     Field,
     ExpField (..),
@@ -196,6 +199,7 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
+import NumHask.Algebra.Tropical (MinPlus (..))
 import NumHask.Data.Complex
   ( Complex (..),
     imagPart,
