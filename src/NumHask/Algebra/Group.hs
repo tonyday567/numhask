@@ -40,6 +40,12 @@ class Magma a where
 instance (Magma b) => Magma (a -> b) where
   f ⊕ g = \a -> f a ⊕ g a
 
+instance Magma Bool where
+  a ⊕ b = a || b
+
+instance Unital Bool where
+  unit = False
+
 -- | A Unital Magma is a magma with an
 --   <https://en.wikipedia.org/wiki/Identity_element identity element> (the
 --   unit).
@@ -115,6 +121,8 @@ class
   Idempotent a
 
 instance (Idempotent b) => Idempotent (a -> b)
+
+instance Idempotent Bool
 
 -- | An <https://en.wikipedia.org/wiki/Abelian_group Abelian Group> is an
 --   Associative, Unital, Invertible and Commutative Magma . In other words, it

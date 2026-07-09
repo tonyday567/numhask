@@ -2,6 +2,10 @@
 ===
 
 - Added `Read` instance for `Polar` in `NumHask.Algebra.Metric`.
+- Added `NumHask.Algebra.Tropical` with the `MinPlus` tropical semiring.
+- Added `StarSemiring` and `KleeneAlgebra` instances for `Bool`.
+- Added `Magma`, `Unital` and `Idempotent` instances for `Bool`.
+- Documented `StarSemiring` and `KleeneAlgebra` laws with the Conway equations.
 
 0.13.2.1
 ===

@@ -52,9 +52,13 @@ type Distributive a = (Additive a, Multiplicative a)
 -- > \a -> a * zero == zero
 type Ring a = (Distributive a, Subtractive a)
 
--- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with an additional unary operator (star) satisfying:
+-- | A <https://en.wikipedia.org/wiki/Semiring#Star_semirings StarSemiring> is a semiring with a unary star operator satisfying the Conway equations:
 --
--- > \a -> star a == one + a * star a
+-- > \a -> star a == one + a * star a                                  -- fixpoint
+-- > \a b -> star (a * b) == one + a * star (b * a) * b                -- product-star (sliding)
+-- > \a b -> star (a + b) == star (star a * b) * star a                -- sum-star (vanishing)
+--
+-- These three equations are the doctestable core; they are exactly the sliding and vanishing axioms of a traced category in semiring clothing.
 class (Distributive a) => StarSemiring a where
   {-# MINIMAL star | plus #-}
 
@@ -66,9 +70,26 @@ class (Distributive a) => StarSemiring a where
 
 -- | A <https://en.wikipedia.org/wiki/Kleene_algebra Kleene Algebra> is a Star Semiring with idempotent addition.
 --
--- > a * x + x = a ==> star a * x + x = x
--- > x * a + x = a ==> x * star a + x = x
+-- Idempotent addition gives a natural order @a <= b ⟺ a + b == b@. In that order, Kozen's induction laws hold as derived facts:
+--
+-- > a * x + x <= x  ==>  star a * x + x <= x
+-- > x * a + x <= x  ==>  x * star a + x <= x
+--
+-- They are stated here as prose rather than class laws because they involve a partial order and Horn clauses, which do not fit the equational/doctest style of the Conway core.
 class (StarSemiring a, Idempotent a) => KleeneAlgebra a
+
+instance StarSemiring P.Bool where
+  star _ = P.True
+
+instance KleeneAlgebra P.Bool
+
+-- | Conway equations for 'Bool'.
+--
+-- >>> let a = False; b = True in star (a * b) == one + a * star (b * a) * b
+-- True
+--
+-- >>> let a = False; b = True in star (a + b) == star (star a * b) * star a
+-- True
 
 -- | Involutive Ring
 --
