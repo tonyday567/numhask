@@ -1,5 +1,5 @@
-{-# LANGUAGE NoRebindableSyntax #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE NoRebindableSyntax #-}
 
 -- | Concrete semiring carriers useful for demonstrating
 -- 'NumHask.Algebra.Ring.StarSemiring'.

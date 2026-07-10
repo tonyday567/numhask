@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | Free ring — the initial encoding of 'Ring'.
 module NumHask.Free.Ring
   ( Ring (..),

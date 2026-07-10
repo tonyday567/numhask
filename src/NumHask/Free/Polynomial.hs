@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | Polynomial normal forms for 'Ring' terms.
 --
 -- The free ring on generators @a@ is the /noncommutative/ polynomial

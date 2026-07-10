@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | The absent module — why there is no free 'Divisive'.
 --
 -- 'NumHask.Algebra.Multiplicative.Divisive' adds @recip :: a -> a@

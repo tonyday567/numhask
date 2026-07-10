@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | Free monoid — the initial encoding of 'Multiplicative'.
 module NumHask.Free.Multiplicative
   ( Multiplicative (..),

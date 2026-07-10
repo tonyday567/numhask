@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | Free star semiring — the initial encoding of 'StarSemiring'.
 --
 -- The counting profile: 'Plus' does /not/ collapse duplicates.

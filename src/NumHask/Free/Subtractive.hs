@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | Free abelian group — the initial encoding of 'Subtractive'.
 module NumHask.Free.Subtractive
   ( Subtractive (..),

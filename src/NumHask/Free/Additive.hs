@@ -1,4 +1,5 @@
 {-# LANGUAGE NoRebindableSyntax #-}
+
 -- | Free commutative monoid — the initial encoding of 'Additive'.
 module NumHask.Free.Additive
   ( Additive (..),
