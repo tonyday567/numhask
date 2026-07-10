@@ -1,3 +1,12 @@
+0.14.0.0
+===
+
+- Absorbed `NumHask.Free.*` term algebras from `numhask-free`: `Additive`,
+  `Multiplicative`, `Subtractive`, `Ring`, `StarSemiring`, `Polynomial`,
+  `Carriers`, and `Divisive`.
+- Added `containers` dependency (upper bound <0.8).
+- `NumHask.Diff` remains outside numhask; relocated to `numhask-diff`.
+
 0.13.3.0
 ===
 

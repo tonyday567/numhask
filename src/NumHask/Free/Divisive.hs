@@ -1,0 +1,32 @@
+{-# LANGUAGE NoRebindableSyntax #-}
+-- | The absent module — why there is no free 'Divisive'.
+--
+-- 'NumHask.Algebra.Multiplicative.Divisive' adds @recip :: a -> a@
+-- with the law @a / a == one || a == zero@.  The law is
+-- /conditional/: it only applies when @a ≠ zero@.  Conditional laws
+-- are not equations; the theory is not an equational variety, and
+-- initial objects do not exist.
+--
+-- This is the same boundary found diagrammatically: division refused
+-- to be a generator and demanded mirror wires (the relational move)
+-- instead of maps.  The value-level statement and the wiring-level
+-- statement are one fact: division is not algebraic.
+--
+-- == Two escape routes
+--
+-- __1. Localization__ — formal fractions carrying explicit nonzero
+-- witnesses in the type:
+--
+-- > data Fraction a = Fraction { numerator :: a, nonzeroWitness :: NonZero a }
+--
+-- Partiality is made visible.  Arithmetic becomes a proof obligation.
+--
+-- __2. The relational move__ — from linear maps to linear relations.
+-- "Divide by n" is the converse of "multiply by n".  Converse absorbs
+-- partiality natively: the relation simply has nothing at zero.  This
+-- is 'Duplex' in @circuits@, Stage 3, the compact-closed stage where
+-- wires run backwards.
+--
+-- Neither route yields a naive @Recip@ constructor with equations,
+-- because the equations do not exist.  hasknum stops here.
+module NumHask.Free.Divisive where
