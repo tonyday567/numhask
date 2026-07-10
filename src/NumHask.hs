@@ -109,6 +109,7 @@ module NumHask
     odd,
     (^^),
     (^),
+    (^+),
 
     -- * Rational
     Ratio (..),
@@ -217,6 +218,7 @@ import NumHask.Data.Integral
     even,
     odd,
     (^),
+    (^+),
     (^^),
   )
 import NumHask.Data.Rational

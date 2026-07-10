@@ -10,6 +10,7 @@ module NumHask.Data.Integral
     odd,
     (^^),
     (^),
+    (^+),
   )
 where
 
@@ -468,3 +469,32 @@ infixr 8 ^
 (^) ::
   (Divisive a) => a -> Int -> a
 (^) x n = x ^^ n
+
+infixr 8 ^+
+
+-- | raise a number to a non-negative 'Natural' power.
+--
+-- Unlike '(^^)' and '(^)', this does not require 'Divisive' or 'Subtractive'
+-- constraints, so it works for unsigned types such as 'Natural' and 'Word64'.
+--
+-- >>> 2 ^+ 3
+-- 8
+--
+-- >>> 2 ^+ 0
+-- 1
+(^+) ::
+  (Multiplicative a) => a -> Natural -> a
+x0 ^+ y0 =
+  case compare y0 zero of
+    EQ -> one
+    GT -> f x0 y0
+    LT -> P.error "(^+): negative exponent"
+  where
+    f x y
+      | even y = f (x * x) (y `quot` two)
+      | y P.== one = x
+      | P.otherwise = g (x * x) (y `quot` two) x
+    g x y z
+      | even y = g (x * x) (y `quot` two) z
+      | y P.== one = x * z
+      | P.otherwise = g (x * x) (y `quot` two) (x * z)
