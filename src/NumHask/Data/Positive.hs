@@ -89,7 +89,7 @@ newtype Positive a = UnsafePositive {unPositive :: a}
     )
     via (Wrapped a)
 
-instance (MeetSemiLattice a, Integral a) => FromIntegral (Positive a) a where
+instance (JoinSemiLattice a, Integral a) => FromIntegral (Positive a) a where
   fromIntegral a = positive a
 
 instance (FromIntegral a b) => FromIntegral (Positive a) b where
@@ -125,8 +125,8 @@ instance QuotientField (Positive P.Double) where
 --
 -- >>> positive (-1)
 -- UnsafePositive {unPositive = 0}
-positive :: (Additive a, MeetSemiLattice a) => a -> Positive a
-positive a = UnsafePositive (a /\ zero)
+positive :: (Additive a, JoinSemiLattice a) => a -> Positive a
+positive a = UnsafePositive (a \/ zero)
 
 -- | Unsafe constructor.
 --
@@ -140,9 +140,9 @@ positive_ = UnsafePositive
 -- >>> maybePositive (-one)
 -- Nothing
 maybePositive :: (Additive a, MeetSemiLattice a) => a -> Maybe (Positive a)
-maybePositive a = bool Nothing (Just (UnsafePositive a)) (a `meetLeq` zero)
+maybePositive a = bool Nothing (Just (UnsafePositive a)) (zero `meetLeq` a)
 
-instance (Subtractive a, MeetSemiLattice a) => Monus (Positive a) where
+instance (Subtractive a, JoinSemiLattice a) => Monus (Positive a) where
   (UnsafePositive a) ∸ (UnsafePositive b) = positive (a - b)
 
 -- | A field but with truncated subtraction.
@@ -162,8 +162,8 @@ class Monus a where
 
   infixl 6 ∸
   (∸) :: a -> a -> a
-  default (∸) :: (LowerBounded a, MeetSemiLattice a, Subtractive a) => a -> a -> a
-  a ∸ b = bottom /\ (a - b)
+  default (∸) :: (LowerBounded a, Subtractive a) => a -> a -> a
+  a ∸ b = bottom \/ (a - b)
 
 -- | A newtype wrapper intended for defining Monus instances by:
 -- "x ∸ y = if x < y then zero else x - y"

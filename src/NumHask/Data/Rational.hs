@@ -108,10 +108,10 @@ instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) where
   magnitude (n :% d) = abs n :% abs d
 
 instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => JoinSemiLattice (Ratio a) where
-  (\/) = P.min
+  (\/) = P.max
 
 instance (P.Ord a, Integral a, EndoBased a, Subtractive a) => MeetSemiLattice (Ratio a) where
-  (/\) = P.max
+  (/\) = P.min
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Epsilon (Ratio a)
 

@@ -257,7 +257,7 @@ class
 -- >>> nearZero (epsilon :: EuclideanPair Double)
 -- True
 nearZero :: (Epsilon a, Lattice a, Subtractive a) => a -> Bool
-nearZero a = epsilon /\ a == epsilon && epsilon /\ negate a == epsilon
+nearZero a = a /\ epsilon == a && negate a /\ epsilon == negate a
 
 -- | Approximate equality
 --

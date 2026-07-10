@@ -76,45 +76,45 @@ type Lattice a = (JoinSemiLattice a, MeetSemiLattice a)
 
 -- | A join-semilattice with an identity element 'bottom' for '\/'.
 --
--- > x \/ bottom == bottom
+-- > x \/ bottom == x
 class (JoinSemiLattice a) => LowerBounded a where
   bottom :: a
 
 -- | A meet-semilattice with an identity element 'top' for '/\'.
 --
--- > x /\ top == top
+-- > x /\ top == x
 class (MeetSemiLattice a) => UpperBounded a where
   top :: a
 
 -- | Lattices with both bounds
 --
--- > x /\ bottom == x
--- > x \/ top = x
+-- > x /\ bottom == bottom
+-- > x \/ top == top
 type BoundedLattice a = (JoinSemiLattice a, MeetSemiLattice a, LowerBounded a, UpperBounded a)
 
 instance JoinSemiLattice Float where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Float where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Double where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Double where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Int where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Int where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Integer where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Integer where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Bool where
   (\/) = (||)
@@ -123,64 +123,64 @@ instance MeetSemiLattice Bool where
   (/\) = (&&)
 
 instance JoinSemiLattice Natural where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Natural where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Int8 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Int8 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Int16 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Int16 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Int32 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Int32 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Int64 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Int64 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Word where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Word where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Word8 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Word8 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Word16 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Word16 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Word32 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Word32 where
-  (/\) = max
+  (/\) = min
 
 instance JoinSemiLattice Word64 where
-  (\/) = min
+  (\/) = max
 
 instance MeetSemiLattice Word64 where
-  (/\) = max
+  (/\) = min
 
 instance LowerBounded Float where
   bottom = negInfinity
