@@ -49,7 +49,7 @@ numerator (a :% _) = a
 denominator :: Ratio a -> a
 denominator (_ :% a) = a
 
-instance (P.Eq a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
+instance (P.Eq a, P.Ord a, Subtractive a, EndoBased a, Absolute a, Integral a) => P.Eq (Ratio a) where
   a@(xa :% ya) == b@(xb :% yb)
     | isRNaN a P.|| isRNaN b = P.False
     | xa == zero P.&& xb == zero = P.True
@@ -90,7 +90,7 @@ instance
   Divisive (Ratio a)
   where
   recip (x :% y)
-    | signum x P.== negate one = negate y :% negate x
+    | x P.< zero = negate y :% negate x
     | P.otherwise = y :% x
 
 instance (P.Ord a, EndoBased a, Absolute a, ToInt a, Integral a, Ring a) => QuotientField (Ratio a) where
@@ -219,7 +219,7 @@ instance FromRational (Ratio Integer) where
 --
 -- prop> \a b -> reduce a b == a :% b || b == zero
 reduce ::
-  (P.Eq a, Subtractive a, EndoBased a, Integral a) => a -> a -> Ratio a
+  (P.Ord a, Subtractive a, EndoBased a, Integral a) => a -> a -> Ratio a
 reduce x y
   | x P.== zero P.&& y P.== zero = zero :% zero
   | z P.== zero = one :% zero
@@ -227,7 +227,7 @@ reduce x y
   where
     z = gcd x y
     n % d
-      | signum d P.== negate one = negate n :% negate d
+      | d P.< zero = negate n :% negate d
       | P.otherwise = n :% d
 
 -- | @'gcd' x y@ is the non-negative factor of both @x@ and @y@ of which
