@@ -1,0 +1,8 @@
+import: cabal.project
+
+program-options
+  ghc-options: +RTS -A64m -RTS
+
+optimization: false
+jobs: 6
+semaphore: True
