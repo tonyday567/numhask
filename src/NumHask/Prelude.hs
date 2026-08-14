@@ -12,6 +12,7 @@ module NumHask.Prelude
     Quantale,
     Residuated (..),
     StarAutonomous (neg, bot),
+    module NumHask.Algebra.Bimonoid,
     module NumHask.Algebra.Ring,
     module NumHask.Algebra.Metric,
     module NumHask.Data.Complex,
@@ -74,6 +75,7 @@ import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (neg, bot))
+import NumHask.Algebra.Bimonoid
 import NumHask.Algebra.Ring
 import NumHask.Data.Complex
 import NumHask.Data.Integral

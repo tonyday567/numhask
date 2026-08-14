@@ -59,6 +59,7 @@ library
     NumHask
     NumHask.Algebra.Action
     NumHask.Algebra.Additive
+    NumHask.Algebra.Bimonoid
     NumHask.Algebra.Field
     NumHask.Algebra.Group
     NumHask.Algebra.Lattice

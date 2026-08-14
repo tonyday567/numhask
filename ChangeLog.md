@@ -18,6 +18,9 @@
   `MinPlus Double`.
 - Added `StarAutonomous` to `NumHask.Algebra.Quantale` with `neg`, `par`, and
   `bot`, and instances for `Bool`, `Warshall`, and `MinPlus Double`.
+- Added `NumHask.Algebra.Bimonoid` with value-level linear-logic exponentials:
+  `Copyable` (copy / discard) for the `!` fragment and `Mergeable` (merge /
+  mergeZero) for the `?` fragment. Wired into `NumHask` and `NumHask.Prelude`.
 
 0.13.3.0
 ===

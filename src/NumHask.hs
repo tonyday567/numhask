@@ -69,6 +69,10 @@ module NumHask
     Residuated (..),
     StarAutonomous (..),
 
+    -- * Bimonoid
+    Copyable (..),
+    Mergeable (..),
+
     -- * Action
     AdditiveAction (..),
     (+|),
@@ -195,6 +199,7 @@ import NumHask.Algebra.Metric
     (~=),
   )
 import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (..))
+import NumHask.Algebra.Bimonoid (Copyable (..), Mergeable (..))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
