@@ -6,6 +6,8 @@
   `Carriers`, and `Divisive`.
 - Added `containers` dependency (upper bound <0.8).
 - `NumHask.Diff` remains outside numhask; relocated to `numhask-diff`.
+- Added `Viterbi` carrier to `NumHask.Free.Carriers` and documented the
+  classic closed-semiring / algebraic-path-problem references.
 
 0.13.3.0
 ===
