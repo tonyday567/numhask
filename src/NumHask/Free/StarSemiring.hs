@@ -105,7 +105,7 @@ eval (Embed a) = a
 
 -- ---------------------------------------------------------------------------
 -- The free object is an instance of its own class — that is what
--- \"free\" means.  These instances are what let 'Harpie.NumHask.Matrix.starMatrix'
+-- \"free\" means.  These instances are what let 'Circuit.Mat.Dense.starMatrix'
 -- run at carrier @StarSemiring a@: Kleene's state elimination, the
 -- fourth face of the four-for-one.
 
