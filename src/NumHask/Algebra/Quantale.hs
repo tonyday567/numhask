@@ -31,6 +31,15 @@ import Prelude qualified as P
 -- > bottom * a == bottom
 class (CompleteJoinSemiLattice a, Multiplicative a) => Quantale a
 
+-- | If a quantale is also a 'NumHask.Algebra.Ring.StarSemiring', then 'star'
+-- is the least fixed point, equivalently the join of the geometric series:
+--
+-- > star a == joins (iterate (a *) one)
+--
+-- A 'NumHask.Algebra.Ring.KleeneAlgebra' is therefore the fragment of a
+-- (commutative) quantale that only needs these iterative joins, while a
+-- quantale admits arbitrary joins.
+
 -- | Boolean quantale: join is disjunction, multiplication is conjunction.
 instance Quantale Warshall
 
