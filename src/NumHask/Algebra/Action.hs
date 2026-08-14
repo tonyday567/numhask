@@ -21,7 +21,7 @@ import Data.Kind (Type)
 import NumHask.Algebra.Additive (Additive (..), Subtractive (..))
 import NumHask.Algebra.Multiplicative (Divisive (..), Multiplicative (..))
 import NumHask.Algebra.Ring (Distributive)
-import Prelude (Eq, Ord, flip)
+import Prelude (Double, Eq, Float, Ord, flip)
 
 -- | Additive Action
 --
@@ -111,6 +111,26 @@ a /| b = a *| recip b
 -- > a *| zero == zero
 -- > a *| b == b |* a
 type Module m = (Distributive (Scalar m), MultiplicativeAction m)
+
+-- | Scalar self-action for 'Double'.
+--
+-- This used to live as an orphan in @process-stats@ ('Process.Stats.ODE')
+-- because it was missing from the numhask class hierarchy. Moving it here
+-- removes the orphan and makes the action available to any downstream package.
+instance MultiplicativeAction Double where
+  type Scalar Double = Double
+  (|*) = (*)
+
+instance DivisiveAction Double where
+  (|/) = (/)
+
+-- | Scalar self-action for 'Float'.
+instance MultiplicativeAction Float where
+  type Scalar Float = Float
+  (|*) = (*)
+
+instance DivisiveAction Float where
+  (|/) = (/)
 
 -- | An action of a set of numbers on itself
 newtype TrivialAction a = TrivialAction
