@@ -200,7 +200,7 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Algebra.Tropical (MinPlus (..))
+import NumHask.Free.Carriers (MinPlus (..))
 import NumHask.Data.Complex
   ( Complex (..),
     imagPart,

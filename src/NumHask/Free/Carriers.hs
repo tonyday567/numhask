@@ -81,31 +81,49 @@ instance NHR.KleeneAlgebra Warshall
 
 -- | Tropical (min-plus) semiring for Floyd–Warshall shortest paths.
 --
--- 'plus' is 'min', 'times' is '+', 'star' is constantly '0'.
-newtype MinPlus = MinPlus Double
+-- Addition is 'min', multiplication is ordinary addition, the additive unit
+-- is positive infinity, and the multiplicative unit is zero.
+--
+-- >>> MinPlus 3 + MinPlus 2 :: MinPlus Double
+-- MinPlus {getMinPlus = 2.0}
+--
+-- >>> MinPlus 3 * MinPlus 2 :: MinPlus Double
+-- MinPlus {getMinPlus = 5.0}
+newtype MinPlus a = MinPlus
+  { getMinPlus :: a
+  }
   deriving (Eq, Ord, Show)
 
-instance NHM.Multiplicative MinPlus where
-  one = MinPlus 0
+instance NHM.Multiplicative (MinPlus Double) where
   MinPlus a * MinPlus b = MinPlus (a P.+ b)
+  one = MinPlus 0
 
-instance NHA.Additive MinPlus where
+instance NHA.Additive (MinPlus Double) where
   zero = MinPlus (1 P./ 0)
   MinPlus a + MinPlus b = MinPlus (P.min a b)
 
-instance Magma MinPlus where
+instance Magma (MinPlus Double) where
   a ⊕ b = a NHA.+ b
 
-instance Idempotent MinPlus
+instance Idempotent (MinPlus Double)
 
--- | Min-plus star is zero.
+-- | Star is zero in a min-plus semiring: the cheapest repeated traversal is
+-- to stay put.
 --
--- >>> star (MinPlus 2 :: MinPlus)
--- MinPlus 0.0
-instance NHR.StarSemiring MinPlus where
+-- >>> star (MinPlus 2 :: MinPlus Double)
+-- MinPlus {getMinPlus = 0.0}
+--
+-- Conway equations for 'MinPlus Double'.
+--
+-- >>> let a = MinPlus 2 :: MinPlus Double; b = MinPlus 3 :: MinPlus Double in star (a * b) == one + a * star (b * a) * b
+-- True
+--
+-- >>> let a = MinPlus 2 :: MinPlus Double; b = MinPlus 3 :: MinPlus Double in star (a + b) == star (star a * b) * star a
+-- True
+instance NHR.StarSemiring (MinPlus Double) where
   star _ = NHM.one
 
-instance NHR.KleeneAlgebra MinPlus
+instance NHR.KleeneAlgebra (MinPlus Double)
 
 -- | Field semiring for matrix inversion @(I − A)⁻¹@.
 --

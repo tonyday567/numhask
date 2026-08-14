@@ -8,6 +8,8 @@
 - `NumHask.Diff` remains outside numhask; relocated to `numhask-diff`.
 - Added `Viterbi` carrier to `NumHask.Free.Carriers` and documented the
   classic closed-semiring / algebraic-path-problem references.
+- Moved polymorphic `MinPlus` from `NumHask.Algebra.Tropical` to
+  `NumHask.Free.Carriers`; removed `NumHask.Algebra.Tropical`.
 
 0.13.3.0
 ===
