@@ -38,6 +38,7 @@ module NumHask
 
     -- * Tropical
     MinPlus (..),
+    Warshall (..),
 
     -- * Field
     Field,
@@ -61,6 +62,10 @@ module NumHask
     (</),
     LowerBounded (..),
     UpperBounded (..),
+    CompleteJoinSemiLattice (..),
+
+    -- * Quantale
+    Quantale,
 
     -- * Action
     AdditiveAction (..),
@@ -160,7 +165,8 @@ import NumHask.Algebra.Field
     negInfinity,
   )
 import NumHask.Algebra.Lattice
-  ( JoinSemiLattice (..),
+  ( CompleteJoinSemiLattice (..),
+    JoinSemiLattice (..),
     LowerBounded (..),
     MeetSemiLattice (..),
     UpperBounded (..),
@@ -186,6 +192,7 @@ import NumHask.Algebra.Metric
     signum,
     (~=),
   )
+import NumHask.Algebra.Quantale (Quantale)
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
@@ -200,7 +207,7 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Free.Carriers (MinPlus (..))
+import NumHask.Free.Carriers (MinPlus (..), Warshall (..))
 import NumHask.Data.Complex
   ( Complex (..),
     imagPart,

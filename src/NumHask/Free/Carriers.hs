@@ -36,6 +36,7 @@ where
 
 import NumHask.Algebra.Additive qualified as NHA
 import NumHask.Algebra.Group (Idempotent, Magma (..))
+import NumHask.Algebra.Lattice qualified as NHAL
 import NumHask.Algebra.Multiplicative qualified as NHM
 import NumHask.Algebra.Ring qualified as NHR
 import Prelude (Bool, Double, Eq, Fractional, Num, Ord, Show)
@@ -78,6 +79,15 @@ instance NHR.StarSemiring Warshall where
   star _ = Warshall P.True
 
 instance NHR.KleeneAlgebra Warshall
+
+-- | Boolean join-semilattice structure: join is '||', bottom is 'False'.
+instance NHAL.JoinSemiLattice Warshall where
+  Warshall a \/ Warshall b = Warshall (a P.|| b)
+
+instance NHAL.LowerBounded Warshall where
+  bottom = Warshall P.False
+
+instance NHAL.CompleteJoinSemiLattice Warshall
 
 -- | Tropical (min-plus) semiring for Floyd–Warshall shortest paths.
 --
@@ -124,6 +134,16 @@ instance NHR.StarSemiring (MinPlus Double) where
   star _ = NHM.one
 
 instance NHR.KleeneAlgebra (MinPlus Double)
+
+-- | Tropical join-semilattice structure: join is 'min', bottom is positive
+-- infinity.
+instance (P.Ord a) => NHAL.JoinSemiLattice (MinPlus a) where
+  MinPlus a \/ MinPlus b = MinPlus (P.min a b)
+
+instance NHAL.LowerBounded (MinPlus Double) where
+  bottom = MinPlus (1 P./ 0)
+
+instance NHAL.CompleteJoinSemiLattice (MinPlus Double)
 
 -- | Field semiring for matrix inversion @(I − A)⁻¹@.
 --

@@ -10,13 +10,17 @@ module NumHask.Algebra.Lattice
     UpperBounded (..),
     Lattice,
     BoundedLattice,
+    CompleteJoinSemiLattice (..),
   )
 where
 
 import Data.Bool (Bool (..), (&&), (||))
 import Data.Eq (Eq ((==)))
+import Data.Foldable (Foldable (..), foldr)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord (Ord (..))
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Enum (Bounded (..))
 import GHC.Float (Double, Float)
@@ -91,6 +95,14 @@ class (MeetSemiLattice a) => UpperBounded a where
 -- > x /\ bottom == bottom
 -- > x \/ top == top
 type BoundedLattice a = (JoinSemiLattice a, MeetSemiLattice a, LowerBounded a, UpperBounded a)
+
+-- | A join-semilattice that admits arbitrary joins (least upper bounds).
+--
+-- > x \/ joins xs == joins (x : xs)
+-- > joins [] == bottom
+class (LowerBounded a) => CompleteJoinSemiLattice a where
+  joins :: (Foldable f) => f a -> a
+  joins = foldr (\/) bottom
 
 instance JoinSemiLattice Float where
   (\/) = max
@@ -262,3 +274,13 @@ instance LowerBounded Word64 where
 
 instance UpperBounded Word64 where
   top = maxBound
+
+instance CompleteJoinSemiLattice Bool
+
+instance (Ord a) => JoinSemiLattice (Set a) where
+  (\/) = Set.union
+
+instance (Ord a) => LowerBounded (Set a) where
+  bottom = Set.empty
+
+instance (Ord a) => CompleteJoinSemiLattice (Set a)

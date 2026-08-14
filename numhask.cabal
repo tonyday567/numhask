@@ -65,6 +65,7 @@ library
     NumHask.Algebra.Metric
     NumHask.Algebra.Multiplicative
     NumHask.Algebra.Patterns
+    NumHask.Algebra.Quantale
     NumHask.Algebra.Ring
     NumHask.Data.Complex
     NumHask.Data.Integral

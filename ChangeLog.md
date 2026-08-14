@@ -10,6 +10,9 @@
   classic closed-semiring / algebraic-path-problem references.
 - Moved polymorphic `MinPlus` from `NumHask.Algebra.Tropical` to
   `NumHask.Free.Carriers`; removed `NumHask.Algebra.Tropical`.
+- Added `CompleteJoinSemiLattice` to `NumHask.Algebra.Lattice` and a new
+  `NumHask.Algebra.Quantale` module. Added `Quantale` instances for `Bool`,
+  `Warshall`, `MinPlus Double`, and `Set a`.
 
 0.13.3.0
 ===
