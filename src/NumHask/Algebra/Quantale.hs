@@ -4,9 +4,11 @@
 -- | [Quantales](https://en.wikipedia.org/wiki/Quantale)
 module NumHask.Algebra.Quantale
   ( Quantale,
+    Residuated (..),
   )
 where
 
+import Data.Bool (Bool)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import NumHask.Algebra.Lattice (CompleteJoinSemiLattice (..))
@@ -40,12 +42,67 @@ class (CompleteJoinSemiLattice a, Multiplicative a) => Quantale a
 -- (commutative) quantale that only needs these iterative joins, while a
 -- quantale admits arbitrary joins.
 
+-- | A /residuated/ quantale: a quantale equipped with the left and right
+-- residuals of multiplication.
+--
+-- In any quantale, multiplication by a fixed element preserves joins, so it
+-- has both left and right adjoints. These adjoints are the residuals:
+--
+-- > a * lres a b <= b
+-- > lres a b == joins [ x | a * x <= b ]
+--
+-- > rres a b * a <= b
+-- > rres a b == joins [ x | x * a <= b ]
+--
+-- The order @<=@ is the one induced by the join-semilattice:
+-- @x <= y@ iff @x \/ y == y@.
+--
+-- For commutative quantales the two residuals coincide: @lres = rres@.
+class (Quantale a) => Residuated a where
+  {-# MINIMAL lres, rres #-}
+
+  -- | Left residual of multiplication: the greatest @x@ with @a * x <= b@.
+  lres :: a -> a -> a
+
+  -- | Right residual of multiplication: the greatest @x@ with @x * a <= b@.
+  rres :: a -> a -> a
+
+-- | Boolean quantale: join is disjunction, multiplication is conjunction.
+instance Quantale Bool
+
+-- | Boolean implication as the residual of conjunction.
+instance Residuated Bool where
+  lres a b = P.not a P.|| b
+  rres = lres
+
 -- | Boolean quantale: join is disjunction, multiplication is conjunction.
 instance Quantale Warshall
+
+-- | Boolean implication as the residual of conjunction.
+--
+-- >>> lres (Warshall True) (Warshall False)
+-- Warshall False
+--
+-- >>> lres (Warshall False) (Warshall True)
+-- Warshall True
+instance Residuated Warshall where
+  lres (Warshall a) (Warshall b) = Warshall (P.not a P.|| b)
+  rres = lres
 
 -- | Tropical (min-plus) quantale: join is minimum, bottom is positive
 -- infinity, multiplication is addition.
 instance Quantale (MinPlus P.Double)
+
+-- | Tropical residual is truncated subtraction.
+--
+-- >>> getMinPlus (lres (MinPlus 2) (MinPlus 5) :: MinPlus Double)
+-- 3.0
+--
+-- >>> getMinPlus (lres (MinPlus 5) (MinPlus 2) :: MinPlus Double)
+-- -3.0
+instance Residuated (MinPlus P.Double) where
+  lres (MinPlus a) (MinPlus b) = MinPlus (b P.- a)
+  rres = lres
 
 -- | Power-set quantale of a monoid: join is union, bottom is the empty set,
 -- multiplication is pointwise product of subsets, and the unit is the

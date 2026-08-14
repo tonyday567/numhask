@@ -13,6 +13,9 @@
 - Added `CompleteJoinSemiLattice` to `NumHask.Algebra.Lattice` and a new
   `NumHask.Algebra.Quantale` module. Added `Quantale` instances for `Bool`,
   `Warshall`, `MinPlus Double`, and `Set a`.
+- Added `Residuated` to `NumHask.Algebra.Quantale` with `lres` / `rres`
+  residuals of multiplication, and instances for `Bool`, `Warshall`, and
+  `MinPlus Double`.
 
 0.13.3.0
 ===
