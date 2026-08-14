@@ -67,6 +67,7 @@ module NumHask
     -- * Quantale
     Quantale,
     Residuated (..),
+    StarAutonomous (..),
 
     -- * Action
     AdditiveAction (..),
@@ -193,7 +194,7 @@ import NumHask.Algebra.Metric
     signum,
     (~=),
   )
-import NumHask.Algebra.Quantale (Quantale, Residuated (..))
+import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (..))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),

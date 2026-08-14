@@ -5,10 +5,11 @@
 module NumHask.Algebra.Quantale
   ( Quantale,
     Residuated (..),
+    StarAutonomous (..),
   )
 where
 
-import Data.Bool (Bool)
+import Data.Bool (Bool (..))
 import Data.Set (Set)
 import qualified Data.Set as Set
 import NumHask.Algebra.Lattice (CompleteJoinSemiLattice (..))
@@ -67,6 +68,37 @@ class (Quantale a) => Residuated a where
   -- | Right residual of multiplication: the greatest @x@ with @x * a <= b@.
   rres :: a -> a -> a
 
+-- | A /star-autonomous/ quantale: a quantale with an involutive,
+-- order-reversing linear negation.
+--
+-- The negation is an anti-automorphism of the underlying quantale:
+--
+-- > neg (neg a) == a
+-- > joinLeq a b == joinLeq (neg b) (neg a)
+-- > neg (a * b) == neg b * neg a
+--
+-- Multiplicative disjunction ('par') and its unit ('bot') are the duals of
+-- '(*)' and 'one':
+--
+-- > par a b == neg (neg a * neg b)
+-- > bot == neg one
+--
+-- This is the missing connective that turns a quantale into a model of
+-- classical linear logic.
+class (Quantale a) => StarAutonomous a where
+  {-# MINIMAL neg #-}
+
+  -- | Linear negation.
+  neg :: a -> a
+
+  -- | Multiplicative disjunction (par), dual to multiplication.
+  par :: a -> a -> a
+  par a b = neg (neg a * neg b)
+
+  -- | Unit of 'par', dual to 'one'.
+  bot :: a
+  bot = neg one
+
 -- | Boolean quantale: join is disjunction, multiplication is conjunction.
 instance Quantale Bool
 
@@ -74,6 +106,12 @@ instance Quantale Bool
 instance Residuated Bool where
   lres a b = P.not a P.|| b
   rres = lres
+
+-- | Boolean negation is complement; 'par' is disjunction and 'bot' is 'False'.
+instance StarAutonomous Bool where
+  neg = P.not
+  par = (P.||)
+  bot = False
 
 -- | Boolean quantale: join is disjunction, multiplication is conjunction.
 instance Quantale Warshall
@@ -89,6 +127,13 @@ instance Residuated Warshall where
   lres (Warshall a) (Warshall b) = Warshall (P.not a P.|| b)
   rres = lres
 
+-- | Boolean negation as complement; 'par' is disjunction and 'bot' is
+-- 'Warshall False'.
+instance StarAutonomous Warshall where
+  neg (Warshall a) = Warshall (P.not a)
+  par (Warshall a) (Warshall b) = Warshall (a P.|| b)
+  bot = Warshall P.False
+
 -- | Tropical (min-plus) quantale: join is minimum, bottom is positive
 -- infinity, multiplication is addition.
 instance Quantale (MinPlus P.Double)
@@ -103,6 +148,13 @@ instance Quantale (MinPlus P.Double)
 instance Residuated (MinPlus P.Double) where
   lres (MinPlus a) (MinPlus b) = MinPlus (b P.- a)
   rres = lres
+
+-- | Tropical linear negation is additive inverse; 'par' is addition and
+-- 'bot' is the multiplicative unit @0@.
+instance StarAutonomous (MinPlus P.Double) where
+  neg (MinPlus a) = MinPlus (P.negate a)
+  par (MinPlus a) (MinPlus b) = MinPlus (a P.+ b)
+  bot = neg one
 
 -- | Power-set quantale of a monoid: join is union, bottom is the empty set,
 -- multiplication is pointwise product of subsets, and the unit is the

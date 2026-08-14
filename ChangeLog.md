@@ -16,6 +16,8 @@
 - Added `Residuated` to `NumHask.Algebra.Quantale` with `lres` / `rres`
   residuals of multiplication, and instances for `Bool`, `Warshall`, and
   `MinPlus Double`.
+- Added `StarAutonomous` to `NumHask.Algebra.Quantale` with `neg`, `par`, and
+  `bot`, and instances for `Bool`, `Warshall`, and `MinPlus Double`.
 
 0.13.3.0
 ===
