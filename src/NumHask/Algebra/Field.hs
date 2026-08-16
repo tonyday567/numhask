@@ -10,6 +10,7 @@ module NumHask.Algebra.Field
     Quotient (..),
     toQuotient,
     fromQuotient,
+    mulQuotient,
     infinity,
     negInfinity,
     nan,
@@ -201,12 +202,34 @@ class (SemiField a) => QuotientField a where
   truncate x = bool (ceiling x) (floor x) (x P.> zero)
 
 -- | 'properFraction' as the named normalizer into 'Quotient'.
+--
+-- The canonical range is the Prelude toward-zero split: @fraction ∈ (-1, 1)@
+-- with the sign of the input, and @fromQuotient (toQuotient a) == a@.
 toQuotient :: (QuotientField a) => a -> Quotient (Whole a) a
 toQuotient = properFraction
 
 -- | Recombine a 'Quotient'. Law: @fromQuotient (toQuotient a) == a@.
 fromQuotient :: (QuotientField a) => Quotient (Whole a) a -> a
 fromQuotient (Quotient w f) = fromWhole w + f
+
+-- | Bilinear multiplication of quotients: recombine, multiply, re-split.
+--
+-- @(w1 + f1) * (w2 + f2)@ expands to the four terms
+-- @w1*w2 + w1*f2 + f1*w2 + f1*f2@, and 'toQuotient' pushes any overflow back
+-- into 'whole'.  The same bilinear-then-normalize pattern as complex
+-- multiplication.
+--
+-- >>> mulQuotient (toQuotient (0.5 :: Double)) (toQuotient (3.0 :: Double))
+-- Quotient {whole = 1, fraction = 0.5}
+--
+-- >>> mulQuotient (toQuotient (1.5 :: Double)) (toQuotient (2.0 :: Double)) == toQuotient (1.5 * 2.0 :: Double)
+-- True
+mulQuotient ::
+  (QuotientField a) =>
+  Quotient (Whole a) a ->
+  Quotient (Whole a) a ->
+  Quotient (Whole a) a
+mulQuotient q1 q2 = toQuotient (fromQuotient q1 * fromQuotient q2)
 
 instance QuotientField P.Float where
   type Whole P.Float = P.Int
