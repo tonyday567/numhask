@@ -114,7 +114,7 @@ type Module m = (Distributive (Scalar m), MultiplicativeAction m)
 
 -- | Scalar self-action for 'Double'.
 --
--- This used to live as an orphan in @process-stats@ ('Process.Stats.ODE')
+-- This used to live as an orphan in @circuits-stats@ ('Circuit.Stats.ODE')
 -- because it was missing from the numhask class hierarchy. Moving it here
 -- removes the orphan and makes the action available to any downstream package.
 instance MultiplicativeAction Double where
