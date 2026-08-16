@@ -32,7 +32,7 @@ import NumHask.Algebra.Multiplicative
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
 import NumHask.Data.Integral (DivMod (..), FromIntegral (..), Integral, even)
-import Prelude (Eq (..), Show, uncurry, (.))
+import Prelude (Eq (..), Show, (.))
 import Prelude qualified as P
 
 -- $setup
@@ -136,6 +136,19 @@ data Quotient w a = Quotient
 -- 1.5
 class (SemiField a) => QuotientField a where
   type Whole a :: Type
+
+  -- | Split into a whole part and a fractional tail in the canonical range
+  -- @0 <= fraction < one@.
+  --
+  -- The floor decomposition, not Prelude's toward-zero split: the fraction
+  -- is never negative, so @properFraction (-1.5) =
+  -- Quotient {whole = -2, fraction = 0.5}@.  Deliberate departure from
+  -- Prelude — the floor basis keeps the sign in 'whole', a clean
+  -- change-of-basis to compute with, instead of compounding sign into the
+  -- fraction.
+  --
+  -- >>> properFraction (-1.5 :: Double)
+  -- Quotient {whole = -2, fraction = 0.5}
   properFraction :: a -> Quotient (Whole a) a
 
   -- | Embed the whole-number type back into the field.
@@ -157,18 +170,13 @@ class (SemiField a) => QuotientField a where
   -- >>> round (2.5 :: Double)
   -- 2
   round :: a -> Whole a
-  default round :: (Subtractive a, Integral (Whole a), P.Eq (Whole a), P.Ord a, Subtractive (Whole a)) => a -> Whole a
+  default round :: (P.Ord a, P.Eq (Whole a), Integral (Whole a)) => a -> Whole a
   round x = case properFraction x of
-    Quotient n r ->
-      let m = bool (n + one) (n - one) (r P.< zero)
-          half_up = abs' r + half
-          abs' a
-            | a P.< zero = negate a
-            | P.otherwise = a
-       in case P.compare half_up one of
-            P.LT -> n
-            P.EQ -> bool m n (even n)
-            P.GT -> m
+    Quotient n f ->
+      case P.compare f half of
+        P.LT -> n
+        P.EQ -> bool (n + one) n (even n)
+        P.GT -> n + one
 
   -- | supply the next upper whole component
   --
@@ -185,10 +193,7 @@ class (SemiField a) => QuotientField a where
   -- >>> floor (1.001 :: Double)
   -- 1
   floor :: a -> Whole a
-  default floor :: (P.Ord a, Subtractive (Whole a), Distributive (Whole a)) => a -> Whole a
-  floor x = bool n (n - one) (r P.< zero)
-    where
-      Quotient n r = properFraction x
+  floor x = whole (properFraction x)
 
   -- | supply the whole component closest to zero
   --
@@ -233,11 +238,15 @@ mulQuotient q1 q2 = toQuotient (fromQuotient q1 * fromQuotient q2)
 
 instance QuotientField P.Float where
   type Whole P.Float = P.Int
-  properFraction a = uncurry Quotient (P.properFraction a)
+  properFraction a = Quotient n (a - P.fromIntegral n)
+    where
+      n = P.floor a
 
 instance QuotientField P.Double where
   type Whole P.Double = P.Int
-  properFraction a = uncurry Quotient (P.properFraction a)
+  properFraction a = Quotient n (a - P.fromIntegral n)
+    where
+      n = P.floor a
 
 -- | infinity is defined for any 'Field'.
 --

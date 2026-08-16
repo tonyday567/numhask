@@ -24,9 +24,14 @@
 - Named the last bare-tuple compounds: `properFraction` now returns
   `Quotient w a`, `divMod` returns `DivMod a`, `quotRem` returns `QuotRem a`.
   New exports: `Quotient`, `DivMod`, `QuotRem`, `whole`, `fraction`, `div_`,
-  `mod_`, `quot_`, `rem_`, `toQuotient`, `fromQuotient`. Match on the
-  constructors or the selectors; `fst`/`snd` no longer apply. `divModF`
-  returns `DivMod a`.
+  `mod_`, `quot_`, `rem_`, `toQuotient`, `fromQuotient`, `mulQuotient`.
+  Match on the constructors or the selectors; `fst`/`snd` no longer apply.
+  `divModF` returns `DivMod a`.
+- `properFraction` is now floor-canonical, a deliberate departure from
+  Prelude's toward-zero split: the fraction always lies in `[0, 1)`, with the
+  sign carried by `whole`.  `properFraction (-1.5) = Quotient (-2) 0.5`.
+  `fromWhole` recombines; `mulQuotient` is bilinear-then-normalize
+  multiplication (recombine, multiply, re-split).
 
 0.13.3.0
 ===

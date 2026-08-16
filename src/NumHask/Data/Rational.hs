@@ -95,7 +95,7 @@ instance
 
 instance (P.Ord a, EndoBased a, Absolute a, ToInt a, FromIntegral a Int, Integral a, Ring a) => QuotientField (Ratio a) where
   type Whole (Ratio a) = Int
-  properFraction (n :% d) = let QuotRem w r = quotRem n d in Quotient (toIntegral w) (r :% d)
+  properFraction (n :% d) = let DivMod w r = divMod n d in Quotient (toIntegral w) (r :% d)
   fromWhole i = fromIntegral i :% one
 
 instance (P.Ord a, EndoBased a, Integral a, Ring a) => Basis (Ratio a) where
