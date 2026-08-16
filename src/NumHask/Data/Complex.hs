@@ -123,10 +123,10 @@ instance (Subtractive a, QuotientField a) => QuotientField (Complex a) where
   type Whole (Complex a) = Complex (Whole a)
 
   properFraction (Complex (x, y)) =
-    (Complex (xwhole, ywhole), Complex (xfrac, yfrac))
+    Quotient (Complex (xwhole, ywhole)) (Complex (xfrac, yfrac))
     where
-      (xwhole, xfrac) = properFraction x
-      (ywhole, yfrac) = properFraction y
+      Quotient xwhole xfrac = properFraction x
+      Quotient ywhole yfrac = properFraction y
 
   round (Complex (x, y)) = Complex (round x, round y)
   ceiling (Complex (x, y)) = Complex (ceiling x, ceiling y)

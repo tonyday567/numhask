@@ -1,6 +1,8 @@
 -- | Integral classes
 module NumHask.Data.Integral
   ( Integral (..),
+    DivMod (..),
+    QuotRem (..),
     ToIntegral (..),
     ToInt,
     FromIntegral (..),
@@ -21,7 +23,7 @@ import GHC.Natural (Natural (..), naturalFromInteger)
 import NumHask.Algebra.Additive
 import NumHask.Algebra.Multiplicative
 import NumHask.Algebra.Ring
-import Prelude (Double, Float, Int, Integer, fst, snd, (.))
+import Prelude (Double, Eq, Float, Int, Integer, Show, uncurry, (.))
 import Prelude qualified as P
 
 -- $setup
@@ -35,87 +37,92 @@ import Prelude qualified as P
 -- prop> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
 --
 -- >>> 3 `divMod` 2
--- (1,1)
+-- DivMod {div_ = 1, mod_ = 1}
 --
 -- >>> (-3) `divMod` 2
--- (-2,1)
+-- DivMod {div_ = -2, mod_ = 1}
 --
 -- >>> (-3) `quotRem` 2
--- (-1,-1)
+-- QuotRem {quot_ = -1, rem_ = -1}
+--
+-- | The compound result of 'divMod': quotient and remainder as a named pair.
+data DivMod a = DivMod {div_ :: a, mod_ :: a}
+  deriving (Eq, Show)
+
+-- | The compound result of 'quotRem': quotient and remainder as a named pair.
+data QuotRem a = QuotRem {quot_ :: a, rem_ :: a}
+  deriving (Eq, Show)
+
 class
   (Distributive a) =>
   Integral a
   where
   infixl 7 `div`, `mod`
   div :: a -> a -> a
-  div a1 a2 = fst (divMod a1 a2)
+  div a1 a2 = div_ (divMod a1 a2)
   mod :: a -> a -> a
-  mod a1 a2 = snd (divMod a1 a2)
+  mod a1 a2 = mod_ (divMod a1 a2)
 
-  divMod :: a -> a -> (a, a)
+  divMod :: a -> a -> DivMod a
 
   quot :: a -> a -> a
-  quot a1 a2 = fst (quotRem a1 a2)
+  quot a1 a2 = quot_ (quotRem a1 a2)
   rem :: a -> a -> a
-  rem a1 a2 = snd (quotRem a1 a2)
+  rem a1 a2 = rem_ (quotRem a1 a2)
 
-  quotRem :: a -> a -> (a, a)
+  quotRem :: a -> a -> QuotRem a
 
 instance Integral Int where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Integer where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Natural where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Int8 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Int16 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Int32 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Int64 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Word where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Word8 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Word16 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Word32 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance Integral Word64 where
-  divMod = P.divMod
-  quotRem = P.quotRem
+  divMod a b = uncurry DivMod (P.divMod a b)
+  quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance (Integral b) => Integral (a -> b) where
-  div f f' a = f a `div` f' a
-  mod f f' a = f a `mod` f' a
-  divMod f f' = (\a -> fst (f a `divMod` f' a), \a -> snd (f a `divMod` f' a))
-  quot f f' a = f a `mod` f' a
-  rem f f' a = f a `mod` f' a
-  quotRem f f' = (\a -> fst (f a `quotRem` f' a), \a -> snd (f a `quotRem` f' a))
+  divMod f f' = DivMod (\a -> div_ (f a `divMod` f' a)) (\a -> mod_ (f a `divMod` f' a))
+  quotRem f f' = QuotRem (\a -> quot_ (f a `quotRem` f' a)) (\a -> rem_ (f a `quotRem` f' a))
 
 -- |
 -- >>> even 2

@@ -53,7 +53,7 @@ instance
   QuotientField (Wrapped a)
   where
   type Whole (Wrapped a) = Whole a
-  properFraction (Wrapped a) = let (i, r) = properFraction a in (i, Wrapped r)
+  properFraction (Wrapped a) = let Quotient i r = properFraction a in Quotient i (Wrapped r)
 
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral a = Wrapped (fromIntegral a)

@@ -7,6 +7,7 @@ module NumHask.Algebra.Field
     Field,
     ExpField (..),
     QuotientField (..),
+    Quotient (..),
     infinity,
     negInfinity,
     nan,
@@ -28,7 +29,7 @@ import NumHask.Algebra.Multiplicative
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
 import NumHask.Data.Integral (FromIntegral (..), Integral, even)
-import Prelude (Eq (..), (.))
+import Prelude (Eq (..), Show, uncurry, (.))
 import Prelude qualified as P
 
 -- $setup
@@ -116,9 +117,16 @@ instance (ExpField b) => ExpField (a -> b) where
 -- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
 --
 -- > \a -> a - one < floor a <= a <= ceiling a < a + one
+-- | A normalized compound: the whole part (@w@) and the fractional tail.
+data Quotient w a = Quotient
+  { whole :: w,
+    fraction :: a
+  }
+  deriving (Eq, Show)
+
 class (SemiField a) => QuotientField a where
   type Whole a :: Type
-  properFraction :: a -> (Whole a, a)
+  properFraction :: a -> Quotient (Whole a) a
 
   -- | round to the nearest Int
   --
@@ -132,7 +140,7 @@ class (SemiField a) => QuotientField a where
   round :: a -> Whole a
   default round :: (Subtractive a, Integral (Whole a), P.Eq (Whole a), P.Ord a, Subtractive (Whole a)) => a -> Whole a
   round x = case properFraction x of
-    (n, r) ->
+    Quotient n r ->
       let m = bool (n + one) (n - one) (r P.< zero)
           half_up = abs' r + half
           abs' a
@@ -151,7 +159,7 @@ class (SemiField a) => QuotientField a where
   default ceiling :: (P.Ord a, Distributive (Whole a)) => a -> Whole a
   ceiling x = bool n (n + one) (r P.> zero)
     where
-      (n, r) = properFraction x
+      Quotient n r = properFraction x
 
   -- | supply the previous lower whole component
   --
@@ -161,7 +169,7 @@ class (SemiField a) => QuotientField a where
   default floor :: (P.Ord a, Subtractive (Whole a), Distributive (Whole a)) => a -> Whole a
   floor x = bool n (n - one) (r P.< zero)
     where
-      (n, r) = properFraction x
+      Quotient n r = properFraction x
 
   -- | supply the whole component closest to zero
   --
@@ -176,11 +184,11 @@ class (SemiField a) => QuotientField a where
 
 instance QuotientField P.Float where
   type Whole P.Float = P.Int
-  properFraction = P.properFraction
+  properFraction a = uncurry Quotient (P.properFraction a)
 
 instance QuotientField P.Double where
   type Whole P.Double = P.Int
-  properFraction = P.properFraction
+  properFraction a = uncurry Quotient (P.properFraction a)
 
 -- | infinity is defined for any 'Field'.
 --

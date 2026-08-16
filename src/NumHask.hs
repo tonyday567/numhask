@@ -44,6 +44,7 @@ module NumHask
     Field,
     ExpField (..),
     QuotientField (..),
+    Quotient (..),
     TrigField (..),
     infinity,
     negInfinity,
@@ -111,6 +112,8 @@ module NumHask
 
     -- * Integral
     Integral (..),
+    DivMod (..),
+    QuotRem (..),
     ToIntegral (..),
     ToInt,
     FromIntegral (..),
@@ -161,6 +164,7 @@ import NumHask.Algebra.Field
   ( ExpField (..),
     Field,
     QuotientField (..),
+    Quotient (..),
     TrigField (..),
     divF,
     divModF,
@@ -223,10 +227,12 @@ import NumHask.Data.Complex
     (+:),
   )
 import NumHask.Data.Integral
-  ( FromInt,
+  ( DivMod (..),
+    FromInt,
     FromInteger (..),
     FromIntegral (..),
     Integral (..),
+    QuotRem (..),
     ToInt,
     ToIntegral (..),
     even,
