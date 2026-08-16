@@ -23,7 +23,7 @@ where
 
 import Data.Bool (Bool (..), (||))
 import Data.Set (Set)
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import NumHask.Algebra.Additive (Additive (..))
 import Prelude qualified as P
 

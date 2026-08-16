@@ -69,13 +69,13 @@ import GHC.Natural (Natural (..))
 import GHC.OverloadedLabels
 import NumHask.Algebra.Action
 import NumHask.Algebra.Additive
+import NumHask.Algebra.Bimonoid
 import NumHask.Algebra.Field
 import NumHask.Algebra.Group
 import NumHask.Algebra.Lattice
 import NumHask.Algebra.Metric
 import NumHask.Algebra.Multiplicative
-import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (neg, bot))
-import NumHask.Algebra.Bimonoid
+import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (bot, neg))
 import NumHask.Algebra.Ring
 import NumHask.Data.Complex
 import NumHask.Data.Integral

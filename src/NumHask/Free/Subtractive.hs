@@ -16,7 +16,7 @@ module NumHask.Free.Subtractive
 where
 
 import NumHask.Algebra.Additive qualified as NH
-import Prelude (Eq, Show, (==), otherwise)
+import Prelude (Eq, Show, otherwise, (==))
 
 -- | Free abelian group over a carrier type.
 --

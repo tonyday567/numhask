@@ -15,7 +15,7 @@ module NumHask.Free.Multiplicative
 where
 
 import NumHask.Algebra.Multiplicative qualified as NH
-import Prelude (Eq, Show, (==), otherwise)
+import Prelude (Eq, Show, otherwise, (==))
 import Prelude qualified as P
 
 -- | Free monoid over a carrier type.

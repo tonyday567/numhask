@@ -157,7 +157,7 @@ class (SemiField a) => QuotientField a where
   -- 'fromIntegral'; compound fields override it (e.g. @Whole (Complex a) =
   -- Complex (Whole a)@ lifts component-wise).
   fromWhole :: Whole a -> a
-  default fromWhole :: FromIntegral a (Whole a) => Whole a -> a
+  default fromWhole :: (FromIntegral a (Whole a)) => Whole a -> a
   fromWhole = fromIntegral
 
   -- | round to the nearest Int

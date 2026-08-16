@@ -11,7 +11,7 @@ where
 
 import Data.Bool (Bool (..))
 import Data.Set (Set)
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import NumHask.Algebra.Lattice (CompleteJoinSemiLattice (..))
 import NumHask.Algebra.Multiplicative (Multiplicative (..))
 import NumHask.Free.Carriers (MinPlus (..), Warshall (..))

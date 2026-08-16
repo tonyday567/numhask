@@ -20,7 +20,7 @@ import Data.Foldable (Foldable (..), foldr)
 import Data.Int (Int16, Int32, Int64, Int8)
 import Data.Ord (Ord (..))
 import Data.Set (Set)
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import Data.Word (Word16, Word32, Word64, Word8)
 import GHC.Enum (Bounded (..))
 import GHC.Float (Double, Float)

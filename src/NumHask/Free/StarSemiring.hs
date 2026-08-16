@@ -30,7 +30,7 @@ import NumHask.Algebra.Multiplicative qualified as NHM
 import NumHask.Algebra.Ring qualified as NHR
 import NumHask.Free.Additive qualified as HA
 import NumHask.Free.Multiplicative qualified as HM
-import Prelude (Eq, Ord, Show, foldr1, (.), (==), otherwise)
+import Prelude (Eq, Ord, Show, foldr1, otherwise, (.), (==))
 
 -- $setup
 -- >>> import Prelude (String)

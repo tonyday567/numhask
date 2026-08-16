@@ -15,7 +15,7 @@ module NumHask.Free.Additive
 where
 
 import NumHask.Algebra.Additive qualified as NH
-import Prelude (Eq, Show, (==), otherwise)
+import Prelude (Eq, Show, otherwise, (==))
 import Prelude qualified as P
 
 -- | Free commutative monoid over a carrier type.

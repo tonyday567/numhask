@@ -26,7 +26,7 @@ import NumHask.Algebra.Ring qualified as NHR
 import NumHask.Free.Additive qualified as HA
 import NumHask.Free.Multiplicative qualified as HM
 import NumHask.Free.Subtractive qualified as HS
-import Prelude (Eq, Show, (==), otherwise)
+import Prelude (Eq, Show, otherwise, (==))
 
 -- | Free ring over a carrier type.
 --
