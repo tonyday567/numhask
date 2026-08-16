@@ -32,6 +32,14 @@ import Prelude qualified as P
 -- >>> :set -XRebindableSyntax
 -- >>> import NumHask.Prelude
 
+-- | Floor-division pair. Distinct from 'QuotRem' (toward-zero).
+data DivMod a = DivMod {div_ :: a, mod_ :: a}
+  deriving (Eq, Show)
+
+-- | Toward-zero division pair. Distinct from 'DivMod' (floor).
+data QuotRem a = QuotRem {quot_ :: a, rem_ :: a}
+  deriving (Eq, Show)
+
 -- | An Integral is anything that satisfies the law:
 --
 -- prop> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
@@ -44,15 +52,6 @@ import Prelude qualified as P
 --
 -- >>> (-3) `quotRem` 2
 -- QuotRem {quot_ = -1, rem_ = -1}
---
--- | The compound result of 'divMod': quotient and remainder as a named pair.
-data DivMod a = DivMod {div_ :: a, mod_ :: a}
-  deriving (Eq, Show)
-
--- | The compound result of 'quotRem': quotient and remainder as a named pair.
-data QuotRem a = QuotRem {quot_ :: a, rem_ :: a}
-  deriving (Eq, Show)
-
 class
   (Distributive a) =>
   Integral a
@@ -121,8 +120,12 @@ instance Integral Word64 where
   quotRem a b = uncurry QuotRem (P.quotRem a b)
 
 instance (Integral b) => Integral (a -> b) where
-  divMod f f' = DivMod (\a -> div_ (f a `divMod` f' a)) (\a -> mod_ (f a `divMod` f' a))
-  quotRem f f' = QuotRem (\a -> quot_ (f a `quotRem` f' a)) (\a -> rem_ (f a `quotRem` f' a))
+  div f f' a = f a `div` f' a
+  mod f f' a = f a `mod` f' a
+  quot f f' a = f a `quot` f' a
+  rem f f' a = f a `rem` f' a
+  divMod f f' = DivMod (div f f') (mod f f')
+  quotRem f f' = QuotRem (quot f f') (rem f f')
 
 -- |
 -- >>> even 2

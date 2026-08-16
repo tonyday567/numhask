@@ -21,6 +21,12 @@
 - Added `NumHask.Algebra.Bimonoid` with value-level linear-logic exponentials:
   `Copyable` (copy / discard) for the `!` fragment and `Mergeable` (merge /
   mergeZero) for the `?` fragment. Wired into `NumHask` and `NumHask.Prelude`.
+- Named the last bare-tuple compounds: `properFraction` now returns
+  `Quotient w a`, `divMod` returns `DivMod a`, `quotRem` returns `QuotRem a`.
+  New exports: `Quotient`, `DivMod`, `QuotRem`, `whole`, `fraction`, `div_`,
+  `mod_`, `quot_`, `rem_`, `toQuotient`, `fromQuotient`. Match on the
+  constructors or the selectors; `fst`/`snd` no longer apply. `divModF`
+  returns `DivMod a`.
 
 0.13.3.0
 ===

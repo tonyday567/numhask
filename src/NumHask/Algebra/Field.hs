@@ -8,6 +8,8 @@ module NumHask.Algebra.Field
     ExpField (..),
     QuotientField (..),
     Quotient (..),
+    toQuotient,
+    fromQuotient,
     infinity,
     negInfinity,
     nan,
@@ -28,7 +30,7 @@ import NumHask.Algebra.Multiplicative
     (/),
   )
 import NumHask.Algebra.Ring (Distributive, Ring, two)
-import NumHask.Data.Integral (FromIntegral (..), Integral, even)
+import NumHask.Data.Integral (DivMod (..), FromIntegral (..), Integral, even)
 import Prelude (Eq (..), Show, uncurry, (.))
 import Prelude qualified as P
 
@@ -112,18 +114,25 @@ instance (ExpField b) => ExpField (a -> b) where
   exp f = exp . f
   log f = log . f
 
--- | Quotienting of a 'Field' into a 'NumHask.Algebra.Ring'
---
--- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
---
--- > \a -> a - one < floor a <= a <= ceiling a < a + one
--- | A normalized compound: the whole part (@w@) and the fractional tail.
+-- | Whole-and-fraction pair. 'properFraction' is the normalizer (Prelude
+-- toward-zero). The constructor is raw; the range is not enforced.
 data Quotient w a = Quotient
   { whole :: w,
     fraction :: a
   }
   deriving (Eq, Show)
 
+-- | Quotienting of a 'Field' into a 'NumHask.Algebra.Ring'
+--
+-- See [Field of fractions](https://en.wikipedia.org/wiki/Field_of_fractions)
+--
+-- > \a -> a - one < floor a <= a <= ceiling a < a + one
+--
+-- >>> properFraction (1.5 :: Double)
+-- Quotient {whole = 1, fraction = 0.5}
+--
+-- >>> fromQuotient (properFraction (1.5 :: Double))
+-- 1.5
 class (SemiField a) => QuotientField a where
   type Whole a :: Type
   properFraction :: a -> Quotient (Whole a) a
@@ -181,6 +190,17 @@ class (SemiField a) => QuotientField a where
   truncate :: a -> Whole a
   default truncate :: (P.Ord a) => a -> Whole a
   truncate x = bool (ceiling x) (floor x) (x P.> zero)
+
+-- | 'properFraction' as the named normalizer into 'Quotient'.
+toQuotient :: (QuotientField a) => a -> Quotient (Whole a) a
+toQuotient = properFraction
+
+-- | Recombine a 'Quotient'. Law: @fromQuotient (toQuotient a) == a@.
+fromQuotient ::
+  (FromIntegral a (Whole a), Additive a) =>
+  Quotient (Whole a) a ->
+  a
+fromQuotient (Quotient w f) = fromIntegral w + f
 
 instance QuotientField P.Float where
   type Whole P.Float = P.Int
@@ -320,11 +340,11 @@ divF n d
 -- @since 0.13
 --
 -- >>> divModF 1.5 1.2
--- (1.0,0.30000000000000004)
-divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> (a, a)
+-- DivMod {div_ = 1.0, mod_ = 0.30000000000000004}
+divModF :: (Eq a, Field a, FromIntegral a (Whole a), QuotientField a) => a -> a -> DivMod a
 divModF n d
-  | d == infinity = (zero, n)
-  | d == zero = (infinity, nan)
-  | P.True = (div', n - d * div')
+  | d == infinity = DivMod zero n
+  | d == zero = DivMod infinity nan
+  | P.True = DivMod div' (n - d * div')
   where
     div' = fromIntegral (floor (n / d))

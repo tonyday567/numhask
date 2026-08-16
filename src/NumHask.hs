@@ -45,6 +45,8 @@ module NumHask
     ExpField (..),
     QuotientField (..),
     Quotient (..),
+    toQuotient,
+    fromQuotient,
     TrigField (..),
     infinity,
     negInfinity,
@@ -160,19 +162,22 @@ import NumHask.Algebra.Additive
     accsum,
     sum,
   )
+import NumHask.Algebra.Bimonoid (Copyable (..), Mergeable (..))
 import NumHask.Algebra.Field
   ( ExpField (..),
     Field,
-    QuotientField (..),
     Quotient (..),
+    QuotientField (..),
     TrigField (..),
     divF,
     divModF,
+    fromQuotient,
     half,
     infinity,
     modF,
     nan,
     negInfinity,
+    toQuotient,
   )
 import NumHask.Algebra.Lattice
   ( CompleteJoinSemiLattice (..),
@@ -202,14 +207,13 @@ import NumHask.Algebra.Metric
     signum,
     (~=),
   )
-import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (..))
-import NumHask.Algebra.Bimonoid (Copyable (..), Mergeable (..))
 import NumHask.Algebra.Multiplicative
   ( Divisive (..),
     Multiplicative (..),
     accproduct,
     product,
   )
+import NumHask.Algebra.Quantale (Quantale, Residuated (..), StarAutonomous (..))
 import NumHask.Algebra.Ring
   ( Distributive,
     InvolutiveRing (..),
@@ -218,7 +222,6 @@ import NumHask.Algebra.Ring
     StarSemiring (..),
     two,
   )
-import NumHask.Free.Carriers (MinPlus (..), Warshall (..))
 import NumHask.Data.Complex
   ( Complex (..),
     imagPart,
@@ -253,6 +256,7 @@ import NumHask.Data.Rational
     reduce,
   )
 import NumHask.Exception (NumHaskException (..), throw)
+import NumHask.Free.Carriers (MinPlus (..), Warshall (..))
 
 -- $setup
 --
