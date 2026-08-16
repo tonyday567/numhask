@@ -6,6 +6,8 @@ module NumHask.Free.Additive
     zero,
     plus,
     embed,
+    lift,
+    normalize,
     eval,
     foldAdditive,
     flatten,
@@ -13,7 +15,7 @@ module NumHask.Free.Additive
 where
 
 import NumHask.Algebra.Additive qualified as NH
-import Prelude (Eq, Show)
+import Prelude (Eq, Show, (==), otherwise)
 import Prelude qualified as P
 
 -- | Free commutative monoid over a carrier type.
@@ -46,6 +48,26 @@ plus a b = Plus a b
 -- | Embed a carrier value as an atomic generator.
 embed :: a -> Additive a
 embed = Embed
+
+-- | Lift a carrier value, absorbing the additive identity.
+--
+-- >>> lift 0
+-- Zero
+lift :: (Eq a, NH.Additive a) => a -> Additive a
+lift a
+  | a == NH.zero = Zero
+  | otherwise = Embed a
+
+-- | Normalize a term with respect to additive-monoid laws.
+--
+-- >>> normalize (embed 0)
+-- Zero
+normalize :: (Eq a, NH.Additive a) => Additive a -> Additive a
+normalize Zero = Zero
+normalize (Embed a)
+  | a == NH.zero = Zero
+  | otherwise = Embed a
+normalize (Plus a b) = plus (normalize a) (normalize b)
 
 -- $setup
 -- >>> import Prelude (fromInteger)

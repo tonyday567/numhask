@@ -13,6 +13,8 @@ module NumHask.Free.StarSemiring
     star,
     plusS,
     embed,
+    lift,
+    normalize,
     eval,
     foldStarSemiring,
     fromAdditive,
@@ -28,7 +30,7 @@ import NumHask.Algebra.Multiplicative qualified as NHM
 import NumHask.Algebra.Ring qualified as NHR
 import NumHask.Free.Additive qualified as HA
 import NumHask.Free.Multiplicative qualified as HM
-import Prelude (Eq, Ord, Show, foldr1, (.))
+import Prelude (Eq, Ord, Show, foldr1, (.), (==), otherwise)
 
 -- $setup
 -- >>> import Prelude (String)
@@ -91,6 +93,33 @@ plusS a = times a (star a)
 -- | Embed a carrier value as an atomic generator.
 embed :: a -> StarSemiring a
 embed = Embed
+
+-- | Lift a carrier value, absorbing additive and multiplicative identities.
+--
+-- >>> lift False
+-- Zero
+-- >>> lift True
+-- One
+lift :: (Eq a, NHR.StarSemiring a) => a -> StarSemiring a
+lift a
+  | a == NHA.zero = Zero
+  | a == NHM.one = One
+  | otherwise = Embed a
+
+-- | Normalize a term with respect to star-semiring laws.
+--
+-- >>> normalize (embed False)
+-- Zero
+normalize :: (Eq a, NHR.StarSemiring a) => StarSemiring a -> StarSemiring a
+normalize Zero = Zero
+normalize One = One
+normalize (Embed a)
+  | a == NHA.zero = Zero
+  | a == NHM.one = One
+  | otherwise = Embed a
+normalize (Plus a b) = plus (normalize a) (normalize b)
+normalize (Times a b) = times (normalize a) (normalize b)
+normalize (Star a) = star (normalize a)
 
 -- | Evaluate a term into any 'NumHask.Algebra.Ring.StarSemiring'.
 --

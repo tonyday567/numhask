@@ -8,13 +8,15 @@ module NumHask.Free.Subtractive
     negate,
     minus,
     embed,
+    lift,
+    normalize,
     eval,
     foldSubtractive,
   )
 where
 
 import NumHask.Algebra.Additive qualified as NH
-import Prelude (Eq, Show)
+import Prelude (Eq, Show, (==), otherwise)
 
 -- | Free abelian group over a carrier type.
 --
@@ -53,6 +55,41 @@ minus a b = plus a (negate b)
 -- | Embed a carrier value as an atomic generator.
 embed :: a -> Subtractive a
 embed = Embed
+
+-- $setup
+-- >>> import Prelude (fromInteger)
+
+-- | Lift a carrier value, absorbing the additive identity.
+--
+-- >>> lift 0
+-- Zero
+lift :: (Eq a, NH.Subtractive a) => a -> Subtractive a
+lift a
+  | a == NH.zero = Zero
+  | otherwise = Embed a
+
+-- | Normalize a term with respect to abelian-group laws: identity
+-- absorption, antipode involution, and additive-inverse cancellation.
+--
+-- >>> normalize (plus (embed 3) (negate (embed 3)))
+-- Zero
+normalize :: (Eq a, NH.Subtractive a) => Subtractive a -> Subtractive a
+normalize Zero = Zero
+normalize (Embed a)
+  | a == NH.zero = Zero
+  | otherwise = Embed a
+normalize (Negate a) = negate (normalize a)
+normalize (Plus a b) =
+  case (normalize a, normalize b) of
+    (Zero, x) -> x
+    (x, Zero) -> x
+    (x, Negate y)
+      | x == y -> Zero
+      | otherwise -> Plus x (Negate y)
+    (Negate x, y)
+      | x == y -> Zero
+      | otherwise -> Plus (Negate x) y
+    (x, y) -> Plus x y
 
 -- | Evaluate a term into any 'NumHask.Algebra.Additive.Subtractive'.
 --

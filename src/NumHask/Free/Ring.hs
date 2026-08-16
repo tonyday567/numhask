@@ -10,6 +10,8 @@ module NumHask.Free.Ring
     minus,
     times,
     embed,
+    lift,
+    normalize,
     eval,
     foldRing,
     fromAdditive,
@@ -24,7 +26,7 @@ import NumHask.Algebra.Ring qualified as NHR
 import NumHask.Free.Additive qualified as HA
 import NumHask.Free.Multiplicative qualified as HM
 import NumHask.Free.Subtractive qualified as HS
-import Prelude (Eq, Show)
+import Prelude (Eq, Show, (==), otherwise)
 
 -- | Free ring over a carrier type.
 --
@@ -75,6 +77,37 @@ times a b = Times a b
 -- | Embed a carrier value as an atomic generator.
 embed :: a -> Ring a
 embed = Embed
+
+-- $setup
+-- >>> import Prelude (fromInteger)
+
+-- | Lift a carrier value, absorbing additive and multiplicative identities.
+--
+-- >>> lift 0
+-- Zero
+-- >>> lift 1
+-- One
+lift :: (Eq a, NHR.Ring a) => a -> Ring a
+lift a
+  | a == NHA.zero = Zero
+  | a == NHM.one = One
+  | otherwise = Embed a
+
+-- | Normalize a term with respect to ring laws: identity absorption and
+-- antipode involution. Distributivity is left to 'eval'.
+--
+-- >>> normalize (embed 0)
+-- Zero
+normalize :: (Eq a, NHR.Ring a) => Ring a -> Ring a
+normalize Zero = Zero
+normalize One = One
+normalize (Embed a)
+  | a == NHA.zero = Zero
+  | a == NHM.one = One
+  | otherwise = Embed a
+normalize (Plus a b) = plus (normalize a) (normalize b)
+normalize (Negate a) = negate (normalize a)
+normalize (Times a b) = times (normalize a) (normalize b)
 
 -- | Evaluate a term into any 'NumHask.Algebra.Ring.Ring'.
 --

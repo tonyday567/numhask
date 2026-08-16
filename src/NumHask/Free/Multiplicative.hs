@@ -6,6 +6,8 @@ module NumHask.Free.Multiplicative
     one,
     times,
     embed,
+    lift,
+    normalize,
     eval,
     foldMultiplicative,
     flatten,
@@ -13,7 +15,7 @@ module NumHask.Free.Multiplicative
 where
 
 import NumHask.Algebra.Multiplicative qualified as NH
-import Prelude (Eq, Show)
+import Prelude (Eq, Show, (==), otherwise)
 import Prelude qualified as P
 
 -- | Free monoid over a carrier type.
@@ -42,6 +44,29 @@ times a b = Times a b
 -- | Embed a carrier value as an atomic generator.
 embed :: a -> Multiplicative a
 embed = Embed
+
+-- $setup
+-- >>> import Prelude (fromInteger)
+
+-- | Lift a carrier value, absorbing the multiplicative identity.
+--
+-- >>> lift 1
+-- One
+lift :: (Eq a, NH.Multiplicative a) => a -> Multiplicative a
+lift a
+  | a == NH.one = One
+  | otherwise = Embed a
+
+-- | Normalize a term with respect to monoid laws.
+--
+-- >>> normalize (embed 1)
+-- One
+normalize :: (Eq a, NH.Multiplicative a) => Multiplicative a -> Multiplicative a
+normalize One = One
+normalize (Embed a)
+  | a == NH.one = One
+  | otherwise = Embed a
+normalize (Times a b) = times (normalize a) (normalize b)
 
 -- | Evaluate a term into any 'NumHask.Algebra.Multiplicative.Multiplicative'.
 --
