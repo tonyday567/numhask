@@ -395,6 +395,8 @@ instance (QuotientField a) => QuotientField (EuclideanPair a) where
       Quotient xwhole xfrac = properFraction x
       Quotient ywhole yfrac = properFraction y
 
+  fromWhole (EuclideanPair (x, y)) = EuclideanPair (fromWhole x, fromWhole y)
+
   round (EuclideanPair (x, y)) = EuclideanPair (round x, round y)
   ceiling (EuclideanPair (x, y)) = EuclideanPair (ceiling x, ceiling y)
   floor (EuclideanPair (x, y)) = EuclideanPair (floor x, floor y)

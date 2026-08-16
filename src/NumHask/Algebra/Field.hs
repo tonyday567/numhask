@@ -137,6 +137,15 @@ class (SemiField a) => QuotientField a where
   type Whole a :: Type
   properFraction :: a -> Quotient (Whole a) a
 
+  -- | Embed the whole-number type back into the field.
+  --
+  -- The recombination inverse of 'properFraction'.  Scalar fields default to
+  -- 'fromIntegral'; compound fields override it (e.g. @Whole (Complex a) =
+  -- Complex (Whole a)@ lifts component-wise).
+  fromWhole :: Whole a -> a
+  default fromWhole :: FromIntegral a (Whole a) => Whole a -> a
+  fromWhole = fromIntegral
+
   -- | round to the nearest Int
   --
   -- Exact ties are managed by rounding down ties if the whole component is even.
@@ -196,11 +205,8 @@ toQuotient :: (QuotientField a) => a -> Quotient (Whole a) a
 toQuotient = properFraction
 
 -- | Recombine a 'Quotient'. Law: @fromQuotient (toQuotient a) == a@.
-fromQuotient ::
-  (FromIntegral a (Whole a), Additive a) =>
-  Quotient (Whole a) a ->
-  a
-fromQuotient (Quotient w f) = fromIntegral w + f
+fromQuotient :: (QuotientField a) => Quotient (Whole a) a -> a
+fromQuotient (Quotient w f) = fromWhole w + f
 
 instance QuotientField P.Float where
   type Whole P.Float = P.Int

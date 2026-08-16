@@ -118,7 +118,12 @@ instance
 instance (Distributive a, Subtractive a) => InvolutiveRing (Complex a) where
   adj (Complex (r, i)) = r +: negate i
 
--- Can't use DerivingVia due to extra Whole constraints
+-- | A complex field quotients and recombines component-wise.
+--
+-- >>> fromQuotient (properFraction (Complex (1.5, 2.5) :: Complex Double))
+-- Complex {complexPair = (1.5,2.5)}
+--
+-- Can't use DerivingVia due to extra Whole constraints.
 instance (Subtractive a, QuotientField a) => QuotientField (Complex a) where
   type Whole (Complex a) = Complex (Whole a)
 
@@ -127,6 +132,8 @@ instance (Subtractive a, QuotientField a) => QuotientField (Complex a) where
     where
       Quotient xwhole xfrac = properFraction x
       Quotient ywhole yfrac = properFraction y
+
+  fromWhole (Complex (x, y)) = Complex (fromWhole x, fromWhole y)
 
   round (Complex (x, y)) = Complex (round x, round y)
   ceiling (Complex (x, y)) = Complex (ceiling x, ceiling y)

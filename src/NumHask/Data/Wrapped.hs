@@ -54,6 +54,7 @@ instance
   where
   type Whole (Wrapped a) = Whole a
   properFraction (Wrapped a) = let Quotient i r = properFraction a in Quotient i (Wrapped r)
+  fromWhole i = Wrapped (fromWhole i)
 
 instance (FromIntegral a b) => FromIntegral (Wrapped a) b where
   fromIntegral a = Wrapped (fromIntegral a)

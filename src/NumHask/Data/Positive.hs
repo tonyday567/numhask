@@ -110,6 +110,7 @@ instance (Additive a, JoinSemiLattice a) => LowerBounded (Positive a) where
 instance QuotientField (Positive P.Double) where
   type Whole (Positive P.Double) = Positive P.Int
   properFraction (UnsafePositive a) = let (n, r) = P.properFraction a in Quotient (UnsafePositive n) (UnsafePositive r)
+  fromWhole (UnsafePositive n) = UnsafePositive (fromIntegral n)
   ceiling = properFraction >>> whole >>> (+ one)
   floor = properFraction >>> whole
   truncate = floor
