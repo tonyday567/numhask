@@ -25,6 +25,21 @@ jobs:
       - uses: haskell-actions/run-ormolu@v17
         with:
           version: "0.8.1.1"
+  cabal-gild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cabal-gild
+        run: |
+          mkdir -p $HOME/.cabal/bin
+          echo "$HOME/.cabal/bin" >> $GITHUB_PATH
+          curl -sL https://github.com/tfausak/cabal-gild/releases/download/1.8.4.1/cabal-gild-1.8.4.1-linux-x64.tar.gz > cabal-gild.tar.gz
+          tar -xzf cabal-gild.tar.gz
+          chmod a+x cabal-gild
+          mv cabal-gild $HOME/.cabal/bin/cabal-gild
+          rm -f cabal-gild.tar.gz
+      - name: Check cabal files are formatted
+        run: cabal-gild --mode check *.cabal
   build:
     name: GHC ${{ matrix.ghc-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
