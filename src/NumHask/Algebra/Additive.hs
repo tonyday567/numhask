@@ -26,10 +26,10 @@ import Prelude qualified as P
 --
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
--- prop> \a -> zero + a == a
--- prop> \a -> a + zero == a
--- prop> \a b c -> (a + b) + c == a + (b + c)
--- prop> \a b -> a + b == b + a
+-- > zero + a == a
+-- > a + zero == a
+-- > (a + b) + c == a + (b + c)
+-- > a + b == b + a
 --
 -- By convention, (+) is regarded as commutative, but this is not universal, and the introduction of another symbol which means non-commutative addition seems a bit dogmatic.
 --
@@ -38,6 +38,15 @@ import Prelude qualified as P
 --
 -- >>> 1 + 1
 -- 2
+--
+-- >>> 2 + zero == (2 :: Int)
+-- True
+--
+-- >>> (1 + 2) + 3 == 1 + (2 + 3)
+-- True
+--
+-- >>> 2 + 3 == 3 + 2
+-- True
 class Additive a where
   infixl 6 +
   (+) :: a -> a -> a
@@ -76,17 +85,28 @@ accsum = P.snd P.. mapAccumL (\a b -> (a + b, a + b)) zero
 
 -- | or [Subtraction](https://en.wikipedia.org/wiki/Subtraction)
 --
--- prop> \a -> a - a == zero
--- prop> \a -> negate a == zero - a
--- prop> \a -> negate a + a == zero
--- prop> \a -> a + negate a == zero
---
+-- > a - a == zero
+-- > negate a == zero - a
+-- > negate a + a == zero
+-- > a + negate a == zero
 --
 -- >>> negate 1
 -- -1
 --
 -- >>> 1 - 2
 -- -1
+--
+-- >>> 2 - 2 == (zero :: Int)
+-- True
+--
+-- >>> negate 2 == zero - (2 :: Int)
+-- True
+--
+-- >>> negate 2 + 2 == (zero :: Int)
+-- True
+--
+-- >>> 2 + negate 2 == (zero :: Int)
+-- True
 class (Additive a) => Subtractive a where
   {-# MINIMAL (-) | negate #-}
 

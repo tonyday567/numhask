@@ -42,7 +42,7 @@ data QuotRem a = QuotRem {quot_ :: a, rem_ :: a}
 
 -- | An Integral is anything that satisfies the law:
 --
--- prop> \a b -> b == zero || b * (a `div` b) + (a `mod` b) == a
+-- > b == zero || b * (a `div` b) + (a `mod` b) == a
 --
 -- >>> 3 `divMod` 2
 -- DivMod {div_ = 1, mod_ = 1}
@@ -52,6 +52,12 @@ data QuotRem a = QuotRem {quot_ :: a, rem_ :: a}
 --
 -- >>> (-3) `quotRem` 2
 -- QuotRem {quot_ = -1, rem_ = -1}
+--
+-- >>> 2 * (3 `div` 2) + (3 `mod` 2) == (3 :: Int)
+-- True
+--
+-- >>> 2 * ((-3) `div` 2) + ((-3) `mod` 2) == (-3 :: Int)
+-- True
 class
   (Distributive a) =>
   Integral a

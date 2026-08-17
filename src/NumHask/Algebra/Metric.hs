@@ -90,11 +90,16 @@ type EndoBased a = (Basis a, Mag a ~ a, Base a ~ a)
 
 -- | The absolute value of a number.
 --
--- prop> \a -> abs a * signum a ~= a
---
+-- > abs a * signum a ~= a
 --
 -- >>> abs (-1)
 -- 1
+--
+-- >>> abs (-2) * signum (-2) == (-2 :: Int)
+-- True
+--
+-- >>> abs 2 * signum 2 == (2 :: Int)
+-- True
 abs :: (Absolute a) => a -> a
 abs = magnitude
 

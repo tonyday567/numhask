@@ -26,9 +26,9 @@ import Prelude qualified as P
 -- For practical reasons, we begin the class tree with 'NumHask.Algebra.Additive.Additive' and 'Multiplicative'.  Starting with  'NumHask.Algebra.Group.Associative' and 'NumHask.Algebra.Group.Unital', or using 'Data.Semigroup.Semigroup' and 'Data.Monoid.Monoid' from base tends to confuse the interface once you start having to disinguish between (say) monoidal addition and monoidal multiplication.
 --
 --
--- prop> \a -> one * a == a
--- prop> \a -> a * one == a
--- prop> \a b c -> (a * b) * c == a * (b * c)
+-- > one * a == a
+-- > a * one == a
+-- > (a * b) * c == a * (b * c)
 --
 -- By convention, (*) is regarded as not necessarily commutative, but this is not universal, and the introduction of another symbol which means commutative multiplication seems a bit dogmatic.
 --
@@ -37,6 +37,12 @@ import Prelude qualified as P
 --
 -- >>> 2 * 3
 -- 6
+--
+-- >>> 2 * one == (2 :: Int)
+-- True
+--
+-- >>> (2 * 3) * 4 == 2 * (3 * 4)
+-- True
 class Multiplicative a where
   infixl 7 *
   (*) :: a -> a -> a
@@ -75,16 +81,28 @@ accproduct = P.snd P.. mapAccumL (\a b -> (a * b, a * b)) one
 --
 -- Though unusual, the term Divisive usefully fits in with the grammer of other classes and avoids name clashes that occur with some popular libraries.
 --
--- prop> \(a :: Double) -> a / a ~= one || a == zero
--- prop> \(a :: Double) -> recip a ~= one / a || a == zero
--- prop> \(a :: Double) -> recip a * a ~= one || a == zero
--- prop> \(a :: Double) -> a * recip a ~= one || a == zero
+-- > a / a ~= one || a == zero
+-- > recip a ~= one / a || a == zero
+-- > recip a * a ~= one || a == zero
+-- > a * recip a ~= one || a == zero
 --
 -- >>> recip 2.0
 -- 0.5
 --
 -- >>> 1 / 2
 -- 0.5
+--
+-- >>> let a = 4.0 in a / a ~= one
+-- True
+--
+-- >>> let a = 4.0 in recip a ~= one / a
+-- True
+--
+-- >>> let a = 4.0 in recip a * a ~= one
+-- True
+--
+-- >>> let a = 4.0 in a * recip a ~= one
+-- True
 class (Multiplicative a) => Divisive a where
   {-# MINIMAL (/) | recip #-}
 

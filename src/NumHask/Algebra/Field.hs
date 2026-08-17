@@ -75,9 +75,18 @@ type Field a = (Ring a, Divisive a)
 
 -- | A hyperbolic field class
 --
--- prop> \(a::Double) -> a < zero || (sqrt . (**2)) a == a
--- prop> \(a::Double) -> a < zero || (log . exp) a ~= a
--- prop> \(a::Double) (b::Double) -> (b < zero) || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
+-- > a < zero || (sqrt . (**2)) a == a
+-- > a < zero || (log . exp) a ~= a
+-- > b < zero || a <= zero || a == 1 || abs (a ** logBase a b - b) < 10 * epsilon
+--
+-- >>> (sqrt . (**2)) (4.0 :: Double) == 4.0
+-- True
+--
+-- >>> (log . exp) (1.0 :: Double) ~= 1.0
+-- True
+--
+-- >>> 2 ** logBase 2 8 ~= (8 :: Double)
+-- True
 class
   (Field a) =>
   ExpField a

@@ -25,10 +25,22 @@ import Prelude qualified as P
 
 -- | <https://en.wikipedia.org/wiki/Distributive_property Distributive>
 --
--- prop> \a b c -> a * (b + c) == a * b + a * c
--- prop> \a b c -> (a + b) * c == a * c + b * c
--- prop> \a -> zero * a == zero
--- prop> \a -> a * zero == zero
+-- > a * (b + c) == a * b + a * c
+-- > (a + b) * c == a * c + b * c
+-- > zero * a == zero
+-- > a * zero == zero
+--
+-- >>> 2 * (3 + 4) == 2 * 3 + 2 * 4
+-- True
+--
+-- >>> (2 + 3) * 4 == 2 * 4 + 3 * 4
+-- True
+--
+-- >>> zero * 2 == (zero :: Int)
+-- True
+--
+-- >>> 2 * zero == (zero :: Int)
+-- True
 --
 -- The sneaking in of the <https://en.wikipedia.org/wiki/Absorbing_element Absorption> laws here glosses over the possibility that the multiplicative zero element does not have to correspond with the additive unital zero.
 type Distributive a = (Additive a, Multiplicative a)

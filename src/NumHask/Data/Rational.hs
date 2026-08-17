@@ -218,7 +218,13 @@ instance FromRational (Ratio Integer) where
 -- >>> reduce 72 60
 -- 6 :% 5
 --
--- prop> \a b -> reduce a b == a :% b || b == zero
+-- > reduce a b == a :% b || b == zero
+--
+-- >>> reduce 72 60 == 72 :% 60
+-- True
+--
+-- >>> reduce (-4) 6 == (-4) :% 6
+-- True
 reduce ::
   (P.Ord a, Subtractive a, EndoBased a, Integral a) => a -> a -> Ratio a
 reduce x y
