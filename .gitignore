@@ -1,12 +1,8 @@
 *~
-*/.stack-work/
 TAGS
 .DS_Store
-.stack-work
 /dist-newstyle
-/stack.yaml.lock
 .ghc.environment*
 /cabal.project.local
 /.hie/
-/.hkgr/
-/checklist.org
+/cabal.project.local*
