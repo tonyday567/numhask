@@ -64,8 +64,8 @@ instance Copyable a where
 
 -- | Function merging is pointwise.
 instance (Mergeable b) => Mergeable (a -> b) where
-  merge (f, g) = \x -> merge (f x, g x)
-  mergeZero () = \_ -> mergeZero ()
+  merge (f, g) x = merge (f x, g x)
+  mergeZero () _ = mergeZero ()
 
 -- | Unit merges trivially.
 instance Mergeable () where
