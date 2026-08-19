@@ -1,5 +1,6 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# OPTIONS_GHC -Wno-pattern-namespace-specifier #-}
 
 -- | Patterns for common tests
 module NumHask.Algebra.Patterns

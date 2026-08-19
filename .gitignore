@@ -3,7 +3,5 @@ TAGS
 .DS_Store
 /dist-newstyle
 .ghc.environment*
-/cabal.project.local
 /.hie/
-/cabal.project.local*
 /.hkgr/

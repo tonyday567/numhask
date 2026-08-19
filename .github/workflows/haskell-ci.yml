@@ -66,8 +66,8 @@ jobs:
 
       - name: Configure the build
         run: |
-          cabal configure --enable-benchmarks --disable-documentation
-          cabal build --dry-run
+          cabal --project-file=cabal.project.ci configure --enable-benchmarks --disable-documentation
+          cabal --project-file=cabal.project.ci build --dry-run
         # The last step generates dist-newstyle/cache/plan.json for the cache key.
 
       - name: Restore cached dependencies
@@ -83,7 +83,7 @@ jobs:
       - name: Install dependencies
         # If we had an exact cache hit, the dependencies will be up to date.
         if: steps.cache.outputs.cache-hit != 'true'
-        run: cabal build all --only-dependencies
+        run: cabal --project-file=cabal.project.ci build all --only-dependencies
 
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
       - name: Save cached dependencies
@@ -95,7 +95,7 @@ jobs:
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
       - name: Build
-        run: cabal build all
+        run: cabal --project-file=cabal.project.ci build all
 
       - name: Check cabal file
         run: cabal check
