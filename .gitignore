@@ -5,3 +5,7 @@ TAGS
 .ghc.environment*
 /.hie/
 /.hkgr/
+dist-newstyle/
+*.ghc.environment.*
+.stack-work/
+cabal.project.local
