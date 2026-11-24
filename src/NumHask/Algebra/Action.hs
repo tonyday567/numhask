@@ -12,7 +12,7 @@ module NumHask.Algebra.Action
     (*|),
     DivisiveAction (..),
     (/|),
-    Module,
+    Semimodule, Module,
     TrivialAction (..),
   )
 where
@@ -20,7 +20,7 @@ where
 import Data.Kind (Type)
 import NumHask.Algebra.Additive (Additive (..), Subtractive (..))
 import NumHask.Algebra.Multiplicative (Divisive (..), Multiplicative (..))
-import NumHask.Algebra.Ring (Distributive)
+import NumHask.Algebra.Ring (Distributive, Ring)
 import Prelude (Double, Eq, Float, Ord, flip)
 
 -- | Additive Action
@@ -110,7 +110,9 @@ a /| b = a *| recip b
 -- > c |* (a + b) == (c |* a) + (c |* b)
 -- > a *| zero == zero
 -- > a *| b == b |* a
-type Module m = (Distributive (Scalar m), MultiplicativeAction m)
+
+type Semimodule m = (Distributive (Scalar m), Additive m, MultiplicativeAction m)
+type Module m = (Ring (Scalar m), Subtractive m, MultiplicativeAction m)
 
 -- | Scalar self-action for 'Double'.
 --
